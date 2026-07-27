@@ -209,6 +209,34 @@ export const CheckoutModal: React.FC = () => {
               </div>
             </div>
 
+            {/* Order Items Preview with Product Images */}
+            {cart.length > 0 && (
+              <div className="bg-[#0B3D2E] border border-white/10 rounded-xl p-3 space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[#C8A24A] tracking-wider block">
+                  Order Summary ({cart.reduce((sum, item) => sum + item.quantity, 0)} Items)
+                </span>
+                <div className="max-h-36 overflow-y-auto space-y-2 pr-1">
+                  {cart.map((item) => (
+                    <div key={item.product.id} className="flex items-center gap-3 bg-black/20 p-2 rounded-lg border border-white/5">
+                      <img
+                        src={item.product.image}
+                        alt={item.product.name}
+                        loading="lazy"
+                        className="w-10 h-10 object-contain rounded bg-black/40 p-0.5 border border-white/10 shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-xs font-bold text-slate-100 truncate">{item.product.name}</h4>
+                        <p className="text-[10px] text-slate-400">Qty: {item.quantity} × {formatPrice(item.product.priceINR)}</p>
+                      </div>
+                      <span className="text-xs font-bold text-[#C8A24A] shrink-0">
+                        {formatPrice(item.product.priceINR * item.quantity)}
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
             <button
               type="submit"
               className="w-full bg-[#C8A24A] text-[#0B3D2E] py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-white transition-all shadow-xl flex items-center justify-center gap-2 mt-6"
@@ -283,8 +311,20 @@ export const CheckoutModal: React.FC = () => {
             </div>
 
             {/* Order Total Preview */}
-            <div className="bg-black/30 p-4 rounded-xl space-y-2 border border-white/10 text-xs">
-              <div className="flex justify-between text-slate-300">
+            <div className="bg-black/30 p-4 rounded-xl space-y-3 border border-white/10 text-xs">
+              <div className="flex gap-2 overflow-x-auto pb-1">
+                {cart.map((item) => (
+                  <img
+                    key={item.product.id}
+                    src={item.product.image}
+                    alt={item.product.name}
+                    title={`${item.product.name} (x${item.quantity})`}
+                    loading="lazy"
+                    className="w-10 h-10 object-contain rounded bg-black/40 p-0.5 border border-white/10 shrink-0"
+                  />
+                ))}
+              </div>
+              <div className="flex justify-between text-slate-300 border-t border-white/10 pt-2">
                 <span>Total Amount:</span>
                 <span className="font-bold text-[#C8A24A] text-sm">{formatPrice(cartTotalINR)}</span>
               </div>

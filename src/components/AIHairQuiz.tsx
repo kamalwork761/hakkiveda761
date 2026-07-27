@@ -461,7 +461,7 @@ export const AIHairQuiz: React.FC = () => {
                     <img
                       src={prod.image}
                       alt={prod.name}
-                      className="w-16 h-16 sm:w-20 sm:h-20 object-cover rounded-lg border border-white/10 shrink-0"
+                      className="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-lg border border-white/10 shrink-0 bg-black/30 p-1"
                     />
                     <div className="flex-1 min-w-0">
                       <h5 className="font-bold text-xs sm:text-sm text-white truncate group-hover:text-[#C8A24A] transition-colors">

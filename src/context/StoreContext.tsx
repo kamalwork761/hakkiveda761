@@ -133,6 +133,7 @@ interface StoreContextType {
   orders: Order[];
   placeOrder: (orderData: Omit<Order, 'id' | 'orderNumber' | 'date'>) => Order;
   updateOrderStatus: (orderId: string, status: Order['trackingStatus'], trackingNumber?: string, courier?: string) => void;
+  updateOrderDetails: (orderId: string, updates: Partial<Order>) => void;
 
   // User & Customer Account Management
   currentUser: User | null;
@@ -474,8 +475,20 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   // Catalog State
-  const [products, setProducts] = useState<Product[]>(() => getStored('products', INITIAL_PRODUCTS));
-  const [categories, setCategories] = useState<Category[]>(() => getStored('categories', INITIAL_CATEGORIES));
+  const [products, setProducts] = useState<Product[]>(() => {
+    const stored = getStored('products', INITIAL_PRODUCTS);
+    if (!stored || stored.length === 0 || stored[0]?.image?.includes('unsplash')) {
+      return INITIAL_PRODUCTS;
+    }
+    return stored;
+  });
+  const [categories, setCategories] = useState<Category[]>(() => {
+    const stored = getStored('categories', INITIAL_CATEGORIES);
+    if (!stored || stored.length === 0 || stored[0]?.image?.includes('unsplash')) {
+      return INITIAL_CATEGORIES;
+    }
+    return stored;
+  });
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(() => getStored('hero_slides', INITIAL_HERO_SLIDES));
   const [beforeAfterItems, setBeforeAfterItems] = useState<BeforeAfterItem[]>(() => getStored('before_after', INITIAL_BEFORE_AFTER));
   const [reviews, setReviews] = useState<Review[]>(() => getStored('reviews', INITIAL_REVIEWS));
@@ -651,6 +664,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
             }
           : o
       );
+      setStored('orders', next);
+      return next;
+    });
+  };
+
+  const updateOrderDetails = (orderId: string, updates: Partial<Order>) => {
+    setOrders((prev) => {
+      const next = prev.map((o) => (o.id === orderId ? { ...o, ...updates } : o));
       setStored('orders', next);
       return next;
     });
@@ -1269,6 +1290,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         orders,
         placeOrder,
         updateOrderStatus,
+        updateOrderDetails,
         currentUser,
         setCurrentUser,
         customerAccounts,

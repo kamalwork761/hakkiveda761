@@ -28,6 +28,7 @@ import {
   Eye,
   EyeOff,
   Sparkles,
+  ChevronLeft,
   ChevronRight,
   AlertCircle,
   Check,
@@ -122,6 +123,49 @@ export const CustomerPortal: React.FC = () => {
   const [oldPass, setOldPass] = useState('');
   const [newPass, setNewPass] = useState('');
   const [passMsg, setPassMsg] = useState('');
+
+  // Dashboard Navigation scroll & fade indicators state
+  const navContainerRef = React.useRef<HTMLDivElement | null>(null);
+  const [showLeftFade, setShowLeftFade] = useState(false);
+  const [showRightFade, setShowRightFade] = useState(false);
+
+  const updateNavScrollFades = () => {
+    if (!navContainerRef.current) return;
+    const { scrollLeft, scrollWidth, clientWidth } = navContainerRef.current;
+    setShowLeftFade(scrollLeft > 5);
+    setShowRightFade(scrollLeft < scrollWidth - clientWidth - 5);
+  };
+
+  useEffect(() => {
+    updateNavScrollFades();
+    window.addEventListener('resize', updateNavScrollFades);
+    return () => window.removeEventListener('resize', updateNavScrollFades);
+  }, []);
+
+  // Auto-scroll active tab into view when activeTab or portal visibility changes
+  useEffect(() => {
+    if (navContainerRef.current) {
+      const activeEl = navContainerRef.current.querySelector('[data-active="true"]') as HTMLElement;
+      if (activeEl) {
+        activeEl.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest',
+          inline: 'center',
+        });
+      }
+      const timer = setTimeout(updateNavScrollFades, 300);
+      return () => clearTimeout(timer);
+    }
+  }, [activeTab, isAuthModalOpen]);
+
+  const scrollNav = (direction: 'left' | 'right') => {
+    if (!navContainerRef.current) return;
+    const scrollAmount = 220;
+    navContainerRef.current.scrollBy({
+      left: direction === 'left' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth',
+    });
+  };
 
   // Sync profile state when editing
   useEffect(() => {
@@ -773,38 +817,80 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                   </div>
 
                   {/* Dashboard Sidebar / Navigation Tabs Bar */}
-                  <div className="flex items-center gap-1.5 overflow-x-auto pb-2 scrollbar-none border-b border-white/10 text-xs font-bold uppercase tracking-wider">
-                    {[
-                      { id: 'profile', label: 'Profile', icon: UserIcon },
-                      { id: 'orders', label: `Orders (${userOrders.length})`, icon: Package },
-                      { id: 'wishlist', label: `Wishlist (${wishlist.length})`, icon: Heart },
-                      { id: 'addresses', label: `Addresses (${currentUser.addresses?.length || 0})`, icon: MapPin },
-                      { id: 'payments', label: 'Payments', icon: CreditCard },
-                      { id: 'preferences', label: 'Preferences', icon: Sliders },
-                      { id: 'rewards', label: 'Rewards & Referrals', icon: Gift },
-                      { id: 'support', label: 'Support', icon: HelpCircle },
-                      { id: 'settings', label: 'Settings', icon: Settings },
-                    ].map((tab) => {
-                      const IconComponent = tab.icon;
-                      const isActive = activeTab === tab.id;
-                      return (
-                        <button
-                          key={tab.id}
-                          onClick={() => {
-                            playSound('nav_click');
-                            setActiveTab(tab.id as any);
-                          }}
-                          className={`flex items-center gap-2 px-3.5 py-2.5 rounded-xl shrink-0 transition-all ${
-                            isActive
-                              ? 'bg-[#C8A24A] text-[#0B3D2E] shadow-lg font-bold scale-[1.02]'
-                              : 'bg-[#0B3D2E]/80 text-slate-300 hover:bg-[#0B3D2E] hover:text-white border border-white/10'
-                          }`}
-                        >
-                          <IconComponent className="w-4 h-4" />
-                          <span>{tab.label}</span>
-                        </button>
-                      );
-                    })}
+                  <div className="relative w-full border-b border-white/10 pb-2">
+                    {/* Left Fade Indicator & Scroll Arrow */}
+                    <div
+                      className={`absolute left-0 top-0 bottom-2 w-10 sm:w-14 bg-gradient-to-r from-[#06261d] via-[#06261d]/80 to-transparent z-10 flex items-center justify-start pointer-events-none transition-opacity duration-300 ${
+                        showLeftFade ? 'opacity-100' : 'opacity-0'
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => scrollNav('left')}
+                        className="pointer-events-auto w-7 h-7 rounded-full bg-[#0B3D2E] text-[#C8A24A] border border-[#C8A24A]/40 flex items-center justify-center hover:bg-[#C8A24A] hover:text-[#0B3D2E] transition-all shadow-md ml-0.5 active:scale-90"
+                        title="Scroll left"
+                        aria-label="Scroll left"
+                      >
+                        <ChevronLeft className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* Right Fade Indicator & Scroll Arrow */}
+                    <div
+                      className={`absolute right-0 top-0 bottom-2 w-10 sm:w-14 bg-gradient-to-l from-[#06261d] via-[#06261d]/80 to-transparent z-10 flex items-center justify-end pointer-events-none transition-opacity duration-300 ${
+                        showRightFade ? 'opacity-100' : 'opacity-0'
+                      }`}
+                    >
+                      <button
+                        type="button"
+                        onClick={() => scrollNav('right')}
+                        className="pointer-events-auto w-7 h-7 rounded-full bg-[#0B3D2E] text-[#C8A24A] border border-[#C8A24A]/40 flex items-center justify-center hover:bg-[#C8A24A] hover:text-[#0B3D2E] transition-all shadow-md mr-0.5 active:scale-90"
+                        title="Scroll right"
+                        aria-label="Scroll right"
+                      >
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </div>
+
+                    {/* Scrollable Tabs Track */}
+                    <div
+                      ref={navContainerRef}
+                      onScroll={updateNavScrollFades}
+                      className="flex items-center gap-2 overflow-x-auto scrollbar-none snap-x snap-mandatory scroll-smooth py-1 px-1 text-xs font-bold uppercase tracking-wider touch-pan-x [-webkit-overflow-scrolling:touch] [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden"
+                    >
+                      {[
+                        { id: 'profile', label: 'Profile', icon: UserIcon },
+                        { id: 'orders', label: `Orders (${userOrders.length})`, icon: Package },
+                        { id: 'wishlist', label: `Wishlist (${wishlist.length})`, icon: Heart },
+                        { id: 'addresses', label: `Addresses (${currentUser.addresses?.length || 0})`, icon: MapPin },
+                        { id: 'payments', label: 'Payments', icon: CreditCard },
+                        { id: 'preferences', label: 'Preferences', icon: Sliders },
+                        { id: 'rewards', label: 'Rewards & Referrals', icon: Gift },
+                        { id: 'support', label: 'Support', icon: HelpCircle },
+                        { id: 'settings', label: 'Settings', icon: Settings },
+                      ].map((tab) => {
+                        const IconComponent = tab.icon;
+                        const isActive = activeTab === tab.id;
+                        return (
+                          <button
+                            key={tab.id}
+                            data-active={isActive ? 'true' : 'false'}
+                            onClick={() => {
+                              playSound('nav_click');
+                              setActiveTab(tab.id as any);
+                            }}
+                            className={`snap-center flex items-center justify-center gap-2.5 px-4 min-h-[44px] h-11 rounded-xl shrink-0 whitespace-nowrap transition-all duration-200 select-none touch-manipulation ${
+                              isActive
+                                ? 'bg-[#C8A24A] text-[#0B3D2E] shadow-lg font-bold border border-[#C8A24A] scale-[1.02]'
+                                : 'bg-[#0B3D2E]/80 text-slate-300 hover:bg-[#0B3D2E] hover:text-white border border-white/10 active:scale-95'
+                            }`}
+                          >
+                            <IconComponent className="w-4 h-4 shrink-0" />
+                            <span className="whitespace-nowrap">{tab.label}</span>
+                          </button>
+                        );
+                      })}
+                    </div>
                   </div>
 
                   {/* ========================================================= */}
@@ -955,7 +1041,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                                     <img
                                       src={item.product.image}
                                       alt={item.product.name}
-                                      className="w-12 h-12 object-cover rounded-lg shrink-0"
+                                      className="w-12 h-12 object-contain rounded-lg shrink-0 bg-black/30 p-0.5 border border-white/10"
                                     />
                                     <div className="flex-1 min-w-0">
                                       <h5 className="font-bold font-serif-luxury text-xs text-white truncate">
@@ -1035,7 +1121,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                               key={prod.id}
                               className="bg-[#0B3D2E] border border-white/10 rounded-2xl p-4 flex gap-3 items-center justify-between"
                             >
-                              <img src={prod.image} alt={prod.name} className="w-16 h-16 object-cover rounded-xl shrink-0" />
+                              <img src={prod.image} alt={prod.name} className="w-16 h-16 object-contain rounded-xl shrink-0 bg-black/30 p-1 border border-white/10" />
                               <div className="flex-1 min-w-0">
                                 <h5 className="font-bold font-serif-luxury text-xs text-white truncate">{prod.name}</h5>
                                 <span className="text-xs text-[#C8A24A] font-bold block mt-0.5">
@@ -1712,7 +1798,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                       key={prod.id}
                       className="flex gap-4 p-3 bg-[#0B3D2E] border border-white/10 rounded-xl items-center justify-between"
                     >
-                      <img src={prod.image} alt={prod.name} className="w-16 h-16 object-cover rounded-lg" />
+                      <img src={prod.image} alt={prod.name} className="w-16 h-16 object-contain rounded-lg bg-black/30 p-1 border border-white/10" />
                       <div className="flex-1 px-2">
                         <h4 className="text-xs font-bold font-serif-luxury text-slate-100 line-clamp-1">
                           {prod.name}

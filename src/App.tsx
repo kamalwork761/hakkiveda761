@@ -28,17 +28,70 @@ import { AdminDashboard } from './components/AdminDashboard';
 import { AdminLogin } from './pages/AdminLogin';
 
 export function AppContent() {
-  const { adminAuthenticated, logoutAdmin, isCountryModalOpen, setIsCountryModalOpen } = useStore();
-  const [selectedCategory, setSelectedCategory] = useState('ALL');
+  const { adminAuthenticated, logoutAdmin, isCountryModalOpen, setIsCountryModalOpen, playSound } = useStore();
+  const [selectedCategory, setSelectedCategory] = useState<string>(() => {
+    const params = new URLSearchParams(window.location.search);
+    const cat = params.get('category');
+    if (cat) return decodeURIComponent(cat);
+    const hash = window.location.hash;
+    if (hash.startsWith('#category=')) {
+      return decodeURIComponent(hash.replace('#category=', ''));
+    }
+    return 'ALL';
+  });
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
 
   useEffect(() => {
     const handleLocationChange = () => {
       setCurrentPath(window.location.pathname);
+      const params = new URLSearchParams(window.location.search);
+      const cat = params.get('category');
+      if (cat) {
+        setSelectedCategory(decodeURIComponent(cat));
+      } else {
+        const hash = window.location.hash;
+        if (hash.startsWith('#category=')) {
+          setSelectedCategory(decodeURIComponent(hash.replace('#category=', '')));
+        } else if (!window.location.search) {
+          setSelectedCategory('ALL');
+        }
+      }
     };
+
     window.addEventListener('popstate', handleLocationChange);
-    return () => window.removeEventListener('popstate', handleLocationChange);
+    window.addEventListener('hashchange', handleLocationChange);
+    return () => {
+      window.removeEventListener('popstate', handleLocationChange);
+      window.removeEventListener('hashchange', handleLocationChange);
+    };
   }, []);
+
+  const handleSelectCategory = (catName: string, shouldScroll: boolean = true) => {
+    playSound('nav_click');
+    setSelectedCategory(catName);
+
+    // Update URL history without page reload
+    const searchParams = new URLSearchParams(window.location.search);
+    if (catName === 'ALL') {
+      searchParams.delete('category');
+    } else {
+      searchParams.set('category', catName);
+    }
+    const newSearch = searchParams.toString() ? `?${searchParams.toString()}` : window.location.pathname;
+    
+    if (window.location.search !== (searchParams.toString() ? `?${searchParams.toString()}` : '')) {
+      window.history.pushState({ category: catName }, '', newSearch);
+    }
+
+    if (shouldScroll) {
+      setTimeout(() => {
+        const el = document.getElementById('products');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 10);
+    }
+  };
 
   const navigate = (path: string) => {
     window.history.pushState({}, '', path);
@@ -70,7 +123,7 @@ export function AppContent() {
   return (
     <div className="min-h-screen bg-[#0B3D2E] text-slate-100 flex flex-col font-sans selection:bg-[#C8A24A] selection:text-[#0B3D2E]">
       {/* Customer Header */}
-      <Header />
+      <Header selectedCategory={selectedCategory} onSelectCategory={handleSelectCategory} />
 
       <main className="flex-1">
         {/* Hero Slider */}
@@ -79,11 +132,14 @@ export function AppContent() {
         {/* Categories Section */}
         <CategorySection
           selectedCategory={selectedCategory}
-          onSelectCategory={(catName) => setSelectedCategory(catName)}
+          onSelectCategory={(catName) => handleSelectCategory(catName, true)}
         />
 
         {/* Product Grid */}
-        <ProductGrid selectedCategory={selectedCategory} />
+        <ProductGrid
+          selectedCategory={selectedCategory}
+          onSelectCategory={(catName) => handleSelectCategory(catName, false)}
+        />
 
         {/* Before & After Interactive Comparison */}
         <BeforeAfterSlider />

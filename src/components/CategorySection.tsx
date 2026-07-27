@@ -8,7 +8,12 @@ interface CategorySectionProps {
 }
 
 export const CategorySection: React.FC<CategorySectionProps> = ({ selectedCategory, onSelectCategory }) => {
-  const { categories } = useStore();
+  const { categories, playSound } = useStore();
+
+  const handleCategoryClick = (catName: string) => {
+    playSound('nav_click');
+    onSelectCategory(catName);
+  };
 
   return (
     <section className="py-16 bg-[#072a20] border-t border-b border-white/10 relative overflow-hidden">
@@ -23,7 +28,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ selectedCatego
             </h2>
           </div>
           <button
-            onClick={() => onSelectCategory('ALL')}
+            onClick={() => handleCategoryClick('ALL')}
             className={`mt-4 md:mt-0 text-xs font-sans uppercase tracking-widest font-bold border-b pb-1 transition-colors ${
               selectedCategory === 'ALL'
                 ? 'text-[#C8A24A] border-[#C8A24A]'
@@ -40,11 +45,11 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ selectedCatego
             return (
               <div
                 key={cat.id}
-                onClick={() => onSelectCategory(cat.name)}
-                className={`group relative rounded-xl overflow-hidden border transition-all duration-300 cursor-pointer ${
+                onClick={() => handleCategoryClick(cat.name)}
+                className={`group relative rounded-xl overflow-hidden border transition-all duration-300 cursor-pointer active:scale-98 ${
                   isSelected
-                    ? 'border-[#C8A24A] ring-2 ring-[#C8A24A]/50 bg-[#0B3D2E]'
-                    : 'border-white/10 bg-[#0B3D2E]/80 hover:border-[#C8A24A]/60'
+                    ? 'border-[#C8A24A] ring-2 ring-[#C8A24A]/50 bg-[#0B3D2E] shadow-xl'
+                    : 'border-white/10 bg-[#0B3D2E]/80 hover:border-[#C8A24A]/60 hover:bg-[#0B3D2E]'
                 }`}
               >
                 <div className="h-44 overflow-hidden relative">

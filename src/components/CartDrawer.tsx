@@ -101,7 +101,7 @@ export const CartDrawer: React.FC = () => {
                   <img
                     src={item.product.image}
                     alt={item.product.name}
-                    className="w-20 h-20 object-cover rounded-lg shrink-0 border border-white/10"
+                    className="w-20 h-20 object-contain rounded-lg shrink-0 border border-white/10 bg-black/30 p-1"
                   />
                   <div className="flex-1 flex flex-col justify-between">
                     <div className="flex justify-between">

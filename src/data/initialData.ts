@@ -30,7 +30,7 @@ export const INITIAL_CATEGORIES: Category[] = [
     id: 'cat-1',
     name: 'Hair Oils & Elixirs',
     slug: 'hair-oils',
-    image: 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?auto=format&fit=crop&q=80&w=800',
+    image: '/images/hakkiveda_108_oil_gold.jpg',
     description: 'Slow-brewed in copper cauldrons with 42 rare mountain herbs for deep scalp penetration.',
     itemCount: 4,
   },
@@ -38,7 +38,7 @@ export const INITIAL_CATEGORIES: Category[] = [
     id: 'cat-2',
     name: 'Herbal Cleansers',
     slug: 'herbal-cleansers',
-    image: 'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&q=80&w=800',
+    image: '/images/hakkiveda_108_oil_yellow_cap.jpg',
     description: 'Sulfate-free shampoos and natural soapnut clarifying cleansers.',
     itemCount: 3,
   },
@@ -46,7 +46,7 @@ export const INITIAL_CATEGORIES: Category[] = [
     id: 'cat-3',
     name: 'Follicle Serums',
     slug: 'follicle-serums',
-    image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&q=80&w=800',
+    image: '/images/hakkiveda_108_oil_back_label.jpg',
     description: 'Targeted scalp drops to reactivate dormant hair roots and improve shaft density.',
     itemCount: 2,
   },
@@ -54,7 +54,7 @@ export const INITIAL_CATEGORIES: Category[] = [
     id: 'cat-4',
     name: 'Tribal Masks & Lepas',
     slug: 'masks-lepas',
-    image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&q=80&w=800',
+    image: '/images/hakkiveda_baldness_powder.jpg',
     description: 'Traditional forest herbal muds and restorative scalp detox pastes.',
     itemCount: 2,
   },
@@ -62,7 +62,7 @@ export const INITIAL_CATEGORIES: Category[] = [
     id: 'cat-5',
     name: 'Wellness Combos',
     slug: 'wellness-combos',
-    image: 'https://images.unsplash.com/photo-1512290900676-26c2a48f4134?auto=format&fit=crop&q=80&w=800',
+    image: '/images/hakkiveda_oil_couple_herbs.jpg',
     description: 'Complete 90-day hair regrowth and scalp rehabilitation bundles.',
     itemCount: 3,
   },
@@ -71,19 +71,21 @@ export const INITIAL_CATEGORIES: Category[] = [
 export const INITIAL_PRODUCTS: Product[] = [
   {
     id: 'prod-1',
-    name: 'HAKKIVEDA Herbal Hair Oil (Tribal Gold)',
+    name: 'HAKKIVEDA Natural Adivasi 108 Herbal Hair Oil (Tribal Gold)',
     category: 'Hair Oils & Elixirs',
-    subtitle: 'Authentic 42 Mountain Herbs Slow-Brewed Formula',
+    subtitle: 'Authentic 108 Mountain Herbs Slow-Brewed Formula',
     priceINR: 2499,
     originalPriceINR: 2999,
     rating: 4.95,
     reviewsCount: 1420,
-    image: 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?auto=format&fit=crop&q=80&w=800',
+    image: '/images/hakkiveda_108_oil_gold.jpg',
     additionalImages: [
-      'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=800',
-      'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&q=80&w=800',
+      '/images/hakkiveda_oil_couple_herbs.jpg',
+      '/images/hakkiveda_108_oil_back_label.jpg',
+      '/images/hakkiveda_108_oil_yellow_cap.jpg',
+      '/images/hakkiveda_108_herbs_infographic.jpg',
     ],
-    description: 'The crown jewel of Hakki-Pikki tribal wisdom. Handcrafted in small artisanal batches in Mysore using 42 rare wild-harvested herbs, root extracts, and virgin sesame & coconut oils slow-cooked in traditional copper cauldrons over woodfire for 21 solar cycles.',
+    description: 'The crown jewel of Hakki-Pikki tribal wisdom. Handcrafted in small artisanal batches in Mysore using 108 rare wild-harvested herbs, root extracts, and virgin sesame & coconut oils slow-cooked in traditional copper cauldrons over woodfire for 21 solar cycles.',
     benefits: [
       'Reactivates dormant hair follicles within 45-60 days',
       'Stops severe hair fall and root breakage',
@@ -117,9 +119,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     originalPriceINR: 1599,
     rating: 4.88,
     reviewsCount: 840,
-    image: 'https://images.unsplash.com/photo-1535585209827-a15fcdbc4c2d?auto=format&fit=crop&q=80&w=800',
+    image: '/images/hakkiveda_108_oil_yellow_cap.jpg',
     additionalImages: [
-      'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&q=80&w=800'
+      '/images/hakkiveda_108_herbs_infographic.jpg'
     ],
     description: 'A gentle, low-foaming botanical cleanser enriched with Reetha (soapnut), Hibiscus flowers, and Shikakai infusion. Gently lifts oil and environmental impurities without stripping natural scalp lipids.',
     benefits: [
@@ -152,9 +154,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     originalPriceINR: 2199,
     rating: 4.92,
     reviewsCount: 512,
-    image: 'https://images.unsplash.com/photo-1620916566398-39f1143ab7be?auto=format&fit=crop&q=80&w=800',
+    image: '/images/hakkiveda_108_oil_back_label.jpg',
     additionalImages: [
-      'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?auto=format&fit=crop&q=80&w=800'
+      '/images/hakkiveda_108_oil_gold.jpg'
     ],
     description: 'An advanced non-greasy aqueous serum formulated with fermented Indian Gooseberry and Gotu Kola. Designed to be left on the scalp daily to stimulate microcirculation and strengthen the dermal papilla.',
     benefits: [
@@ -180,15 +182,17 @@ export const INITIAL_PRODUCTS: Product[] = [
   },
   {
     id: 'prod-4',
-    name: 'HAKKIVEDA Herbal Baldness Care Powder & Lepa',
+    name: 'HAKKIVEDA Natural Adivasi Baldness Powder & Lepa',
     category: 'Tribal Masks & Lepas',
     subtitle: 'Follicle Reactivating & Bald Spot Scalp Treatment Powder',
     priceINR: 1499,
     originalPriceINR: 1799,
     rating: 4.91,
     reviewsCount: 680,
-    image: 'https://images.unsplash.com/photo-1556228720-195a672e8a03?auto=format&fit=crop&q=80&w=800',
-    additionalImages: [],
+    image: '/images/hakkiveda_baldness_powder.jpg',
+    additionalImages: [
+      '/images/hakkiveda_baldness_powder_ingredients.jpg'
+    ],
     description: 'Specialized Hakki-Pikki tribal herbal powder formula for advanced baldness, receding temple lines, and dormant hair root patches. Mix with water or oil to form a active herbal paste (Lepa).',
     benefits: [
       'Targeted root reactivation on visible bald patches & thinning spots',
@@ -219,9 +223,11 @@ export const INITIAL_PRODUCTS: Product[] = [
     originalPriceINR: 5697,
     rating: 4.98,
     reviewsCount: 2100,
-    image: 'https://images.unsplash.com/photo-1512290900676-26c2a48f4134?auto=format&fit=crop&q=80&w=800',
+    image: '/images/hakkiveda_oil_couple_herbs.jpg',
     additionalImages: [
-      'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?auto=format&fit=crop&q=80&w=800'
+      '/images/hakkiveda_108_oil_gold.jpg',
+      '/images/hakkiveda_baldness_powder.jpg',
+      '/images/hakkiveda_108_herbs_infographic.jpg'
     ],
     description: 'The ultimate 3-step baldness care & hair regrowth system. Includes 1x HAKKIVEDA Herbal Hair Oil (200ml), 1x HAKKIVEDA Herbal Baldness Care Powder (150g), and 1x HAKKIVEDA 42 Herbs Shampoo (250ml). Includes free brass head massager tool!',
     benefits: [
@@ -230,7 +236,7 @@ export const INITIAL_PRODUCTS: Product[] = [
       'Includes complimentary brass Kansa head massager',
       'Free express worldwide shipping'
     ],
-    ingredients: ['Combines all 42 Hakki-Pikki mountain herbs across the 3-step ritual'],
+    ingredients: ['Combines all 108 Hakki-Pikki mountain herbs across the 3-step ritual'],
     volume: 'Bundle (200ml Oil + 150g Baldness Powder + 250ml Shampoo)',
     usageRitual: 'Step 1: Apply Herbal Hair Oil 3x weekly. Step 2: Apply Baldness Care Powder paste 2x weekly. Step 3: Wash thoroughly with 42 Herbs Shampoo.',
     stock: 150,
@@ -248,7 +254,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     originalPriceINR: 1399,
     rating: 4.82,
     reviewsCount: 230,
-    image: 'https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=800',
+    image: '/images/hakkiveda_108_herbs_infographic.jpg',
     additionalImages: [],
     description: 'A light, fragrant hair elixir spray that shields strands from UV damage, prevents split ends, and enhances natural gloss.',
     benefits: [
@@ -504,17 +510,52 @@ export const INITIAL_QUIZ_QUESTIONS: QuizQuestion[] = [
 export const INITIAL_MEDIA_ITEMS: MediaItem[] = [
   {
     id: 'med-1',
-    title: 'Copper Cauldron Brewing',
+    title: 'Hakkiveda 108 Herbal Hair Oil (Gold)',
     type: 'IMAGE',
-    url: 'https://images.unsplash.com/photo-1608248597279-f99d160bfcbc?auto=format&fit=crop&q=80&w=800',
-    uploadedAt: '2026-07-01',
+    url: '/images/hakkiveda_108_oil_gold.jpg',
+    uploadedAt: '2026-07-27',
   },
   {
     id: 'med-2',
-    title: 'Wild Mountain Herbs Harvesting',
+    title: 'Hakkiveda 108 Oil Yellow Cap Bottle',
     type: 'IMAGE',
-    url: 'https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?auto=format&fit=crop&q=80&w=800',
-    uploadedAt: '2026-07-05',
+    url: '/images/hakkiveda_108_oil_yellow_cap.jpg',
+    uploadedAt: '2026-07-27',
+  },
+  {
+    id: 'med-3',
+    title: 'Hakkiveda 108 Oil Back Label',
+    type: 'IMAGE',
+    url: '/images/hakkiveda_108_oil_back_label.jpg',
+    uploadedAt: '2026-07-27',
+  },
+  {
+    id: 'med-4',
+    title: 'Hakkiveda Adivasi Baldness Powder',
+    type: 'IMAGE',
+    url: '/images/hakkiveda_baldness_powder.jpg',
+    uploadedAt: '2026-07-27',
+  },
+  {
+    id: 'med-5',
+    title: 'Hakkiveda Baldness Powder Ingredients',
+    type: 'IMAGE',
+    url: '/images/hakkiveda_baldness_powder_ingredients.jpg',
+    uploadedAt: '2026-07-27',
+  },
+  {
+    id: 'med-6',
+    title: 'Hakkiveda Tribal Couple Photo',
+    type: 'IMAGE',
+    url: '/images/hakkiveda_oil_couple_herbs.jpg',
+    uploadedAt: '2026-07-27',
+  },
+  {
+    id: 'med-7',
+    title: '108 Herbs Infographic',
+    type: 'IMAGE',
+    url: '/images/hakkiveda_108_herbs_infographic.jpg',
+    uploadedAt: '2026-07-27',
   },
 ];
 

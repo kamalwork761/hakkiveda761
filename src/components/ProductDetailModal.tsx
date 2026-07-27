@@ -1,5 +1,5 @@
-import React, { useState } from 'react';
-import { X, Star, ShoppingBag, Heart, Shield, Check, Truck, RotateCcw, Sparkles } from 'lucide-react';
+import React, { useState, useEffect, useRef } from 'react';
+import { X, Star, ShoppingBag, Heart, Shield, Check, Truck, ChevronLeft, ChevronRight, ZoomIn, Sparkles } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
 export const ProductDetailModal: React.FC = () => {
@@ -24,14 +24,71 @@ export const ProductDetailModal: React.FC = () => {
   const [newReviewComment, setNewReviewComment] = useState('');
   const [newReviewName, setNewReviewName] = useState('');
 
+  // Zoom on Hover state
+  const [isZoomed, setIsZoomed] = useState(false);
+  const [zoomPos, setZoomPos] = useState({ x: 50, y: 50 });
+  const imageContainerRef = useRef<HTMLDivElement>(null);
+
+  // Mobile Touch Swipe state
+  const touchStartX = useRef<number>(0);
+  const touchEndX = useRef<number>(0);
+
+  // Reset image index when product changes
+  useEffect(() => {
+    setSelectedImageIndex(0);
+    setIsZoomed(false);
+  }, [quickViewProduct?.id]);
+
   if (!isQuickViewOpen || !quickViewProduct) return null;
 
   const product = quickViewProduct;
-  const productImages = [product.image, ...(product.additionalImages || [])];
+  const productImages = [product.image, ...(product.additionalImages || [])].filter(Boolean);
+  if (productImages.length === 0) {
+    productImages.push('/images/hakkiveda_108_oil_gold.jpg');
+  }
+
   const productReviews = reviews.filter((r) => r.productId === product.id);
 
   const handleAddToCart = () => {
     addToCart(product, quantity);
+  };
+
+  const handleNextImage = () => {
+    setSelectedImageIndex((prev) => (prev + 1) % productImages.length);
+  };
+
+  const handlePrevImage = () => {
+    setSelectedImageIndex((prev) => (prev - 1 + productImages.length) % productImages.length);
+  };
+
+  // Hover zoom handler
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    if (!imageContainerRef.current) return;
+    const { left, top, width, height } = imageContainerRef.current.getBoundingClientRect();
+    const x = Math.max(0, Math.min(100, ((e.clientX - left) / width) * 100));
+    const y = Math.max(0, Math.min(100, ((e.clientY - top) / height) * 100));
+    setZoomPos({ x, y });
+  };
+
+  // Touch Swipe handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    touchEndX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = () => {
+    if (!touchStartX.current || !touchEndX.current) return;
+    const distance = touchStartX.current - touchEndX.current;
+    if (distance > 40) {
+      handleNextImage(); // Swiped left -> Next image
+    } else if (distance < -40) {
+      handlePrevImage(); // Swiped right -> Previous image
+    }
+    touchStartX.current = 0;
+    touchEndX.current = 0;
   };
 
   const handleReviewSubmit = (e: React.FormEvent) => {
@@ -58,37 +115,96 @@ export const ProductDetailModal: React.FC = () => {
         {/* Close Button */}
         <button
           onClick={closeQuickView}
-          className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/40 text-white hover:bg-[#C8A24A] hover:text-[#0B3D2E] transition-all flex items-center justify-center"
+          className="absolute top-4 right-4 z-30 w-10 h-10 rounded-full bg-black/50 text-white hover:bg-[#C8A24A] hover:text-[#0B3D2E] transition-all flex items-center justify-center border border-white/20"
         >
           <X className="w-5 h-5" />
         </button>
 
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
-          {/* Left: Image Gallery */}
-          <div className="lg:col-span-6 p-6 bg-black/20 flex flex-col justify-between">
-            <div className="h-80 sm:h-96 rounded-xl overflow-hidden relative border border-white/10">
+          {/* Left: Interactive Multi-Image Gallery */}
+          <div className="lg:col-span-6 p-6 bg-black/20 flex flex-col justify-between space-y-4">
+            {/* Main Stage Image with Desktop Hover Zoom & Mobile Touch Swipe */}
+            <div
+              ref={imageContainerRef}
+              onMouseEnter={() => setIsZoomed(true)}
+              onMouseLeave={() => setIsZoomed(false)}
+              onMouseMove={handleMouseMove}
+              onTouchStart={handleTouchStart}
+              onTouchMove={handleTouchMove}
+              onTouchEnd={handleTouchEnd}
+              className="h-80 sm:h-96 rounded-xl overflow-hidden relative border border-white/10 bg-black/40 flex items-center justify-center p-4 cursor-crosshair group select-none"
+            >
               <img
                 src={productImages[selectedImageIndex]}
-                alt={product.name}
-                className="w-full h-full object-cover"
+                alt={`${product.name} - Image ${selectedImageIndex + 1}`}
+                loading="lazy"
+                style={{
+                  transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
+                  transform: isZoomed ? 'scale(2.2)' : 'scale(1)',
+                }}
+                className="w-full h-full object-contain transition-transform duration-200 ease-out"
               />
-              <span className="absolute top-4 left-4 bg-[#0B3D2E]/90 text-[#C8A24A] text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-full border border-[#C8A24A]/30">
+
+              {/* SKU & Category Tag */}
+              <span className="absolute top-4 left-4 bg-[#0B3D2E]/90 text-[#C8A24A] text-[10px] uppercase font-bold tracking-widest px-3 py-1 rounded-full border border-[#C8A24A]/30 z-10 shadow-md">
                 SKU: {product.sku}
               </span>
+
+              {/* Image Counter Badge */}
+              <span className="absolute top-4 right-4 bg-black/60 text-slate-200 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border border-white/20 z-10">
+                {selectedImageIndex + 1} / {productImages.length}
+              </span>
+
+              {/* Desktop Hover Zoom Hint */}
+              <div className="absolute bottom-3 left-3 bg-black/60 text-[#C8A24A] text-[10px] font-bold px-2.5 py-1 rounded-full border border-[#C8A24A]/30 opacity-80 group-hover:opacity-0 transition-opacity flex items-center gap-1 z-10">
+                <ZoomIn className="w-3 h-3" />
+                <span>Hover to zoom • Swipe on mobile</span>
+              </div>
+
+              {/* Prev / Next Navigation Arrows */}
+              {productImages.length > 1 && (
+                <>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handlePrevImage();
+                    }}
+                    className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/60 text-white hover:bg-[#C8A24A] hover:text-[#0B3D2E] transition-all flex items-center justify-center border border-white/20 shadow-xl opacity-80 hover:opacity-100"
+                    title="Previous Image"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      handleNextImage();
+                    }}
+                    className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-9 h-9 rounded-full bg-black/60 text-white hover:bg-[#C8A24A] hover:text-[#0B3D2E] transition-all flex items-center justify-center border border-white/20 shadow-xl opacity-80 hover:opacity-100"
+                    title="Next Image"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </>
+              )}
             </div>
 
-            {/* Gallery Thumbnails */}
+            {/* Clickable Gallery Thumbnails Bar */}
             {productImages.length > 1 && (
-              <div className="flex gap-3 mt-4 overflow-x-auto pb-2">
+              <div className="flex gap-2.5 overflow-x-auto pb-2 scrollbar-none">
                 {productImages.map((img, idx) => (
                   <button
                     key={idx}
                     onClick={() => setSelectedImageIndex(idx)}
-                    className={`w-16 h-16 rounded-lg overflow-hidden border-2 transition-all ${
-                      selectedImageIndex === idx ? 'border-[#C8A24A] scale-105' : 'border-transparent opacity-60'
+                    className={`w-16 h-16 rounded-xl overflow-hidden border-2 transition-all shrink-0 bg-black/40 p-1 flex items-center justify-center relative cursor-pointer ${
+                      selectedImageIndex === idx
+                        ? 'border-[#C8A24A] ring-2 ring-[#C8A24A]/30 scale-105'
+                        : 'border-white/10 opacity-60 hover:opacity-100'
                     }`}
                   >
-                    <img src={img} alt="thumb" className="w-full h-full object-cover" />
+                    <img src={img} alt={`Thumbnail ${idx + 1}`} loading="lazy" className="w-full h-full object-contain" />
+                    {selectedImageIndex === idx && (
+                      <span className="absolute bottom-0 inset-x-0 h-1 bg-[#C8A24A]"></span>
+                    )}
                   </button>
                 ))}
               </div>

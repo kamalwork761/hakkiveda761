@@ -5,7 +5,12 @@ import { HakkivedaWordmark } from './HakkivedaWordmark';
 import { MobileBottomNav } from './MobileBottomNav';
 import { SoundToggle } from './SoundToggle';
 
-export const Header: React.FC = () => {
+interface HeaderProps {
+  selectedCategory?: string;
+  onSelectCategory?: (catName: string) => void;
+}
+
+export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCategory }) => {
   const {
     siteSettings,
     selectedCountry,
@@ -19,11 +24,13 @@ export const Header: React.FC = () => {
     setIsQuizOpen,
     currentUser,
     products,
+    categories,
     openQuickView,
     playSound,
   } = useStore();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
@@ -121,13 +128,67 @@ export const Header: React.FC = () => {
 
         {/* Desktop Navigation Links */}
         <nav className="hidden lg:flex items-center gap-7 font-sans text-[11px] uppercase tracking-[0.2em] font-medium text-slate-200">
-          <a
-            href="#products"
-            onClick={() => playSound('nav_click')}
-            className="hover:text-[#C8A24A] transition-colors py-1 border-b border-transparent hover:border-[#C8A24A]"
+          <div
+            className="relative"
+            onMouseEnter={() => setIsCategoryMenuOpen(true)}
+            onMouseLeave={() => setIsCategoryMenuOpen(false)}
           >
-            Collections
-          </a>
+            <button
+              onClick={() => {
+                playSound('nav_click');
+                if (onSelectCategory) onSelectCategory('ALL');
+                setIsCategoryMenuOpen(!isCategoryMenuOpen);
+              }}
+              className="hover:text-[#C8A24A] transition-colors py-2 border-b border-transparent hover:border-[#C8A24A] flex items-center gap-1.5"
+            >
+              <span>Collections</span>
+              <ChevronDown className={`w-3 h-3 text-[#C8A24A] transition-transform duration-200 ${isCategoryMenuOpen ? 'rotate-180' : ''}`} />
+            </button>
+
+            {/* Collections Category Dropdown */}
+            {isCategoryMenuOpen && (
+              <div className="absolute left-0 top-full pt-1 w-64 z-50 animate-in fade-in slide-in-from-top-1 duration-200">
+                <div className="bg-[#072a20] border border-[#C8A24A]/40 rounded-xl shadow-2xl p-2 font-sans normal-case">
+                  <div className="text-[10px] uppercase font-bold text-[#C8A24A] px-3 py-1.5 tracking-widest border-b border-white/10 flex items-center justify-between">
+                    <span>Herbal Categories</span>
+                    <span className="text-[9px] opacity-70">Instant Filter</span>
+                  </div>
+                  
+                  <button
+                    onClick={() => {
+                      if (onSelectCategory) onSelectCategory('ALL');
+                      setIsCategoryMenuOpen(false);
+                    }}
+                    className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center justify-between ${
+                      selectedCategory === 'ALL' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-[#0B3D2E] hover:text-[#C8A24A]'
+                    }`}
+                  >
+                    <span>All Formulations</span>
+                    <span className="text-[10px] opacity-80">View All</span>
+                  </button>
+
+                  {categories.map((cat) => (
+                    <button
+                      key={cat.id}
+                      onClick={() => {
+                        if (onSelectCategory) onSelectCategory(cat.name);
+                        setIsCategoryMenuOpen(false);
+                      }}
+                      className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-colors flex items-center justify-between ${
+                        selectedCategory === cat.name ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-[#0B3D2E] hover:text-[#C8A24A]'
+                      }`}
+                    >
+                      <span>{cat.name}</span>
+                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-black/30 border border-white/10 font-bold text-[#C8A24A]">
+                        {cat.itemCount}
+                      </span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+
           <a
             href="#brand-story"
             onClick={() => playSound('nav_click')}
@@ -205,7 +266,7 @@ export const Header: React.FC = () => {
                     }}
                     className="flex items-center gap-3 p-2 hover:bg-[#0B3D2E] rounded-lg cursor-pointer transition-colors"
                   >
-                    <img src={prod.image} alt={prod.name} className="w-10 h-10 object-cover rounded" />
+                    <img src={prod.image} alt={prod.name} className="w-10 h-10 object-contain rounded bg-black/30 p-0.5 border border-white/10" />
                     <div>
                       <h4 className="text-xs font-bold text-slate-100 line-clamp-1">{prod.name}</h4>
                       <p className="text-[10px] text-[#C8A24A]">{prod.subtitle}</p>
@@ -303,7 +364,7 @@ export const Header: React.FC = () => {
                     }}
                     className="flex items-center gap-2 p-1.5 hover:bg-[#072a20] rounded cursor-pointer"
                   >
-                    <img src={prod.image} alt={prod.name} className="w-8 h-8 object-cover rounded" />
+                    <img src={prod.image} alt={prod.name} className="w-8 h-8 object-contain rounded bg-black/30 p-0.5 border border-white/10" />
                     <div>
                       <div className="font-bold text-white text-[11px] normal-case">{prod.name}</div>
                       <div className="text-[9px] text-[#C8A24A] normal-case">{prod.subtitle}</div>
@@ -314,13 +375,44 @@ export const Header: React.FC = () => {
             )}
           </div>
 
-          <a
-            href="#products"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="block py-2 text-slate-200 hover:text-[#C8A24A] border-b border-white/10 font-bold"
-          >
-            Collections
-          </a>
+          {/* Collections & Categories Section */}
+          <div className="border-b border-white/10 pb-2">
+            <div className="flex items-center justify-between py-1 text-[#C8A24A] font-bold text-[10px] tracking-widest uppercase">
+              <span>Botanical Categories</span>
+            </div>
+            <div className="grid grid-cols-2 gap-1.5 mt-1.5">
+              <button
+                onClick={() => {
+                  if (onSelectCategory) onSelectCategory('ALL');
+                  setIsMobileMenuOpen(false);
+                }}
+                className={`text-left p-2 rounded-lg text-[11px] font-semibold transition-all ${
+                  selectedCategory === 'ALL'
+                    ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold'
+                    : 'bg-[#0B3D2E] text-slate-200 hover:text-[#C8A24A]'
+                }`}
+              >
+                All Formulations
+              </button>
+              {categories.map((cat) => (
+                <button
+                  key={cat.id}
+                  onClick={() => {
+                    if (onSelectCategory) onSelectCategory(cat.name);
+                    setIsMobileMenuOpen(false);
+                  }}
+                  className={`text-left p-2 rounded-lg text-[11px] font-semibold transition-all line-clamp-1 ${
+                    selectedCategory === cat.name
+                      ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold'
+                      : 'bg-[#0B3D2E] text-slate-200 hover:text-[#C8A24A]'
+                  }`}
+                >
+                  {cat.name}
+                </button>
+              ))}
+            </div>
+          </div>
+
           <a
             href="#brand-story"
             onClick={() => setIsMobileMenuOpen(false)}

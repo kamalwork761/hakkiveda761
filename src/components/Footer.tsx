@@ -1,11 +1,12 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send, ShieldCheck, Heart, Sparkles, Globe } from 'lucide-react';
+import { Mail, Phone, MapPin, Send, ShieldCheck, Heart, Sparkles, Globe, ArrowRight } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { HakkivedaWordmark } from './HakkivedaWordmark';
 import { SoundToggle } from './SoundToggle';
+import { PaymentIcons } from './PaymentIcons';
 
 export const Footer: React.FC = () => {
-  const { currencies, currentCurrency, setCurrencyByCode, setIsB2BModalOpen, setIsQuizOpen, playSound } = useStore();
+  const { setIsB2BModalOpen, setIsQuizOpen, playSound } = useStore();
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
 
@@ -23,7 +24,7 @@ export const Footer: React.FC = () => {
   return (
     <footer className="bg-[#041a13] text-slate-100 font-sans border-t border-[#C8A24A]/30 pt-16 pb-12 relative">
       <div className="max-w-7xl mx-auto px-6 sm:px-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-16 border-b border-white/10">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-white/10">
           {/* Brand Info */}
           <div className="lg:col-span-4 space-y-4">
             <div className="flex items-center gap-2">
@@ -71,32 +72,53 @@ export const Footer: React.FC = () => {
             </ul>
           </div>
 
-          {/* Global Shipping Countries */}
+          {/* Worldwide Shipping Section */}
           <div className="lg:col-span-3 space-y-3">
-            <h4 className="text-xs font-bold font-serif-luxury text-[#C8A24A] uppercase tracking-[0.2em] flex items-center gap-1">
-              <Globe className="w-3.5 h-3.5" />
-              <span>Worldwide Shipping</span>
+            <h4 className="text-xs font-bold font-serif-luxury text-[#C8A24A] uppercase tracking-[0.2em] flex items-center gap-1.5">
+              <span>🌍 WORLDWIDE SHIPPING</span>
             </h4>
-            <div className="flex flex-wrap gap-1.5 text-xs">
-              {currencies.map((curr) => (
-                <button
-                  key={curr.code}
-                  onClick={() => setCurrencyByCode(curr.code)}
-                  className={`px-2.5 py-1 rounded text-[11px] border transition-all ${
-                    currentCurrency.code === curr.code
-                      ? 'border-[#C8A24A] bg-[#C8A24A] text-[#0B3D2E] font-bold'
-                      : 'border-white/10 text-slate-300 hover:border-[#C8A24A]'
-                  }`}
-                >
-                  {curr.flag} {curr.country} ({curr.code})
-                </button>
-              ))}
-            </div>
 
-            <div className="pt-2">
+            <ul className="space-y-1.5 text-xs text-slate-300 font-sans">
+              <li className="flex items-center gap-2">
+                <span className="text-[#C8A24A] font-bold">✓</span>
+                <span>Ships Worldwide</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-[#C8A24A] font-bold">✓</span>
+                <span>Express International Delivery</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-[#C8A24A] font-bold">✓</span>
+                <span>Secure Packaging</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-[#C8A24A] font-bold">✓</span>
+                <span>Real-Time Order Tracking</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-[#C8A24A] font-bold">✓</span>
+                <span>Customs Assistance</span>
+              </li>
+              <li className="flex items-center gap-2">
+                <span className="text-[#C8A24A] font-bold">✓</span>
+                <span>Delivery in 3–12 Business Days*</span>
+              </li>
+            </ul>
+
+            <div className="pt-2 flex flex-col gap-1.5">
+              <button
+                onClick={() => {
+                  alert('Shipping Policy:\n• Orders dispatched within 24-48 business hours.\n• Tracked shipping via DHL/FedEx/SpeedPost.\n• Free Express Shipping on orders over ₹1,999 (India) or $99 (Global).');
+                }}
+                className="text-xs font-bold text-[#C8A24A] hover:text-white transition-colors inline-flex items-center gap-1 group text-left"
+              >
+                <span>View Shipping Policy</span>
+                <span className="group-hover:translate-x-1 transition-transform">→</span>
+              </button>
+
               <button
                 onClick={() => setIsB2BModalOpen(true)}
-                className="text-xs text-[#C8A24A] font-bold underline hover:text-white"
+                className="text-[11px] text-slate-300 hover:text-[#C8A24A] underline font-medium text-left"
               >
                 Wholesale & Export Enquiries →
               </button>
@@ -138,6 +160,9 @@ export const Footer: React.FC = () => {
             )}
           </div>
         </div>
+
+        {/* Secure Payments Section */}
+        <PaymentIcons />
 
         {/* Footer Bottom bar */}
         <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">

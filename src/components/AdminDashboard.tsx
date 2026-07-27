@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { AdminProductImageManager } from './AdminProductImageManager';
 import {
   Lock,
   LayoutDashboard,
@@ -41,8 +42,10 @@ import {
   Volume2,
   VolumeX,
   Trees,
+  Upload,
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { OrderDetailsModal } from './OrderDetailsModal';
 import {
   Product,
   Category,
@@ -56,6 +59,7 @@ import {
   NavLink,
   CountrySetting,
   User,
+  Order,
 } from '../types/store';
 
 interface AdminDashboardProps {
@@ -169,6 +173,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
     | 'settings'
   >('overview');
 
+  // Selected Order for Details Modal
+  const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
+
   // Success toast
   const [toastMsg, setToastMsg] = useState('');
   const showToast = (msg: string) => {
@@ -176,8 +183,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
     setTimeout(() => setToastMsg(''), 3000);
   };
 
+  // Image File Upload Helper (Preserves 100% original pixels, no AI alteration)
+  const handleImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>, callback: (url: string) => void) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      if (event.target?.result) {
+        callback(event.target.result as string);
+        showToast('Original product image uploaded (100% pixels preserved)');
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   // Forms states
   const [isAddingProduct, setIsAddingProduct] = useState(false);
+  const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [prodForm, setProdForm] = useState<Partial<Product>>({
     name: '',
     category: categories[0]?.name || 'Hair Oils & Elixirs',
@@ -605,42 +627,98 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
 
             {/* Top Stat Cards */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
-              <div className="bg-[#0B3D2E] border border-[#C8A24A]/30 p-5 rounded-2xl">
-                <div className="text-[10px] uppercase tracking-widest text-[#C8A24A] font-bold mb-1">
-                  Total Orders
+              <div
+                onClick={() => setActiveTab('orders')}
+                className="bg-[#0B3D2E] border border-[#C8A24A]/30 p-5 rounded-2xl cursor-pointer hover:border-[#C8A24A] hover:bg-[#0e4837] hover:scale-[1.02] hover:shadow-2xl hover:shadow-[#C8A24A]/10 transition-all duration-200 group flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-[10px] uppercase tracking-widest text-[#C8A24A] font-bold">
+                      Total Orders
+                    </div>
+                    <ShoppingBag className="w-4 h-4 text-[#C8A24A] opacity-70 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="text-3xl font-bold font-mono text-white mt-1">{orders.length}</div>
                 </div>
-                <div className="text-3xl font-bold font-mono text-white">{orders.length}</div>
-                <p className="text-[10px] text-slate-400 mt-2">Start with clean database state</p>
+                <div className="text-[10px] text-[#C8A24A] group-hover:underline font-bold mt-3 flex items-center justify-between">
+                  <span>View All Orders</span>
+                  <span>→</span>
+                </div>
               </div>
 
-              <div className="bg-[#0B3D2E] border border-[#C8A24A]/30 p-5 rounded-2xl">
-                <div className="text-[10px] uppercase tracking-widest text-[#C8A24A] font-bold mb-1">
-                  Active Products
+              <div
+                onClick={() => setActiveTab('products')}
+                className="bg-[#0B3D2E] border border-[#C8A24A]/30 p-5 rounded-2xl cursor-pointer hover:border-[#C8A24A] hover:bg-[#0e4837] hover:scale-[1.02] hover:shadow-2xl hover:shadow-[#C8A24A]/10 transition-all duration-200 group flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-[10px] uppercase tracking-widest text-[#C8A24A] font-bold">
+                      Active Products
+                    </div>
+                    <Package className="w-4 h-4 text-[#C8A24A] opacity-70 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="text-3xl font-bold font-mono text-white mt-1">{products.length}</div>
                 </div>
-                <div className="text-3xl font-bold font-mono text-white">{products.length}</div>
-                <p className="text-[10px] text-slate-400 mt-2">Across {categories.length} categories</p>
+                <div className="text-[10px] text-[#C8A24A] group-hover:underline font-bold mt-3 flex items-center justify-between">
+                  <span>Across {categories.length} categories</span>
+                  <span>→</span>
+                </div>
               </div>
 
-              <div className="bg-[#0B3D2E] border border-[#C8A24A]/30 p-5 rounded-2xl">
-                <div className="text-[10px] uppercase tracking-widest text-[#C8A24A] font-bold mb-1">
-                  B2B Wholesale Enquiries
+              <div
+                onClick={() => setActiveTab('b2b')}
+                className="bg-[#0B3D2E] border border-[#C8A24A]/30 p-5 rounded-2xl cursor-pointer hover:border-[#C8A24A] hover:bg-[#0e4837] hover:scale-[1.02] hover:shadow-2xl hover:shadow-[#C8A24A]/10 transition-all duration-200 group flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-[10px] uppercase tracking-widest text-[#C8A24A] font-bold">
+                      B2B Wholesale Enquiries
+                    </div>
+                    <Building2 className="w-4 h-4 text-[#C8A24A] opacity-70 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="text-3xl font-bold font-mono text-white mt-1">{b2bLeads.length}</div>
                 </div>
-                <div className="text-3xl font-bold font-mono text-white">{b2bLeads.length}</div>
-                <p className="text-[10px] text-slate-400 mt-2">Global export requests</p>
+                <div className="text-[10px] text-[#C8A24A] group-hover:underline font-bold mt-3 flex items-center justify-between">
+                  <span>View Global Enquiries</span>
+                  <span>→</span>
+                </div>
               </div>
 
-              <div className="bg-[#0B3D2E] border border-[#C8A24A]/30 p-5 rounded-2xl">
-                <div className="text-[10px] uppercase tracking-widest text-[#C8A24A] font-bold mb-1">
-                  Registered Customers
+              <div
+                onClick={() => setActiveTab('customers')}
+                className="bg-[#0B3D2E] border border-[#C8A24A]/30 p-5 rounded-2xl cursor-pointer hover:border-[#C8A24A] hover:bg-[#0e4837] hover:scale-[1.02] hover:shadow-2xl hover:shadow-[#C8A24A]/10 transition-all duration-200 group flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-[10px] uppercase tracking-widest text-[#C8A24A] font-bold">
+                      Registered Customers
+                    </div>
+                    <Users className="w-4 h-4 text-[#C8A24A] opacity-70 group-hover:opacity-100 transition-opacity" />
+                  </div>
+                  <div className="text-3xl font-bold font-mono text-white mt-1">{customerAccounts.length}</div>
                 </div>
-                <div className="text-3xl font-bold font-mono text-white">{customerAccounts.length}</div>
-                <p className="text-[10px] text-slate-400 mt-2">Customer accounts database</p>
+                <div className="text-[10px] text-[#C8A24A] group-hover:underline font-bold mt-3 flex items-center justify-between">
+                  <span>Customer Accounts</span>
+                  <span>→</span>
+                </div>
               </div>
             </div>
 
             {/* Recent Orders Overview */}
             <div className="bg-[#0B3D2E] border border-white/10 p-6 rounded-2xl space-y-4">
-              <h3 className="text-base font-bold font-serif-luxury text-slate-100">Recent Customer Orders</h3>
+              <div className="flex items-center justify-between">
+                <div>
+                  <h3 className="text-base font-bold font-serif-luxury text-slate-100">Recent Customer Orders</h3>
+                  <p className="text-[11px] text-slate-400">Click any row to open complete Order Details & Logistics Management</p>
+                </div>
+                <button
+                  onClick={() => setActiveTab('orders')}
+                  className="text-xs font-bold text-[#C8A24A] hover:underline"
+                >
+                  View All Orders →
+                </button>
+              </div>
+
               {orders.length === 0 ? (
                 <div className="p-8 text-center text-slate-400 text-xs border border-dashed border-white/10 rounded-xl">
                   No customer orders received yet. Start with empty database state.
@@ -651,18 +729,48 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                     <thead className="text-[10px] uppercase tracking-wider text-[#C8A24A] border-b border-white/10">
                       <tr>
                         <th className="py-2.5 px-3">Order ID</th>
+                        <th className="py-2.5 px-3">Date</th>
                         <th className="py-2.5 px-3">Customer</th>
                         <th className="py-2.5 px-3">Amount</th>
                         <th className="py-2.5 px-3">Status</th>
+                        <th className="py-2.5 px-3 text-right">Action</th>
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-white/5">
                       {orders.map((o) => (
-                        <tr key={o.id}>
-                          <td className="py-2.5 px-3 font-mono text-[#C8A24A]">{o.orderNumber}</td>
-                          <td className="py-2.5 px-3">{o.customer.name}</td>
-                          <td className="py-2.5 px-3 font-mono">{formatPrice(o.totalAmountINR)}</td>
-                          <td className="py-2.5 px-3">{o.trackingStatus}</td>
+                        <tr
+                          key={o.id}
+                          onClick={() => setSelectedOrder(o)}
+                          className="cursor-pointer hover:bg-white/10 transition-colors group"
+                        >
+                          <td className="py-3 px-3 font-mono font-bold text-[#C8A24A] group-hover:underline">{o.orderNumber}</td>
+                          <td className="py-3 px-3 text-slate-300 font-mono text-[11px]">{o.date}</td>
+                          <td className="py-3 px-3">
+                            <span className="font-bold text-white block">{o.customer.name}</span>
+                            <span className="text-[10px] text-slate-400 block">{o.customer.email}</span>
+                          </td>
+                          <td className="py-3 px-3 font-mono font-bold text-white">{formatPrice(o.totalAmountINR)}</td>
+                          <td className="py-3 px-3">
+                            <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                              o.trackingStatus === 'DELIVERED' ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/30' :
+                              o.trackingStatus === 'CANCELLED' ? 'bg-rose-950 text-rose-300 border border-rose-500/30' :
+                              'bg-amber-950 text-amber-300 border border-amber-500/30'
+                            }`}>
+                              {o.trackingStatus}
+                            </span>
+                          </td>
+                          <td className="py-3 px-3 text-right">
+                            <button
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                setSelectedOrder(o);
+                              }}
+                              className="px-2.5 py-1 bg-[#C8A24A] text-[#0B3D2E] font-bold text-[10px] rounded-lg hover:bg-white transition-colors inline-flex items-center gap-1 shadow-sm"
+                            >
+                              <Eye className="w-3 h-3" />
+                              <span>View Details</span>
+                            </button>
+                          </td>
                         </tr>
                       ))}
                     </tbody>
@@ -747,20 +855,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                       className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
                     />
                   </div>
-                  <div>
-                    <label className="block text-slate-300 font-bold mb-1">Image URL *</label>
-                    <input
-                      type="text"
-                      required
-                      value={prodForm.image}
-                      onChange={(e) => setProdForm({ ...prodForm, image: e.target.value })}
-                      className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                  <div className="sm:col-span-2 pt-2">
+                    <AdminProductImageManager
+                      images={[prodForm.image, ...(prodForm.additionalImages || [])].filter(Boolean)}
+                      onChange={(newImages) => {
+                        setProdForm((prev) => ({
+                          ...prev,
+                          image: newImages[0] || '',
+                          additionalImages: newImages.slice(1),
+                        }));
+                      }}
+                      onShowToast={showToast}
                     />
                   </div>
                 </div>
                 <button
                   type="submit"
-                  className="bg-[#C8A24A] text-[#0B3D2E] px-6 py-2.5 rounded-xl font-bold text-xs uppercase"
+                  className="bg-[#C8A24A] text-[#0B3D2E] px-6 py-2.5 rounded-xl font-bold text-xs uppercase hover:bg-white"
                 >
                   Save Formulation
                 </button>
@@ -769,28 +880,142 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
 
             {/* Product Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-              {products.map((p) => (
-                <div key={p.id} className="bg-[#0B3D2E] border border-white/10 rounded-2xl p-4 flex gap-4 relative">
-                  <img src={p.image} alt={p.name} className="w-20 h-20 object-cover rounded-xl shrink-0" />
-                  <div className="flex-1 space-y-1">
-                    <h4 className="text-sm font-bold text-slate-100 line-clamp-1">{p.name}</h4>
-                    <p className="text-[10px] text-[#C8A24A] uppercase font-semibold">{p.category}</p>
-                    <p className="text-xs font-mono font-bold">{formatPrice(p.priceINR)}</p>
-                    <div className="text-[10px] text-slate-400">SKU: {p.sku} • Stock: {p.stock}</div>
+              {products.map((p) => {
+                const gallery = [p.image, ...(p.additionalImages || [])].filter(Boolean);
+                return (
+                  <div key={p.id} className="bg-[#0B3D2E] border border-white/10 rounded-2xl p-4 flex gap-4 relative">
+                    <div className="relative shrink-0">
+                      <img src={p.image} alt={p.name} loading="lazy" className="w-20 h-20 object-contain rounded-xl bg-black/30 border border-white/10" />
+                      {gallery.length > 1 && (
+                        <span className="absolute -bottom-1 -right-1 bg-[#C8A24A] text-[#0B3D2E] text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow border border-[#0B3D2E]">
+                          {gallery.length} Photos
+                        </span>
+                      )}
+                    </div>
+                    <div className="flex-1 space-y-1">
+                      <h4 className="text-sm font-bold text-slate-100 line-clamp-1">{p.name}</h4>
+                      <p className="text-[10px] text-[#C8A24A] uppercase font-semibold">{p.category}</p>
+                      <p className="text-xs font-mono font-bold">{formatPrice(p.priceINR)}</p>
+                      <div className="text-[10px] text-slate-400">SKU: {p.sku} • Stock: {p.stock}</div>
+                      <div className="flex items-center gap-3 pt-1">
+                        <button
+                          onClick={() => setEditingProduct(p)}
+                          className="text-[#C8A24A] hover:text-white text-[10px] font-bold flex items-center gap-1"
+                        >
+                          <Edit2 className="w-3 h-3" />
+                          <span>Edit Product / Gallery</span>
+                        </button>
+                        <button
+                          onClick={() => {
+                            deleteProduct(p.id);
+                            showToast('Product deleted');
+                          }}
+                          className="text-rose-400 hover:text-rose-300 text-[10px] font-bold flex items-center gap-1"
+                        >
+                          <Trash2 className="w-3 h-3" />
+                          <span>Delete</span>
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+
+            {/* Edit Product Modal */}
+            {editingProduct && (
+              <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+                <div className="bg-[#0B3D2E] border border-[#C8A24A] rounded-2xl p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto space-y-4 text-xs">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                    <h3 className="text-base font-bold text-[#C8A24A] uppercase">Edit Product & Gallery Images</h3>
                     <button
-                      onClick={() => {
-                        deleteProduct(p.id);
-                        showToast('Product deleted');
-                      }}
-                      className="text-rose-400 hover:text-rose-300 text-[10px] font-bold flex items-center gap-1 pt-1"
+                      onClick={() => setEditingProduct(null)}
+                      className="text-slate-400 hover:text-white"
                     >
-                      <Trash2 className="w-3 h-3" />
-                      <span>Delete</span>
+                      <X className="w-5 h-5" />
                     </button>
                   </div>
+
+                  <form
+                    onSubmit={(e) => {
+                      e.preventDefault();
+                      updateProduct(editingProduct.id, editingProduct);
+                      setEditingProduct(null);
+                      showToast('Product updated successfully');
+                    }}
+                    className="space-y-4"
+                  >
+                    <div>
+                      <label className="block text-slate-300 font-bold mb-1">Product Title</label>
+                      <input
+                        type="text"
+                        required
+                        value={editingProduct.name}
+                        onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
+                        className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-slate-300 font-bold mb-1">Price (INR)</label>
+                        <input
+                          type="number"
+                          required
+                          value={editingProduct.priceINR}
+                          onChange={(e) => setEditingProduct({ ...editingProduct, priceINR: Number(e.target.value) })}
+                          className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-300 font-bold mb-1">Stock</label>
+                        <input
+                          type="number"
+                          required
+                          value={editingProduct.stock}
+                          onChange={(e) => setEditingProduct({ ...editingProduct, stock: Number(e.target.value) })}
+                          className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="pt-2">
+                      <AdminProductImageManager
+                        images={[editingProduct.image, ...(editingProduct.additionalImages || [])].filter(Boolean)}
+                        onChange={(newImages) => {
+                          setEditingProduct((prev) =>
+                            prev
+                              ? {
+                                  ...prev,
+                                  image: newImages[0] || '',
+                                  additionalImages: newImages.slice(1),
+                                }
+                              : null
+                          );
+                        }}
+                        onShowToast={showToast}
+                      />
+                    </div>
+
+                    <div className="flex justify-end gap-3 pt-2 border-t border-white/10">
+                      <button
+                        type="button"
+                        onClick={() => setEditingProduct(null)}
+                        className="px-4 py-2 rounded-xl bg-black/40 border border-white/20 text-slate-300 font-bold"
+                      >
+                        Cancel
+                      </button>
+                      <button
+                        type="submit"
+                        className="px-5 py-2 rounded-xl bg-[#C8A24A] text-[#0B3D2E] font-bold uppercase"
+                      >
+                        Save Changes
+                      </button>
+                    </div>
+                  </form>
                 </div>
-              ))}
-            </div>
+              </div>
+            )}
           </div>
         )}
 
@@ -882,13 +1107,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                   onChange={(e) => setCatDesc(e.target.value)}
                   className="bg-[#072a20] border border-white/20 p-2 rounded-lg text-slate-100"
                 />
-                <input
-                  type="text"
-                  placeholder="Image URL"
-                  value={catImg}
-                  onChange={(e) => setCatImg(e.target.value)}
-                  className="bg-[#072a20] border border-white/20 p-2 rounded-lg text-slate-100"
-                />
+                <div className="flex items-center gap-2">
+                  <label className="cursor-pointer bg-[#C8A24A] text-[#0B3D2E] p-2 rounded-lg font-bold text-xs flex items-center gap-1 shrink-0">
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Upload File</span>
+                    <input
+                      type="file"
+                      accept="image/*"
+                      onChange={(e) => handleImageFileUpload(e, (url) => setCatImg(url))}
+                      className="hidden"
+                    />
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Or Image URL"
+                    value={catImg}
+                    onChange={(e) => setCatImg(e.target.value)}
+                    className="w-full bg-[#072a20] border border-white/20 p-2 rounded-lg text-slate-100"
+                  />
+                </div>
               </div>
               <button type="submit" className="bg-[#C8A24A] text-[#0B3D2E] px-4 py-2 rounded-lg font-bold text-xs">
                 Add Category
@@ -1018,13 +1255,25 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                   onChange={(e) => setSlideHighlight(e.target.value)}
                   className="bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
                 />
-                <input
-                  type="text"
-                  placeholder="Image or Video URL"
-                  value={slideImg}
-                  onChange={(e) => setSlideImg(e.target.value)}
-                  className="bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
-                />
+                <div className="flex items-center gap-2">
+                  <label className="cursor-pointer bg-[#C8A24A] text-[#0B3D2E] p-2.5 rounded-lg font-bold text-xs flex items-center gap-1 shrink-0">
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>Upload Banner File</span>
+                    <input
+                      type="file"
+                      accept="image/*,video/*"
+                      onChange={(e) => handleImageFileUpload(e, (url) => setSlideImg(url))}
+                      className="hidden"
+                    />
+                  </label>
+                  <input
+                    type="text"
+                    placeholder="Or Image / Video URL"
+                    value={slideImg}
+                    onChange={(e) => setSlideImg(e.target.value)}
+                    className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                  />
+                </div>
               </div>
               <button type="submit" className="bg-[#C8A24A] text-[#0B3D2E] px-4 py-2 rounded-lg font-bold">
                 Add Banner Slide
@@ -1118,23 +1367,34 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                       </div>
                     </div>
 
-                    <div className="flex flex-wrap items-center gap-3 pt-2">
-                      <span className="font-bold text-slate-200">Tracking Status:</span>
-                      <select
-                        value={o.trackingStatus}
-                        onChange={(e) => {
-                          updateOrderStatus(o.id, e.target.value as any);
-                          showToast('Order status updated');
-                        }}
-                        className="bg-[#072a20] border border-white/20 p-2 rounded-lg text-slate-100 text-xs font-bold"
+                    <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
+                      <div className="flex items-center gap-3">
+                        <span className="font-bold text-slate-200">Tracking Status:</span>
+                        <select
+                          value={o.trackingStatus}
+                          onChange={(e) => {
+                            updateOrderStatus(o.id, e.target.value as any);
+                            showToast('Order status updated');
+                          }}
+                          className="bg-[#072a20] border border-white/20 p-2 rounded-lg text-slate-100 text-xs font-bold"
+                        >
+                          <option value="ORDER_PLACED">ORDER_PLACED</option>
+                          <option value="PROCESSING">PROCESSING</option>
+                          <option value="DISPATCHED">DISPATCHED</option>
+                          <option value="IN_TRANSIT">IN_TRANSIT</option>
+                          <option value="OUT_FOR_DELIVERY">OUT_FOR_DELIVERY</option>
+                          <option value="DELIVERED">DELIVERED</option>
+                          <option value="CANCELLED">CANCELLED</option>
+                        </select>
+                      </div>
+
+                      <button
+                        onClick={() => setSelectedOrder(o)}
+                        className="px-3.5 py-1.5 bg-[#C8A24A] text-[#0B3D2E] font-bold text-xs rounded-xl hover:bg-white transition-colors inline-flex items-center gap-1.5 shadow-md"
                       >
-                        <option value="ORDER_PLACED">ORDER_PLACED</option>
-                        <option value="PROCESSING">PROCESSING</option>
-                        <option value="DISPATCHED">DISPATCHED</option>
-                        <option value="IN_TRANSIT">IN_TRANSIT</option>
-                        <option value="OUT_FOR_DELIVERY">OUT_FOR_DELIVERY</option>
-                        <option value="DELIVERED">DELIVERED</option>
-                      </select>
+                        <Eye className="w-3.5 h-3.5" />
+                        <span>Manage Complete Order Details</span>
+                      </button>
                     </div>
                   </div>
                 ))}
@@ -1491,6 +1751,122 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                 </div>
               </div>
             )}
+          </div>
+        )}
+
+        {/* Tab 9: Media Gallery */}
+        {activeTab === 'media' && (
+          <div className="space-y-6 animate-in fade-in">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-bold font-serif-luxury text-slate-100">Product Media & Image Asset Library</h1>
+                <p className="text-xs text-slate-300">
+                  Shopify-style Original Media System. 100% exact original pixels stored without AI alteration, background removal, or recoloring.
+                </p>
+              </div>
+              <label className="cursor-pointer bg-[#C8A24A] text-[#0B3D2E] px-4 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-white transition-all shadow-lg">
+                <Upload className="w-4 h-4" />
+                <span>Upload Original Media File</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files || []) as File[];
+                    files.forEach((file: File) => {
+                      const reader = new FileReader();
+                      reader.onload = (ev) => {
+                        if (ev.target?.result) {
+                          addMediaItem({
+                            title: file.name.replace(/\.[^/.]+$/, ''),
+                            url: ev.target.result as string,
+                            type: 'image',
+                          });
+                        }
+                      };
+                      reader.readAsDataURL(file);
+                    });
+                    showToast('Media files uploaded (Original pixels preserved)');
+                  }}
+                  className="hidden"
+                />
+              </label>
+            </div>
+
+            {/* Upload Area Dropzone */}
+            <div className="bg-[#0B3D2E] border-2 border-dashed border-[#C8A24A]/40 rounded-2xl p-8 text-center space-y-3">
+              <div className="w-12 h-12 rounded-full bg-[#C8A24A]/10 text-[#C8A24A] flex items-center justify-center mx-auto">
+                <Image className="w-6 h-6" />
+              </div>
+              <h3 className="font-bold text-slate-100 text-sm">Upload High-Resolution Product Photos</h3>
+              <p className="text-xs text-slate-300 max-w-md mx-auto">
+                Select JPEG, PNG, WebP or GIF photos. The exact uploaded image file will be stored separately and displayed across all store views without AI modification.
+              </p>
+              <label className="inline-flex cursor-pointer bg-[#072a20] border border-white/20 text-slate-200 px-4 py-2 rounded-xl text-xs font-bold hover:border-[#C8A24A] transition-all">
+                <span>Browse Local Files</span>
+                <input
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={(e) => {
+                    const files = Array.from(e.target.files || []) as File[];
+                    files.forEach((file: File) => {
+                      const reader = new FileReader();
+                      reader.onload = (ev) => {
+                        if (ev.target?.result) {
+                          addMediaItem({
+                            title: file.name.replace(/\.[^/.]+$/, ''),
+                            url: ev.target.result as string,
+                            type: 'image',
+                          });
+                        }
+                      };
+                      reader.readAsDataURL(file);
+                    });
+                    showToast('Media uploaded');
+                  }}
+                  className="hidden"
+                />
+              </label>
+            </div>
+
+            {/* Media Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+              {mediaItems.map((m) => (
+                <div key={m.id} className="bg-[#0B3D2E] border border-white/10 rounded-xl overflow-hidden group hover:border-[#C8A24A] transition-all flex flex-col justify-between">
+                  <div className="h-36 bg-black/40 relative flex items-center justify-center p-2">
+                    <img src={m.url} alt={m.title} className="max-h-full max-w-full object-contain" />
+                    <span className="absolute top-2 left-2 bg-black/60 text-[#C8A24A] text-[9px] font-mono px-1.5 py-0.5 rounded uppercase">
+                      Original
+                    </span>
+                  </div>
+                  <div className="p-3 space-y-2 bg-[#072a20]">
+                    <p className="text-xs font-bold text-slate-200 truncate">{m.title}</p>
+                    <div className="flex items-center gap-2">
+                      <button
+                        onClick={() => {
+                          navigator.clipboard.writeText(m.url);
+                          showToast('Image URL copied to clipboard');
+                        }}
+                        className="flex-1 bg-white/10 hover:bg-[#C8A24A] hover:text-[#0B3D2E] text-slate-200 text-[10px] py-1 rounded font-bold transition-all"
+                      >
+                        Copy URL
+                      </button>
+                      <button
+                        onClick={() => {
+                          deleteMediaItem(m.id);
+                          showToast('Media deleted');
+                        }}
+                        className="p-1 text-rose-400 hover:text-rose-300"
+                        title="Delete Media"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </div>
           </div>
         )}
 
@@ -2002,6 +2378,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
           </div>
         )}
       </main>
+
+      {/* Order Details Modal Popup */}
+      {selectedOrder && (
+        <OrderDetailsModal
+          order={selectedOrder}
+          onClose={() => setSelectedOrder(null)}
+          onShowToast={showToast}
+        />
+      )}
     </div>
   );
 };

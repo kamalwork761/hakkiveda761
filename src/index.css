@@ -116,3 +116,30 @@
   -webkit-text-fill-color: transparent;
 }
 
+/* Print Media Query Styles */
+@media print {
+  body {
+    background-color: #ffffff !important;
+    color: #000000 !important;
+  }
+  body * {
+    visibility: hidden;
+  }
+  .printable-area, .printable-area * {
+    visibility: visible;
+  }
+  .printable-area {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    background: #ffffff !important;
+    color: #000000 !important;
+  }
+  .no-print, .print\:hidden {
+    display: none !important;
+  }
+}
+

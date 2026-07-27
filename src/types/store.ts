@@ -114,13 +114,26 @@ export interface Order {
     state: string;
     country: string;
     pincode: string;
+    billingAddress?: string;
   };
-  paymentMethod: 'RAZORPAY' | 'COD' | 'INTERNATIONAL_PREPAID';
-  paymentStatus: 'PAID' | 'PENDING' | 'COD_DUE';
-  trackingStatus: 'ORDER_PLACED' | 'PROCESSING' | 'DISPATCHED' | 'IN_TRANSIT' | 'OUT_FOR_DELIVERY' | 'DELIVERED';
+  paymentMethod: 'RAZORPAY' | 'COD' | 'INTERNATIONAL_PREPAID' | string;
+  paymentStatus: 'PAID' | 'PENDING' | 'COD_DUE' | 'REFUNDED' | 'FAILED' | string;
+  trackingStatus: 'ORDER_PLACED' | 'PROCESSING' | 'DISPATCHED' | 'IN_TRANSIT' | 'OUT_FOR_DELIVERY' | 'DELIVERED' | 'CANCELLED' | string;
   trackingNumber: string;
   courierName: string;
   estimatedDeliveryDate: string;
+  subtotalINR?: number;
+  discountINR?: number;
+  shippingChargesINR?: number;
+  taxINR?: number;
+  customerNotes?: string;
+  adminNotes?: string;
+  timeline?: {
+    status: string;
+    label: string;
+    timestamp: string;
+    completed: boolean;
+  }[];
 }
 
 export interface Coupon {

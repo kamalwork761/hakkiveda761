@@ -1,0 +1,6 @@
+{
+  "name": "HAKKIVEDA",
+  "description": "Production-grade international e-commerce application for HAKKIVEDA - Premium Ayurvedic Herbal Brand inspired by Hakki-Pikki tribal wisdom.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

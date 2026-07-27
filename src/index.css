@@ -1,0 +1,118 @@
+@import "tailwindcss";
+
+@layer base {
+  :root {
+    --color-forest: #0B3D2E;
+    --color-forest-dark: #072a20;
+    --color-forest-deeper: #041a13;
+    --color-gold: #C8A24A;
+    --color-gold-light: #E5C880;
+    --color-gold-dark: #A68032;
+  }
+
+  body {
+    font-family: 'Plus Jakarta Sans', sans-serif;
+    background-color: var(--color-forest);
+    color: #F8FAFC;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, .font-serif-luxury {
+    font-family: 'Cormorant Garamond', Georgia, serif;
+  }
+
+  .font-brand {
+    font-family: 'Cinzel', serif;
+  }
+}
+
+/* Custom scrollbars for luxury finish */
+::-webkit-scrollbar {
+  width: 6px;
+  height: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: #072a20;
+}
+
+::-webkit-scrollbar-thumb {
+  background: #C8A24A;
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: #E5C880;
+}
+
+/* Luxury animations and effects */
+@keyframes goldPulse {
+  0%, 100% { opacity: 0.8; transform: scale(1); }
+  50% { opacity: 1; transform: scale(1.05); }
+}
+
+@keyframes marquee {
+  0% { transform: translateX(0%); }
+  100% { transform: translateX(-50%); }
+}
+
+.animate-marquee {
+  display: flex;
+  width: max-content;
+  animation: marquee 22s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
+
+.gold-glow {
+  box-shadow: 0 0 20px rgba(200, 162, 74, 0.25);
+}
+
+.gold-border-glow {
+  border-color: rgba(200, 162, 74, 0.4);
+  box-shadow: 0 0 15px rgba(200, 162, 74, 0.15);
+}
+
+.bg-gold-gradient {
+  background: linear-gradient(135deg, #C8A24A 0%, #E5C880 50%, #A68032 100%);
+}
+
+@keyframes goldTextShimmer {
+  0% {
+    background-position: 0% 50%;
+    filter: drop-shadow(0 0 2px rgba(200, 162, 74, 0.3));
+  }
+  50% {
+    background-position: 100% 50%;
+    filter: drop-shadow(0 0 10px rgba(229, 200, 128, 0.8));
+  }
+  100% {
+    background-position: 0% 50%;
+    filter: drop-shadow(0 0 2px rgba(200, 162, 74, 0.3));
+  }
+}
+
+.animate-gold-shimmer {
+  background: linear-gradient(
+    90deg,
+    #C8A24A 0%,
+    #FFF2B2 25%,
+    #E5C880 50%,
+    #FFF2B2 75%,
+    #C8A24A 100%
+  );
+  background-size: 200% auto;
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  animation: goldTextShimmer 3.5s linear infinite;
+  display: inline-block;
+}
+
+.text-gold-gradient {
+  background: linear-gradient(135deg, #E5C880 0%, #C8A24A 50%, #B89038 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+}
+

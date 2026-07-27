@@ -40,7 +40,10 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ selectedCatego
         </div>
 
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
-          {categories.map((cat) => {
+          {categories
+            .filter((c) => (c.status || 'ACTIVE') === 'ACTIVE' && c.showOnHomepage !== false)
+            .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+            .map((cat) => {
             const isSelected = selectedCategory === cat.name;
             return (
               <div

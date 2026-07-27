@@ -1,6 +1,28 @@
 import React, { useState } from 'react';
-import { Search, ShoppingBag, Heart, User, Menu, X, Sparkles, Globe, ChevronDown } from 'lucide-react';
+import {
+  Search,
+  ShoppingBag,
+  Heart,
+  User,
+  Menu,
+  X,
+  Sparkles,
+  Globe,
+  ChevronDown,
+  ChevronRight,
+  Leaf,
+  Shield,
+  Flame,
+  Briefcase,
+  MessageSquare,
+  Tag,
+  HelpCircle,
+  Star,
+  Phone,
+  ExternalLink,
+} from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { NavLink } from '../types/store';
 import { HakkivedaWordmark } from './HakkivedaWordmark';
 import { MobileBottomNav } from './MobileBottomNav';
 import { SoundToggle } from './SoundToggle';
@@ -9,6 +31,24 @@ interface HeaderProps {
   selectedCategory?: string;
   onSelectCategory?: (catName: string) => void;
 }
+
+const NAV_ICON_MAP: Record<string, React.FC<{ className?: string }>> = {
+  Sparkles,
+  Leaf,
+  Shield,
+  Flame,
+  Briefcase,
+  MessageSquare,
+  Tag,
+  Heart,
+  Globe,
+  User,
+  HelpCircle,
+  Star,
+  Phone,
+  ExternalLink,
+  ShoppingBag,
+};
 
 export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCategory }) => {
   const {
@@ -27,12 +67,29 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
     categories,
     openQuickView,
     playSound,
+    navLinks,
+    headerLayoutSettings,
+    trackNavClick,
   } = useStore();
 
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+
+  const [hoveredNavId, setHoveredNavId] = useState<string | null>(null);
+
+  const headerSettings = headerLayoutSettings || {
+    showLogo: true,
+    showSearch: true,
+    showCountrySelector: true,
+    showWishlist: true,
+    showAccount: true,
+    showCart: true,
+    showMenu: true,
+    hoverStyle: 'gold_line',
+    headerLayout: 'standard',
+  };
 
   const filteredProducts = searchQuery.trim()
     ? products.filter(
@@ -45,6 +102,99 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
 
   const textToDisplay = siteSettings?.announcementText || 'Worldwide Express Shipping • 100% Authentic 42 Mountain Herbs Formula';
   const showBar = siteSettings?.announcementActive ?? true;
+
+  // Filter Active Nav Links according to visibility, roles, country, publish schedule
+  const activeNavLinks = (Array.isArray(navLinks) ? navLinks : [])
+    .filter((link) => {
+      if (link.visible === false) return false;
+      if (link.status === 'DRAFT') return false;
+      if (link.status === 'SCHEDULED') {
+        const today = new Date().toISOString().split('T')[0];
+        if (link.startDate && link.startDate > today) return false;
+        if (link.endDate && link.endDate < today) return false;
+      }
+      if (link.allowedCountries && link.allowedCountries.length > 0) {
+        if (selectedCountry?.code && !link.allowedCountries.includes(selectedCountry.code)) {
+          return false;
+        }
+      }
+      if (link.userVisibility === 'ADMIN' && currentUser?.role !== 'ADMIN') return false;
+      if (link.userVisibility === 'CUSTOMER' && !currentUser) return false;
+      if (link.userVisibility === 'GUEST' && currentUser) return false;
+      return true;
+    })
+    .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+
+  const rootNavLinks = activeNavLinks.filter((l) => !l.parentId && l.showOnDesktop !== false);
+  const getSubNavLinks = (parentId: string) => activeNavLinks.filter((l) => l.parentId === parentId);
+
+  // Nav click action
+  const handleNavClick = (link: NavLink) => {
+    playSound('nav_click');
+    if (link.id) trackNavClick(link.id);
+
+    if (link.isModal || link.linkType === 'QUIZ') {
+      setIsQuizOpen(true);
+      return;
+    }
+    if (link.linkType === 'B2B') {
+      setIsB2BModalOpen(true);
+      return;
+    }
+    if (link.openInNewTab && link.url && link.url !== '#') {
+      window.open(link.url, '_blank');
+      return;
+    }
+    if (link.url) {
+      if (link.url.startsWith('#category-')) {
+        const catName = link.url.replace('#category-', '');
+        if (onSelectCategory) onSelectCategory(catName);
+      } else if (link.url === '#products') {
+        if (onSelectCategory) onSelectCategory('ALL');
+      }
+    }
+  };
+
+  // Render Lucide Icon helper
+  const renderNavIcon = (iconName?: string, className: string = 'w-3.5 h-3.5') => {
+    if (!iconName) return null;
+    const IconComponent = NAV_ICON_MAP[iconName];
+    if (IconComponent) return <IconComponent className={className} />;
+    return <Sparkles className={className} />;
+  };
+
+  // Render Badge helper
+  const renderBadgeTag = (badge?: NavLink['badge'], customText?: string) => {
+    if (!badge || badge === 'NONE') return null;
+    let bg = 'bg-[#C8A24A] text-[#0B3D2E]';
+    let text = badge;
+    if (badge === 'HOT') bg = 'bg-rose-500 text-white animate-pulse';
+    if (badge === 'NEW') bg = 'bg-[#C8A24A] text-[#0B3D2E]';
+    if (badge === 'SALE') bg = 'bg-emerald-500 text-white';
+    if (badge === 'B2B') bg = 'bg-amber-500 text-slate-950 font-bold';
+    if (badge === 'CUSTOM' && customText) text = customText as any;
+
+    return (
+      <span className={`text-[8px] font-bold uppercase tracking-widest px-1.5 py-0.5 rounded shadow-sm ${bg}`}>
+        {text}
+      </span>
+    );
+  };
+
+  // Hover Class Helper
+  const getHoverStyleClass = () => {
+    const style = headerSettings.hoverStyle || 'gold_line';
+    if (style === 'gold_line') {
+      return 'hover:text-[#C8A24A] border-b-2 border-transparent hover:border-[#C8A24A]';
+    }
+    if (style === 'underline') {
+      return 'hover:underline hover:text-[#C8A24A]';
+    }
+    if (style === 'glow') {
+      return 'hover:text-[#C8A24A] hover:drop-shadow-[0_0_8px_rgba(200,162,74,0.8)]';
+    }
+    return 'hover:text-[#C8A24A]';
+  };
 
   return (
     <header className="sticky top-0 z-40 w-full transition-all duration-300">
@@ -126,110 +276,110 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
           </div>
         </a>
 
-        {/* Desktop Navigation Links */}
-        <nav className="hidden lg:flex items-center gap-7 font-sans text-[11px] uppercase tracking-[0.2em] font-medium text-slate-200">
-          <div
-            className="relative"
-            onMouseEnter={() => setIsCategoryMenuOpen(true)}
-            onMouseLeave={() => setIsCategoryMenuOpen(false)}
-          >
-            <button
-              onClick={() => {
-                playSound('nav_click');
-                if (onSelectCategory) onSelectCategory('ALL');
-                setIsCategoryMenuOpen(!isCategoryMenuOpen);
-              }}
-              className="hover:text-[#C8A24A] transition-colors py-2 border-b border-transparent hover:border-[#C8A24A] flex items-center gap-1.5"
-            >
-              <span>Collections</span>
-              <ChevronDown className={`w-3 h-3 text-[#C8A24A] transition-transform duration-200 ${isCategoryMenuOpen ? 'rotate-180' : ''}`} />
-            </button>
+        {/* Dynamic Desktop Navigation Links */}
+        {headerSettings.showMenu && (
+          <nav className="hidden lg:flex items-center gap-6 font-sans text-[11px] uppercase tracking-[0.2em] font-medium text-slate-200">
+            {rootNavLinks.map((item) => {
+              const subLinks = getSubNavLinks(item.id);
+              const hasMegaMenu = item.megaMenu?.enabled;
+              const isHovered = hoveredNavId === item.id;
 
-            {/* Collections Category Dropdown */}
-            {isCategoryMenuOpen && (
-              <div className="absolute left-0 top-full pt-1 w-64 z-50 animate-in fade-in slide-in-from-top-1 duration-200">
-                <div className="bg-[#072a20] border border-[#C8A24A]/40 rounded-xl shadow-2xl p-2 font-sans normal-case">
-                  <div className="text-[10px] uppercase font-bold text-[#C8A24A] px-3 py-1.5 tracking-widest border-b border-white/10 flex items-center justify-between">
-                    <span>Herbal Categories</span>
-                    <span className="text-[9px] opacity-70">Instant Filter</span>
-                  </div>
-                  
-                  <button
-                    onClick={() => {
-                      if (onSelectCategory) onSelectCategory('ALL');
-                      setIsCategoryMenuOpen(false);
+              return (
+                <div
+                  key={item.id}
+                  className="relative py-2"
+                  onMouseEnter={() => setHoveredNavId(item.id)}
+                  onMouseLeave={() => setHoveredNavId(null)}
+                >
+                  <a
+                    href={item.url || '#'}
+                    onClick={(e) => {
+                      if (!item.url || item.url === '#') e.preventDefault();
+                      handleNavClick(item);
                     }}
-                    className={`w-full text-left px-3 py-2 rounded-lg text-xs font-semibold transition-colors flex items-center justify-between ${
-                      selectedCategory === 'ALL' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-[#0B3D2E] hover:text-[#C8A24A]'
-                    }`}
+                    className={`flex items-center gap-1.5 transition-colors py-1 ${getHoverStyleClass()}`}
                   >
-                    <span>All Formulations</span>
-                    <span className="text-[10px] opacity-80">View All</span>
-                  </button>
+                    {renderNavIcon(item.icon, 'w-3.5 h-3.5 text-[#C8A24A]')}
+                    <span>{item.label}</span>
+                    {renderBadgeTag(item.badge, item.badgeCustomText)}
+                    {(subLinks.length > 0 || hasMegaMenu) && (
+                      <ChevronDown className="w-3 h-3 text-[#C8A24A] transition-transform duration-200" />
+                    )}
+                  </a>
 
-                  {categories.map((cat) => (
-                    <button
-                      key={cat.id}
-                      onClick={() => {
-                        if (onSelectCategory) onSelectCategory(cat.name);
-                        setIsCategoryMenuOpen(false);
-                      }}
-                      className={`w-full text-left px-3 py-2 rounded-lg text-xs transition-colors flex items-center justify-between ${
-                        selectedCategory === cat.name ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-[#0B3D2E] hover:text-[#C8A24A]'
-                      }`}
-                    >
-                      <span>{cat.name}</span>
-                      <span className="text-[10px] px-2 py-0.5 rounded-full bg-black/30 border border-white/10 font-bold text-[#C8A24A]">
-                        {cat.itemCount}
-                      </span>
-                    </button>
-                  ))}
+                  {/* Mega Menu Dropdown */}
+                  {hasMegaMenu && isHovered && (
+                    <div className="absolute left-1/2 -translate-x-1/2 top-full pt-1 w-[680px] z-50 animate-in fade-in slide-in-from-top-1 duration-200">
+                      <div className="bg-[#072a20] border border-[#C8A24A]/40 rounded-xl shadow-2xl p-5 text-left grid grid-cols-3 gap-5 normal-case font-sans">
+                        {item.megaMenu?.columns.map((col) => (
+                          <div key={col.id} className="space-y-2">
+                            <h4 className="text-[11px] font-bold text-[#C8A24A] uppercase tracking-wider border-b border-white/10 pb-1 flex items-center justify-between">
+                              <span>{col.title}</span>
+                            </h4>
+                            <ul className="space-y-1.5 text-xs text-slate-200">
+                              {col.links.map((link, lIdx) => (
+                                <li key={lIdx}>
+                                  <a
+                                    href={link.url}
+                                    onClick={() => playSound('nav_click')}
+                                    className="hover:text-[#C8A24A] flex items-center justify-between py-0.5 transition-colors"
+                                  >
+                                    <span>{link.label}</span>
+                                    {renderBadgeTag(link.badge as any)}
+                                  </a>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+                        ))}
+
+                        {item.megaMenu?.featuredImageUrl && (
+                          <div className="bg-[#0B3D2E] p-3 rounded-xl border border-white/10 flex flex-col justify-between">
+                            <img
+                              src={item.megaMenu.featuredImageUrl}
+                              alt="Featured"
+                              className="w-full h-28 object-cover rounded-lg mb-2 border border-white/10"
+                            />
+                            <div>
+                              <div className="font-bold text-xs text-slate-100 line-clamp-1">
+                                {item.megaMenu.featuredImageTitle || 'Featured formulation'}
+                              </div>
+                              <p className="text-[10px] text-slate-300 mt-0.5 line-clamp-1">
+                                {item.megaMenu.featuredImageSubtitle}
+                              </p>
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Standard Multi-Level Sub-Menu Dropdown */}
+                  {!hasMegaMenu && subLinks.length > 0 && isHovered && (
+                    <div className="absolute left-0 top-full pt-1 w-56 z-50 animate-in fade-in slide-in-from-top-1 duration-200">
+                      <div className="bg-[#072a20] border border-[#C8A24A]/40 rounded-xl shadow-2xl p-2 font-sans normal-case">
+                        {subLinks.map((sub) => (
+                          <a
+                            key={sub.id}
+                            href={sub.url}
+                            onClick={() => handleNavClick(sub)}
+                            className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-[#0B3D2E] hover:text-[#C8A24A] transition-colors flex items-center justify-between"
+                          >
+                            <div className="flex items-center gap-2">
+                              {renderNavIcon(sub.icon, 'w-3.5 h-3.5 text-[#C8A24A]')}
+                              <span>{sub.label}</span>
+                            </div>
+                            {renderBadgeTag(sub.badge, sub.badgeCustomText)}
+                          </a>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                 </div>
-              </div>
-            )}
-          </div>
-
-          <a
-            href="#brand-story"
-            onClick={() => playSound('nav_click')}
-            className="hover:text-[#C8A24A] transition-colors py-1 border-b border-transparent hover:border-[#C8A24A]"
-          >
-            Tribal Heritage
-          </a>
-          <button
-            onClick={() => {
-              playSound('cta_click');
-              setIsQuizOpen(true);
-            }}
-            className="flex items-center gap-1.5 text-[#C8A24A] font-semibold hover:text-white transition-colors py-1"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span>AI Hair Quiz</span>
-          </button>
-          <a
-            href="#before-after"
-            onClick={() => playSound('nav_click')}
-            className="hover:text-[#C8A24A] transition-colors py-1 border-b border-transparent hover:border-[#C8A24A]"
-          >
-            Results
-          </a>
-          <button
-            onClick={() => {
-              playSound('nav_click');
-              setIsB2BModalOpen(true);
-            }}
-            className="hover:text-[#C8A24A] transition-colors py-1 border-b border-transparent hover:border-[#C8A24A]"
-          >
-            B2B / Export
-          </button>
-          <a
-            href="#blogs"
-            onClick={() => playSound('nav_click')}
-            className="hover:text-[#C8A24A] transition-colors py-1 border-b border-transparent hover:border-[#C8A24A]"
-          >
-            Journal
-          </a>
-        </nav>
+              );
+            })}
+          </nav>
+        )}
 
         {/* Header Right Actions */}
         <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
@@ -394,7 +544,10 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
               >
                 All Formulations
               </button>
-              {categories.map((cat) => (
+              {categories
+                .filter((c) => (c.status || 'ACTIVE') === 'ACTIVE' && c.showInNav !== false)
+                .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+                .map((cat) => (
                 <button
                   key={cat.id}
                   onClick={() => {
@@ -413,46 +566,51 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
             </div>
           </div>
 
-          <a
-            href="#brand-story"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="block py-2 text-slate-200 hover:text-[#C8A24A] border-b border-white/10"
-          >
-            Tribal Heritage
-          </a>
-          <button
-            onClick={() => {
-              setIsMobileMenuOpen(false);
-              setIsQuizOpen(true);
-            }}
-            className="w-full text-left py-2 text-[#C8A24A] font-bold flex items-center gap-2 border-b border-white/10"
-          >
-            <Sparkles className="w-4 h-4" />
-            <span>AI Hair Quiz</span>
-          </button>
-          <a
-            href="#before-after"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="block py-2 text-slate-200 hover:text-[#C8A24A] border-b border-white/10"
-          >
-            Before & After
-          </a>
-          <button
-            onClick={() => {
-              setIsMobileMenuOpen(false);
-              setIsB2BModalOpen(true);
-            }}
-            className="w-full text-left py-2 text-slate-200 hover:text-[#C8A24A] border-b border-white/10"
-          >
-            B2B / Export Enquiries
-          </button>
-          <a
-            href="#blogs"
-            onClick={() => setIsMobileMenuOpen(false)}
-            className="block py-2 text-slate-200 hover:text-[#C8A24A]"
-          >
-            Journal & Guides
-          </a>
+          {/* Dynamic Mobile Nav Links */}
+          <div className="space-y-2 pt-1">
+            {activeNavLinks
+              .filter((l) => l.showOnMobile !== false && !l.parentId)
+              .map((link) => {
+                const subLinks = getSubNavLinks(link.id);
+
+                return (
+                  <div key={link.id} className="space-y-1">
+                    <button
+                      onClick={() => {
+                        setIsMobileMenuOpen(false);
+                        handleNavClick(link);
+                      }}
+                      className="w-full text-left py-2 px-3 bg-[#0B3D2E] rounded-xl text-slate-200 hover:text-[#C8A24A] font-semibold text-xs flex items-center justify-between border border-white/5"
+                    >
+                      <div className="flex items-center gap-2">
+                        {renderNavIcon(link.icon, 'w-4 h-4 text-[#C8A24A]')}
+                        <span>{link.label}</span>
+                      </div>
+                      {renderBadgeTag(link.badge, link.badgeCustomText)}
+                    </button>
+
+                    {/* Sub Links in Mobile */}
+                    {subLinks.length > 0 && (
+                      <div className="ml-4 space-y-1 pl-2 border-l border-[#C8A24A]/30">
+                        {subLinks.map((sub) => (
+                          <button
+                            key={sub.id}
+                            onClick={() => {
+                              setIsMobileMenuOpen(false);
+                              handleNavClick(sub);
+                            }}
+                            className="w-full text-left py-1.5 px-2 text-xs text-slate-300 hover:text-[#C8A24A] flex items-center justify-between"
+                          >
+                            <span>{sub.label}</span>
+                            {renderBadgeTag(sub.badge, sub.badgeCustomText)}
+                          </button>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
+          </div>
         </div>
       )}
 

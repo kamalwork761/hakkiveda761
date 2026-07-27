@@ -34,9 +34,26 @@ export interface Category {
   id: string;
   name: string;
   slug: string;
-  image: string;
-  description: string;
+  image: string; // Thumbnail
+  imageFilename?: string;
+  desktopBanner?: string;
+  desktopBannerFilename?: string;
+  mobileBanner?: string;
+  mobileBannerFilename?: string;
+  description: string; // Short Description
+  fullDescription?: string; // Rich Text Description
   itemCount: number;
+  status: 'ACTIVE' | 'DRAFT' | 'HIDDEN';
+  showInNav?: boolean;
+  showOnHomepage?: boolean;
+  isFeatured?: boolean;
+  parentId?: string | null;
+  sortOrder?: number;
+  seoTitle?: string;
+  seoMetaDescription?: string;
+  seoKeywords?: string;
+  createdAt?: string;
+  updatedAt?: string;
 }
 
 export interface CartItem {
@@ -196,14 +213,50 @@ export interface BlogArticle {
 
 export interface HeroSlide {
   id: string;
-  tag: string;
-  title: string;
-  highlightText: string;
-  subtitle: string;
-  image: string;
-  ctaText: string;
-  ctaLink: string;
-  active: boolean;
+  tag: string; // Badge text e.g. "AUTHENTIC HAKKI-PIKKI SECRET"
+  smallHeading?: string; // Small Heading above main title
+  title: string; // Main Title
+  highlightText: string; // Highlighted Gold Text
+  subtitle: string; // Description / Subtitle
+  image: string; // Desktop Hero Image
+  imageFilename?: string;
+  mobileImage?: string; // Mobile Hero Image
+  mobileImageFilename?: string;
+  backgroundVideo?: string; // Optional Background Video (MP4/WebM)
+  backgroundVideoFilename?: string;
+  mediaType?: 'IMAGE' | 'VIDEO';
+  ctaText: string; // Primary CTA Text
+  ctaLink: string; // Primary CTA Link
+  ctaType?: 'PRODUCT' | 'CATEGORY' | 'COLLECTION' | 'QUIZ' | 'JOURNAL' | 'EXTERNAL' | 'B2B' | 'CONTACT';
+  secondaryCtaText?: string; // Secondary CTA Text
+  secondaryCtaLink?: string; // Secondary CTA Link
+  secondaryCtaType?: 'PRODUCT' | 'CATEGORY' | 'COLLECTION' | 'QUIZ' | 'JOURNAL' | 'EXTERNAL' | 'B2B' | 'CONTACT';
+  active: boolean; // Enable/Disable status
+  status?: 'ACTIVE' | 'DRAFT' | 'SCHEDULED';
+  startDate?: string;
+  endDate?: string;
+  sortOrder?: number;
+  textPosition?: 'LEFT' | 'CENTER' | 'RIGHT';
+  textAlignment?: 'left' | 'center' | 'right';
+  overlayColor?: string; // e.g. '#0B3D2E' or '#000000'
+  overlayOpacity?: number; // 0 to 100
+  textColor?: string; // e.g. 'white' or '#C8A24A'
+  animation?: 'fade' | 'slide' | 'zoom' | 'parallax' | 'kenburns' | 'leaves' | 'goldsweep' | 'none';
+  altText?: string;
+  imageTitle?: string;
+  impressions?: number;
+  clicks?: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface HeroSliderSettings {
+  autoPlay: boolean;
+  autoPlayDelay: number; // in seconds
+  transitionSpeed: number; // in ms
+  pauseOnHover: boolean;
+  infiniteLoop: boolean;
+  swipeSupport: boolean;
 }
 
 export interface QuizResultData {
@@ -248,14 +301,73 @@ export interface CountrySetting {
   enabled: boolean;
 }
 
+export interface MegaMenuColumn {
+  id: string;
+  title: string;
+  categorySlug?: string;
+  links: { label: string; url: string; badge?: string }[];
+}
+
+export interface MegaMenuConfig {
+  enabled: boolean;
+  featuredImageUrl?: string;
+  featuredImageTitle?: string;
+  featuredImageSubtitle?: string;
+  featuredImageLink?: string;
+  featuredProductId?: string;
+  columns: MegaMenuColumn[];
+}
+
 export interface NavLink {
   id: string;
   label: string;
   url: string;
+  parentId?: string | null;
+  linkType?: 'HOMEPAGE' | 'PRODUCT' | 'CATEGORY' | 'COLLECTION' | 'QUIZ' | 'JOURNAL' | 'CONTACT' | 'B2B' | 'EXTERNAL';
+  openInNewTab?: boolean;
   isExternal?: boolean;
   isModal?: boolean;
   modalType?: 'QUIZ' | 'B2B' | 'WISHLIST';
   visible: boolean;
+  icon?: string;
+  badge?: 'NEW' | 'HOT' | 'SALE' | 'B2B' | 'CUSTOM' | 'NONE';
+  badgeCustomText?: string;
+  
+  // Visibility
+  showOnDesktop?: boolean;
+  showOnTablet?: boolean;
+  showOnMobile?: boolean;
+  
+  // User Visibility
+  userVisibility?: 'EVERYONE' | 'GUEST' | 'CUSTOMER' | 'ADMIN';
+  
+  // Country Visibility (e.g. ['IN', 'US', 'AE'], empty = ALL)
+  allowedCountries?: string[];
+  
+  // Schedule
+  status?: 'ACTIVE' | 'DRAFT' | 'SCHEDULED';
+  startDate?: string;
+  endDate?: string;
+  
+  // Mega Menu
+  megaMenu?: MegaMenuConfig;
+  
+  // Ordering & Analytics
+  sortOrder?: number;
+  clicks?: number;
+  impressions?: number;
+}
+
+export interface HeaderLayoutSettings {
+  showLogo: boolean;
+  showSearch: boolean;
+  showCountrySelector: boolean;
+  showWishlist: boolean;
+  showAccount: boolean;
+  showCart: boolean;
+  showMenu: boolean;
+  hoverStyle: 'underline' | 'gold_line' | 'glow' | 'none';
+  headerLayout: 'standard' | 'centered' | 'compact';
 }
 
 export interface SiteSettings {

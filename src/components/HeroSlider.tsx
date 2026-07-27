@@ -1,80 +1,208 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, ChevronRight, ChevronLeft, ShieldCheck, Flame, Award } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { INITIAL_HERO_SLIDES } from '../data/initialData';
 
 export const HeroSlider: React.FC = () => {
-  const { heroSlides, setIsQuizOpen, playSound } = useStore();
+  const {
+    heroSlides,
+    heroSliderSettings,
+    setIsQuizOpen,
+    playSound,
+    trackSlideImpression,
+    trackSlideClick,
+  } = useStore();
+
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
+  const [isHovered, setIsHovered] = useState(false);
+  const touchStartX = useRef<number | null>(null);
 
+  // Filter active and scheduled slides
   const activeSlides = (heroSlides && heroSlides.length > 0 ? heroSlides : INITIAL_HERO_SLIDES)
-    .filter((s) => s.active)
-    .map((s, idx) => {
-      if (idx === 0 && s.image.includes('unsplash')) {
-        return { ...s, image: '/images/hero_tribal_elders.jpg' };
+    .filter((s) => {
+      if (s.status === 'DRAFT') return false;
+      if (!s.active && s.status !== 'ACTIVE') return false;
+      if (s.status === 'SCHEDULED' && s.startDate && s.endDate) {
+        const today = new Date().toISOString().split('T')[0];
+        if (today < s.startDate || today > s.endDate) return false;
       }
-      return s;
-    });
+      return true;
+    })
+    .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
 
+  const slidesToRender = activeSlides.length > 0 ? activeSlides : INITIAL_HERO_SLIDES;
+
+  // Track impression on slide index change
   useEffect(() => {
-    if (activeSlides.length <= 1) return;
+    if (slidesToRender[currentSlideIndex]) {
+      trackSlideImpression(slidesToRender[currentSlideIndex].id);
+    }
+  }, [currentSlideIndex, slidesToRender.length]);
+
+  // Autoplay Timer
+  useEffect(() => {
+    if (slidesToRender.length <= 1) return;
+    if (!heroSliderSettings.autoPlay) return;
+    if (isHovered && heroSliderSettings.pauseOnHover) return;
+
+    const delayMs = (heroSliderSettings.autoPlayDelay || 6) * 1000;
     const interval = setInterval(() => {
-      setCurrentSlideIndex((prev) => (prev + 1) % activeSlides.length);
-    }, 6000);
+      setCurrentSlideIndex((prev) => {
+        if (prev >= slidesToRender.length - 1) {
+          return heroSliderSettings.infiniteLoop ? 0 : prev;
+        }
+        return prev + 1;
+      });
+    }, delayMs);
+
     return () => clearInterval(interval);
-  }, [activeSlides.length]);
+  }, [slidesToRender.length, heroSliderSettings, isHovered]);
 
-  if (activeSlides.length === 0) return null;
+  if (slidesToRender.length === 0) return null;
 
-  const currentSlide = activeSlides[currentSlideIndex];
+  const currentSlide = slidesToRender[currentSlideIndex] || slidesToRender[0];
+
+  // Touch Swipe Handlers
+  const handleTouchStart = (e: React.TouchEvent) => {
+    if (!heroSliderSettings.swipeSupport) return;
+    touchStartX.current = e.touches[0].clientX;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    if (!heroSliderSettings.swipeSupport || touchStartX.current === null) return;
+    const deltaX = e.changedTouches[0].clientX - touchStartX.current;
+    if (deltaX > 50) {
+      // Swipe Right -> Prev
+      setCurrentSlideIndex((prev) => (prev - 1 + slidesToRender.length) % slidesToRender.length);
+    } else if (deltaX < -50) {
+      // Swipe Left -> Next
+      setCurrentSlideIndex((prev) => (prev + 1) % slidesToRender.length);
+    }
+    touchStartX.current = null;
+  };
+
+  const handleCtaClick = (link?: string, isPrimary: boolean = true) => {
+    playSound('cta_click');
+    trackSlideClick(currentSlide.id);
+
+    if (link === '#ai-quiz' || link === '#quiz' || currentSlide.ctaType === 'QUIZ') {
+      setIsQuizOpen(true);
+      return;
+    }
+
+    if (link && link.startsWith('#')) {
+      const targetEl = document.querySelector(link);
+      if (targetEl) {
+        targetEl.scrollIntoView({ behavior: 'smooth' });
+      }
+    }
+  };
 
   return (
-    <section className="relative w-full h-[520px] sm:h-[580px] lg:h-[620px] flex items-center overflow-hidden bg-[#0B3D2E]">
-      {/* Background Slide Image with Luxury Gradient Overlays */}
-      <div
-        className="absolute inset-0 bg-cover bg-center transition-all duration-1000 transform scale-105"
-        style={{ backgroundImage: `url('${currentSlide.image}')` }}
-      >
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0B3D2E] via-[#0B3D2E]/80 to-transparent z-10"></div>
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0B3D2E] via-transparent to-black/40 z-10"></div>
+    <section
+      onMouseEnter={() => setIsHovered(true)}
+      onMouseLeave={() => setIsHovered(false)}
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+      className="relative w-full h-[520px] sm:h-[580px] lg:h-[620px] flex items-center overflow-hidden bg-[#0B3D2E]"
+    >
+      {/* Background Media (Video or Image) */}
+      <div className="absolute inset-0 transition-all duration-1000">
+        {currentSlide.mediaType === 'VIDEO' && currentSlide.backgroundVideo ? (
+          <video
+            src={currentSlide.backgroundVideo}
+            autoPlay
+            muted
+            loop
+            playsInline
+            className="w-full h-full object-cover transform scale-105"
+          />
+        ) : (
+          <div
+            className={`absolute inset-0 bg-cover bg-center transition-all duration-1000 transform scale-105 ${
+              currentSlide.animation === 'kenburns' ? 'animate-pulse' : ''
+            }`}
+            style={{
+              backgroundImage: `url('${
+                currentSlide.image || '/images/hero_tribal_elders.jpg'
+              }')`,
+            }}
+          />
+        )}
+
+        {/* Customizable Overlay Color & Opacity */}
+        <div
+          className="absolute inset-0 transition-opacity duration-700"
+          style={{
+            backgroundColor: currentSlide.overlayColor || '#0B3D2E',
+            opacity: (currentSlide.overlayOpacity ?? 75) / 100,
+          }}
+        />
+
+        {/* Gradient luxury depth vignetting */}
+        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/40 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[#0B3D2E] via-transparent to-black/30 z-10" />
       </div>
 
       {/* Content Container */}
       <div className="relative z-20 max-w-7xl mx-auto px-6 sm:px-12 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-        <div className="lg:col-span-7 space-y-5 sm:space-y-6">
-          <span className="inline-flex items-center gap-2 px-3.5 py-1 border border-[#C8A24A] text-[#C8A24A] font-sans text-[10px] sm:text-xs uppercase tracking-[0.28em] rounded-full backdrop-blur-md bg-black/30 font-semibold shadow-lg">
+        <div
+          className={`lg:col-span-7 space-y-5 sm:space-y-6 ${
+            currentSlide.textPosition === 'CENTER'
+              ? 'text-center mx-auto lg:col-span-12'
+              : currentSlide.textPosition === 'RIGHT'
+              ? 'text-right ml-auto lg:col-span-7'
+              : 'text-left'
+          }`}
+        >
+          {/* Eyebrow / Tag Badge */}
+          <span className="inline-flex items-center gap-2 px-3.5 py-1 border border-[#C8A24A] text-[#C8A24A] font-sans text-[10px] sm:text-xs uppercase tracking-[0.28em] rounded-full backdrop-blur-md bg-black/40 font-semibold shadow-lg">
             <Sparkles className="w-3.5 h-3.5 text-[#C8A24A]" />
-            <span>{currentSlide.tag}</span>
+            <span>{currentSlide.tag || 'AUTHENTIC HAKKI-PIKKI SECRET'}</span>
           </span>
 
+          {currentSlide.smallHeading && (
+            <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#E5C880]">
+              {currentSlide.smallHeading}
+            </p>
+          )}
+
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold font-serif-luxury leading-[1.08] text-white">
-            {currentSlide.title} <br />
-            <span className="italic text-[#C8A24A] text-gold-gradient">{currentSlide.highlightText}</span>
+            {currentSlide.title}{' '}
+            {currentSlide.highlightText && (
+              <span className="italic text-[#C8A24A] text-gold-gradient block sm:inline">
+                {currentSlide.highlightText}
+              </span>
+            )}
           </h1>
 
           <p className="text-sm sm:text-lg opacity-90 font-sans font-light leading-relaxed text-slate-200 max-w-xl">
             {currentSlide.subtitle}
           </p>
 
+          {/* CTA Buttons */}
           <div className="flex flex-wrap items-center gap-4 pt-2">
-            <a
-              href="#products"
-              onClick={() => playSound('cta_click')}
-              className="bg-[#C8A24A] text-[#0B3D2E] px-8 py-3.5 font-sans text-xs font-bold uppercase tracking-[0.2em] hover:bg-white transition-all duration-300 shadow-2xl rounded-sm hover:scale-105 flex items-center gap-2"
-            >
-              <span>{currentSlide.ctaText}</span>
-              <ChevronRight className="w-4 h-4" />
-            </a>
-            <button
-              onClick={() => {
-                playSound('cta_click');
-                setIsQuizOpen(true);
-              }}
-              className="border border-[#C8A24A]/60 text-white px-8 py-3.5 font-sans text-xs font-bold uppercase tracking-[0.2em] backdrop-blur-md bg-black/20 hover:bg-[#C8A24A]/20 transition-all rounded-sm flex items-center gap-2"
-            >
-              <Sparkles className="w-4 h-4 text-[#C8A24A]" />
-              <span>AI Scalp Quiz</span>
-            </button>
+            {currentSlide.ctaText && (
+              <a
+                href={currentSlide.ctaLink || '#products'}
+                onClick={() => handleCtaClick(currentSlide.ctaLink, true)}
+                className="bg-[#C8A24A] text-[#0B3D2E] px-8 py-3.5 font-sans text-xs font-bold uppercase tracking-[0.2em] hover:bg-white transition-all duration-300 shadow-2xl rounded-sm hover:scale-105 flex items-center gap-2"
+              >
+                <span>{currentSlide.ctaText}</span>
+                <ChevronRight className="w-4 h-4" />
+              </a>
+            )}
+
+            {currentSlide.secondaryCtaText && (
+              <a
+                href={currentSlide.secondaryCtaLink || '#ai-quiz'}
+                onClick={() => handleCtaClick(currentSlide.secondaryCtaLink, false)}
+                className="border border-[#C8A24A]/60 text-white px-8 py-3.5 font-sans text-xs font-bold uppercase tracking-[0.2em] backdrop-blur-md bg-black/20 hover:bg-[#C8A24A]/20 transition-all rounded-sm flex items-center gap-2"
+              >
+                <Sparkles className="w-4 h-4 text-[#C8A24A]" />
+                <span>{currentSlide.secondaryCtaText}</span>
+              </a>
+            )}
           </div>
 
           {/* Key Guarantee Badges */}
@@ -95,61 +223,71 @@ export const HeroSlider: React.FC = () => {
         </div>
 
         {/* Right Feature Card (AI Hair Analysis Preview) */}
-        <div className="hidden lg:flex lg:col-span-5 justify-end">
-          <div className="w-[320px] p-6 bg-black/40 backdrop-blur-xl border border-[#C8A24A]/40 rounded-2xl space-y-4 gold-border-glow shadow-2xl transform hover:scale-102 transition-all">
-            <div className="flex items-center justify-between">
-              <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#C8A24A] bg-[#C8A24A]/10 px-2.5 py-1 rounded">
-                AI Trichology Engine
-              </span>
-              <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-            </div>
-
-            <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-[#0B3D2E] border-2 border-[#C8A24A] flex items-center justify-center shrink-0 shadow-lg">
-                <Sparkles className="w-8 h-8 text-[#C8A24A]" />
+        {currentSlide.textPosition !== 'CENTER' && (
+          <div className="hidden lg:flex lg:col-span-5 justify-end">
+            <div className="w-[320px] p-6 bg-black/40 backdrop-blur-xl border border-[#C8A24A]/40 rounded-2xl space-y-4 gold-border-glow shadow-2xl transform hover:scale-102 transition-all">
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#C8A24A] bg-[#C8A24A]/10 px-2.5 py-1 rounded">
+                  AI Trichology Engine
+                </span>
+                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
               </div>
-              <div>
-                <h4 className="text-sm font-bold font-serif-luxury text-slate-100">Personalized Hair Formula</h4>
-                <p className="text-xs text-slate-300 mt-1 leading-snug">Get custom tribal herbal dosage and scalp diagnostics in 60 seconds.</p>
-              </div>
-            </div>
 
-            <button
-              onClick={() => setIsQuizOpen(true)}
-              className="w-full bg-gradient-to-r from-[#C8A24A] to-[#E5C880] text-[#0B3D2E] py-2.5 rounded font-sans text-xs font-bold uppercase tracking-wider hover:brightness-110 transition-all shadow-md flex items-center justify-center gap-2"
-            >
-              <span>Analyze My Hair Now</span>
-              <ChevronRight className="w-4 h-4" />
-            </button>
+              <div className="flex items-center gap-4">
+                <div className="w-16 h-16 rounded-full bg-[#0B3D2E] border-2 border-[#C8A24A] flex items-center justify-center shrink-0 shadow-lg">
+                  <Sparkles className="w-8 h-8 text-[#C8A24A]" />
+                </div>
+                <div>
+                  <h4 className="text-sm font-bold font-serif-luxury text-slate-100">Personalized Hair Formula</h4>
+                  <p className="text-xs text-slate-300 mt-1 leading-snug">Get custom tribal herbal dosage and scalp diagnostics in 60 seconds.</p>
+                </div>
+              </div>
+
+              <button
+                onClick={() => {
+                  playSound('cta_click');
+                  setIsQuizOpen(true);
+                }}
+                className="w-full bg-gradient-to-r from-[#C8A24A] to-[#E5C880] text-[#0B3D2E] py-2.5 rounded font-sans text-xs font-bold uppercase tracking-wider hover:brightness-110 transition-all shadow-md flex items-center justify-center gap-2"
+              >
+                <span>Analyze My Hair Now</span>
+                <ChevronRight className="w-4 h-4" />
+              </button>
+            </div>
           </div>
-        </div>
+        )}
       </div>
 
-      {/* Slider Controls & Dots */}
-      {activeSlides.length > 1 && (
+      {/* Controls & Dots */}
+      {slidesToRender.length > 1 && (
         <>
           <button
-            onClick={() => setCurrentSlideIndex((prev) => (prev - 1 + activeSlides.length) % activeSlides.length)}
+            onClick={() =>
+              setCurrentSlideIndex((prev) => (prev - 1 + slidesToRender.length) % slidesToRender.length)
+            }
             className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-black/40 border border-white/20 text-white flex items-center justify-center hover:bg-[#C8A24A] hover:text-[#0B3D2E] transition-all"
+            aria-label="Previous Slide"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button
-            onClick={() => setCurrentSlideIndex((prev) => (prev + 1) % activeSlides.length)}
+            onClick={() => setCurrentSlideIndex((prev) => (prev + 1) % slidesToRender.length)}
             className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-black/40 border border-white/20 text-white flex items-center justify-center hover:bg-[#C8A24A] hover:text-[#0B3D2E] transition-all"
+            aria-label="Next Slide"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
 
           <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
-            {activeSlides.map((_, idx) => (
+            {slidesToRender.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentSlideIndex(idx)}
                 className={`h-1.5 rounded-full transition-all duration-500 ${
                   idx === currentSlideIndex ? 'w-8 bg-[#C8A24A]' : 'w-2 bg-white/40'
                 }`}
-              ></button>
+                aria-label={`Go to slide ${idx + 1}`}
+              />
             ))}
           </div>
         </>

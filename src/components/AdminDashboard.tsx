@@ -1,5 +1,8 @@
 import React, { useState } from 'react';
 import { AdminProductImageManager } from './AdminProductImageManager';
+import { AdminCategoryManager } from './AdminCategoryManager';
+import { AdminHeroSliderManager } from './AdminHeroSliderManager';
+import { AdminNavManager } from './AdminNavManager';
 import {
   Lock,
   LayoutDashboard,
@@ -1083,75 +1086,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
 
         {/* Tab 4: Categories */}
         {activeTab === 'categories' && (
-          <div className="space-y-6 animate-in fade-in">
-            <div>
-              <h1 className="text-2xl font-bold font-serif-luxury text-slate-100">Category Management</h1>
-              <p className="text-xs text-slate-300">Organize formulations into distinct categories.</p>
-            </div>
-
-            <form onSubmit={handleCategorySubmit} className="bg-[#0B3D2E] border border-white/10 p-5 rounded-2xl space-y-3">
-              <h3 className="text-xs font-bold text-[#C8A24A] uppercase">Add New Category</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs">
-                <input
-                  type="text"
-                  required
-                  placeholder="Category Name"
-                  value={catName}
-                  onChange={(e) => setCatName(e.target.value)}
-                  className="bg-[#072a20] border border-white/20 p-2 rounded-lg text-slate-100"
-                />
-                <input
-                  type="text"
-                  placeholder="Short Description"
-                  value={catDesc}
-                  onChange={(e) => setCatDesc(e.target.value)}
-                  className="bg-[#072a20] border border-white/20 p-2 rounded-lg text-slate-100"
-                />
-                <div className="flex items-center gap-2">
-                  <label className="cursor-pointer bg-[#C8A24A] text-[#0B3D2E] p-2 rounded-lg font-bold text-xs flex items-center gap-1 shrink-0">
-                    <Upload className="w-3.5 h-3.5" />
-                    <span>Upload File</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={(e) => handleImageFileUpload(e, (url) => setCatImg(url))}
-                      className="hidden"
-                    />
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Or Image URL"
-                    value={catImg}
-                    onChange={(e) => setCatImg(e.target.value)}
-                    className="w-full bg-[#072a20] border border-white/20 p-2 rounded-lg text-slate-100"
-                  />
-                </div>
-              </div>
-              <button type="submit" className="bg-[#C8A24A] text-[#0B3D2E] px-4 py-2 rounded-lg font-bold text-xs">
-                Add Category
-              </button>
-            </form>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {categories.map((c) => (
-                <div key={c.id} className="bg-[#0B3D2E] border border-white/10 p-4 rounded-xl flex items-center justify-between">
-                  <div>
-                    <h4 className="text-sm font-bold text-slate-100">{c.name}</h4>
-                    <p className="text-xs text-slate-400">{c.description}</p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      deleteCategory(c.id);
-                      showToast('Category deleted');
-                    }}
-                    className="text-rose-400 hover:text-rose-300 p-2"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
+          <AdminCategoryManager
+            showToast={showToast}
+            onSwitchToProductsTab={() => {
+              setActiveTab('products');
+            }}
+          />
         )}
 
         {/* Tab 5: Announcement Bar */}
@@ -1224,115 +1164,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
         )}
 
         {/* Tab 6: Hero Slider */}
-        {activeTab === 'hero' && (
-          <div className="space-y-6 animate-in fade-in">
-            <div>
-              <h1 className="text-2xl font-bold font-serif-luxury text-slate-100">Hero Slider Manager</h1>
-              <p className="text-xs text-slate-300">Add or edit homepage hero banner slides and video backgrounds.</p>
-            </div>
-
-            <form onSubmit={handleHeroSubmit} className="bg-[#0B3D2E] border border-white/10 p-5 rounded-2xl space-y-3 text-xs">
-              <h3 className="font-bold text-[#C8A24A] uppercase">Create New Banner Slide</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                <input
-                  type="text"
-                  placeholder="Tagline e.g. ANCIENT HERBAL SECRET"
-                  value={slideTag}
-                  onChange={(e) => setSlideTag(e.target.value)}
-                  className="bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
-                />
-                <input
-                  type="text"
-                  placeholder="Main Title"
-                  value={slideTitle}
-                  onChange={(e) => setSlideTitle(e.target.value)}
-                  className="bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
-                />
-                <input
-                  type="text"
-                  placeholder="Highlight Text"
-                  value={slideHighlight}
-                  onChange={(e) => setSlideHighlight(e.target.value)}
-                  className="bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
-                />
-                <div className="flex items-center gap-2">
-                  <label className="cursor-pointer bg-[#C8A24A] text-[#0B3D2E] p-2.5 rounded-lg font-bold text-xs flex items-center gap-1 shrink-0">
-                    <Upload className="w-3.5 h-3.5" />
-                    <span>Upload Banner File</span>
-                    <input
-                      type="file"
-                      accept="image/*,video/*"
-                      onChange={(e) => handleImageFileUpload(e, (url) => setSlideImg(url))}
-                      className="hidden"
-                    />
-                  </label>
-                  <input
-                    type="text"
-                    placeholder="Or Image / Video URL"
-                    value={slideImg}
-                    onChange={(e) => setSlideImg(e.target.value)}
-                    className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
-                  />
-                </div>
-              </div>
-              <button type="submit" className="bg-[#C8A24A] text-[#0B3D2E] px-4 py-2 rounded-lg font-bold">
-                Add Banner Slide
-              </button>
-            </form>
-
-            <div className="space-y-4">
-              {heroSlides.map((s) => (
-                <div key={s.id} className="bg-[#0B3D2E] border border-white/10 p-4 rounded-xl flex items-center justify-between gap-4">
-                  <img src={s.image} alt={s.title} className="w-24 h-16 object-cover rounded-lg shrink-0" />
-                  <div className="flex-1">
-                    <span className="text-[9px] text-[#C8A24A] font-bold uppercase">{s.tag}</span>
-                    <h4 className="text-sm font-bold text-slate-100">{s.title}</h4>
-                    <p className="text-xs text-slate-300">{s.subtitle}</p>
-                  </div>
-                  <button
-                    onClick={() => {
-                      deleteHeroSlide(s.id);
-                      showToast('Slide deleted');
-                    }}
-                    className="text-rose-400 p-2"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {activeTab === 'hero' && <AdminHeroSliderManager showToast={showToast} />}
 
         {/* Tab 7: Navigation Menu */}
-        {activeTab === 'nav' && (
-          <div className="space-y-6 animate-in fade-in">
-            <div>
-              <h1 className="text-2xl font-bold font-serif-luxury text-slate-100">Navigation Menu Manager</h1>
-              <p className="text-xs text-slate-300">Customize header menu items and links.</p>
-            </div>
-
-            <div className="bg-[#0B3D2E] border border-white/10 p-5 rounded-2xl space-y-3">
-              {navLinks.map((nav) => (
-                <div key={nav.id} className="flex items-center justify-between p-3 bg-[#072a20] rounded-xl text-xs">
-                  <div>
-                    <span className="font-bold text-slate-100">{nav.label}</span>
-                    <span className="text-slate-400 ml-3 font-mono">{nav.url}</span>
-                  </div>
-                  <button
-                    onClick={() => {
-                      deleteNavLink(nav.id);
-                      showToast('Nav link deleted');
-                    }}
-                    className="text-rose-400 hover:text-rose-300 p-1"
-                  >
-                    <Trash2 className="w-4 h-4" />
-                  </button>
-                </div>
-              ))}
-            </div>
-          </div>
-        )}
+        {activeTab === 'nav' && <AdminNavManager showToast={showToast} />}
 
         {/* Tab 8: Orders & Tracking */}
         {activeTab === 'orders' && (

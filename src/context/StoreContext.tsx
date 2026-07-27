@@ -13,8 +13,10 @@ import {
   BeforeAfterItem,
   BlogArticle,
   HeroSlide,
+  HeroSliderSettings,
   SiteSettings,
   NavLink,
+  HeaderLayoutSettings,
   TestimonialVideo,
   QuizQuestion,
   MediaItem,
@@ -34,6 +36,7 @@ import {
   INITIAL_ORDERS,
   INITIAL_SITE_SETTINGS,
   INITIAL_NAV_LINKS,
+  INITIAL_HEADER_LAYOUT_SETTINGS,
   INITIAL_TESTIMONIAL_VIDEOS,
   INITIAL_QUIZ_QUESTIONS,
   INITIAL_MEDIA_ITEMS,
@@ -76,11 +79,18 @@ interface StoreContextType {
   siteSettings: SiteSettings;
   updateSiteSettings: (partial: Partial<SiteSettings>) => void;
 
-  // Nav Links
+  // Nav Links & Header Layout
   navLinks: NavLink[];
   addNavLink: (navLink: Omit<NavLink, 'id'>) => void;
   updateNavLink: (id: string, partial: Partial<NavLink>) => void;
   deleteNavLink: (id: string) => void;
+  reorderNavLinks: (newList: NavLink[]) => void;
+  duplicateNavLink: (id: string) => void;
+  trackNavClick: (id: string) => void;
+  trackNavImpression: (id: string) => void;
+  resetNavAnalytics: () => void;
+  headerLayoutSettings: HeaderLayoutSettings;
+  updateHeaderLayoutSettings: (partial: Partial<HeaderLayoutSettings>) => void;
 
   // Currency & Location
   currencies: Currency[];
@@ -102,6 +112,8 @@ interface StoreContextType {
   products: Product[];
   categories: Category[];
   heroSlides: HeroSlide[];
+  heroSliderSettings: HeroSliderSettings;
+  updateHeroSliderSettings: (partial: Partial<HeroSliderSettings>) => void;
   beforeAfterItems: BeforeAfterItem[];
   reviews: Review[];
   blogs: BlogArticle[];
@@ -187,10 +199,15 @@ interface StoreContextType {
   addCategory: (category: Omit<Category, 'id'>) => void;
   updateCategory: (id: string, category: Partial<Category>) => void;
   deleteCategory: (id: string) => void;
+  reorderCategories: (newCategories: Category[]) => void;
 
   addHeroSlide: (slide: Omit<HeroSlide, 'id'>) => void;
   updateHeroSlide: (id: string, slide: Partial<HeroSlide>) => void;
   deleteHeroSlide: (id: string) => void;
+  reorderHeroSlides: (newSlides: HeroSlide[]) => void;
+  duplicateHeroSlide: (id: string) => void;
+  trackSlideImpression: (id: string) => void;
+  trackSlideClick: (id: string) => void;
 
   addBlog: (blog: Omit<BlogArticle, 'id'>) => void;
   updateBlog: (id: string, blog: Partial<BlogArticle>) => void;
@@ -369,16 +386,43 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   };
 
+  // Header Layout Settings
+  const [headerLayoutSettings, setHeaderLayoutSettings] = useState<HeaderLayoutSettings>(() =>
+    getStored('header_layout_settings', INITIAL_HEADER_LAYOUT_SETTINGS)
+  );
+
+  const updateHeaderLayoutSettings = (partial: Partial<HeaderLayoutSettings>) => {
+    setHeaderLayoutSettings((prev) => {
+      const next = { ...prev, ...partial };
+      setStored('header_layout_settings', next);
+      return next;
+    });
+  };
+
   // Nav Links
   const [navLinks, setNavLinks] = useState<NavLink[]>(() => getStored('nav_links', INITIAL_NAV_LINKS));
+
   const addNavLink = (item: Omit<NavLink, 'id'>) => {
-    const newLink: NavLink = { ...item, id: `nav-${Date.now()}` };
+    const newLink: NavLink = {
+      status: 'ACTIVE',
+      sortOrder: navLinks.length + 1,
+      clicks: 0,
+      impressions: 0,
+      showOnDesktop: true,
+      showOnTablet: true,
+      showOnMobile: true,
+      userVisibility: 'EVERYONE',
+      allowedCountries: [],
+      ...item,
+      id: `nav-${Date.now()}`,
+    };
     setNavLinks((prev) => {
       const next = [...prev, newLink];
       setStored('nav_links', next);
       return next;
     });
   };
+
   const updateNavLink = (id: string, partial: Partial<NavLink>) => {
     setNavLinks((prev) => {
       const next = prev.map((l) => (l.id === id ? { ...l, ...partial } : l));
@@ -386,9 +430,61 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return next;
     });
   };
+
   const deleteNavLink = (id: string) => {
     setNavLinks((prev) => {
-      const next = prev.filter((l) => l.id !== id);
+      // Also reset parentId of any child links if parent is deleted
+      const next = prev
+        .filter((l) => l.id !== id)
+        .map((l) => (l.parentId === id ? { ...l, parentId: null } : l));
+      setStored('nav_links', next);
+      return next;
+    });
+  };
+
+  const reorderNavLinks = (newList: NavLink[]) => {
+    const updated = newList.map((item, idx) => ({ ...item, sortOrder: idx + 1 }));
+    setNavLinks(updated);
+    setStored('nav_links', updated);
+  };
+
+  const duplicateNavLink = (id: string) => {
+    const target = navLinks.find((l) => l.id === id);
+    if (!target) return;
+    const duplicated: NavLink = {
+      ...JSON.parse(JSON.stringify(target)),
+      id: `nav-${Date.now()}`,
+      label: `${target.label} (Copy)`,
+      clicks: 0,
+      impressions: 0,
+      sortOrder: navLinks.length + 1,
+    };
+    setNavLinks((prev) => {
+      const next = [...prev, duplicated];
+      setStored('nav_links', next);
+      return next;
+    });
+  };
+
+  const trackNavClick = (id: string) => {
+    setNavLinks((prev) => {
+      const next = prev.map((l) => (l.id === id ? { ...l, clicks: (l.clicks || 0) + 1 } : l));
+      setStored('nav_links', next);
+      return next;
+    });
+  };
+
+  const trackNavImpression = (id: string) => {
+    setNavLinks((prev) => {
+      const next = prev.map((l) => (l.id === id ? { ...l, impressions: (l.impressions || 0) + 1 } : l));
+      setStored('nav_links', next);
+      return next;
+    });
+  };
+
+  const resetNavAnalytics = () => {
+    setNavLinks((prev) => {
+      const next = prev.map((l) => ({ ...l, clicks: 0, impressions: 0 }));
       setStored('nav_links', next);
       return next;
     });
@@ -489,7 +585,17 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
     return stored;
   });
+  const DEFAULT_HERO_SLIDER_SETTINGS: HeroSliderSettings = {
+    autoPlay: true,
+    autoPlayDelay: 6,
+    transitionSpeed: 700,
+    pauseOnHover: true,
+    infiniteLoop: true,
+    swipeSupport: true,
+  };
+
   const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(() => getStored('hero_slides', INITIAL_HERO_SLIDES));
+  const [heroSliderSettings, setHeroSliderSettings] = useState<HeroSliderSettings>(() => getStored('hero_slider_settings', DEFAULT_HERO_SLIDER_SETTINGS));
   const [beforeAfterItems, setBeforeAfterItems] = useState<BeforeAfterItem[]>(() => getStored('before_after', INITIAL_BEFORE_AFTER));
   const [reviews, setReviews] = useState<Review[]>(() => getStored('reviews', INITIAL_REVIEWS));
   const [blogs, setBlogs] = useState<BlogArticle[]>(() => getStored('blogs', INITIAL_BLOGS));
@@ -995,9 +1101,34 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   };
 
-  // CRUD Hero Slide
+  const reorderCategories = (newCategories: Category[]) => {
+    const next = newCategories.map((cat, idx) => ({
+      ...cat,
+      sortOrder: idx + 1,
+    }));
+    setCategories(next);
+    setStored('categories', next);
+  };
+
+  // Hero Slider Settings & Operations
+  const updateHeroSliderSettings = (partial: Partial<HeroSliderSettings>) => {
+    setHeroSliderSettings((prev) => {
+      const next = { ...prev, ...partial };
+      setStored('hero_slider_settings', next);
+      return next;
+    });
+  };
+
   const addHeroSlide = (s: Omit<HeroSlide, 'id'>) => {
-    const newSlide: HeroSlide = { ...s, id: `slide-${Date.now()}` };
+    const newSlide: HeroSlide = {
+      ...s,
+      id: `slide-${Date.now()}`,
+      sortOrder: (heroSlides.length || 0) + 1,
+      impressions: s.impressions || 0,
+      clicks: s.clicks || 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
     setHeroSlides((prev) => {
       const next = [...prev, newSlide];
       setStored('hero_slides', next);
@@ -1007,7 +1138,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const updateHeroSlide = (id: string, partial: Partial<HeroSlide>) => {
     setHeroSlides((prev) => {
-      const next = prev.map((s) => (s.id === id ? { ...s, ...partial } : s));
+      const next = prev.map((s) => (s.id === id ? { ...s, ...partial, updatedAt: new Date().toISOString() } : s));
       setStored('hero_slides', next);
       return next;
     });
@@ -1016,6 +1147,55 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const deleteHeroSlide = (id: string) => {
     setHeroSlides((prev) => {
       const next = prev.filter((s) => s.id !== id);
+      setStored('hero_slides', next);
+      return next;
+    });
+  };
+
+  const reorderHeroSlides = (newSlides: HeroSlide[]) => {
+    const next = newSlides.map((slide, idx) => ({
+      ...slide,
+      sortOrder: idx + 1,
+    }));
+    setHeroSlides(next);
+    setStored('hero_slides', next);
+  };
+
+  const duplicateHeroSlide = (id: string) => {
+    setHeroSlides((prev) => {
+      const target = prev.find((s) => s.id === id);
+      if (!target) return prev;
+      const copy: HeroSlide = {
+        ...target,
+        id: `slide-${Date.now()}`,
+        title: `${target.title} (Copy)`,
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        impressions: 0,
+        clicks: 0,
+        sortOrder: prev.length + 1,
+      };
+      const next = [...prev, copy];
+      setStored('hero_slides', next);
+      return next;
+    });
+  };
+
+  const trackSlideImpression = (id: string) => {
+    setHeroSlides((prev) => {
+      const next = prev.map((s) =>
+        s.id === id ? { ...s, impressions: (s.impressions || 0) + 1 } : s
+      );
+      setStored('hero_slides', next);
+      return next;
+    });
+  };
+
+  const trackSlideClick = (id: string) => {
+    setHeroSlides((prev) => {
+      const next = prev.map((s) =>
+        s.id === id ? { ...s, clicks: (s.clicks || 0) + 1 } : s
+      );
       setStored('hero_slides', next);
       return next;
     });
@@ -1252,6 +1432,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         addNavLink,
         updateNavLink,
         deleteNavLink,
+        reorderNavLinks,
+        duplicateNavLink,
+        trackNavClick,
+        trackNavImpression,
+        resetNavAnalytics,
+        headerLayoutSettings,
+        updateHeaderLayoutSettings,
         currencies,
         currentCurrency,
         setCurrencyByCode,
@@ -1335,9 +1522,16 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         addCategory,
         updateCategory,
         deleteCategory,
+        reorderCategories,
+        heroSliderSettings,
+        updateHeroSliderSettings,
         addHeroSlide,
         updateHeroSlide,
         deleteHeroSlide,
+        reorderHeroSlides,
+        duplicateHeroSlide,
+        trackSlideImpression,
+        trackSlideClick,
         addBlog,
         updateBlog,
         deleteBlog,

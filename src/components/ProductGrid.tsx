@@ -162,7 +162,10 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
               </span>
             </button>
 
-            {categories.map((cat) => {
+            {categories
+              .filter((c) => (c.status || 'ACTIVE') === 'ACTIVE')
+              .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+              .map((cat) => {
               const isSelected = selectedCategory === cat.name;
               const count = categoryCounts[cat.name] || 0;
               return (

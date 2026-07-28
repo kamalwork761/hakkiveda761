@@ -8,6 +8,7 @@ import { AdminBeforeAfterManager } from './AdminBeforeAfterManager';
 import { AdminVideoTestimonialsManager } from './AdminVideoTestimonialsManager';
 import { AdminBlogManager } from './AdminBlogManager';
 import { AdminQuizManager } from './AdminQuizManager';
+import { AdminBrandManager } from './AdminBrandManager';
 import {
   Lock,
   LayoutDashboard,
@@ -3189,46 +3190,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
         )}
 
         {/* Tab 14: Branding */}
-        {activeTab === 'branding' && (
-          <div className="space-y-6 animate-in fade-in">
-            <div>
-              <h1 className="text-2xl font-bold font-serif-luxury text-slate-100">Logo & Brand Identity</h1>
-              <p className="text-xs text-slate-300">Update store name, tagline, and brand initials.</p>
-            </div>
-
-            <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-6 rounded-2xl space-y-4 text-xs font-sans">
-              <div>
-                <label className="block font-bold text-slate-300 mb-1">Brand Name *</label>
-                <input
-                  type="text"
-                  value={siteSettings.logoText}
-                  onChange={(e) => updateSiteSettings({ logoText: e.target.value })}
-                  className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100 font-bold"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-300 mb-1">Brand Subtitle / Tagline *</label>
-                <input
-                  type="text"
-                  value={siteSettings.logoSubtext}
-                  onChange={(e) => updateSiteSettings({ logoSubtext: e.target.value })}
-                  className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100"
-                />
-              </div>
-
-              <div>
-                <label className="block font-bold text-slate-300 mb-1">Emblem Initials (e.g. HV)</label>
-                <input
-                  type="text"
-                  value={siteSettings.logoInitials}
-                  onChange={(e) => updateSiteSettings({ logoInitials: e.target.value })}
-                  className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100 font-mono font-bold"
-                />
-              </div>
-            </div>
-          </div>
-        )}
+        {activeTab === 'branding' && <AdminBrandManager showToast={showToast} />}
 
         {/* Tab 15: Contact Info */}
         {activeTab === 'contact' && (

@@ -15,6 +15,7 @@ import {
   HeroSlide,
   HeroSliderSettings,
   SiteSettings,
+  BrandIdentityConfig,
   NavLink,
   HeaderLayoutSettings,
   TestimonialVideo,
@@ -41,6 +42,7 @@ import {
   INITIAL_CUSTOMER_ACCOUNTS,
   INITIAL_ORDERS,
   INITIAL_SITE_SETTINGS,
+  INITIAL_BRAND_IDENTITY,
   INITIAL_NAV_LINKS,
   INITIAL_HEADER_LAYOUT_SETTINGS,
   INITIAL_TESTIMONIAL_VIDEOS,
@@ -90,6 +92,15 @@ interface StoreContextType {
   // Site Settings & Branding
   siteSettings: SiteSettings;
   updateSiteSettings: (partial: Partial<SiteSettings>) => void;
+  brandIdentity: BrandIdentityConfig;
+  draftBrandIdentity: BrandIdentityConfig;
+  updateBrandIdentity: (partial: Partial<BrandIdentityConfig>) => void;
+  saveBrandDraft: (draft: BrandIdentityConfig) => void;
+  publishBrandTheme: (theme: BrandIdentityConfig) => void;
+  reloadThemeCache: () => void;
+  applyBrandStyles: (brand: BrandIdentityConfig) => void;
+  isPreviewingWebsiteTheme: boolean;
+  setIsPreviewingWebsiteTheme: (val: boolean) => void;
 
   // Nav Links & Header Layout
   navLinks: NavLink[];
@@ -431,6 +442,137 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setSiteSettings((prev) => {
       const next = { ...prev, ...partial };
       setStored('site_settings', next);
+      return next;
+    });
+  };
+
+  const [brandIdentity, setBrandIdentity] = useState<BrandIdentityConfig>(() =>
+    getStored('brand_identity', INITIAL_BRAND_IDENTITY)
+  );
+
+  const [draftBrandIdentity, setDraftBrandIdentity] = useState<BrandIdentityConfig>(() =>
+    getStored('brand_identity_draft', getStored('brand_identity', INITIAL_BRAND_IDENTITY))
+  );
+
+  const [isPreviewingWebsiteTheme, setIsPreviewingWebsiteTheme] = useState<boolean>(false);
+
+  const applyBrandStyles = (brand: BrandIdentityConfig) => {
+    if (typeof document === 'undefined') return;
+    const root = document.documentElement;
+
+    const primary = brand.primaryColor || '#3AA91F';
+    const gold = brand.secondaryGold || '#D4AF37';
+    const bg = brand.backgroundColor || '#0B1D13';
+    const text = brand.textColor || '#F8FAFC';
+    const accent = brand.accentColor || '#10B981';
+    const button = brand.buttonColor || '#D4AF37';
+    const hover = brand.hoverColor || '#B8962E';
+    const border = brand.borderColor || 'rgba(212, 175, 55, 0.3)';
+    const fontHeading = brand.headingFont || 'Cinzel, Playfair Display, serif';
+    const fontBody = brand.bodyFont || 'Plus Jakarta Sans, sans-serif';
+    const fontButton = brand.buttonFont || 'Plus Jakarta Sans, sans-serif';
+
+    // Core Theme CSS Variables used across website, components, header, footer, quiz, etc.
+    root.style.setProperty('--brand-primary', primary);
+    root.style.setProperty('--brand-primary-green', primary);
+    root.style.setProperty('--brand-gold', gold);
+    root.style.setProperty('--brand-accent', accent);
+    root.style.setProperty('--button-primary', button);
+    root.style.setProperty('--brand-btn-color', button);
+    root.style.setProperty('--button-hover', hover);
+    root.style.setProperty('--brand-btn-hover', hover);
+    root.style.setProperty('--background', bg);
+    root.style.setProperty('--brand-bg', bg);
+    root.style.setProperty('--brand-primary-dark', bg);
+    root.style.setProperty('--brand-primary-deep', bg);
+    root.style.setProperty('--text-primary', text);
+    root.style.setProperty('--brand-text-color', text);
+    root.style.setProperty('--brand-border', border);
+    root.style.setProperty('--brand-border-color', border);
+
+    // Typography
+    root.style.setProperty('--font-heading', fontHeading);
+    root.style.setProperty('--font-body', fontBody);
+    root.style.setProperty('--font-button', fontButton);
+
+    if (brand.browserTitle) {
+      document.title = brand.browserTitle;
+    }
+  };
+
+  const reloadThemeCache = () => {
+    if (typeof window === 'undefined') return;
+    try {
+      localStorage.removeItem('theme_css_cache');
+    } catch (e) {
+      console.warn('Unable to clear theme_css_cache', e);
+    }
+    const currentActiveTheme = isPreviewingWebsiteTheme ? draftBrandIdentity : brandIdentity;
+    applyBrandStyles(currentActiveTheme);
+    window.dispatchEvent(new CustomEvent('themeUpdated', { detail: currentActiveTheme }));
+  };
+
+  useEffect(() => {
+    applyBrandStyles(isPreviewingWebsiteTheme ? draftBrandIdentity : brandIdentity);
+  }, [brandIdentity, draftBrandIdentity, isPreviewingWebsiteTheme]);
+
+  useEffect(() => {
+    const handleThemeUpdate = (e: any) => {
+      if (e.detail) {
+        applyBrandStyles(e.detail);
+      }
+    };
+    window.addEventListener('themeUpdated', handleThemeUpdate);
+    return () => window.removeEventListener('themeUpdated', handleThemeUpdate);
+  }, []);
+
+  const saveBrandDraft = (draft: BrandIdentityConfig) => {
+    setDraftBrandIdentity(draft);
+    setStored('brand_identity_draft', draft);
+  };
+
+  const publishBrandTheme = (theme: BrandIdentityConfig) => {
+    setBrandIdentity(theme);
+    setStored('brand_identity', theme);
+
+    setDraftBrandIdentity(theme);
+    setStored('brand_identity_draft', theme);
+
+    setIsPreviewingWebsiteTheme(false);
+    applyBrandStyles(theme);
+
+    // Keep siteSettings in sync automatically
+    const siteUpdates: Partial<SiteSettings> = {};
+    if (theme.brandName) siteUpdates.logoText = theme.brandName;
+    if (theme.brandSubtitle) siteUpdates.logoSubtext = theme.brandSubtitle;
+    if (theme.brandInitials) siteUpdates.logoInitials = theme.brandInitials;
+    if (theme.browserTitle) siteUpdates.seoTitle = theme.browserTitle;
+    if (Object.keys(siteUpdates).length > 0) {
+      updateSiteSettings(siteUpdates);
+    }
+
+    reloadThemeCache();
+  };
+
+  const updateBrandIdentity = (partial: Partial<BrandIdentityConfig>) => {
+    setBrandIdentity((prev) => {
+      const next = { ...prev, ...partial };
+      setStored('brand_identity', next);
+      setDraftBrandIdentity(next);
+      setStored('brand_identity_draft', next);
+      applyBrandStyles(next);
+
+      // Keep siteSettings in sync automatically
+      const siteUpdates: Partial<SiteSettings> = {};
+      if (partial.brandName) siteUpdates.logoText = partial.brandName;
+      if (partial.brandSubtitle) siteUpdates.logoSubtext = partial.brandSubtitle;
+      if (partial.brandInitials) siteUpdates.logoInitials = partial.brandInitials;
+      if (partial.browserTitle) siteUpdates.seoTitle = partial.browserTitle;
+      if (Object.keys(siteUpdates).length > 0) {
+        updateSiteSettings(siteUpdates);
+      }
+
+      reloadThemeCache();
       return next;
     });
   };
@@ -1747,6 +1889,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         updateAdminPassword,
         siteSettings,
         updateSiteSettings,
+        brandIdentity,
+        draftBrandIdentity,
+        updateBrandIdentity,
+        saveBrandDraft,
+        publishBrandTheme,
+        reloadThemeCache,
+        applyBrandStyles,
+        isPreviewingWebsiteTheme,
+        setIsPreviewingWebsiteTheme,
         navLinks,
         addNavLink,
         updateNavLink,

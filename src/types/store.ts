@@ -534,6 +534,80 @@ export interface HeaderLayoutSettings {
   headerLayout: 'standard' | 'centered' | 'compact';
 }
 
+export interface BrandIdentityConfig {
+  // 1. Logo Management
+  mainLogoLight?: string;
+  mainLogoDark?: string;
+  mobileLogo?: string;
+  footerLogo?: string;
+  adminLogo?: string;
+  emailLogo?: string;
+  favicon?: string;
+  appleTouchIcon?: string;
+  svgLogo?: string;
+  transparentLogo?: string;
+
+  // 2. Brand Identity
+  brandName: string;
+  brandSubtitle: string;
+  brandInitials: string;
+  brandDescription: string;
+  companyMotto: string;
+
+  // 3. Brand Colours
+  primaryColor: string; // Default: #3AA91F
+  secondaryGold: string; // Default: #D4AF37
+  backgroundColor: string; // Default: #0B1D13
+  textColor: string; // Default: #F8FAFC
+  accentColor: string; // Default: #10B981
+  buttonColor: string; // Default: #D4AF37
+  hoverColor: string; // Default: #B8962E
+  borderColor: string; // Default: rgba(212, 175, 55, 0.3)
+
+  // 4. Typography
+  headingFont: string;
+  bodyFont: string;
+  buttonFont: string;
+  fontSize: 'sm' | 'md' | 'lg' | 'xl';
+  fontWeight: 'normal' | 'medium' | 'semibold' | 'bold' | 'extrabold';
+
+  // 5. Theme Manager
+  themeMode: 'light' | 'dark' | 'auto';
+
+  // 6. Brand Animation
+  enableLoadingAnimation: boolean;
+  animationType: 'fade' | 'pulse' | 'gold_glow' | 'spin_emblem' | 'shimmer';
+  animationDuration: number;
+  introSoundEnabled: boolean;
+
+  // 7. Social Branding
+  socialFacebook: string;
+  socialInstagram: string;
+  socialYoutube: string;
+  socialWhatsapp: string;
+  socialLinkedin: string;
+  socialTwitter: string;
+
+  // 8. Browser & PWA Branding
+  browserTitle: string;
+  themeColor: string;
+  pwaIcon192?: string;
+  pwaIcon512?: string;
+
+  // 9. Email Branding
+  emailHeaderLogo?: string;
+  emailFooterLogo?: string;
+  emailAccentColor: string;
+  emailSignature: string;
+
+  // 10. Brand Assets
+  brandGuidelinesPdf?: string;
+  brandGuidelinesFilename?: string;
+  watermarkLogo?: string;
+  whiteLogo?: string;
+  blackLogo?: string;
+}
+
 export interface SiteSettings {
   // Announcement Bar
   announcementText: string;

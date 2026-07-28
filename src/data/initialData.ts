@@ -9,6 +9,7 @@ import {
   Coupon,
   User,
   SiteSettings,
+  BrandIdentityConfig,
   NavLink,
   HeaderLayoutSettings,
   TestimonialVideo,
@@ -1484,4 +1485,78 @@ export const INITIAL_PAYMENT_LOGS: PaymentLog[] = [
     createdAt: '2026-07-25 01:00 PM',
   },
 ];
+
+export const INITIAL_BRAND_IDENTITY: BrandIdentityConfig = {
+  // 1. Logo Management
+  mainLogoLight: '',
+  mainLogoDark: '',
+  mobileLogo: '',
+  footerLogo: '',
+  adminLogo: '',
+  emailLogo: '',
+  favicon: '',
+  appleTouchIcon: '',
+  svgLogo: '',
+  transparentLogo: '',
+
+  // 2. Brand Identity
+  brandName: 'HAKKIVEDA',
+  brandSubtitle: 'Ancestral Hakki-Pikki Herbal Secret',
+  brandInitials: 'HV',
+  brandDescription: 'Authentic 42-herb tribal hair care formulations brewed with traditional Mysore forest wisdom and zero synthetic additives.',
+  companyMotto: 'Pure Botanical Science • Zero Synthetic Harm',
+
+  // 3. Brand Colours
+  primaryColor: '#3AA91F',
+  secondaryGold: '#D4AF37',
+  backgroundColor: '#0B1D13',
+  textColor: '#F8FAFC',
+  accentColor: '#10B981',
+  buttonColor: '#D4AF37',
+  hoverColor: '#B8962E',
+  borderColor: 'rgba(212, 175, 55, 0.3)',
+
+  // 4. Typography
+  headingFont: 'Cinzel, Playfair Display, serif',
+  bodyFont: 'Plus Jakarta Sans, sans-serif',
+  buttonFont: 'Plus Jakarta Sans, sans-serif',
+  fontSize: 'md',
+  fontWeight: 'bold',
+
+  // 5. Theme Manager
+  themeMode: 'dark',
+
+  // 6. Brand Animation
+  enableLoadingAnimation: true,
+  animationType: 'gold_glow',
+  animationDuration: 1.5,
+  introSoundEnabled: true,
+
+  // 7. Social Branding
+  socialFacebook: 'https://facebook.com/hakkiveda',
+  socialInstagram: 'https://instagram.com/hakkiveda',
+  socialYoutube: 'https://youtube.com/@hakkiveda',
+  socialWhatsapp: 'https://wa.me/917619536831',
+  socialLinkedin: 'https://linkedin.com/company/hakkiveda',
+  socialTwitter: 'https://x.com/hakkiveda',
+
+  // 8. Browser & PWA Branding
+  browserTitle: 'HAKKIVEDA | Ancestral Hakki-Pikki Tribal Hair Care',
+  themeColor: '#0B1D13',
+  pwaIcon192: '',
+  pwaIcon512: '',
+
+  // 9. Email Branding
+  emailHeaderLogo: '',
+  emailFooterLogo: '',
+  emailAccentColor: '#D4AF37',
+  emailSignature: 'HAKKIVEDA Botanical Care Team\nHunsur, Mysore, Karnataka 571105',
+
+  // 10. Brand Assets
+  brandGuidelinesPdf: '',
+  brandGuidelinesFilename: '',
+  watermarkLogo: '',
+  whiteLogo: '',
+  blackLogo: '',
+};
 

@@ -50,6 +50,25 @@
     overflow-x: hidden;
   }
 
+  /* Global Select & Dropdown Option Styling for Dark / Light mode accessibility */
+  select {
+    color-scheme: dark;
+    color: #F8FAFC;
+  }
+
+  select option {
+    background-color: #0B1D13 !important;
+    color: #F8FAFC !important;
+    padding: 8px 12px;
+  }
+
+  select option:checked,
+  select option:hover,
+  select option:focus {
+    background-color: #D4AF37 !important;
+    color: #0B1D13 !important;
+  }
+
   h1, h2, h3, .font-serif-luxury {
     font-family: 'Cormorant Garamond', Georgia, serif;
   }

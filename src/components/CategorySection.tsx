@@ -16,11 +16,11 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ selectedCatego
   };
 
   return (
-    <section className="py-16 bg-[#072a20] border-t border-b border-white/10 relative overflow-hidden">
+    <section className="py-16 bg-[var(--brand-primary-deep)] border-t border-b border-white/10 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 sm:px-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
           <div>
-            <span className="text-[#C8A24A] font-sans text-xs uppercase tracking-[0.25em] font-bold block mb-2">
+            <span className="text-[var(--brand-gold)] font-sans text-xs uppercase tracking-[0.25em] font-bold block mb-2">
               Botanical Catalog
             </span>
             <h2 className="text-3xl sm:text-4xl font-serif-luxury font-bold text-slate-100">
@@ -31,8 +31,8 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ selectedCatego
             onClick={() => handleCategoryClick('ALL')}
             className={`mt-4 md:mt-0 text-xs font-sans uppercase tracking-widest font-bold border-b pb-1 transition-colors ${
               selectedCategory === 'ALL'
-                ? 'text-[#C8A24A] border-[#C8A24A]'
-                : 'text-slate-400 border-transparent hover:text-[#C8A24A]'
+                ? 'text-[var(--brand-gold)] border-[var(--brand-gold)]'
+                : 'text-slate-400 border-transparent hover:text-[var(--brand-gold)]'
             }`}
           >
             View All Formulations ({categories.reduce((a, c) => a + c.itemCount, 0)})
@@ -51,8 +51,8 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ selectedCatego
                 onClick={() => handleCategoryClick(cat.name)}
                 className={`group relative rounded-xl overflow-hidden border transition-all duration-300 cursor-pointer active:scale-98 ${
                   isSelected
-                    ? 'border-[#C8A24A] ring-2 ring-[#C8A24A]/50 bg-[#0B3D2E] shadow-xl'
-                    : 'border-white/10 bg-[#0B3D2E]/80 hover:border-[#C8A24A]/60 hover:bg-[#0B3D2E]'
+                    ? 'border-[var(--brand-gold)] ring-2 ring-[var(--brand-gold)]/50 bg-[var(--brand-primary-dark)] shadow-xl'
+                    : 'border-white/10 bg-[var(--brand-primary-dark)]/80 hover:border-[var(--brand-gold)]/60 hover:bg-[var(--brand-primary-dark)]'
                 }`}
               >
                 <div className="h-44 overflow-hidden relative">
@@ -61,16 +61,16 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ selectedCatego
                     alt={cat.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0B3D2E] via-[#0B3D2E]/40 to-transparent"></div>
-                  <span className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-[#C8A24A] text-[10px] font-bold font-sans px-2.5 py-0.5 rounded-full border border-[#C8A24A]/30">
+                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--brand-primary-dark)] via-[var(--brand-primary-dark)]/40 to-transparent"></div>
+                  <span className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-[var(--brand-gold)] text-[10px] font-bold font-sans px-2.5 py-0.5 rounded-full border border-[var(--brand-gold)]/30">
                     {cat.itemCount} Items
                   </span>
                 </div>
 
                 <div className="p-5 space-y-2">
-                  <h3 className="text-base font-bold font-serif-luxury text-slate-100 group-hover:text-[#C8A24A] transition-colors flex items-center justify-between">
+                  <h3 className="text-base font-bold font-serif-luxury text-slate-100 group-hover:text-[var(--brand-gold)] transition-colors flex items-center justify-between">
                     <span>{cat.name}</span>
-                    <ArrowRight className="w-4 h-4 text-[#C8A24A] opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
+                    <ArrowRight className="w-4 h-4 text-[var(--brand-gold)] opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
                   </h3>
                   <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed opacity-80">
                     {cat.description}

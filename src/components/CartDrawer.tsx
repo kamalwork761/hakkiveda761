@@ -44,11 +44,11 @@ export const CartDrawer: React.FC = () => {
       ></div>
 
       <div className="fixed inset-y-0 right-0 max-w-full flex pl-10">
-        <div className="w-screen max-w-md bg-[#072a20] border-l border-[#C8A24A]/40 text-slate-100 shadow-2xl flex flex-col justify-between font-sans">
+        <div className="w-screen max-w-md bg-[var(--brand-primary-deep)] border-l border-[var(--brand-gold)]/40 text-slate-100 shadow-2xl flex flex-col justify-between font-sans">
           {/* Cart Header */}
-          <div className="p-6 bg-[#0B3D2E] border-b border-white/10 flex items-center justify-between">
+          <div className="p-6 bg-[var(--brand-primary-dark)] border-b border-white/10 flex items-center justify-between">
             <div className="flex items-center gap-2">
-              <ShoppingBag className="w-5 h-5 text-[#C8A24A]" />
+              <ShoppingBag className="w-5 h-5 text-[var(--brand-gold)]" />
               <h2 className="text-xl font-bold font-serif-luxury text-slate-100">Your Tribal Herbal Bag</h2>
             </div>
             <button
@@ -62,7 +62,7 @@ export const CartDrawer: React.FC = () => {
           {/* Free Shipping Progress */}
           <div className="bg-black/30 px-6 py-3 border-b border-white/10 space-y-1.5">
             <div className="flex justify-between text-xs font-semibold">
-              <span className="text-[#C8A24A] flex items-center gap-1">
+              <span className="text-[var(--brand-gold)] flex items-center gap-1">
                 <Sparkles className="w-3.5 h-3.5" />
                 <span>
                   {cartSubtotalINR >= freeShippingThresholdINR
@@ -73,7 +73,7 @@ export const CartDrawer: React.FC = () => {
             </div>
             <div className="w-full bg-black/50 h-1.5 rounded-full overflow-hidden">
               <div
-                className="bg-[#C8A24A] h-full transition-all duration-500"
+                className="bg-[var(--brand-gold)] h-full transition-all duration-500"
                 style={{ width: `${progressPercent}%` }}
               ></div>
             </div>
@@ -87,7 +87,7 @@ export const CartDrawer: React.FC = () => {
                 <p className="text-slate-300 text-sm font-serif-luxury">Your herbal cart is empty.</p>
                 <button
                   onClick={() => setIsCartOpen(false)}
-                  className="bg-[#C8A24A] text-[#0B3D2E] px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider"
+                  className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-6 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider"
                 >
                   Explore Collections
                 </button>
@@ -96,7 +96,7 @@ export const CartDrawer: React.FC = () => {
               cart.map((item) => (
                 <div
                   key={item.product.id}
-                  className="flex gap-4 p-3 bg-[#0B3D2E] border border-white/10 rounded-xl hover:border-[#C8A24A]/40 transition-colors"
+                  className="flex gap-4 p-3 bg-[var(--brand-primary-dark)] border border-white/10 rounded-xl hover:border-[var(--brand-gold)]/40 transition-colors"
                 >
                   <img
                     src={item.product.image}
@@ -109,7 +109,7 @@ export const CartDrawer: React.FC = () => {
                         <h4 className="text-xs font-bold font-serif-luxury text-slate-100 line-clamp-1">
                           {item.product.name}
                         </h4>
-                        <span className="text-[10px] text-[#C8A24A]">{item.product.volume}</span>
+                        <span className="text-[10px] text-[var(--brand-gold)]">{item.product.volume}</span>
                       </div>
                       <button
                         onClick={() => removeFromCart(item.product.id)}
@@ -136,7 +136,7 @@ export const CartDrawer: React.FC = () => {
                         </button>
                       </div>
 
-                      <span className="text-xs font-bold text-[#C8A24A]">
+                      <span className="text-xs font-bold text-[var(--brand-gold)]">
                         {formatPrice(item.product.priceINR * item.quantity)}
                       </span>
                     </div>
@@ -148,7 +148,7 @@ export const CartDrawer: React.FC = () => {
 
           {/* Cart Footer */}
           {cart.length > 0 && (
-            <div className="p-6 bg-[#0B3D2E] border-t border-white/10 space-y-4">
+            <div className="p-6 bg-[var(--brand-primary-dark)] border-t border-white/10 space-y-4">
               {/* Promo Coupon Form */}
               <form onSubmit={handleApplyCoupon} className="space-y-1">
                 <div className="flex gap-2">
@@ -157,11 +157,11 @@ export const CartDrawer: React.FC = () => {
                     placeholder="Enter Coupon (e.g. WELCOME10)"
                     value={couponInput}
                     onChange={(e) => setCouponInput(e.target.value)}
-                    className="flex-1 bg-black/40 border border-white/20 rounded px-3 py-1.5 text-xs text-slate-100 uppercase placeholder-slate-400 focus:outline-none focus:border-[#C8A24A]"
+                    className="flex-1 bg-black/40 border border-white/20 rounded px-3 py-1.5 text-xs text-slate-100 uppercase placeholder-slate-400 focus:outline-none focus:border-[var(--brand-gold)]"
                   />
                   <button
                     type="submit"
-                    className="bg-[#C8A24A] text-[#0B3D2E] px-4 py-1.5 rounded text-xs font-bold uppercase"
+                    className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-4 py-1.5 rounded text-xs font-bold uppercase"
                   >
                     Apply
                   </button>
@@ -208,7 +208,7 @@ export const CartDrawer: React.FC = () => {
                   <span>Shipping</span>
                   <span>{cartSubtotalINR >= freeShippingThresholdINR ? 'FREE' : formatPrice(150)}</span>
                 </div>
-                <div className="flex justify-between text-base font-bold text-[#C8A24A] border-t border-white/10 pt-2">
+                <div className="flex justify-between text-base font-bold text-[var(--brand-gold)] border-t border-white/10 pt-2">
                   <span>Total</span>
                   <span>{formatPrice(cartTotalINR + (cartSubtotalINR >= freeShippingThresholdINR ? 0 : 150))}</span>
                 </div>
@@ -219,7 +219,7 @@ export const CartDrawer: React.FC = () => {
                   setIsCartOpen(false);
                   setIsCheckoutOpen(true);
                 }}
-                className="w-full bg-[#C8A24A] text-[#0B3D2E] py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-white transition-all shadow-xl flex items-center justify-center gap-2"
+                className="w-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-white transition-all shadow-xl flex items-center justify-center gap-2"
               >
                 <span>Proceed To Secure Checkout</span>
                 <ArrowRight className="w-4 h-4" />

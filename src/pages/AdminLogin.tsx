@@ -35,26 +35,26 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onReturn
   };
 
   return (
-    <div className="min-h-screen bg-[#072a20] text-slate-100 font-sans flex flex-col justify-between p-4 sm:p-8 relative overflow-hidden">
+    <div className="min-h-screen bg-[var(--brand-primary-deeper)] text-slate-100 font-sans flex flex-col justify-between p-4 sm:p-8 relative overflow-hidden">
       {/* Background Ambience */}
-      <div className="absolute -top-32 -left-32 w-96 h-96 bg-[#C8A24A]/10 rounded-full blur-3xl pointer-events-none"></div>
-      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[#0B3D2E]/80 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute -top-32 -left-32 w-96 h-96 bg-[var(--brand-gold)]/10 rounded-full blur-3xl pointer-events-none"></div>
+      <div className="absolute -bottom-32 -right-32 w-96 h-96 bg-[var(--brand-primary-dark)]/80 rounded-full blur-3xl pointer-events-none"></div>
 
       {/* Top Header */}
       <div className="flex items-center justify-between max-w-5xl mx-auto w-full z-10">
         <div className="flex items-center gap-3">
-          <div className="w-10 h-10 border-2 border-[#C8A24A] flex items-center justify-center rotate-45 bg-[#0B3D2E]">
-            <span className="-rotate-45 font-bold font-brand text-[#C8A24A] text-base">HV</span>
+          <div className="w-10 h-10 border-2 border-[var(--brand-gold)] flex items-center justify-center rotate-45 bg-[var(--brand-primary-dark)]">
+            <span className="-rotate-45 font-bold font-brand text-[var(--brand-gold)] text-base">HV</span>
           </div>
           <div>
-            <h1 className="text-xl font-bold font-brand tracking-widest text-[#C8A24A]">HAKKIVEDA</h1>
+            <h1 className="text-xl font-bold font-brand tracking-widest text-[var(--brand-gold)]">HAKKIVEDA</h1>
             <p className="text-[9px] uppercase tracking-widest text-slate-300">Secure Store Command Center</p>
           </div>
         </div>
 
         <button
           onClick={onReturnToStore}
-          className="flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-[#C8A24A] bg-[#0B3D2E]/80 px-4 py-2 rounded-full border border-white/10 transition-all hover:border-[#C8A24A]"
+          className="flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-[var(--brand-gold)] bg-[var(--brand-primary-dark)]/80 px-4 py-2 rounded-full border border-white/10 transition-all hover:border-[var(--brand-gold)]"
         >
           <ArrowLeft className="w-4 h-4" />
           <span>Return to Store Front</span>
@@ -63,9 +63,9 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onReturn
 
       {/* Main Login Card */}
       <div className="max-w-md w-full mx-auto my-auto z-10 my-8">
-        <div className="bg-[#0B3D2E]/90 border border-[#C8A24A]/40 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl">
+        <div className="bg-[var(--brand-primary-dark)]/90 border border-[var(--brand-gold)]/40 rounded-2xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl">
           <div className="text-center space-y-3 mb-8">
-            <div className="w-14 h-14 bg-[#C8A24A]/20 border-2 border-[#C8A24A] text-[#C8A24A] rounded-full flex items-center justify-center mx-auto shadow-inner">
+            <div className="w-14 h-14 bg-[var(--brand-gold)]/20 border-2 border-[var(--brand-gold)] text-[var(--brand-gold)] rounded-full flex items-center justify-center mx-auto shadow-inner">
               <Lock className="w-7 h-7" />
             </div>
             <h2 className="text-2xl font-bold font-serif-luxury text-slate-100">Private Admin Portal</h2>
@@ -87,14 +87,14 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onReturn
                 Admin Email Address
               </label>
               <div className="relative">
-                <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#C8A24A]" />
+                <Mail className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--brand-gold)]" />
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="admin@hakkiveda.com"
-                  className="w-full bg-[#072a20] border border-white/20 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#C8A24A] transition-all"
+                  className="w-full bg-[var(--brand-primary-deeper)] border border-white/20 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[var(--brand-gold)] transition-all"
                 />
               </div>
             </div>
@@ -104,14 +104,14 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onReturn
                 Master Password
               </label>
               <div className="relative">
-                <KeyRound className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[#C8A24A]" />
+                <KeyRound className="w-4 h-4 absolute left-3.5 top-1/2 -translate-y-1/2 text-[var(--brand-gold)]" />
                 <input
                   type="password"
                   required
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   placeholder="••••••••••••"
-                  className="w-full bg-[#072a20] border border-white/20 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#C8A24A] transition-all"
+                  className="w-full bg-[var(--brand-primary-deeper)] border border-white/20 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[var(--brand-gold)] transition-all"
                 />
               </div>
             </div>
@@ -119,7 +119,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onReturn
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-[#C8A24A] text-[#0B3D2E] py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-white transition-all shadow-xl flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
+              className="w-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-white transition-all shadow-xl flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
             >
               {isSubmitting ? (
                 <span>Verifying Security Hash...</span>
@@ -137,7 +137,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onReturn
               SHA-256 Encrypted Session Authentication
             </p>
             <p className="text-[10px] text-slate-500">
-              Default Master Admin Account: <span className="text-[#C8A24A]">hakkiveda@gmail.com</span>
+              Default Master Admin Account: <span className="text-[var(--brand-gold)]">hakkiveda@gmail.com</span>
             </p>
           </div>
         </div>

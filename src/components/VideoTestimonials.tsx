@@ -101,10 +101,10 @@ export const VideoTestimonials: React.FC = () => {
       }));
 
   return (
-    <section className="py-20 bg-[#072a20] border-t border-b border-white/10 relative">
+    <section className="py-20 bg-[var(--brand-primary-deep)] border-t border-b border-white/10 relative">
       <div className="max-w-7xl mx-auto px-6 sm:px-12">
         <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
-          <span className="text-[#C8A24A] font-sans text-xs uppercase tracking-[0.28em] font-bold block">
+          <span className="text-[var(--brand-gold)] font-sans text-xs uppercase tracking-[0.28em] font-bold block">
             Video Testimonials
           </span>
           <h2 className="text-3xl sm:text-5xl font-serif-luxury font-bold text-slate-100">
@@ -121,7 +121,7 @@ export const VideoTestimonials: React.FC = () => {
             return (
               <div
                 key={item.id}
-                className="group bg-[#0B3D2E] border border-white/10 rounded-2xl overflow-hidden hover:border-[#C8A24A]/60 transition-all shadow-xl flex flex-col"
+                className="group bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl overflow-hidden hover:border-[var(--brand-gold)]/60 transition-all shadow-xl flex flex-col"
               >
                 <div className="relative h-64 overflow-hidden bg-black/80">
                   {isPlayingInline ? (
@@ -131,7 +131,7 @@ export const VideoTestimonials: React.FC = () => {
                           e.stopPropagation();
                           setPlayingInlineId(null);
                         }}
-                        className="absolute top-2 right-2 z-20 bg-black/80 text-white hover:bg-[#C8A24A] hover:text-[#0B3D2E] p-1.5 rounded-full transition-colors shadow-lg"
+                        className="absolute top-2 right-2 z-20 bg-black/80 text-white hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] p-1.5 rounded-full transition-colors shadow-lg"
                         title="Close Video"
                       >
                         <X className="w-4 h-4" />
@@ -154,11 +154,11 @@ export const VideoTestimonials: React.FC = () => {
                         alt={item.name}
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[#0B3D2E] via-transparent to-black/30"></div>
+                      <div className="absolute inset-0 bg-gradient-to-t from-[var(--brand-primary-dark)] via-transparent to-black/30"></div>
 
                       {/* Play Button Overlay */}
                       <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-14 h-14 rounded-full bg-[#C8A24A] text-[#0B3D2E] flex items-center justify-center shadow-2xl group-hover:scale-110 transition-all">
+                        <div className="w-14 h-14 rounded-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] flex items-center justify-center shadow-2xl group-hover:scale-110 transition-all">
                           <Play className="w-6 h-6 fill-current translate-x-0.5" />
                         </div>
                       </div>
@@ -174,7 +174,7 @@ export const VideoTestimonials: React.FC = () => {
                   <div>
                     <div className="flex items-center justify-between text-xs text-slate-300 font-sans mb-1">
                       <span className="font-bold text-slate-100">{item.name}</span>
-                      <span className="flex items-center gap-1 text-[#C8A24A]">
+                      <span className="flex items-center gap-1 text-[var(--brand-gold)]">
                         <MapPin className="w-3 h-3" />
                         <span>{item.location}</span>
                       </span>
@@ -182,21 +182,21 @@ export const VideoTestimonials: React.FC = () => {
 
                     <h4
                       onClick={() => setActiveVideo(item)}
-                      className="text-sm font-bold font-serif-luxury text-slate-100 hover:text-[#C8A24A] transition-colors leading-snug cursor-pointer"
+                      className="text-sm font-bold font-serif-luxury text-slate-100 hover:text-[var(--brand-gold)] transition-colors leading-snug cursor-pointer"
                     >
                       "{item.headline}"
                     </h4>
                   </div>
 
                   <div className="flex items-center justify-between border-t border-white/10 pt-3">
-                    <div className="flex items-center gap-1 text-[#C8A24A] text-xs font-sans font-semibold">
+                    <div className="flex items-center gap-1 text-[var(--brand-gold)] text-xs font-sans font-semibold">
                       <Star className="w-3.5 h-3.5 fill-current" />
                       <span>5.0 Verified Review</span>
                     </div>
 
                     <button
                       onClick={() => setActiveVideo(item)}
-                      className="text-[11px] font-sans text-slate-300 hover:text-[#C8A24A] underline font-medium"
+                      className="text-[11px] font-sans text-slate-300 hover:text-[var(--brand-gold)] underline font-medium"
                     >
                       Pop-out Modal
                     </button>
@@ -211,24 +211,24 @@ export const VideoTestimonials: React.FC = () => {
       {/* Video Modal Player */}
       {activeVideo && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-          <div className="relative w-full max-w-3xl bg-black rounded-2xl overflow-hidden border border-[#C8A24A]/40 shadow-2xl">
+          <div className="relative w-full max-w-3xl bg-black rounded-2xl overflow-hidden border border-[var(--brand-gold)]/40 shadow-2xl">
             <button
               onClick={() => setActiveVideo(null)}
-              className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/60 text-white hover:bg-[#C8A24A] hover:text-[#0B3D2E] transition-all flex items-center justify-center"
+              className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/60 text-white hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all flex items-center justify-center"
             >
               <X className="w-5 h-5" />
             </button>
 
-            <div className="p-4 bg-[#072a20] border-b border-white/10 flex items-center justify-between">
+            <div className="p-4 bg-[var(--brand-primary-deep)] border-b border-white/10 flex items-center justify-between">
               <div>
                 <h3 className="text-sm font-bold text-slate-100 font-serif-luxury">{activeVideo.name} ({activeVideo.location})</h3>
-                <p className="text-[11px] text-[#C8A24A]">Verified Customer Story</p>
+                <p className="text-[11px] text-[var(--brand-gold)]">Verified Customer Story</p>
               </div>
               <a
                 href={activeVideo.videoUrl}
                 target="_blank"
                 rel="noopener noreferrer"
-                className="text-[11px] font-sans font-bold text-[#C8A24A] hover:text-white bg-black/40 border border-[#C8A24A]/40 px-3 py-1.5 rounded-full transition-colors flex items-center gap-1.5"
+                className="text-[11px] font-sans font-bold text-[var(--brand-gold)] hover:text-white bg-black/40 border border-[var(--brand-gold)]/40 px-3 py-1.5 rounded-full transition-colors flex items-center gap-1.5"
               >
                 <span>Watch on YouTube</span>
               </a>

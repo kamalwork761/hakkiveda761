@@ -158,7 +158,7 @@ export const PaymentIcons: React.FC = () => {
       enabled: true,
       svg: (
         <div className="flex items-center gap-1.5 text-xs font-bold text-slate-100 font-sans whitespace-nowrap">
-          <Building2 className="w-4 h-4 text-[#C8A24A]" />
+          <Building2 className="w-4 h-4 text-[var(--brand-gold)]" />
           <span>Net Banking</span>
         </div>
       ),
@@ -180,8 +180,8 @@ export const PaymentIcons: React.FC = () => {
     <div className="py-8 border-b border-white/10">
       <div className="flex flex-col sm:flex-row items-center justify-between gap-3 mb-6">
         <div className="flex items-center gap-2">
-          <ShieldCheck className="w-5 h-5 text-[#C8A24A]" />
-          <h4 className="text-xs font-bold font-serif-luxury text-[#C8A24A] uppercase tracking-[0.2em]">
+          <ShieldCheck className="w-5 h-5 text-[var(--brand-gold)]" />
+          <h4 className="text-xs font-bold font-serif-luxury text-[var(--brand-gold)] uppercase tracking-[0.2em]">
             SECURE PAYMENTS & ENCRYPTED CHECKOUT
           </h4>
         </div>
@@ -196,7 +196,7 @@ export const PaymentIcons: React.FC = () => {
           return (
             <div
               key={method.id}
-              className="bg-[#072a20] border border-white/10 hover:border-[#C8A24A]/60 px-3 py-2 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 shadow-sm cursor-default select-none h-10 group"
+              className="bg-[var(--brand-primary-deep)] border border-white/10 hover:border-[var(--brand-gold)]/60 px-3 py-2 rounded-xl flex items-center justify-center transition-all duration-200 hover:scale-105 shadow-sm cursor-default select-none h-10 group"
               title={method.name}
             >
               <div className="opacity-90 group-hover:opacity-100 transition-opacity">

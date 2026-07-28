@@ -83,6 +83,21 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
   const [backgroundVideo, setBackgroundVideo] = useState('');
   const [backgroundVideoFilename, setBackgroundVideoFilename] = useState('');
 
+  // Media File & Object URL States for instant preview & memory leak prevention
+  const [desktopFile, setDesktopFile] = useState<File | null>(null);
+  const [desktopPreviewUrl, setDesktopPreviewUrl] = useState<string | null>(null);
+
+  const [mobileFile, setMobileFile] = useState<File | null>(null);
+  const [mobilePreviewUrl, setMobilePreviewUrl] = useState<string | null>(null);
+
+  const [videoFile, setVideoFile] = useState<File | null>(null);
+  const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
+
+  // Upload Progress & File Error States
+  const [isUploading, setIsUploading] = useState<boolean>(false);
+  const [uploadProgress, setUploadProgress] = useState<number>(0);
+  const [fileError, setFileError] = useState<string | null>(null);
+
   // Primary CTA
   const [ctaText, setCtaText] = useState('Shop Tribal Elixir');
   const [ctaLink, setCtaLink] = useState('#products');
@@ -102,7 +117,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
   // Display Settings
   const [textPosition, setTextPosition] = useState<'LEFT' | 'CENTER' | 'RIGHT'>('LEFT');
   const [textAlignment, setTextAlignment] = useState<'left' | 'center' | 'right'>('left');
-  const [overlayColor, setOverlayColor] = useState('#0B3D2E');
+  const [overlayColor, setOverlayColor] = useState('var(--brand-primary-dark)');
   const [overlayOpacity, setOverlayOpacity] = useState(80);
   const [textColor, setTextColor] = useState('white');
 
@@ -124,8 +139,37 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
   // Sort slides by sortOrder
   const sortedSlides = [...heroSlides].sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
 
+  // Memory Leak Prevention: Cleanup Object URLs on unmount
+  React.useEffect(() => {
+    return () => {
+      if (desktopPreviewUrl) URL.revokeObjectURL(desktopPreviewUrl);
+      if (mobilePreviewUrl) URL.revokeObjectURL(mobilePreviewUrl);
+      if (videoPreviewUrl) URL.revokeObjectURL(videoPreviewUrl);
+    };
+  }, [desktopPreviewUrl, mobilePreviewUrl, videoPreviewUrl]);
+
+  // Cleanup helper
+  const cleanupObjectUrls = () => {
+    if (desktopPreviewUrl) {
+      URL.revokeObjectURL(desktopPreviewUrl);
+      setDesktopPreviewUrl(null);
+    }
+    if (mobilePreviewUrl) {
+      URL.revokeObjectURL(mobilePreviewUrl);
+      setMobilePreviewUrl(null);
+    }
+    if (videoPreviewUrl) {
+      URL.revokeObjectURL(videoPreviewUrl);
+      setVideoPreviewUrl(null);
+    }
+    setDesktopFile(null);
+    setMobileFile(null);
+    setVideoFile(null);
+  };
+
   // Reset Form
   const resetForm = () => {
+    cleanupObjectUrls();
     setIsEditing(false);
     setEditingSlideId(null);
     setTag('AUTHENTIC HAKKI-PIKKI SECRET');
@@ -152,17 +196,21 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
     setEndDate('');
     setTextPosition('LEFT');
     setTextAlignment('left');
-    setOverlayColor('#0B3D2E');
+    setOverlayColor('var(--brand-primary-dark)');
     setOverlayOpacity(80);
     setTextColor('white');
     setAnimation('kenburns');
     setAltText('Adivasi HakkiVeda Herbal Oil Banner');
     setImageTitle('HakkiVeda Tribal Hair Care Banner');
     setValidationError(null);
+    setFileError(null);
+    setIsUploading(false);
+    setUploadProgress(0);
   };
 
   // Open Edit Mode
   const handleEditInit = (slide: HeroSlide) => {
+    cleanupObjectUrls();
     setIsEditing(true);
     setEditingSlideId(slide.id);
     setTag(slide.tag || '');
@@ -189,108 +237,292 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
     setEndDate(slide.endDate || '');
     setTextPosition(slide.textPosition || 'LEFT');
     setTextAlignment(slide.textAlignment || 'left');
-    setOverlayColor(slide.overlayColor || '#0B3D2E');
+    setOverlayColor(slide.overlayColor || 'var(--brand-primary-dark)');
     setOverlayOpacity(slide.overlayOpacity ?? 80);
     setTextColor(slide.textColor || 'white');
     setAnimation(slide.animation || 'kenburns');
     setAltText(slide.altText || '');
     setImageTitle(slide.imageTitle || '');
     setValidationError(null);
+    setFileError(null);
 
     // Scroll to form
     const el = document.getElementById('hero-banner-editor-form');
     if (el) el.scrollIntoView({ behavior: 'smooth' });
   };
 
-  // Helper File Upload
-  const handleFileUpload = (
+  // Instant File Selection Handler with format & size validation
+  const handleFileSelect = (
     e: React.ChangeEvent<HTMLInputElement>,
-    onSuccess: (dataUrl: string, fileName: string) => void
+    targetType: 'DESKTOP' | 'MOBILE' | 'VIDEO'
   ) => {
+    setFileError(null);
+    setValidationError(null);
+
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        onSuccess(event.target.result as string, file.name);
+
+    console.log(`[HeroSliderManager] File selected for ${targetType}:`, file.name, file.type, file.size);
+
+    const ext = file.name.split('.').pop()?.toLowerCase() || '';
+
+    if (targetType === 'VIDEO') {
+      const validVideoExts = ['mp4', 'webm'];
+      const validVideoTypes = ['video/mp4', 'video/webm'];
+      if (!validVideoTypes.includes(file.type) && !validVideoExts.includes(ext)) {
+        setFileError('Unsupported video format. Please upload MP4 or WEBM.');
+        e.target.value = '';
+        return;
       }
-    };
-    reader.readAsDataURL(file);
+    } else {
+      const validImageExts = ['jpg', 'jpeg', 'png', 'webp'];
+      const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      if (!validImageTypes.includes(file.type) && !validImageExts.includes(ext)) {
+        setFileError('Unsupported format. Please upload JPG, JPEG, PNG, or WEBP.');
+        e.target.value = '';
+        return;
+      }
+    }
+
+    // 25MB file size limit
+    const maxSizeBytes = 25 * 1024 * 1024;
+    if (file.size > maxSizeBytes) {
+      setFileError(`File too large (${(file.size / (1024 * 1024)).toFixed(1)}MB). Maximum allowed size is 25MB.`);
+      e.target.value = '';
+      return;
+    }
+
+    // Create temporary object URL for instant preview & revoke old one
+    const objectUrl = URL.createObjectURL(file);
+    console.log(`[HeroSliderManager] Object URL generated for ${targetType}:`, objectUrl);
+
+    if (targetType === 'DESKTOP') {
+      if (desktopPreviewUrl) URL.revokeObjectURL(desktopPreviewUrl);
+      setDesktopFile(file);
+      setDesktopPreviewUrl(objectUrl);
+      setImageFilename(file.name);
+    } else if (targetType === 'MOBILE') {
+      if (mobilePreviewUrl) URL.revokeObjectURL(mobilePreviewUrl);
+      setMobileFile(file);
+      setMobilePreviewUrl(objectUrl);
+      setMobileImageFilename(file.name);
+    } else if (targetType === 'VIDEO') {
+      if (videoPreviewUrl) URL.revokeObjectURL(videoPreviewUrl);
+      setVideoFile(file);
+      setVideoPreviewUrl(objectUrl);
+      setBackgroundVideoFilename(file.name);
+    }
+
+    // Reset input value so selecting the same file triggers onChange
+    e.target.value = '';
+  };
+
+  // Helper to read file bytes with smart canvas compression for images
+  const readFileAsDataUrl = (
+    file: File,
+    onProgress?: (percent: number) => void
+  ): Promise<string> => {
+    return new Promise((resolve, reject) => {
+      const isCompressibleImage = file.type.startsWith('image/') && file.size > 500 * 1024;
+      const reader = new FileReader();
+
+      reader.onprogress = (event) => {
+        if (event.lengthComputable && onProgress) {
+          const percent = Math.round((event.loaded / event.total) * 100);
+          onProgress(percent);
+        }
+      };
+
+      reader.onload = () => {
+        const rawResult = reader.result;
+        if (typeof rawResult !== 'string') {
+          reject(new Error('Failed to process selected file.'));
+          return;
+        }
+
+        if (!isCompressibleImage) {
+          resolve(rawResult);
+          return;
+        }
+
+        const img = new Image();
+        img.onload = () => {
+          const canvas = document.createElement('canvas');
+          let { width, height } = img;
+          const maxDimension = 1920;
+
+          if (width > maxDimension || height > maxDimension) {
+            if (width > height) {
+              height = Math.round((height * maxDimension) / width);
+              width = maxDimension;
+            } else {
+              width = Math.round((width * maxDimension) / height);
+              height = maxDimension;
+            }
+          }
+
+          canvas.width = width;
+          canvas.height = height;
+          const ctx = canvas.getContext('2d');
+          if (!ctx) {
+            resolve(rawResult);
+            return;
+          }
+
+          ctx.drawImage(img, 0, 0, width, height);
+          const compressedDataUrl = canvas.toDataURL('image/jpeg', 0.85);
+          resolve(compressedDataUrl);
+        };
+
+        img.onerror = () => {
+          resolve(rawResult);
+        };
+
+        img.src = rawResult;
+      };
+
+      reader.onerror = () => {
+        reject(reader.error || new Error('Error reading selected file.'));
+      };
+
+      reader.readAsDataURL(file);
+    });
   };
 
   // Validate Form
   const validateForm = (): boolean => {
-    if (mediaType === 'IMAGE' && !image.trim()) {
-      setValidationError('Desktop Hero Image is required.');
-      return false;
+    setValidationError(null);
+
+    if (mediaType === 'IMAGE') {
+      const hasDesktopImage = desktopFile !== null || (image && image.trim().length > 0);
+      if (!hasDesktopImage) {
+        setValidationError('Desktop Hero Image is required. Please upload an image file or provide an image URL.');
+        return false;
+      }
     }
-    if (mediaType === 'VIDEO' && !backgroundVideo.trim()) {
-      setValidationError('Background Video URL/File is required when Video mode is selected.');
-      return false;
+
+    if (mediaType === 'VIDEO') {
+      const hasVideo = videoFile !== null || (backgroundVideo && backgroundVideo.trim().length > 0);
+      if (!hasVideo) {
+        setValidationError('Background Video is required when Video mode is selected.');
+        return false;
+      }
     }
+
     if (!title.trim()) {
       setValidationError('Main Heading (Title) cannot be empty.');
       return false;
     }
+
     if (ctaText.trim() && !ctaLink.trim()) {
       setValidationError('Primary Button Link is required when button text is provided.');
       return false;
     }
+
     if (secondaryCtaText.trim() && !secondaryCtaLink.trim()) {
       setValidationError('Secondary Button Link is required when secondary button text is provided.');
       return false;
     }
-    setValidationError(null);
+
     return true;
   };
 
   // Form Submit
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    const slideData: Omit<HeroSlide, 'id'> = {
-      tag,
-      smallHeading,
-      title,
-      highlightText,
-      subtitle,
-      image,
-      imageFilename,
-      mobileImage,
-      mobileImageFilename,
-      backgroundVideo,
-      backgroundVideoFilename,
-      mediaType,
-      ctaText,
-      ctaLink,
-      ctaType,
-      secondaryCtaText,
-      secondaryCtaLink,
-      secondaryCtaType,
-      active: status === 'DRAFT' ? false : active,
-      status,
-      startDate,
-      endDate,
-      textPosition,
-      textAlignment,
-      overlayColor,
-      overlayOpacity,
-      textColor,
-      animation,
-      altText,
-      imageTitle,
-    };
+    setIsUploading(true);
+    setUploadProgress(10);
+    setFileError(null);
 
-    if (isEditing && editingSlideId) {
-      updateHeroSlide(editingSlideId, slideData);
-      showToast('Hero banner slide updated successfully!');
-    } else {
-      addHeroSlide(slideData);
-      showToast('New hero banner slide created!');
+    try {
+      let finalImageUrl = image;
+      let finalMobileUrl = mobileImage;
+      let finalVideoUrl = backgroundVideo;
+
+      // 1. Process Desktop Image
+      if (desktopFile) {
+        console.log('[HeroSliderManager] Processing desktop file:', desktopFile.name);
+        setUploadProgress(25);
+        finalImageUrl = await readFileAsDataUrl(desktopFile, (p) => {
+          setUploadProgress(25 + Math.round(p * 0.35));
+        });
+      }
+
+      // 2. Process Mobile Image
+      if (mobileFile) {
+        console.log('[HeroSliderManager] Processing mobile file:', mobileFile.name);
+        setUploadProgress(60);
+        finalMobileUrl = await readFileAsDataUrl(mobileFile, (p) => {
+          setUploadProgress(60 + Math.round(p * 0.25));
+        });
+      }
+
+      // 3. Process Video File
+      if (mediaType === 'VIDEO' && videoFile) {
+        console.log('[HeroSliderManager] Processing video file:', videoFile.name);
+        setUploadProgress(70);
+        finalVideoUrl = await readFileAsDataUrl(videoFile, (p) => {
+          setUploadProgress(70 + Math.round(p * 0.25));
+        });
+      }
+
+      setUploadProgress(95);
+
+      const slideData: Omit<HeroSlide, 'id'> = {
+        tag,
+        smallHeading,
+        title,
+        highlightText,
+        subtitle,
+        image: finalImageUrl,
+        imageFilename: desktopFile ? desktopFile.name : imageFilename,
+        mobileImage: finalMobileUrl,
+        mobileImageFilename: mobileFile ? mobileFile.name : mobileImageFilename,
+        backgroundVideo: finalVideoUrl,
+        backgroundVideoFilename: videoFile ? videoFile.name : backgroundVideoFilename,
+        mediaType,
+        ctaText,
+        ctaLink,
+        ctaType,
+        secondaryCtaText,
+        secondaryCtaLink,
+        secondaryCtaType,
+        active: status === 'DRAFT' ? false : active,
+        status,
+        startDate,
+        endDate,
+        textPosition,
+        textAlignment,
+        overlayColor,
+        overlayOpacity,
+        textColor,
+        animation,
+        altText,
+        imageTitle,
+      };
+
+      if (isEditing && editingSlideId) {
+        updateHeroSlide(editingSlideId, slideData);
+        showToast('Hero banner slide updated successfully!');
+      } else {
+        addHeroSlide(slideData);
+        showToast('New hero banner slide created!');
+      }
+
+      setUploadProgress(100);
+      setTimeout(() => {
+        setIsUploading(false);
+        setUploadProgress(0);
+        resetForm();
+      }, 200);
+    } catch (err: any) {
+      console.error('[HeroSliderManager] Upload / Save error:', err);
+      setFileError(err?.message || 'Upload failed. Please try selecting the file again.');
+      setIsUploading(false);
+      setUploadProgress(0);
     }
-
-    resetForm();
   };
 
   // Reorder Handler
@@ -334,9 +566,9 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
   return (
     <div className="space-y-6 animate-in fade-in">
       {/* Header Banner */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#0B3D2E] border border-white/10 p-5 rounded-2xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[var(--brand-primary-dark)] border border-white/10 p-5 rounded-2xl">
         <div>
-          <div className="flex items-center gap-2 text-[#C8A24A]">
+          <div className="flex items-center gap-2 text-[var(--brand-gold)]">
             <Sparkles className="w-5 h-5" />
             <span className="text-xs font-bold uppercase tracking-widest">Adivasi Master Banner System</span>
           </div>
@@ -347,11 +579,11 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center bg-[#072a20] p-1 rounded-xl border border-white/10 shrink-0">
+        <div className="flex items-center bg-[var(--brand-primary-deep)] p-1 rounded-xl border border-white/10 shrink-0">
           <button
             onClick={() => setActiveTab('banners')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-              activeTab === 'banners' ? 'bg-[#C8A24A] text-[#0B3D2E] shadow' : 'text-slate-300 hover:text-white'
+              activeTab === 'banners' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] shadow' : 'text-slate-300 hover:text-white'
             }`}
           >
             <Layers className="w-3.5 h-3.5" />
@@ -360,7 +592,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
           <button
             onClick={() => setActiveTab('global_settings')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-              activeTab === 'global_settings' ? 'bg-[#C8A24A] text-[#0B3D2E] shadow' : 'text-slate-300 hover:text-white'
+              activeTab === 'global_settings' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] shadow' : 'text-slate-300 hover:text-white'
             }`}
           >
             <Sliders className="w-3.5 h-3.5" />
@@ -369,7 +601,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
           <button
             onClick={() => setActiveTab('analytics')}
             className={`px-3.5 py-1.5 rounded-lg text-xs font-bold transition-all flex items-center gap-1.5 ${
-              activeTab === 'analytics' ? 'bg-[#C8A24A] text-[#0B3D2E] shadow' : 'text-slate-300 hover:text-white'
+              activeTab === 'analytics' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] shadow' : 'text-slate-300 hover:text-white'
             }`}
           >
             <BarChart3 className="w-3.5 h-3.5" />
@@ -385,14 +617,14 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
           <form
             id="hero-banner-editor-form"
             onSubmit={handleSubmit}
-            className="bg-[#0B3D2E] border border-[#C8A24A]/30 p-5 rounded-2xl space-y-5 text-xs text-slate-200 shadow-xl"
+            className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/30 p-5 rounded-2xl space-y-5 text-xs text-slate-200 shadow-xl"
           >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2">
-                <div className="w-7 h-7 rounded-lg bg-[#C8A24A]/20 text-[#C8A24A] flex items-center justify-center font-bold">
+                <div className="w-7 h-7 rounded-lg bg-[var(--brand-gold)]/20 text-[var(--brand-gold)] flex items-center justify-center font-bold">
                   {isEditing ? <Edit2 className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                 </div>
-                <h3 className="font-bold text-[#C8A24A] text-sm uppercase">
+                <h3 className="font-bold text-[var(--brand-gold)] text-sm uppercase">
                   {isEditing ? 'Edit Hero Banner Slide' : 'Create New Hero Banner Slide'}
                 </h3>
               </div>
@@ -400,7 +632,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                 <button
                   type="button"
                   onClick={resetForm}
-                  className="text-slate-400 hover:text-white text-xs flex items-center gap-1 bg-[#072a20] px-3 py-1 rounded-lg border border-white/10"
+                  className="text-slate-400 hover:text-white text-xs flex items-center gap-1 bg-[var(--brand-primary-deep)] px-3 py-1 rounded-lg border border-white/10"
                 >
                   <RotateCcw className="w-3 h-3" />
                   <span>Cancel Edit</span>
@@ -415,11 +647,27 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
               </div>
             )}
 
+            {fileError && (
+              <div className="bg-rose-500/20 border border-rose-500/50 text-rose-200 p-3 rounded-xl flex items-center justify-between gap-2">
+                <div className="flex items-center gap-2">
+                  <XCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                  <span>{fileError}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => setFileError(null)}
+                  className="text-rose-300 hover:text-white text-xs font-bold p-1"
+                >
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
+            )}
+
             {/* Form Grid Sections */}
             <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               {/* Left Column: Content & Copy */}
               <div className="space-y-4">
-                <h4 className="text-[11px] font-bold text-[#C8A24A] uppercase tracking-wider flex items-center gap-1.5">
+                <h4 className="text-[11px] font-bold text-[var(--brand-gold)] uppercase tracking-wider flex items-center gap-1.5">
                   <Sparkles className="w-3.5 h-3.5" />
                   <span>1. Banner Typography & Content</span>
                 </h4>
@@ -432,7 +680,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                       placeholder="e.g. AUTHENTIC HAKKI-PIKKI SECRET"
                       value={tag}
                       onChange={(e) => setTag(e.target.value)}
-                      className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
                     />
                   </div>
 
@@ -443,7 +691,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                       placeholder="e.g. 100% ORGANIC TRIBAL BOTANICALS"
                       value={smallHeading}
                       onChange={(e) => setSmallHeading(e.target.value)}
-                      className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
                     />
                   </div>
                 </div>
@@ -457,7 +705,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                       placeholder="e.g. Ancient Rituals"
                       value={title}
                       onChange={(e) => setTitle(e.target.value)}
-                      className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100 font-bold"
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100 font-bold"
                     />
                   </div>
 
@@ -468,7 +716,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                       placeholder="e.g. Modern Care"
                       value={highlightText}
                       onChange={(e) => setHighlightText(e.target.value)}
-                      className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-[#C8A24A] font-bold"
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-[var(--brand-gold)] font-bold"
                     />
                   </div>
                 </div>
@@ -480,13 +728,13 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                     placeholder="Harness the power of 42 rare mountain herbs, formulated by the Hakki-Pikki tribe..."
                     value={subtitle}
                     onChange={(e) => setSubtitle(e.target.value)}
-                    className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                    className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
                   />
                 </div>
 
                 {/* Primary CTA */}
                 <div className="border-t border-white/10 pt-3 space-y-3">
-                  <h4 className="text-[11px] font-bold text-[#C8A24A] uppercase tracking-wider flex items-center gap-1.5">
+                  <h4 className="text-[11px] font-bold text-[var(--brand-gold)] uppercase tracking-wider flex items-center gap-1.5">
                     <Link className="w-3.5 h-3.5" />
                     <span>Primary CTA Button</span>
                   </h4>
@@ -498,7 +746,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                         placeholder="e.g. Shop Tribal Elixir"
                         value={ctaText}
                         onChange={(e) => setCtaText(e.target.value)}
-                        className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100 font-bold"
+                        className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100 font-bold"
                       />
                     </div>
                     <div>
@@ -507,7 +755,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                         <select
                           value={ctaType}
                           onChange={(e) => setCtaType(e.target.value as any)}
-                          className="bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100 w-1/3"
+                          className="bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100 w-1/3"
                         >
                           <option value="COLLECTION">Collection</option>
                           <option value="PRODUCT">Product</option>
@@ -523,7 +771,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                           placeholder="Link e.g. #products"
                           value={ctaLink}
                           onChange={(e) => setCtaLink(e.target.value)}
-                          className="w-2/3 bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                          className="w-2/3 bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
                         />
                       </div>
                     </div>
@@ -539,7 +787,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                           key={p?.id || productTitle}
                           type="button"
                           onClick={() => applyLinkPreset('PRODUCT', p?.id || '', 'PRIMARY')}
-                          className="bg-[#072a20] hover:bg-[#C8A24A]/20 text-slate-300 border border-white/10 px-2 py-0.5 rounded"
+                          className="bg-[var(--brand-primary-deep)] hover:bg-[var(--brand-gold)]/20 text-slate-300 border border-white/10 px-2 py-0.5 rounded"
                         >
                           {productTitle.slice(0, 15)}{productTitle.length > 15 ? '...' : ''}
                         </button>
@@ -550,7 +798,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                         key={c?.id || c?.name}
                         type="button"
                         onClick={() => applyLinkPreset('CATEGORY', c?.name || '', 'PRIMARY')}
-                        className="bg-[#072a20] hover:bg-[#C8A24A]/20 text-slate-300 border border-white/10 px-2 py-0.5 rounded"
+                        className="bg-[var(--brand-primary-deep)] hover:bg-[var(--brand-gold)]/20 text-slate-300 border border-white/10 px-2 py-0.5 rounded"
                       >
                         {c?.name || 'Category'}
                       </button>
@@ -560,7 +808,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
 
                 {/* Secondary CTA */}
                 <div className="border-t border-white/10 pt-3 space-y-3">
-                  <h4 className="text-[11px] font-bold text-[#C8A24A] uppercase tracking-wider flex items-center gap-1.5">
+                  <h4 className="text-[11px] font-bold text-[var(--brand-gold)] uppercase tracking-wider flex items-center gap-1.5">
                     <Link className="w-3.5 h-3.5" />
                     <span>Secondary CTA Button (Optional)</span>
                   </h4>
@@ -572,7 +820,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                         placeholder="e.g. Start AI Scalp Quiz"
                         value={secondaryCtaText}
                         onChange={(e) => setSecondaryCtaText(e.target.value)}
-                        className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                        className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
                       />
                     </div>
                     <div>
@@ -582,7 +830,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                         placeholder="e.g. #ai-quiz"
                         value={secondaryCtaLink}
                         onChange={(e) => setSecondaryCtaLink(e.target.value)}
-                        className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                        className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
                       />
                     </div>
                   </div>
@@ -591,18 +839,18 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
 
               {/* Right Column: Media, Display, SEO & Scheduling */}
               <div className="space-y-4">
-                <h4 className="text-[11px] font-bold text-[#C8A24A] uppercase tracking-wider flex items-center gap-1.5">
+                <h4 className="text-[11px] font-bold text-[var(--brand-gold)] uppercase tracking-wider flex items-center gap-1.5">
                   <ImageIcon className="w-3.5 h-3.5" />
                   <span>2. Media Upload & Responsive Media</span>
                 </h4>
 
                 {/* Media Type Toggle */}
-                <div className="flex items-center gap-2 bg-[#072a20] p-1 rounded-lg border border-white/10 w-fit">
+                <div className="flex items-center gap-2 bg-[var(--brand-primary-deep)] p-1 rounded-lg border border-white/10 w-fit">
                   <button
                     type="button"
                     onClick={() => setMediaType('IMAGE')}
                     className={`px-3 py-1 rounded text-xs font-bold flex items-center gap-1.5 ${
-                      mediaType === 'IMAGE' ? 'bg-[#C8A24A] text-[#0B3D2E]' : 'text-slate-300'
+                      mediaType === 'IMAGE' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]' : 'text-slate-300'
                     }`}
                   >
                     <ImageIcon className="w-3.5 h-3.5" />
@@ -612,7 +860,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                     type="button"
                     onClick={() => setMediaType('VIDEO')}
                     className={`px-3 py-1 rounded text-xs font-bold flex items-center gap-1.5 ${
-                      mediaType === 'VIDEO' ? 'bg-[#C8A24A] text-[#0B3D2E]' : 'text-slate-300'
+                      mediaType === 'VIDEO' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]' : 'text-slate-300'
                     }`}
                   >
                     <Video className="w-3.5 h-3.5" />
@@ -624,16 +872,13 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                 <div>
                   <label className="block text-slate-400 mb-1 font-bold">Desktop Hero Image *</label>
                   <div className="flex items-center gap-2">
-                    <label className="cursor-pointer bg-[#C8A24A] text-[#0B3D2E] px-3 py-2 rounded-lg font-bold text-xs flex items-center gap-1 shrink-0 hover:bg-white transition-all">
+                    <label className="cursor-pointer bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-3 py-2 rounded-lg font-bold text-xs flex items-center gap-1 shrink-0 hover:bg-white transition-all shadow-sm">
                       <Upload className="w-3.5 h-3.5" />
                       <span>Upload File</span>
                       <input
                         type="file"
-                        accept="image/*"
-                        onChange={(e) => handleFileUpload(e, (url, fname) => {
-                          setImage(url);
-                          setImageFilename(fname);
-                        })}
+                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                        onChange={(e) => handleFileSelect(e, 'DESKTOP')}
                         className="hidden"
                       />
                     </label>
@@ -641,29 +886,37 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                       type="text"
                       placeholder="Or Image URL"
                       value={image}
-                      onChange={(e) => setImage(e.target.value)}
-                      className="w-full bg-[#072a20] border border-white/20 p-2 rounded-lg text-slate-100 text-xs"
+                      onChange={(e) => {
+                        if (desktopPreviewUrl) {
+                          URL.revokeObjectURL(desktopPreviewUrl);
+                          setDesktopPreviewUrl(null);
+                        }
+                        setDesktopFile(null);
+                        setImage(e.target.value);
+                      }}
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2 rounded-lg text-slate-100 text-xs"
                     />
                   </div>
-                  {imageFilename && (
-                    <span className="text-[10px] text-emerald-400 mt-1 block">File: {imageFilename}</span>
-                  )}
+                  {desktopFile ? (
+                    <span className="text-[10px] text-amber-300 mt-1 block font-semibold">
+                      Selected file: {desktopFile.name} ({(desktopFile.size / 1024).toFixed(0)} KB)
+                    </span>
+                  ) : imageFilename ? (
+                    <span className="text-[10px] text-emerald-400 mt-1 block">Saved file: {imageFilename}</span>
+                  ) : null}
                 </div>
 
                 {/* Mobile Image */}
                 <div>
                   <label className="block text-slate-400 mb-1">Mobile Hero Image (Optional)</label>
                   <div className="flex items-center gap-2">
-                    <label className="cursor-pointer bg-[#072a20] border border-white/20 text-slate-200 px-3 py-2 rounded-lg font-bold text-xs flex items-center gap-1 shrink-0 hover:border-[#C8A24A]">
+                    <label className="cursor-pointer bg-[var(--brand-primary-deep)] border border-white/20 text-slate-200 px-3 py-2 rounded-lg font-bold text-xs flex items-center gap-1 shrink-0 hover:border-[var(--brand-gold)]">
                       <Upload className="w-3.5 h-3.5" />
                       <span>Upload Mobile</span>
                       <input
                         type="file"
-                        accept="image/*"
-                        onChange={(e) => handleFileUpload(e, (url, fname) => {
-                          setMobileImage(url);
-                          setMobileImageFilename(fname);
-                        })}
+                        accept="image/jpeg,image/jpg,image/png,image/webp"
+                        onChange={(e) => handleFileSelect(e, 'MOBILE')}
                         className="hidden"
                       />
                     </label>
@@ -671,10 +924,24 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                       type="text"
                       placeholder="Or Mobile Image URL"
                       value={mobileImage}
-                      onChange={(e) => setMobileImage(e.target.value)}
-                      className="w-full bg-[#072a20] border border-white/20 p-2 rounded-lg text-slate-100 text-xs"
+                      onChange={(e) => {
+                        if (mobilePreviewUrl) {
+                          URL.revokeObjectURL(mobilePreviewUrl);
+                          setMobilePreviewUrl(null);
+                        }
+                        setMobileFile(null);
+                        setMobileImage(e.target.value);
+                      }}
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2 rounded-lg text-slate-100 text-xs"
                     />
                   </div>
+                  {mobileFile ? (
+                    <span className="text-[10px] text-amber-300 mt-1 block font-semibold">
+                      Selected mobile file: {mobileFile.name} ({(mobileFile.size / 1024).toFixed(0)} KB)
+                    </span>
+                  ) : mobileImageFilename ? (
+                    <span className="text-[10px] text-emerald-400 mt-1 block">Saved file: {mobileImageFilename}</span>
+                  ) : null}
                 </div>
 
                 {/* Video Background */}
@@ -682,16 +949,13 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                   <div>
                     <label className="block text-slate-400 mb-1 font-bold">Background Video (MP4 / WebM)</label>
                     <div className="flex items-center gap-2">
-                      <label className="cursor-pointer bg-[#072a20] border border-white/20 text-slate-200 px-3 py-2 rounded-lg font-bold text-xs flex items-center gap-1 shrink-0 hover:border-[#C8A24A]">
+                      <label className="cursor-pointer bg-[var(--brand-primary-deep)] border border-white/20 text-slate-200 px-3 py-2 rounded-lg font-bold text-xs flex items-center gap-1 shrink-0 hover:border-[var(--brand-gold)]">
                         <Upload className="w-3.5 h-3.5" />
                         <span>Upload Video</span>
                         <input
                           type="file"
                           accept="video/mp4,video/webm"
-                          onChange={(e) => handleFileUpload(e, (url, fname) => {
-                            setBackgroundVideo(url);
-                            setBackgroundVideoFilename(fname);
-                          })}
+                          onChange={(e) => handleFileSelect(e, 'VIDEO')}
                           className="hidden"
                         />
                       </label>
@@ -699,35 +963,100 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                         type="text"
                         placeholder="Video URL e.g. https://.../video.mp4"
                         value={backgroundVideo}
-                        onChange={(e) => setBackgroundVideo(e.target.value)}
-                        className="w-full bg-[#072a20] border border-white/20 p-2 rounded-lg text-slate-100 text-xs"
+                        onChange={(e) => {
+                          if (videoPreviewUrl) {
+                            URL.revokeObjectURL(videoPreviewUrl);
+                            setVideoPreviewUrl(null);
+                          }
+                          setVideoFile(null);
+                          setBackgroundVideo(e.target.value);
+                        }}
+                        className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2 rounded-lg text-slate-100 text-xs"
                       />
                     </div>
+                    {videoFile ? (
+                      <span className="text-[10px] text-amber-300 mt-1 block font-semibold">
+                        Selected video file: {videoFile.name}
+                      </span>
+                    ) : backgroundVideoFilename ? (
+                      <span className="text-[10px] text-emerald-400 mt-1 block">Saved file: {backgroundVideoFilename}</span>
+                    ) : null}
                   </div>
                 )}
 
                 {/* Media Preview Box */}
-                <div className="bg-[#072a20] border border-white/10 p-2.5 rounded-xl flex items-center gap-3">
-                  {mediaType === 'VIDEO' && backgroundVideo ? (
-                    <video src={backgroundVideo} className="w-20 h-12 object-cover rounded-lg border border-white/10" autoPlay muted loop />
-                  ) : image ? (
-                    <img src={image} alt="Preview" className="w-20 h-12 object-cover rounded-lg border border-white/10" />
-                  ) : (
-                    <div className="w-20 h-12 bg-black/40 rounded-lg border border-white/10 flex items-center justify-center text-slate-500">
-                      No Media
+                <div className="bg-[var(--brand-primary-deep)] border border-white/10 p-3 rounded-xl space-y-2">
+                  <div className="flex items-center justify-between">
+                    <span className="font-bold text-slate-200 text-xs">Media Preview</span>
+                    {(desktopFile || mobileFile || videoFile) && (
+                      <span className="text-[10px] bg-amber-500/20 text-amber-300 border border-amber-500/30 px-2 py-0.5 rounded font-bold animate-pulse">
+                        New File Selected (Unsaved Preview)
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="flex items-start gap-3">
+                    {mediaType === 'VIDEO' && (videoPreviewUrl || backgroundVideo) ? (
+                      <video
+                        key={videoPreviewUrl || backgroundVideo}
+                        src={videoPreviewUrl || backgroundVideo}
+                        className="w-28 h-16 object-cover rounded-lg border border-white/10 shadow-md"
+                        autoPlay
+                        muted
+                        loop
+                      />
+                    ) : (desktopPreviewUrl || image) ? (
+                      <img
+                        key={desktopPreviewUrl || image}
+                        src={desktopPreviewUrl || image}
+                        alt="Desktop Preview"
+                        className="w-28 h-16 object-cover rounded-lg border border-white/10 shadow-md"
+                      />
+                    ) : (
+                      <div className="w-28 h-16 bg-black/40 rounded-lg border border-white/10 flex items-center justify-center text-slate-500 text-xs">
+                        No Media
+                      </div>
+                    )}
+
+                    <div className="flex-1 text-[11px] space-y-1">
+                      <div className="flex items-center gap-1.5 font-semibold text-slate-200">
+                        <span>Desktop:</span>
+                        <span className="text-[var(--brand-gold)] truncate max-w-[180px]">
+                          {desktopFile ? desktopFile.name : imageFilename || (image ? 'URL Specified' : 'None')}
+                        </span>
+                      </div>
+
+                      {(mobilePreviewUrl || mobileImage) && (
+                        <div className="flex items-center gap-1.5 text-slate-300 text-[10px]">
+                          <Smartphone className="w-3 h-3 text-[var(--brand-gold)]" />
+                          <span>Mobile:</span>
+                          <span className="text-slate-200 truncate max-w-[180px]">
+                            {mobileFile ? mobileFile.name : mobileImageFilename || 'Custom Mobile Image'}
+                          </span>
+                        </div>
+                      )}
+
+                      {isUploading && (
+                        <div className="space-y-1 pt-1">
+                          <div className="flex justify-between text-[10px] text-amber-300 font-bold">
+                            <span>Uploading original file...</span>
+                            <span>{uploadProgress}%</span>
+                          </div>
+                          <div className="w-full h-1.5 bg-black/40 rounded-full overflow-hidden border border-white/10">
+                            <div
+                              className="h-full bg-gradient-to-r from-[var(--brand-gold)] to-amber-300 transition-all duration-200"
+                              style={{ width: `${uploadProgress}%` }}
+                            />
+                          </div>
+                        </div>
+                      )}
                     </div>
-                  )}
-                  <div className="flex-1 text-[11px]">
-                    <p className="font-bold text-slate-200">Media Preview</p>
-                    <p className="text-slate-400 text-[10px]">
-                      {mediaType === 'VIDEO' ? 'MP4/WebM Video Overlay' : 'High-Res Hero Image'}
-                    </p>
                   </div>
                 </div>
 
                 {/* Display & Layout Settings */}
                 <div className="border-t border-white/10 pt-3 space-y-3">
-                  <h4 className="text-[11px] font-bold text-[#C8A24A] uppercase tracking-wider flex items-center gap-1.5">
+                  <h4 className="text-[11px] font-bold text-[var(--brand-gold)] uppercase tracking-wider flex items-center gap-1.5">
                     <Sliders className="w-3.5 h-3.5" />
                     <span>3. Layout, Overlay & Animation</span>
                   </h4>
@@ -738,7 +1067,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                       <select
                         value={textPosition}
                         onChange={(e) => setTextPosition(e.target.value as any)}
-                        className="w-full bg-[#072a20] border border-white/20 p-2 rounded-lg text-slate-100"
+                        className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2 rounded-lg text-slate-100"
                       >
                         <option value="LEFT">Left Aligned</option>
                         <option value="CENTER">Center Screen</option>
@@ -759,7 +1088,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                           type="text"
                           value={overlayColor}
                           onChange={(e) => setOverlayColor(e.target.value)}
-                          className="w-full bg-[#072a20] border border-white/20 p-1.5 rounded text-slate-100 uppercase text-xs"
+                          className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-1.5 rounded text-slate-100 uppercase text-xs"
                         />
                       </div>
                     </div>
@@ -772,7 +1101,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                         max="100"
                         value={overlayOpacity}
                         onChange={(e) => setOverlayOpacity(Number(e.target.value))}
-                        className="w-full accent-[#C8A24A]"
+                        className="w-full accent-[var(--brand-gold)]"
                       />
                     </div>
                   </div>
@@ -783,7 +1112,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                       <select
                         value={animation}
                         onChange={(e) => setAnimation(e.target.value as any)}
-                        className="w-full bg-[#072a20] border border-white/20 p-2 rounded-lg text-slate-100"
+                        className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2 rounded-lg text-slate-100"
                       >
                         <option value="kenburns">Ken Burns Zoom</option>
                         <option value="fade">Smooth Fade</option>
@@ -801,7 +1130,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                       <select
                         value={status}
                         onChange={(e) => setStatus(e.target.value as any)}
-                        className="w-full bg-[#072a20] border border-white/20 p-2 rounded-lg text-slate-100 font-bold"
+                        className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2 rounded-lg text-slate-100 font-bold"
                       >
                         <option value="ACTIVE">Active (Live on Site)</option>
                         <option value="DRAFT">Draft (Hidden)</option>
@@ -811,14 +1140,14 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                   </div>
 
                   {status === 'SCHEDULED' && (
-                    <div className="grid grid-cols-2 gap-3 bg-[#072a20] p-3 rounded-xl border border-white/10">
+                    <div className="grid grid-cols-2 gap-3 bg-[var(--brand-primary-deep)] p-3 rounded-xl border border-white/10">
                       <div>
                         <label className="block text-slate-400 mb-1">Start Date</label>
                         <input
                           type="date"
                           value={startDate}
                           onChange={(e) => setStartDate(e.target.value)}
-                          className="w-full bg-[#0B3D2E] border border-white/20 p-2 rounded text-slate-100"
+                          className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2 rounded text-slate-100"
                         />
                       </div>
                       <div>
@@ -827,7 +1156,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                           type="date"
                           value={endDate}
                           onChange={(e) => setEndDate(e.target.value)}
-                          className="w-full bg-[#0B3D2E] border border-white/20 p-2 rounded text-slate-100"
+                          className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2 rounded text-slate-100"
                         />
                       </div>
                     </div>
@@ -842,7 +1171,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                         placeholder="e.g. Adivasi Herbal Hair Oil"
                         value={altText}
                         onChange={(e) => setAltText(e.target.value)}
-                        className="w-full bg-[#072a20] border border-white/20 p-2 rounded text-slate-100"
+                        className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2 rounded text-slate-100"
                       />
                     </div>
                     <div>
@@ -852,7 +1181,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                         placeholder="e.g. HakkiVeda Hair Care"
                         value={imageTitle}
                         onChange={(e) => setImageTitle(e.target.value)}
-                        className="w-full bg-[#072a20] border border-white/20 p-2 rounded text-slate-100"
+                        className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2 rounded text-slate-100"
                       />
                     </div>
                   </div>
@@ -873,9 +1202,9 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                       title,
                       highlightText,
                       subtitle,
-                      image,
-                      mobileImage,
-                      backgroundVideo,
+                      image: desktopPreviewUrl || image,
+                      mobileImage: mobilePreviewUrl || mobileImage,
+                      backgroundVideo: videoPreviewUrl || backgroundVideo,
                       mediaType,
                       ctaText,
                       ctaLink,
@@ -890,9 +1219,9 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                     setPreviewSlide(tempSlide);
                   }
                 }}
-                className="bg-[#072a20] hover:bg-[#C8A24A]/20 text-slate-200 border border-white/20 px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5"
+                className="bg-[var(--brand-primary-deep)] hover:bg-[var(--brand-gold)]/20 text-slate-200 border border-white/20 px-4 py-2.5 rounded-xl font-bold text-xs flex items-center gap-1.5"
               >
-                <Eye className="w-4 h-4 text-[#C8A24A]" />
+                <Eye className="w-4 h-4 text-[var(--brand-gold)]" />
                 <span>Live Preview Form Banner</span>
               </button>
 
@@ -901,17 +1230,28 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                   <button
                     type="button"
                     onClick={resetForm}
-                    className="px-4 py-2.5 rounded-xl border border-white/20 text-slate-300 font-bold hover:bg-white/10"
+                    disabled={isUploading}
+                    className="px-4 py-2.5 rounded-xl border border-white/20 text-slate-300 font-bold hover:bg-white/10 disabled:opacity-50"
                   >
                     Cancel
                   </button>
                 )}
                 <button
                   type="submit"
-                  className="bg-[#C8A24A] text-[#0B3D2E] px-6 py-2.5 rounded-xl font-bold hover:bg-white transition-all shadow-lg text-xs flex items-center gap-1.5"
+                  disabled={isUploading}
+                  className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-6 py-2.5 rounded-xl font-bold hover:bg-white transition-all shadow-lg text-xs flex items-center gap-1.5 disabled:opacity-50 cursor-pointer"
                 >
-                  <CheckCircle2 className="w-4 h-4" />
-                  <span>{isEditing ? 'Save Banner Changes' : 'Publish New Banner Slide'}</span>
+                  {isUploading ? (
+                    <>
+                      <div className="w-4 h-4 border-2 border-[var(--brand-primary-dark)] border-t-transparent rounded-full animate-spin" />
+                      <span>Publishing Media ({uploadProgress}%)...</span>
+                    </>
+                  ) : (
+                    <>
+                      <CheckCircle2 className="w-4 h-4" />
+                      <span>{isEditing ? 'Save Banner Changes' : 'Publish New Banner Slide'}</span>
+                    </>
+                  )}
                 </button>
               </div>
             </div>
@@ -920,7 +1260,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
           {/* Slide List & Ordering */}
           <div className="space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="font-bold text-[#C8A24A] text-sm uppercase flex items-center gap-2">
+              <h3 className="font-bold text-[var(--brand-gold)] text-sm uppercase flex items-center gap-2">
                 <Layers className="w-4 h-4" />
                 <span>Existing Hero Banners ({sortedSlides.length})</span>
               </h3>
@@ -928,7 +1268,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
             </div>
 
             {sortedSlides.length === 0 ? (
-              <div className="bg-[#0B3D2E] border border-white/10 p-8 rounded-2xl text-center text-slate-400">
+              <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-8 rounded-2xl text-center text-slate-400">
                 No hero banners configured yet. Fill the form above to add your first banner!
               </div>
             ) : (
@@ -938,8 +1278,8 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                   return (
                     <div
                       key={s.id}
-                      className={`bg-[#0B3D2E] border p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all ${
-                        s.active ? 'border-white/10 hover:border-[#C8A24A]/40' : 'border-rose-500/30 opacity-75'
+                      className={`bg-[var(--brand-primary-dark)] border p-4 rounded-xl flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 transition-all ${
+                        s.active ? 'border-white/10 hover:border-[var(--brand-gold)]/40' : 'border-rose-500/30 opacity-75'
                       }`}
                     >
                       {/* Left thumbnail & info */}
@@ -949,7 +1289,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                           <button
                             disabled={index === 0}
                             onClick={() => handleMove(index, 'UP')}
-                            className="p-1 hover:text-[#C8A24A] disabled:opacity-30 disabled:hover:text-slate-400"
+                            className="p-1 hover:text-[var(--brand-gold)] disabled:opacity-30 disabled:hover:text-slate-400"
                             title="Move Up"
                           >
                             <ArrowUp className="w-3.5 h-3.5" />
@@ -958,7 +1298,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                           <button
                             disabled={index === sortedSlides.length - 1}
                             onClick={() => handleMove(index, 'DOWN')}
-                            className="p-1 hover:text-[#C8A24A] disabled:opacity-30 disabled:hover:text-slate-400"
+                            className="p-1 hover:text-[var(--brand-gold)] disabled:opacity-30 disabled:hover:text-slate-400"
                             title="Move Down"
                           >
                             <ArrowDown className="w-3.5 h-3.5" />
@@ -972,7 +1312,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                           ) : (
                             <img src={s.image} alt={s.title} className="w-full h-full object-cover" />
                           )}
-                          <span className="absolute top-1 left-1 bg-black/60 backdrop-blur text-[9px] text-[#C8A24A] px-1.5 py-0.5 rounded font-bold uppercase">
+                          <span className="absolute top-1 left-1 bg-black/60 backdrop-blur text-[9px] text-[var(--brand-gold)] px-1.5 py-0.5 rounded font-bold uppercase">
                             {s.mediaType === 'VIDEO' ? 'VIDEO' : 'IMG'}
                           </span>
                         </div>
@@ -980,7 +1320,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                         {/* Details */}
                         <div className="min-w-0 flex-1 space-y-1">
                           <div className="flex items-center gap-2 flex-wrap">
-                            <span className="text-[9px] font-bold text-[#C8A24A] uppercase bg-[#C8A24A]/10 px-2 py-0.5 rounded">
+                            <span className="text-[9px] font-bold text-[var(--brand-gold)] uppercase bg-[var(--brand-gold)]/10 px-2 py-0.5 rounded">
                               {s.tag || 'HERO BANNER'}
                             </span>
                             <span
@@ -1000,7 +1340,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                           <div className="flex items-center gap-3 text-[10px] text-slate-400 font-mono pt-0.5">
                             <span>Imp: {s.impressions || 0}</span>
                             <span>Clicks: {s.clicks || 0}</span>
-                            <span className="text-[#C8A24A] font-bold">CTR: {ctr.toFixed(1)}%</span>
+                            <span className="text-[var(--brand-gold)] font-bold">CTR: {ctr.toFixed(1)}%</span>
                           </div>
                         </div>
                       </div>
@@ -1025,15 +1365,15 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
 
                         <button
                           onClick={() => setPreviewSlide(s)}
-                          className="bg-[#072a20] hover:bg-[#C8A24A]/20 text-slate-200 border border-white/10 p-2 rounded-lg"
+                          className="bg-[var(--brand-primary-deep)] hover:bg-[var(--brand-gold)]/20 text-slate-200 border border-white/10 p-2 rounded-lg"
                           title="Preview Banner"
                         >
-                          <Eye className="w-4 h-4 text-[#C8A24A]" />
+                          <Eye className="w-4 h-4 text-[var(--brand-gold)]" />
                         </button>
 
                         <button
                           onClick={() => handleEditInit(s)}
-                          className="bg-[#072a20] hover:bg-[#C8A24A]/20 text-slate-200 border border-white/10 p-2 rounded-lg"
+                          className="bg-[var(--brand-primary-deep)] hover:bg-[var(--brand-gold)]/20 text-slate-200 border border-white/10 p-2 rounded-lg"
                           title="Edit Slide"
                         >
                           <Edit2 className="w-4 h-4 text-slate-300" />
@@ -1044,7 +1384,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                             duplicateHeroSlide(s.id);
                             showToast('Banner slide duplicated!');
                           }}
-                          className="bg-[#072a20] hover:bg-[#C8A24A]/20 text-slate-200 border border-white/10 p-2 rounded-lg"
+                          className="bg-[var(--brand-primary-deep)] hover:bg-[var(--brand-gold)]/20 text-slate-200 border border-white/10 p-2 rounded-lg"
                           title="Duplicate Slide"
                         >
                           <Copy className="w-4 h-4 text-slate-300" />
@@ -1069,9 +1409,9 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
 
       {/* TAB 2: GLOBAL SLIDER BEHAVIOUR RULES */}
       {activeTab === 'global_settings' && (
-        <div className="bg-[#0B3D2E] border border-white/10 p-6 rounded-2xl space-y-6 text-xs text-slate-200">
+        <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-6 rounded-2xl space-y-6 text-xs text-slate-200">
           <div>
-            <h3 className="font-bold text-[#C8A24A] text-sm uppercase flex items-center gap-2">
+            <h3 className="font-bold text-[var(--brand-gold)] text-sm uppercase flex items-center gap-2">
               <Sliders className="w-4 h-4" />
               <span>Global Slider Behavior Rules</span>
             </h3>
@@ -1081,25 +1421,25 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5">
-            <div className="bg-[#072a20] p-4 rounded-xl border border-white/10 space-y-2">
+            <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-slate-100">Auto Play</span>
                 <input
                   type="checkbox"
                   checked={Boolean(heroSliderSettings?.autoPlay)}
                   onChange={(e) => updateHeroSliderSettings({ autoPlay: e.target.checked })}
-                  className="w-4 h-4 accent-[#C8A24A] cursor-pointer"
+                  className="w-4 h-4 accent-[var(--brand-gold)] cursor-pointer"
                 />
               </div>
               <p className="text-slate-400 text-[11px]">Automatically cycle through slides on homepage</p>
             </div>
 
-            <div className="bg-[#072a20] p-4 rounded-xl border border-white/10 space-y-2">
+            <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-2">
               <label className="block font-bold text-slate-100">Auto Play Delay ({heroSliderSettings?.autoPlayDelay ?? 6}s)</label>
               <select
                 value={heroSliderSettings?.autoPlayDelay ?? 6}
                 onChange={(e) => updateHeroSliderSettings({ autoPlayDelay: Number(e.target.value) })}
-                className="w-full bg-[#0B3D2E] border border-white/20 p-2 rounded text-slate-100"
+                className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2 rounded text-slate-100"
               >
                 <option value={3}>3 Seconds (Fast)</option>
                 <option value={5}>5 Seconds</option>
@@ -1109,12 +1449,12 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
               </select>
             </div>
 
-            <div className="bg-[#072a20] p-4 rounded-xl border border-white/10 space-y-2">
+            <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-2">
               <label className="block font-bold text-slate-100">Transition Speed ({heroSliderSettings?.transitionSpeed ?? 700}ms)</label>
               <select
                 value={heroSliderSettings?.transitionSpeed ?? 700}
                 onChange={(e) => updateHeroSliderSettings({ transitionSpeed: Number(e.target.value) })}
-                className="w-full bg-[#0B3D2E] border border-white/20 p-2 rounded text-slate-100"
+                className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2 rounded text-slate-100"
               >
                 <option value={300}>300 ms (Snappy)</option>
                 <option value={500}>500 ms</option>
@@ -1123,40 +1463,40 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
               </select>
             </div>
 
-            <div className="bg-[#072a20] p-4 rounded-xl border border-white/10 space-y-2">
+            <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-slate-100">Pause On Hover</span>
                 <input
                   type="checkbox"
                   checked={Boolean(heroSliderSettings?.pauseOnHover)}
                   onChange={(e) => updateHeroSliderSettings({ pauseOnHover: e.target.checked })}
-                  className="w-4 h-4 accent-[#C8A24A] cursor-pointer"
+                  className="w-4 h-4 accent-[var(--brand-gold)] cursor-pointer"
                 />
               </div>
               <p className="text-slate-400 text-[11px]">Pause autoplay timer when user hovers over slide</p>
             </div>
 
-            <div className="bg-[#072a20] p-4 rounded-xl border border-white/10 space-y-2">
+            <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-slate-100">Infinite Loop</span>
                 <input
                   type="checkbox"
                   checked={Boolean(heroSliderSettings?.infiniteLoop)}
                   onChange={(e) => updateHeroSliderSettings({ infiniteLoop: e.target.checked })}
-                  className="w-4 h-4 accent-[#C8A24A] cursor-pointer"
+                  className="w-4 h-4 accent-[var(--brand-gold)] cursor-pointer"
                 />
               </div>
               <p className="text-slate-400 text-[11px]">Continuously loop back to first slide after last</p>
             </div>
 
-            <div className="bg-[#072a20] p-4 rounded-xl border border-white/10 space-y-2">
+            <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-2">
               <div className="flex items-center justify-between">
                 <span className="font-bold text-slate-100">Mobile Swipe Support</span>
                 <input
                   type="checkbox"
                   checked={Boolean(heroSliderSettings?.swipeSupport)}
                   onChange={(e) => updateHeroSliderSettings({ swipeSupport: e.target.checked })}
-                  className="w-4 h-4 accent-[#C8A24A] cursor-pointer"
+                  className="w-4 h-4 accent-[var(--brand-gold)] cursor-pointer"
                 />
               </div>
               <p className="text-slate-400 text-[11px]">Enable touch swipe gestures on smartphones/tablets</p>
@@ -1167,9 +1507,9 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
 
       {/* TAB 3: ANALYTICS & CTR */}
       {activeTab === 'analytics' && (
-        <div className="bg-[#0B3D2E] border border-white/10 p-6 rounded-2xl space-y-6 text-xs text-slate-200">
+        <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-6 rounded-2xl space-y-6 text-xs text-slate-200">
           <div>
-            <h3 className="font-bold text-[#C8A24A] text-sm uppercase flex items-center gap-2">
+            <h3 className="font-bold text-[var(--brand-gold)] text-sm uppercase flex items-center gap-2">
               <BarChart3 className="w-4 h-4" />
               <span>Banner Performance & CTR Analytics</span>
             </h3>
@@ -1179,19 +1519,19 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-[#072a20] border border-white/10 p-4 rounded-xl">
+            <div className="bg-[var(--brand-primary-deep)] border border-white/10 p-4 rounded-xl">
               <span className="text-slate-400 text-[11px]">Total Banner Views</span>
               <p className="text-2xl font-bold font-serif-luxury text-slate-100 mt-1">
                 {heroSlides.reduce((acc, s) => acc + (s.impressions || 0), 0)}
               </p>
             </div>
-            <div className="bg-[#072a20] border border-white/10 p-4 rounded-xl">
+            <div className="bg-[var(--brand-primary-deep)] border border-white/10 p-4 rounded-xl">
               <span className="text-slate-400 text-[11px]">Total CTA Clicks</span>
-              <p className="text-2xl font-bold font-serif-luxury text-[#C8A24A] mt-1">
+              <p className="text-2xl font-bold font-serif-luxury text-[var(--brand-gold)] mt-1">
                 {heroSlides.reduce((acc, s) => acc + (s.clicks || 0), 0)}
               </p>
             </div>
-            <div className="bg-[#072a20] border border-white/10 p-4 rounded-xl">
+            <div className="bg-[var(--brand-primary-deep)] border border-white/10 p-4 rounded-xl">
               <span className="text-slate-400 text-[11px]">Average CTR Rate</span>
               <p className="text-2xl font-bold font-serif-luxury text-emerald-400 mt-1">
                 {(() => {
@@ -1210,12 +1550,12 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
               const clk = s.clicks || 0;
               const ctr = imp ? ((clk / imp) * 100).toFixed(1) : '0.0';
               return (
-                <div key={s.id} className="bg-[#072a20] border border-white/10 p-4 rounded-xl flex items-center justify-between gap-4">
+                <div key={s.id} className="bg-[var(--brand-primary-deep)] border border-white/10 p-4 rounded-xl flex items-center justify-between gap-4">
                   <div className="flex items-center gap-3">
                     <img src={s.image} alt={s.title} className="w-16 h-12 object-cover rounded-lg border border-white/10" />
                     <div>
                       <h5 className="font-bold text-slate-100">{s.title}</h5>
-                      <span className="text-[10px] text-[#C8A24A]">{s.tag}</span>
+                      <span className="text-[10px] text-[var(--brand-gold)]">{s.tag}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-6 text-right">
@@ -1225,7 +1565,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                     </div>
                     <div>
                       <span className="block text-[10px] text-slate-400">Clicks</span>
-                      <span className="font-bold text-[#C8A24A]">{clk}</span>
+                      <span className="font-bold text-[var(--brand-gold)]">{clk}</span>
                     </div>
                     <div>
                       <span className="block text-[10px] text-slate-400">CTR Rate</span>
@@ -1242,7 +1582,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
       {/* DELETE CONFIRMATION MODAL */}
       {deleteConfirmId && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-          <div className="bg-[#0B3D2E] border border-white/20 p-6 rounded-2xl max-w-sm w-full space-y-4 animate-in zoom-in-95">
+          <div className="bg-[var(--brand-primary-dark)] border border-white/20 p-6 rounded-2xl max-w-sm w-full space-y-4 animate-in zoom-in-95">
             <div className="flex items-center gap-3 text-rose-400">
               <AlertCircle className="w-6 h-6 shrink-0" />
               <h3 className="text-base font-bold text-slate-100 font-serif-luxury">Confirm Banner Deletion</h3>
@@ -1276,18 +1616,18 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
       {previewSlide && (
         <div className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex flex-col items-center justify-center p-4">
           {/* Top Bar Controls */}
-          <div className="w-full max-w-6xl bg-[#0B3D2E] border border-white/20 rounded-t-2xl p-4 flex items-center justify-between text-slate-100">
+          <div className="w-full max-w-6xl bg-[var(--brand-primary-dark)] border border-white/20 rounded-t-2xl p-4 flex items-center justify-between text-slate-100">
             <div className="flex items-center gap-2">
-              <Eye className="w-5 h-5 text-[#C8A24A]" />
+              <Eye className="w-5 h-5 text-[var(--brand-gold)]" />
               <span className="font-bold text-sm uppercase font-serif-luxury">Banner Live Preview</span>
             </div>
 
             {/* Viewport Selector */}
-            <div className="flex items-center gap-2 bg-[#072a20] p-1 rounded-xl border border-white/10">
+            <div className="flex items-center gap-2 bg-[var(--brand-primary-deep)] p-1 rounded-xl border border-white/10">
               <button
                 onClick={() => setPreviewViewport('desktop')}
                 className={`p-2 rounded-lg ${
-                  previewViewport === 'desktop' ? 'bg-[#C8A24A] text-[#0B3D2E]' : 'text-slate-400 hover:text-white'
+                  previewViewport === 'desktop' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]' : 'text-slate-400 hover:text-white'
                 }`}
                 title="Desktop View (1280px)"
               >
@@ -1296,7 +1636,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
               <button
                 onClick={() => setPreviewViewport('tablet')}
                 className={`p-2 rounded-lg ${
-                  previewViewport === 'tablet' ? 'bg-[#C8A24A] text-[#0B3D2E]' : 'text-slate-400 hover:text-white'
+                  previewViewport === 'tablet' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]' : 'text-slate-400 hover:text-white'
                 }`}
                 title="Tablet View (768px)"
               >
@@ -1305,7 +1645,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
               <button
                 onClick={() => setPreviewViewport('mobile')}
                 className={`p-2 rounded-lg ${
-                  previewViewport === 'mobile' ? 'bg-[#C8A24A] text-[#0B3D2E]' : 'text-slate-400 hover:text-white'
+                  previewViewport === 'mobile' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]' : 'text-slate-400 hover:text-white'
                 }`}
                 title="Mobile View (375px)"
               >
@@ -1324,7 +1664,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
           {/* Preview Canvas Container */}
           <div className="w-full max-w-6xl bg-black rounded-b-2xl border-x border-b border-white/20 p-4 sm:p-8 overflow-auto flex items-center justify-center">
             <div
-              className={`transition-all duration-300 relative rounded-2xl overflow-hidden border border-[#C8A24A]/40 shadow-2xl bg-[#0B3D2E] ${
+              className={`transition-all duration-300 relative rounded-2xl overflow-hidden border border-[var(--brand-gold)]/40 shadow-2xl bg-[var(--brand-primary-dark)] ${
                 previewViewport === 'desktop'
                   ? 'w-full h-[500px]'
                   : previewViewport === 'tablet'
@@ -1352,7 +1692,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
               <div
                 className="absolute inset-0 transition-all"
                 style={{
-                  backgroundColor: previewSlide.overlayColor || '#0B3D2E',
+                  backgroundColor: previewSlide.overlayColor || 'var(--brand-primary-dark)',
                   opacity: (previewSlide.overlayOpacity ?? 80) / 100,
                 }}
               />
@@ -1368,8 +1708,8 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                 }`}
               >
                 {previewSlide.tag && (
-                  <span className="inline-flex items-center gap-1.5 px-3 py-1 border border-[#C8A24A] text-[#C8A24A] font-sans text-[10px] uppercase tracking-widest rounded-full bg-black/40 font-bold mb-3 shadow">
-                    <Sparkles className="w-3 h-3 text-[#C8A24A]" />
+                  <span className="inline-flex items-center gap-1.5 px-3 py-1 border border-[var(--brand-gold)] text-[var(--brand-gold)] font-sans text-[10px] uppercase tracking-widest rounded-full bg-black/40 font-bold mb-3 shadow">
+                    <Sparkles className="w-3 h-3 text-[var(--brand-gold)]" />
                     <span>{previewSlide.tag}</span>
                   </span>
                 )}
@@ -1377,7 +1717,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                 <h1 className="text-2xl sm:text-4xl lg:text-5xl font-bold font-serif-luxury leading-tight text-white">
                   {previewSlide.title}{' '}
                   {previewSlide.highlightText && (
-                    <span className="italic text-[#C8A24A] block sm:inline">{previewSlide.highlightText}</span>
+                    <span className="italic text-[var(--brand-gold)] block sm:inline">{previewSlide.highlightText}</span>
                   )}
                 </h1>
 
@@ -1389,12 +1729,12 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
 
                 <div className="flex flex-wrap items-center gap-3 mt-6">
                   {previewSlide.ctaText && (
-                    <span className="bg-[#C8A24A] text-[#0B3D2E] px-6 py-2.5 rounded font-bold text-xs uppercase tracking-wider shadow-lg flex items-center gap-2">
+                    <span className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-6 py-2.5 rounded font-bold text-xs uppercase tracking-wider shadow-lg flex items-center gap-2">
                       <span>{previewSlide.ctaText}</span>
                     </span>
                   )}
                   {previewSlide.secondaryCtaText && (
-                    <span className="border border-[#C8A24A]/60 text-white px-6 py-2.5 rounded font-bold text-xs uppercase tracking-wider backdrop-blur-md bg-black/30">
+                    <span className="border border-[var(--brand-gold)]/60 text-white px-6 py-2.5 rounded font-bold text-xs uppercase tracking-wider backdrop-blur-md bg-black/30">
                       <span>{previewSlide.secondaryCtaText}</span>
                     </span>
                   )}

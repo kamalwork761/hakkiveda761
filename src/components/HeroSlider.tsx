@@ -104,7 +104,7 @@ export const HeroSlider: React.FC = () => {
       onMouseLeave={() => setIsHovered(false)}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      className="relative w-full h-[520px] sm:h-[580px] lg:h-[620px] flex items-center overflow-hidden bg-[#0B3D2E]"
+      className="relative w-full h-[520px] sm:h-[580px] lg:h-[620px] flex items-center overflow-hidden bg-[var(--brand-primary-dark)]"
     >
       {/* Background Media (Video or Image) */}
       <div className="absolute inset-0 transition-all duration-1000">
@@ -134,14 +134,14 @@ export const HeroSlider: React.FC = () => {
         <div
           className="absolute inset-0 transition-opacity duration-700"
           style={{
-            backgroundColor: currentSlide.overlayColor || '#0B3D2E',
+            backgroundColor: currentSlide.overlayColor || 'var(--brand-primary-dark)',
             opacity: (currentSlide.overlayOpacity ?? 75) / 100,
           }}
         />
 
         {/* Gradient luxury depth vignetting */}
         <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/40 z-10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0B3D2E] via-transparent to-black/30 z-10" />
+        <div className="absolute inset-0 bg-gradient-to-t from-[var(--brand-primary-dark)] via-transparent to-black/30 z-10" />
       </div>
 
       {/* Content Container */}
@@ -156,13 +156,13 @@ export const HeroSlider: React.FC = () => {
           }`}
         >
           {/* Eyebrow / Tag Badge */}
-          <span className="inline-flex items-center gap-2 px-3.5 py-1 border border-[#C8A24A] text-[#C8A24A] font-sans text-[10px] sm:text-xs uppercase tracking-[0.28em] rounded-full backdrop-blur-md bg-black/40 font-semibold shadow-lg">
-            <Sparkles className="w-3.5 h-3.5 text-[#C8A24A]" />
+          <span className="inline-flex items-center gap-2 px-3.5 py-1 border border-[var(--brand-gold)] text-[var(--brand-gold)] font-sans text-[10px] sm:text-xs uppercase tracking-[0.28em] rounded-full backdrop-blur-md bg-black/40 font-semibold shadow-lg">
+            <Sparkles className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
             <span>{currentSlide.tag || 'AUTHENTIC HAKKI-PIKKI SECRET'}</span>
           </span>
 
           {currentSlide.smallHeading && (
-            <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[#E5C880]">
+            <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[var(--brand-gold-light)]">
               {currentSlide.smallHeading}
             </p>
           )}
@@ -170,7 +170,7 @@ export const HeroSlider: React.FC = () => {
           <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold font-serif-luxury leading-[1.08] text-white">
             {currentSlide.title}{' '}
             {currentSlide.highlightText && (
-              <span className="italic text-[#C8A24A] text-gold-gradient block sm:inline">
+              <span className="italic text-[var(--brand-gold)] text-gold-gradient block sm:inline">
                 {currentSlide.highlightText}
               </span>
             )}
@@ -186,7 +186,7 @@ export const HeroSlider: React.FC = () => {
               <a
                 href={currentSlide.ctaLink || '#products'}
                 onClick={() => handleCtaClick(currentSlide.ctaLink, true)}
-                className="bg-[#C8A24A] text-[#0B3D2E] px-8 py-3.5 font-sans text-xs font-bold uppercase tracking-[0.2em] hover:bg-white transition-all duration-300 shadow-2xl rounded-sm hover:scale-105 flex items-center gap-2"
+                className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-8 py-3.5 font-sans text-xs font-bold uppercase tracking-[0.2em] hover:bg-white transition-all duration-300 shadow-2xl rounded-sm hover:scale-105 flex items-center gap-2"
               >
                 <span>{currentSlide.ctaText}</span>
                 <ChevronRight className="w-4 h-4" />
@@ -197,9 +197,9 @@ export const HeroSlider: React.FC = () => {
               <a
                 href={currentSlide.secondaryCtaLink || '#ai-quiz'}
                 onClick={() => handleCtaClick(currentSlide.secondaryCtaLink, false)}
-                className="border border-[#C8A24A]/60 text-white px-8 py-3.5 font-sans text-xs font-bold uppercase tracking-[0.2em] backdrop-blur-md bg-black/20 hover:bg-[#C8A24A]/20 transition-all rounded-sm flex items-center gap-2"
+                className="border border-[var(--brand-gold)]/60 text-white px-8 py-3.5 font-sans text-xs font-bold uppercase tracking-[0.2em] backdrop-blur-md bg-black/20 hover:bg-[var(--brand-gold)]/20 transition-all rounded-sm flex items-center gap-2"
               >
-                <Sparkles className="w-4 h-4 text-[#C8A24A]" />
+                <Sparkles className="w-4 h-4 text-[var(--brand-gold)]" />
                 <span>{currentSlide.secondaryCtaText}</span>
               </a>
             )}
@@ -208,15 +208,15 @@ export const HeroSlider: React.FC = () => {
           {/* Key Guarantee Badges */}
           <div className="pt-6 grid grid-cols-3 gap-4 border-t border-white/10 max-w-lg font-sans text-[11px] text-slate-300">
             <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[#C8A24A] shrink-0" />
+              <ShieldCheck className="w-4 h-4 text-[var(--brand-gold)] shrink-0" />
               <span>42 Rare Herbs</span>
             </div>
             <div className="flex items-center gap-2">
-              <Flame className="w-4 h-4 text-[#C8A24A] shrink-0" />
+              <Flame className="w-4 h-4 text-[var(--brand-gold)] shrink-0" />
               <span>21-Day Woodfire Brew</span>
             </div>
             <div className="flex items-center gap-2">
-              <Award className="w-4 h-4 text-[#C8A24A] shrink-0" />
+              <Award className="w-4 h-4 text-[var(--brand-gold)] shrink-0" />
               <span>100% Organic</span>
             </div>
           </div>
@@ -225,17 +225,17 @@ export const HeroSlider: React.FC = () => {
         {/* Right Feature Card (AI Hair Analysis Preview) */}
         {currentSlide.textPosition !== 'CENTER' && (
           <div className="hidden lg:flex lg:col-span-5 justify-end">
-            <div className="w-[320px] p-6 bg-black/40 backdrop-blur-xl border border-[#C8A24A]/40 rounded-2xl space-y-4 gold-border-glow shadow-2xl transform hover:scale-102 transition-all">
+            <div className="w-[320px] p-6 bg-black/40 backdrop-blur-xl border border-[var(--brand-gold)]/40 rounded-2xl space-y-4 gold-border-glow shadow-2xl transform hover:scale-102 transition-all">
               <div className="flex items-center justify-between">
-                <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#C8A24A] bg-[#C8A24A]/10 px-2.5 py-1 rounded">
+                <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-[var(--brand-gold)] bg-[var(--brand-gold)]/10 px-2.5 py-1 rounded">
                   AI Trichology Engine
                 </span>
                 <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
               </div>
 
               <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-[#0B3D2E] border-2 border-[#C8A24A] flex items-center justify-center shrink-0 shadow-lg">
-                  <Sparkles className="w-8 h-8 text-[#C8A24A]" />
+                <div className="w-16 h-16 rounded-full bg-[var(--brand-primary-dark)] border-2 border-[var(--brand-gold)] flex items-center justify-center shrink-0 shadow-lg">
+                  <Sparkles className="w-8 h-8 text-[var(--brand-gold)]" />
                 </div>
                 <div>
                   <h4 className="text-sm font-bold font-serif-luxury text-slate-100">Personalized Hair Formula</h4>
@@ -248,7 +248,7 @@ export const HeroSlider: React.FC = () => {
                   playSound('cta_click');
                   setIsQuizOpen(true);
                 }}
-                className="w-full bg-gradient-to-r from-[#C8A24A] to-[#E5C880] text-[#0B3D2E] py-2.5 rounded font-sans text-xs font-bold uppercase tracking-wider hover:brightness-110 transition-all shadow-md flex items-center justify-center gap-2"
+                className="w-full bg-gradient-to-r from-[var(--brand-gold)] to-[var(--brand-gold-light)] text-[var(--brand-primary-dark)] py-2.5 rounded font-sans text-xs font-bold uppercase tracking-wider hover:brightness-110 transition-all shadow-md flex items-center justify-center gap-2"
               >
                 <span>Analyze My Hair Now</span>
                 <ChevronRight className="w-4 h-4" />
@@ -265,14 +265,14 @@ export const HeroSlider: React.FC = () => {
             onClick={() =>
               setCurrentSlideIndex((prev) => (prev - 1 + slidesToRender.length) % slidesToRender.length)
             }
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-black/40 border border-white/20 text-white flex items-center justify-center hover:bg-[#C8A24A] hover:text-[#0B3D2E] transition-all"
+            className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-black/40 border border-white/20 text-white flex items-center justify-center hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all"
             aria-label="Previous Slide"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button
             onClick={() => setCurrentSlideIndex((prev) => (prev + 1) % slidesToRender.length)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-black/40 border border-white/20 text-white flex items-center justify-center hover:bg-[#C8A24A] hover:text-[#0B3D2E] transition-all"
+            className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-black/40 border border-white/20 text-white flex items-center justify-center hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all"
             aria-label="Next Slide"
           >
             <ChevronRight className="w-5 h-5" />
@@ -284,7 +284,7 @@ export const HeroSlider: React.FC = () => {
                 key={idx}
                 onClick={() => setCurrentSlideIndex(idx)}
                 className={`h-1.5 rounded-full transition-all duration-500 ${
-                  idx === currentSlideIndex ? 'w-8 bg-[#C8A24A]' : 'w-2 bg-white/40'
+                  idx === currentSlideIndex ? 'w-8 bg-[var(--brand-gold)]' : 'w-2 bg-white/40'
                 }`}
                 aria-label={`Go to slide ${idx + 1}`}
               />

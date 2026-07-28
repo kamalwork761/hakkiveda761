@@ -202,7 +202,7 @@ export const AdminProductImageManager: React.FC<AdminProductImageManagerProps> =
       <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
         <div>
           <label className="block text-slate-200 font-bold text-sm uppercase tracking-wider flex items-center gap-2">
-            <ImageIcon className="w-4 h-4 text-[#C8A24A]" />
+            <ImageIcon className="w-4 h-4 text-[var(--brand-gold)]" />
             <span>Product Gallery Images</span>
           </label>
           <p className="text-[11px] text-slate-400 mt-0.5">
@@ -210,8 +210,8 @@ export const AdminProductImageManager: React.FC<AdminProductImageManagerProps> =
           </p>
         </div>
 
-        <div className="flex items-center gap-2 bg-[#041a13] border border-[#C8A24A]/30 px-3 py-1.5 rounded-full font-mono">
-          <span className="text-[11px] text-[#C8A24A] font-bold">
+        <div className="flex items-center gap-2 bg-[var(--brand-primary-deeper)] border border-[var(--brand-gold)]/30 px-3 py-1.5 rounded-full font-mono">
+          <span className="text-[11px] text-[var(--brand-gold)] font-bold">
             {currentImages.length} / {maxImages} Images
           </span>
           {currentImages.length >= 1 ? (
@@ -229,19 +229,19 @@ export const AdminProductImageManager: React.FC<AdminProductImageManagerProps> =
         onDrop={handleDropzoneDrop}
         className={`relative border-2 border-dashed rounded-2xl p-6 text-center transition-all ${
           isDraggingOver
-            ? 'border-[#C8A24A] bg-[#C8A24A]/10 scale-[1.01]'
-            : 'border-white/20 bg-[#072a20] hover:border-[#C8A24A]/60'
+            ? 'border-[var(--brand-gold)] bg-[var(--brand-gold)]/10 scale-[1.01]'
+            : 'border-white/20 bg-[var(--brand-primary-deep)] hover:border-[var(--brand-gold)]/60'
         }`}
       >
         <div className="flex flex-col items-center justify-center space-y-3">
-          <div className="w-12 h-12 rounded-full bg-[#0B3D2E] border border-[#C8A24A]/40 flex items-center justify-center text-[#C8A24A]">
+          <div className="w-12 h-12 rounded-full bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/40 flex items-center justify-center text-[var(--brand-gold)]">
             <Upload className="w-6 h-6 animate-pulse" />
           </div>
 
           <div>
             <p className="text-slate-100 font-bold text-sm">
               Drag & drop product images here, or{' '}
-              <label className="text-[#C8A24A] underline cursor-pointer hover:text-white font-bold">
+              <label className="text-[var(--brand-gold)] underline cursor-pointer hover:text-white font-bold">
                 browse files
                 <input
                   type="file"
@@ -260,7 +260,7 @@ export const AdminProductImageManager: React.FC<AdminProductImageManagerProps> =
       </div>
 
       {/* Add via Image URL */}
-      <div className="flex gap-2 bg-[#072a20] p-2 rounded-xl border border-white/10">
+      <div className="flex gap-2 bg-[var(--brand-primary-deep)] p-2 rounded-xl border border-white/10">
         <div className="relative flex-1">
           <LinkIcon className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
           <input
@@ -274,13 +274,13 @@ export const AdminProductImageManager: React.FC<AdminProductImageManagerProps> =
               }
             }}
             placeholder="Or paste direct image URL (https://...)"
-            className="w-full bg-[#0B3D2E] border border-white/10 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#C8A24A]"
+            className="w-full bg-[var(--brand-primary-dark)] border border-white/10 rounded-lg pl-8 pr-3 py-1.5 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[var(--brand-gold)]"
           />
         </div>
         <button
           type="button"
           onClick={handleAddUrl}
-          className="bg-[#C8A24A] text-[#0B3D2E] px-4 py-1.5 rounded-lg font-bold text-xs uppercase hover:bg-white transition-all flex items-center gap-1 shrink-0 cursor-pointer"
+          className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-4 py-1.5 rounded-lg font-bold text-xs uppercase hover:bg-white transition-all flex items-center gap-1 shrink-0 cursor-pointer"
         >
           <Plus className="w-3.5 h-3.5" />
           <span>Add URL</span>
@@ -308,9 +308,9 @@ export const AdminProductImageManager: React.FC<AdminProductImageManagerProps> =
                   onDragStart={(e) => handleThumbnailDragStart(e, idx)}
                   onDragOver={(e) => handleThumbnailDragOver(e, idx)}
                   onDrop={(e) => handleThumbnailDrop(e, idx)}
-                  className={`relative group bg-[#072a20] border rounded-xl p-2 flex flex-col justify-between transition-all ${
+                  className={`relative group bg-[var(--brand-primary-deep)] border rounded-xl p-2 flex flex-col justify-between transition-all ${
                     isPrimary
-                      ? 'border-[#C8A24A] ring-2 ring-[#C8A24A]/40 bg-[#0B3D2E]'
+                      ? 'border-[var(--brand-gold)] ring-2 ring-[var(--brand-gold)]/40 bg-[var(--brand-primary-dark)]'
                       : 'border-white/15 hover:border-white/40'
                   }`}
                 >
@@ -319,7 +319,7 @@ export const AdminProductImageManager: React.FC<AdminProductImageManagerProps> =
                     <span
                       className={`px-2 py-0.5 rounded-md flex items-center gap-1 ${
                         isPrimary
-                          ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold'
+                          ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold'
                           : 'bg-black/50 text-slate-300'
                       }`}
                     >
@@ -354,7 +354,7 @@ export const AdminProductImageManager: React.FC<AdminProductImageManagerProps> =
                       <button
                         type="button"
                         onClick={() => handleMakePrimary(idx)}
-                        className="w-full bg-[#0B3D2E] text-[#C8A24A] hover:bg-[#C8A24A] hover:text-[#0B3D2E] border border-[#C8A24A]/40 py-1 rounded font-bold transition-colors flex items-center justify-center gap-1"
+                        className="w-full bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/40 py-1 rounded font-bold transition-colors flex items-center justify-center gap-1"
                       >
                         <Star className="w-3 h-3" />
                         <span>Make Primary</span>
@@ -375,7 +375,7 @@ export const AdminProductImageManager: React.FC<AdminProductImageManagerProps> =
 
                       {/* Replace File */}
                       <label className="flex-1 bg-black/40 hover:bg-black/80 text-slate-300 p-1 rounded border border-white/10 flex items-center justify-center cursor-pointer" title="Replace this image">
-                        <RefreshCw className="w-3 h-3 text-[#C8A24A]" />
+                        <RefreshCw className="w-3 h-3 text-[var(--brand-gold)]" />
                         <input
                           type="file"
                           accept="image/*"

@@ -60,14 +60,14 @@ export const AmbientSoundControl: React.FC = () => {
             if (!ambientEnabled) toggleAmbient();
             setHasInteracted(true);
           }}
-          className="fixed top-0 left-0 right-0 z-50 bg-[#0B3D2E] border-b border-[#C8A24A]/60 py-2.5 px-4 text-center cursor-pointer shadow-lg hover:bg-[#083024] transition-all group"
+          className="fixed top-0 left-0 right-0 z-50 bg-[var(--brand-primary-dark)] border-b border-[var(--brand-gold)]/60 py-2.5 px-4 text-center cursor-pointer shadow-lg hover:bg-[#083024] transition-all group"
         >
           <div className="max-w-4xl mx-auto flex items-center justify-center gap-2 text-xs text-slate-100 font-medium">
-            <Trees className="w-4 h-4 text-[#C8A24A] animate-pulse" />
+            <Trees className="w-4 h-4 text-[var(--brand-gold)] animate-pulse" />
             <span>
-              Tap anywhere or click here to enable <strong className="text-[#C8A24A]">HAKKIVEDA Ayurvedic Forest & Nature Music</strong> 🌲
+              Tap anywhere or click here to enable <strong className="text-[var(--brand-gold)]">HAKKIVEDA Ayurvedic Forest & Nature Music</strong> 🌲
             </span>
-            <span className="inline-flex items-center gap-1 bg-[#C8A24A] text-[#0B3D2E] px-2.5 py-0.5 rounded-full text-[10px] font-bold ml-2 group-hover:scale-105 transition-transform">
+            <span className="inline-flex items-center gap-1 bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-2.5 py-0.5 rounded-full text-[10px] font-bold ml-2 group-hover:scale-105 transition-transform">
               <Play className="w-3 h-3 fill-current" /> Play Nature Sound
             </span>
           </div>
@@ -77,11 +77,11 @@ export const AmbientSoundControl: React.FC = () => {
       <div className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40">
         {/* Popover Menu */}
         {isOpen && (
-          <div className="mb-3 w-72 bg-[#0B3D2E] border border-[#C8A24A]/50 rounded-2xl p-4 shadow-2xl backdrop-blur-xl text-slate-100 animate-in fade-in slide-in-from-bottom-2 duration-200">
-            <div className="flex items-center justify-between border-b border-[#C8A24A]/20 pb-2 mb-3">
+          <div className="mb-3 w-72 bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/50 rounded-2xl p-4 shadow-2xl backdrop-blur-xl text-slate-100 animate-in fade-in slide-in-from-bottom-2 duration-200">
+            <div className="flex items-center justify-between border-b border-[var(--brand-gold)]/20 pb-2 mb-3">
               <div className="flex items-center gap-2">
-                <Trees className="w-4 h-4 text-[#C8A24A] animate-pulse" />
-                <span className="text-xs font-bold font-serif-luxury text-[#C8A24A] tracking-wider uppercase">
+                <Trees className="w-4 h-4 text-[var(--brand-gold)] animate-pulse" />
+                <span className="text-xs font-bold font-serif-luxury text-[var(--brand-gold)] tracking-wider uppercase">
                   Ayurvedic Forest Soundscape
                 </span>
               </div>
@@ -102,7 +102,7 @@ export const AmbientSoundControl: React.FC = () => {
               onClick={handleToggle}
               className={`w-full py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2.5 transition-all mb-4 ${
                 isPlaying
-                  ? 'bg-[#C8A24A] text-[#0B3D2E] shadow-md shadow-[#C8A24A]/20'
+                  ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] shadow-md shadow-[var(--brand-gold)]/20'
                   : 'bg-black/40 border border-white/20 text-slate-300 hover:text-white'
               }`}
             >
@@ -121,7 +121,7 @@ export const AmbientSoundControl: React.FC = () => {
 
             {/* Sound Preset Picker */}
             <div className="space-y-2 mb-4">
-              <label className="text-[10px] font-bold uppercase tracking-wider text-[#C8A24A] block">
+              <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--brand-gold)] block">
                 Nature Soundscape Profile
               </label>
               <div className="space-y-1.5">
@@ -135,7 +135,7 @@ export const AmbientSoundControl: React.FC = () => {
                     }}
                     className={`w-full p-2 rounded-xl text-left text-xs transition-all flex items-start gap-2.5 border ${
                       ambientPreset === preset.id
-                        ? 'bg-[#072a20] border-[#C8A24A] text-[#C8A24A]'
+                        ? 'bg-[var(--brand-primary-deep)] border-[var(--brand-gold)] text-[var(--brand-gold)]'
                         : 'bg-black/20 border-white/10 text-slate-300 hover:bg-white/5'
                     }`}
                   >
@@ -155,7 +155,7 @@ export const AmbientSoundControl: React.FC = () => {
             <div className="space-y-1">
               <div className="flex justify-between items-center text-[10px] font-semibold text-slate-300">
                 <span>Nature Volume</span>
-                <span className="text-[#C8A24A] font-mono">{Math.round(ambientVolume * 100)}%</span>
+                <span className="text-[var(--brand-gold)] font-mono">{Math.round(ambientVolume * 100)}%</span>
               </div>
               <input
                 type="range"
@@ -167,7 +167,7 @@ export const AmbientSoundControl: React.FC = () => {
                   soundManager.ensureAudioUnlocked();
                   setAmbientVolume(parseFloat(e.target.value));
                 }}
-                className="w-full accent-[#C8A24A] bg-black/40 h-1.5 rounded-lg cursor-pointer"
+                className="w-full accent-[var(--brand-gold)] bg-black/40 h-1.5 rounded-lg cursor-pointer"
               />
             </div>
           </div>
@@ -185,19 +185,19 @@ export const AmbientSoundControl: React.FC = () => {
           }}
           className={`group flex items-center gap-2.5 px-3.5 py-2.5 rounded-full border shadow-2xl transition-all duration-300 ${
             isPlaying
-              ? 'bg-[#0B3D2E] border-[#C8A24A] text-[#C8A24A] shadow-[0_0_20px_rgba(200,162,74,0.35)] ring-2 ring-[#C8A24A]/30'
-              : 'bg-black/70 border-white/20 text-slate-300 hover:text-white hover:border-[#C8A24A]/50 backdrop-blur-md'
+              ? 'bg-[var(--brand-primary-dark)] border-[var(--brand-gold)] text-[var(--brand-gold)] shadow-[0_0_20px_rgba(200,162,74,0.35)] ring-2 ring-[var(--brand-gold)]/30'
+              : 'bg-black/70 border-white/20 text-slate-300 hover:text-white hover:border-[var(--brand-gold)]/50 backdrop-blur-md'
           }`}
           title="Continuous Nature & Forest Music"
         >
           <div className="relative flex items-center justify-center">
             <Trees
               className={`w-4 h-4 transition-transform duration-300 group-hover:scale-110 ${
-                isPlaying ? 'text-[#C8A24A] animate-pulse' : 'text-slate-400'
+                isPlaying ? 'text-[var(--brand-gold)] animate-pulse' : 'text-slate-400'
               }`}
             />
             {isPlaying && (
-              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[#C8A24A] animate-ping" />
+              <span className="absolute -top-1 -right-1 w-2 h-2 rounded-full bg-[var(--brand-gold)] animate-ping" />
             )}
           </div>
 

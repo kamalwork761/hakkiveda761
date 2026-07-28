@@ -90,12 +90,12 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
   };
 
   return (
-    <section id="products" className="py-16 sm:py-20 bg-[#0B3D2E] relative scroll-mt-12">
+    <section id="products" className="py-16 sm:py-20 bg-[var(--brand-primary-dark)] relative scroll-mt-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
         {/* Toast Notification */}
         {addedToast && (
-          <div className="fixed bottom-8 left-8 z-50 bg-[#C8A24A] text-[#0B3D2E] px-5 py-3 rounded-xl shadow-2xl font-sans text-xs font-bold flex items-center gap-3 animate-in slide-in-from-bottom duration-300">
-            <Check className="w-5 h-5 bg-[#0B3D2E] text-[#C8A24A] rounded-full p-1" />
+          <div className="fixed bottom-8 left-8 z-50 bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-5 py-3 rounded-xl shadow-2xl font-sans text-xs font-bold flex items-center gap-3 animate-in slide-in-from-bottom duration-300">
+            <Check className="w-5 h-5 bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] rounded-full p-1" />
             <span>Added '{addedToast}' to your cart!</span>
           </div>
         )}
@@ -104,21 +104,21 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
         <nav className="flex items-center gap-2 text-xs font-sans text-slate-300 mb-6 overflow-x-auto whitespace-nowrap">
           <button
             onClick={() => handleCategoryTabClick('ALL')}
-            className="hover:text-[#C8A24A] transition-colors"
+            className="hover:text-[var(--brand-gold)] transition-colors"
           >
             Home
           </button>
           <ChevronRight className="w-3 h-3 text-slate-500 shrink-0" />
           <button
             onClick={() => handleCategoryTabClick('ALL')}
-            className="hover:text-[#C8A24A] transition-colors"
+            className="hover:text-[var(--brand-gold)] transition-colors"
           >
             Botanical Catalog
           </button>
           {selectedCategory !== 'ALL' && (
             <>
               <ChevronRight className="w-3 h-3 text-slate-500 shrink-0" />
-              <span className="text-[#C8A24A] font-semibold">{selectedCategory}</span>
+              <span className="text-[var(--brand-gold)] font-semibold">{selectedCategory}</span>
             </>
           )}
         </nav>
@@ -126,12 +126,12 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 border-b border-white/10 pb-6 gap-4">
           <div>
-            <span className="text-[#C8A24A] font-sans text-xs uppercase tracking-[0.25em] font-bold block mb-1">
+            <span className="text-[var(--brand-gold)] font-sans text-xs uppercase tracking-[0.25em] font-bold block mb-1">
               Authentic Tribal Formulations
             </span>
             <h2 className="text-2xl sm:text-4xl font-serif-luxury font-bold text-slate-100 flex items-center gap-3">
               <span>{selectedCategory === 'ALL' ? 'All Bestsellers & Formulations' : selectedCategory}</span>
-              <span className="text-xs font-sans bg-[#C8A24A]/20 text-[#C8A24A] border border-[#C8A24A]/30 px-3 py-1 rounded-full font-bold">
+              <span className="text-xs font-sans bg-[var(--brand-gold)]/20 text-[var(--brand-gold)] border border-[var(--brand-gold)]/30 px-3 py-1 rounded-full font-bold">
                 {displayedProducts.length} Items
               </span>
             </h2>
@@ -148,14 +148,14 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
               onClick={() => handleCategoryTabClick('ALL')}
               className={`px-4 py-2 rounded-full text-xs font-bold font-sans uppercase tracking-wider whitespace-nowrap transition-all duration-200 flex items-center gap-2 border ${
                 selectedCategory === 'ALL'
-                  ? 'bg-[#C8A24A] text-[#0B3D2E] border-[#C8A24A] shadow-lg scale-105'
-                  : 'bg-[#072a20] text-slate-200 border-white/10 hover:border-[#C8A24A]/50 hover:text-white'
+                  ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] border-[var(--brand-gold)] shadow-lg scale-105'
+                  : 'bg-[var(--brand-primary-deep)] text-slate-200 border-white/10 hover:border-[var(--brand-gold)]/50 hover:text-white'
               }`}
             >
               <span>All Formulations</span>
               <span
                 className={`px-2 py-0.5 rounded-full text-[10px] ${
-                  selectedCategory === 'ALL' ? 'bg-[#0B3D2E] text-[#C8A24A]' : 'bg-black/40 text-slate-300'
+                  selectedCategory === 'ALL' ? 'bg-[var(--brand-primary-dark)] text-[var(--brand-gold)]' : 'bg-black/40 text-slate-300'
                 }`}
               >
                 {categoryCounts['ALL'] || products.length}
@@ -174,14 +174,14 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
                   onClick={() => handleCategoryTabClick(cat.name)}
                   className={`px-4 py-2 rounded-full text-xs font-bold font-sans uppercase tracking-wider whitespace-nowrap transition-all duration-200 flex items-center gap-2 border ${
                     isSelected
-                      ? 'bg-[#C8A24A] text-[#0B3D2E] border-[#C8A24A] shadow-lg scale-105'
-                      : 'bg-[#072a20] text-slate-200 border-white/10 hover:border-[#C8A24A]/50 hover:text-white'
+                      ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] border-[var(--brand-gold)] shadow-lg scale-105'
+                      : 'bg-[var(--brand-primary-deep)] text-slate-200 border-white/10 hover:border-[var(--brand-gold)]/50 hover:text-white'
                   }`}
                 >
                   <span>{cat.name}</span>
                   <span
                     className={`px-2 py-0.5 rounded-full text-[10px] ${
-                      isSelected ? 'bg-[#0B3D2E] text-[#C8A24A]' : 'bg-black/40 text-slate-300'
+                      isSelected ? 'bg-[var(--brand-primary-dark)] text-[var(--brand-gold)]' : 'bg-black/40 text-slate-300'
                     }`}
                   >
                     {count}
@@ -193,16 +193,16 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
         </div>
 
         {/* Filter & Sort Controls Toolbar */}
-        <div className="bg-[#072a20] border border-white/10 rounded-xl p-3 sm:p-4 mb-8 flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
+        <div className="bg-[var(--brand-primary-deep)] border border-white/10 rounded-xl p-3 sm:p-4 mb-8 flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
           {/* Quick Search in Category */}
           <div className="relative flex-1 max-w-md">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#C8A24A]" />
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--brand-gold)]" />
             <input
               type="text"
               placeholder={`Search in ${selectedCategory === 'ALL' ? 'all products' : selectedCategory}...`}
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#0B3D2E] border border-white/10 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#C8A24A] transition-colors"
+              className="w-full bg-[var(--brand-primary-dark)] border border-white/10 rounded-lg pl-9 pr-3 py-2 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[var(--brand-gold)] transition-colors"
             />
             {searchQuery && (
               <button
@@ -222,25 +222,25 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
                 type="checkbox"
                 checked={inStockOnly}
                 onChange={(e) => setInStockOnly(e.target.checked)}
-                className="w-4 h-4 rounded accent-[#C8A24A] bg-[#0B3D2E] border-white/20 cursor-pointer"
+                className="w-4 h-4 rounded accent-[var(--brand-gold)] bg-[var(--brand-primary-dark)] border-white/20 cursor-pointer"
               />
               <span>In Stock Only</span>
             </label>
 
             {/* Sort Selector */}
-            <div className="flex items-center gap-2 bg-[#0B3D2E] border border-white/10 rounded-lg px-3 py-1.5">
-              <ArrowUpDown className="w-3.5 h-3.5 text-[#C8A24A]" />
+            <div className="flex items-center gap-2 bg-[var(--brand-primary-dark)] border border-white/10 rounded-lg px-3 py-1.5">
+              <ArrowUpDown className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
               <span className="text-[11px] font-sans text-slate-300 hidden sm:inline">Sort:</span>
               <select
                 value={sortBy}
                 onChange={(e) => setSortBy(e.target.value as any)}
                 className="bg-transparent text-xs font-sans text-slate-100 font-semibold focus:outline-none cursor-pointer"
               >
-                <option value="bestseller" className="bg-[#072a20] text-slate-100">Bestsellers First</option>
-                <option value="price-asc" className="bg-[#072a20] text-slate-100">Price: Low to High</option>
-                <option value="price-desc" className="bg-[#072a20] text-slate-100">Price: High to Low</option>
-                <option value="rating" className="bg-[#072a20] text-slate-100">Highest Rated (4.9+)</option>
-                <option value="name" className="bg-[#072a20] text-slate-100">Name (A-Z)</option>
+                <option value="bestseller" className="bg-[var(--brand-primary-deep)] text-slate-100">Bestsellers First</option>
+                <option value="price-asc" className="bg-[var(--brand-primary-deep)] text-slate-100">Price: Low to High</option>
+                <option value="price-desc" className="bg-[var(--brand-primary-deep)] text-slate-100">Price: High to Low</option>
+                <option value="rating" className="bg-[var(--brand-primary-deep)] text-slate-100">Highest Rated (4.9+)</option>
+                <option value="name" className="bg-[var(--brand-primary-deep)] text-slate-100">Name (A-Z)</option>
               </select>
             </div>
           </div>
@@ -250,7 +250,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
         {isLoading ? (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
             {[1, 2, 3, 4, 5, 6].map((i) => (
-              <div key={i} className="bg-[#072a20] border border-white/10 rounded-2xl p-4 animate-pulse space-y-4">
+              <div key={i} className="bg-[var(--brand-primary-deep)] border border-white/10 rounded-2xl p-4 animate-pulse space-y-4">
                 <div className="h-64 bg-white/5 rounded-xl"></div>
                 <div className="h-4 bg-white/10 rounded w-3/4"></div>
                 <div className="h-3 bg-white/5 rounded w-1/2"></div>
@@ -260,11 +260,11 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
           </div>
         ) : displayedProducts.length === 0 ? (
           /* Empty Filter State */
-          <div className="bg-[#072a20] border border-white/10 rounded-2xl p-12 text-center text-slate-300 max-w-md mx-auto my-12">
-            <Filter className="w-12 h-12 text-[#C8A24A] mx-auto mb-4 opacity-80" />
+          <div className="bg-[var(--brand-primary-deep)] border border-white/10 rounded-2xl p-12 text-center text-slate-300 max-w-md mx-auto my-12">
+            <Filter className="w-12 h-12 text-[var(--brand-gold)] mx-auto mb-4 opacity-80" />
             <h3 className="text-xl font-bold font-serif-luxury text-slate-100 mb-2">No Formulations Found</h3>
             <p className="text-xs text-slate-300 mb-6">
-              We couldn't find any products matching your current filters in <span className="text-[#C8A24A] font-bold">{selectedCategory}</span>.
+              We couldn't find any products matching your current filters in <span className="text-[var(--brand-gold)] font-bold">{selectedCategory}</span>.
             </p>
             <button
               onClick={() => {
@@ -272,7 +272,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
                 setInStockOnly(false);
                 if (onSelectCategory) onSelectCategory('ALL');
               }}
-              className="bg-[#C8A24A] text-[#0B3D2E] px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-white transition-colors inline-flex items-center gap-2"
+              className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-6 py-2.5 rounded-full text-xs font-bold uppercase tracking-wider hover:bg-white transition-colors inline-flex items-center gap-2"
             >
               <RotateCcw className="w-3.5 h-3.5" />
               <span>Reset All Filters</span>
@@ -287,7 +287,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
                 <div
                   key={product.id}
                   onClick={() => openQuickView(product)}
-                  className="group bg-[#072a20] border border-white/10 rounded-2xl overflow-hidden hover:border-[#C8A24A]/60 transition-all duration-300 hover:shadow-2xl flex flex-col cursor-pointer relative"
+                  className="group bg-[var(--brand-primary-deep)] border border-white/10 rounded-2xl overflow-hidden hover:border-[var(--brand-gold)]/60 transition-all duration-300 hover:shadow-2xl flex flex-col cursor-pointer relative"
                 >
                   {/* Image Container */}
                   <div className="relative h-72 overflow-hidden bg-black/30 flex items-center justify-center p-3">
@@ -300,7 +300,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
 
                     {/* Multi-Image Gallery Indicator Badge */}
                     {([product.image, ...(product.additionalImages || [])].filter(Boolean).length > 1) && (
-                      <div className="absolute bottom-3 left-3 bg-black/60 text-[#C8A24A] text-[9px] font-bold px-2 py-0.5 rounded-full border border-[#C8A24A]/30 z-10 flex items-center gap-1 backdrop-blur-xs">
+                      <div className="absolute bottom-3 left-3 bg-black/60 text-[var(--brand-gold)] text-[9px] font-bold px-2 py-0.5 rounded-full border border-[var(--brand-gold)]/30 z-10 flex items-center gap-1 backdrop-blur-xs">
                         <span>📷</span>
                         <span>{[product.image, ...(product.additionalImages || [])].filter(Boolean).length} Images</span>
                       </div>
@@ -309,7 +309,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
                     {/* Badges */}
                     <div className="absolute top-4 left-4 flex flex-col gap-2 z-10">
                       {product.isBestseller && (
-                        <span className="bg-[#C8A24A] text-[#0B3D2E] text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">
+                        <span className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full shadow-lg">
                           Bestseller
                         </span>
                       )}
@@ -327,7 +327,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
                         toggleWishlist(product);
                       }}
                       className={`absolute top-4 right-4 z-10 w-9 h-9 rounded-full backdrop-blur-md flex items-center justify-center transition-all ${
-                        inWish ? 'bg-[#C8A24A] text-[#0B3D2E]' : 'bg-black/40 text-white hover:text-[#C8A24A]'
+                        inWish ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]' : 'bg-black/40 text-white hover:text-[var(--brand-gold)]'
                       }`}
                       title={inWish ? 'Remove from Wishlist' : 'Add to Wishlist'}
                     >
@@ -341,7 +341,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
                           e.stopPropagation();
                           openQuickView(product);
                         }}
-                        className="bg-white text-[#0B3D2E] px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-xl hover:bg-[#C8A24A] transition-colors"
+                        className="bg-white text-[var(--brand-primary-dark)] px-4 py-2 rounded-full text-xs font-bold uppercase tracking-wider flex items-center gap-1.5 shadow-xl hover:bg-[var(--brand-gold)] transition-colors"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         <span>Quick View</span>
@@ -353,7 +353,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
                   <div className="p-6 flex-1 flex flex-col justify-between space-y-4">
                     <div>
                       <div className="flex items-center gap-2 mb-2">
-                        <div className="flex text-[#C8A24A]">
+                        <div className="flex text-[var(--brand-gold)]">
                           {[...Array(5)].map((_, i) => (
                             <Star key={i} className="w-3.5 h-3.5 fill-current" />
                           ))}
@@ -363,10 +363,10 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
                         </span>
                       </div>
 
-                      <h3 className="text-xl font-bold font-serif-luxury text-slate-100 group-hover:text-[#C8A24A] transition-colors line-clamp-1">
+                      <h3 className="text-xl font-bold font-serif-luxury text-slate-100 group-hover:text-[var(--brand-gold)] transition-colors line-clamp-1">
                         {product.name}
                       </h3>
-                      <p className="text-xs text-[#C8A24A] font-sans mt-0.5 line-clamp-1">
+                      <p className="text-xs text-[var(--brand-gold)] font-sans mt-0.5 line-clamp-1">
                         {product.subtitle}
                       </p>
 
@@ -378,7 +378,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
                     {/* Price and Add to Cart CTA */}
                     <div className="pt-4 border-t border-white/10 flex items-center justify-between">
                       <div>
-                        <span className="text-lg font-bold font-sans text-[#C8A24A]">
+                        <span className="text-lg font-bold font-sans text-[var(--brand-gold)]">
                           {formatPrice(product.priceINR)}
                         </span>
                         {product.originalPriceINR && (
@@ -393,7 +393,7 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
 
                       <button
                         onClick={(e) => handleAddToCart(e, product)}
-                        className="bg-[#C8A24A] text-[#0B3D2E] px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-white transition-all flex items-center gap-1.5 shadow-md active:scale-95"
+                        className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-white transition-all flex items-center gap-1.5 shadow-md active:scale-95"
                       >
                         <ShoppingBag className="w-3.5 h-3.5" />
                         <span>Add</span>

@@ -153,11 +153,11 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     const fileName = `HAKKIVEDA-Invoice-${orderId}.pdf`;
 
     // Header Banner
-    doc.setFillColor(11, 61, 46); // #0B3D2E
+    doc.setFillColor(11, 61, 46); // var(--brand-primary-dark)
     doc.rect(0, 0, 210, 32, 'F');
 
     // Title: HAKKIVEDA
-    doc.setTextColor(200, 162, 74); // #C8A24A
+    doc.setTextColor(200, 162, 74); // var(--brand-gold)
     doc.setFont('helvetica', 'bold');
     doc.setFontSize(22);
     doc.text('HAKKIVEDA', 14, 18);
@@ -524,13 +524,13 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
         >
           <div className="flex justify-between items-center border-b border-slate-200 pb-6 mb-6">
             <div>
-              <h1 className="text-2xl font-black font-serif-luxury text-[#0B3D2E] tracking-wider">HAKKIVEDA</h1>
+              <h1 className="text-2xl font-black font-serif-luxury text-[var(--brand-primary-dark)] tracking-wider">HAKKIVEDA</h1>
               <p className="text-xs text-slate-500 font-serif">100% Authentic Tribal Ayurvedic Formulations</p>
               <p className="text-[11px] text-slate-600 mt-1">Door No. 574, V.P. Bore, Hunsur, Mysore, Karnataka - 571105</p>
               <p className="text-[11px] text-slate-600">GSTIN: 29AABCH1234F1ZM | Ayush Lic: KTK/25A/1908/2021</p>
             </div>
             <div className="text-right">
-              <span className="inline-block bg-[#0B3D2E] text-[#C8A24A] text-xs font-bold px-3 py-1 rounded uppercase tracking-widest">
+              <span className="inline-block bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] text-xs font-bold px-3 py-1 rounded uppercase tracking-widest">
                 TAX INVOICE
               </span>
               <p className="font-mono text-sm font-bold text-slate-900 mt-2">{order.orderNumber}</p>
@@ -540,7 +540,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
 
           <div className="grid grid-cols-2 gap-6 border-b border-slate-200 pb-6 mb-6 text-xs">
             <div>
-              <p className="font-bold text-[#0B3D2E] uppercase tracking-wider mb-1">Billed & Shipped To:</p>
+              <p className="font-bold text-[var(--brand-primary-dark)] uppercase tracking-wider mb-1">Billed & Shipped To:</p>
               <p className="font-bold text-slate-800">{order.customer.name}</p>
               <p>{order.customer.address}</p>
               <p>{order.customer.city}, {order.customer.state} - {order.customer.pincode}</p>
@@ -549,7 +549,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               <p className="font-mono">Email: {order.customer.email}</p>
             </div>
             <div className="bg-slate-50 p-4 rounded-lg border border-slate-200 space-y-1">
-              <p className="font-bold text-[#0B3D2E] uppercase tracking-wider mb-1">Payment & Shipping Info:</p>
+              <p className="font-bold text-[var(--brand-primary-dark)] uppercase tracking-wider mb-1">Payment & Shipping Info:</p>
               <p><span className="font-semibold">Payment Method:</span> {order.paymentMethod}</p>
               <p><span className="font-semibold">Payment Status:</span> {order.paymentStatus}</p>
               <p><span className="font-semibold">Courier Partner:</span> {order.courierName}</p>
@@ -560,7 +560,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           {/* Table */}
           <table className="w-full text-left text-xs mb-6 border-collapse">
             <thead>
-              <tr className="bg-[#0B3D2E] text-white">
+              <tr className="bg-[var(--brand-primary-dark)] text-white">
                 <th className="p-2.5">Item Description</th>
                 <th className="p-2.5 text-center">Qty</th>
                 <th className="p-2.5 text-right">Price</th>
@@ -609,7 +609,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                 <span>Incl. GST (18%):</span>
                 <span className="font-mono">{formatPrice(taxGST)}</span>
               </div>
-              <div className="flex justify-between font-bold text-sm text-[#0B3D2E] border-t border-slate-300 pt-2">
+              <div className="flex justify-between font-bold text-sm text-[var(--brand-primary-dark)] border-t border-slate-300 pt-2">
                 <span>Grand Total:</span>
                 <span className="font-mono">{formatPrice(finalTotal)}</span>
               </div>
@@ -636,7 +636,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             <button
               type="button"
               onClick={handlePrintDocument}
-              className="px-5 py-2 bg-[#0B3D2E] text-[#C8A24A] rounded-xl font-bold text-xs flex items-center gap-2 hover:bg-[#072a20] transition-colors shadow-sm cursor-pointer"
+              className="px-5 py-2 bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] rounded-xl font-bold text-xs flex items-center gap-2 hover:bg-[var(--brand-primary-deep)] transition-colors shadow-sm cursor-pointer"
             >
               <Printer className="w-4 h-4" />
               <span>Print Invoice</span>
@@ -674,7 +674,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             <p className="text-base font-black text-black">{order.customer.name}</p>
             <p className="text-xs font-semibold text-slate-800">{order.customer.address}</p>
             <p className="text-xs font-semibold text-slate-800">{order.customer.city}, {order.customer.state} - {order.customer.pincode}</p>
-            <p className="text-xs font-bold text-[#0B3D2E] uppercase">{order.customer.country}</p>
+            <p className="text-xs font-bold text-[var(--brand-primary-dark)] uppercase">{order.customer.country}</p>
             <p className="text-xs font-bold font-mono mt-1">TEL: {order.customer.phone}</p>
           </div>
 
@@ -747,17 +747,17 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-[#0B3D2E] border border-[#C8A24A]/40 rounded-3xl max-w-4xl w-full max-h-[92vh] overflow-y-auto shadow-2xl text-slate-100 font-sans my-auto cursor-default"
+        className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/40 rounded-3xl max-w-4xl w-full max-h-[92vh] overflow-y-auto shadow-2xl text-slate-100 font-sans my-auto cursor-default"
       >
         {/* Header */}
-        <div className="sticky top-0 bg-[#041a13] border-b border-white/10 px-6 py-5 flex items-center justify-between z-10">
+        <div className="sticky top-0 bg-[var(--brand-primary-deeper)] border-b border-white/10 px-6 py-5 flex items-center justify-between z-10">
           <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-2xl bg-[#C8A24A]/20 border border-[#C8A24A]/40 flex items-center justify-center text-[#C8A24A]">
+            <div className="w-10 h-10 rounded-2xl bg-[var(--brand-gold)]/20 border border-[var(--brand-gold)]/40 flex items-center justify-center text-[var(--brand-gold)]">
               <Package className="w-5 h-5" />
             </div>
             <div>
               <div className="flex items-center gap-2">
-                <h2 className="text-xl font-bold font-mono text-[#C8A24A]">{order.orderNumber}</h2>
+                <h2 className="text-xl font-bold font-mono text-[var(--brand-gold)]">{order.orderNumber}</h2>
                 <span className="text-xs bg-white/10 px-2.5 py-0.5 rounded-full text-slate-300 font-sans">
                   {order.date}
                 </span>
@@ -778,7 +778,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
         </div>
 
         {/* Action Toolbar */}
-        <div className="bg-[#072a20] px-6 py-3.5 border-b border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs font-bold">
+        <div className="bg-[var(--brand-primary-deep)] px-6 py-3.5 border-b border-white/10 flex flex-wrap items-center justify-between gap-3 text-xs font-bold">
           <div className="flex flex-wrap items-center gap-2">
             <button
               type="button"
@@ -796,7 +796,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             <button
               type="button"
               onClick={() => setPrintMode('INVOICE')}
-              className="px-3 py-1.5 bg-[#C8A24A] text-[#0B3D2E] hover:bg-white rounded-xl flex items-center gap-1.5 transition-all cursor-pointer"
+              className="px-3 py-1.5 bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] hover:bg-white rounded-xl flex items-center gap-1.5 transition-all cursor-pointer"
             >
               <FileText className="w-3.5 h-3.5" />
               <span>Tax Invoice PDF</span>
@@ -845,11 +845,11 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
         {/* Modal Body */}
         <div className="p-6 space-y-6">
           {/* Quick Status Bar */}
-          <div className="bg-[#072a20] border border-white/10 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
+          <div className="bg-[var(--brand-primary-deep)] border border-white/10 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
             <div className="flex items-center gap-3">
               <div>
                 <span className="text-[10px] text-slate-400 uppercase tracking-widest block">ORDER STATUS</span>
-                <span className="text-sm font-bold text-[#C8A24A]">{trackingStatus}</span>
+                <span className="text-sm font-bold text-[var(--brand-gold)]">{trackingStatus}</span>
               </div>
               <div className="h-6 w-px bg-white/10" />
               <div>
@@ -869,7 +869,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               <select
                 value={trackingStatus}
                 onChange={(e) => handleQuickStatusChange(e.target.value)}
-                className="bg-[#0B3D2E] border border-[#C8A24A]/40 text-[#C8A24A] font-bold text-xs p-2 rounded-xl focus:outline-none cursor-pointer"
+                className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/40 text-[var(--brand-gold)] font-bold text-xs p-2 rounded-xl focus:outline-none cursor-pointer"
               >
                 <option value="ORDER_PLACED">1. ORDER_PLACED</option>
                 <option value="PROCESSING">2. PROCESSING</option>
@@ -897,7 +897,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                     type="text"
                     value={courierName}
                     onChange={(e) => setCourierName(e.target.value)}
-                    className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-xl text-slate-100"
+                    className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-xl text-slate-100"
                     placeholder="e.g. BlueDart, FedEx, DHL"
                   />
                 </div>
@@ -908,7 +908,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                     type="text"
                     value={trackingNumber}
                     onChange={(e) => setTrackingNumber(e.target.value)}
-                    className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-xl text-slate-100 font-mono"
+                    className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-xl text-slate-100 font-mono"
                     placeholder="e.g. BD-89123049"
                   />
                 </div>
@@ -918,7 +918,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   <select
                     value={paymentStatus}
                     onChange={(e) => setPaymentStatus(e.target.value)}
-                    className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-xl text-slate-100 font-bold cursor-pointer"
+                    className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-xl text-slate-100 font-bold cursor-pointer"
                   >
                     <option value="PAID">PAID</option>
                     <option value="PENDING">PENDING</option>
@@ -936,7 +936,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                     rows={2}
                     value={adminNotes}
                     onChange={(e) => setAdminNotes(e.target.value)}
-                    className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-xl text-slate-100"
+                    className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-xl text-slate-100"
                     placeholder="Add internal notes for fulfillment team..."
                   />
                 </div>
@@ -947,7 +947,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                     rows={2}
                     value={customerNotes}
                     onChange={(e) => setCustomerNotes(e.target.value)}
-                    className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-xl text-slate-100"
+                    className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-xl text-slate-100"
                     placeholder="Delivery instructions from customer..."
                   />
                 </div>
@@ -957,7 +957,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                 <button
                   type="button"
                   onClick={handleSaveOrder}
-                  className="bg-[#C8A24A] text-[#0B3D2E] px-5 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 hover:bg-white transition-colors cursor-pointer"
+                  className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-5 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 hover:bg-white transition-colors cursor-pointer"
                 >
                   <Save className="w-4 h-4" />
                   <span>Save Order Updates</span>
@@ -969,42 +969,42 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           {/* Customer & Addresses */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
             {/* Customer Details */}
-            <div className="bg-[#072a20] border border-white/10 p-5 rounded-2xl space-y-3">
-              <div className="flex items-center gap-2 text-[#C8A24A] font-bold text-xs uppercase tracking-wider">
+            <div className="bg-[var(--brand-primary-deep)] border border-white/10 p-5 rounded-2xl space-y-3">
+              <div className="flex items-center gap-2 text-[var(--brand-gold)] font-bold text-xs uppercase tracking-wider">
                 <User className="w-4 h-4" />
                 <span>Customer Information</span>
               </div>
               <div className="space-y-1.5 text-xs text-slate-200">
                 <p className="font-bold text-sm text-white">{order.customer.name}</p>
                 <p className="flex items-center gap-2 text-slate-300">
-                  <Mail className="w-3.5 h-3.5 text-[#C8A24A]" />
+                  <Mail className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
                   <span>{order.customer.email}</span>
                 </p>
                 <p className="flex items-center gap-2 text-slate-300">
-                  <Phone className="w-3.5 h-3.5 text-[#C8A24A]" />
+                  <Phone className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
                   <span>{order.customer.phone}</span>
                 </p>
               </div>
             </div>
 
             {/* Shipping & Billing Address */}
-            <div className="bg-[#072a20] border border-white/10 p-5 rounded-2xl space-y-3">
-              <div className="flex items-center gap-2 text-[#C8A24A] font-bold text-xs uppercase tracking-wider">
+            <div className="bg-[var(--brand-primary-deep)] border border-white/10 p-5 rounded-2xl space-y-3">
+              <div className="flex items-center gap-2 text-[var(--brand-gold)] font-bold text-xs uppercase tracking-wider">
                 <MapPin className="w-4 h-4" />
                 <span>Shipping & Billing Address</span>
               </div>
               <div className="text-xs text-slate-200 space-y-1">
                 <p className="font-semibold text-white">{order.customer.address}</p>
                 <p>{order.customer.city}, {order.customer.state} - {order.customer.pincode}</p>
-                <p className="font-bold text-[#C8A24A]">{order.customer.country}</p>
+                <p className="font-bold text-[var(--brand-gold)]">{order.customer.country}</p>
               </div>
             </div>
           </div>
 
           {/* Logistics & Tracking Info */}
-          <div className="bg-[#072a20] border border-white/10 p-5 rounded-2xl space-y-3">
+          <div className="bg-[var(--brand-primary-deep)] border border-white/10 p-5 rounded-2xl space-y-3">
             <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 text-[#C8A24A] font-bold text-xs uppercase tracking-wider">
+              <div className="flex items-center gap-2 text-[var(--brand-gold)] font-bold text-xs uppercase tracking-wider">
                 <Truck className="w-4 h-4" />
                 <span>Logistics & Courier Partner</span>
               </div>
@@ -1032,8 +1032,8 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           </div>
 
           {/* Ordered Products Table */}
-          <div className="bg-[#072a20] border border-white/10 p-5 rounded-2xl space-y-3">
-            <h3 className="text-xs font-bold text-[#C8A24A] uppercase tracking-wider">
+          <div className="bg-[var(--brand-primary-deep)] border border-white/10 p-5 rounded-2xl space-y-3">
+            <h3 className="text-xs font-bold text-[var(--brand-gold)] uppercase tracking-wider">
               Ordered Products ({order.items.length})
             </h3>
 
@@ -1058,7 +1058,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                     <p className="font-mono text-slate-300">
                       {formatPrice(item.product.priceINR)} × {item.quantity}
                     </p>
-                    <p className="font-mono font-bold text-sm text-[#C8A24A]">
+                    <p className="font-mono font-bold text-sm text-[var(--brand-gold)]">
                       {formatPrice(item.product.priceINR * item.quantity)}
                     </p>
                   </div>
@@ -1068,8 +1068,8 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           </div>
 
           {/* Price Breakdown */}
-          <div className="bg-[#072a20] border border-white/10 p-5 rounded-2xl space-y-2 text-xs">
-            <h3 className="text-xs font-bold text-[#C8A24A] uppercase tracking-wider mb-2">Financial Breakdown</h3>
+          <div className="bg-[var(--brand-primary-deep)] border border-white/10 p-5 rounded-2xl space-y-2 text-xs">
+            <h3 className="text-xs font-bold text-[var(--brand-gold)] uppercase tracking-wider mb-2">Financial Breakdown</h3>
             <div className="flex justify-between text-slate-300">
               <span>Subtotal:</span>
               <span className="font-mono">{formatPrice(subtotal)}</span>
@@ -1088,7 +1088,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               <span>Tax / GST (18% Included):</span>
               <span className="font-mono">{formatPrice(taxGST)}</span>
             </div>
-            <div className="flex justify-between font-bold text-sm text-[#C8A24A] border-t border-white/10 pt-3 mt-2">
+            <div className="flex justify-between font-bold text-sm text-[var(--brand-gold)] border-t border-white/10 pt-3 mt-2">
               <span>Total Amount Paid:</span>
               <span className="font-mono text-base">{formatPrice(finalTotal)}</span>
             </div>
@@ -1096,20 +1096,20 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
 
           {/* Notes */}
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-            <div className="bg-[#072a20] border border-white/10 p-4 rounded-2xl text-xs space-y-1">
-              <span className="text-[10px] text-[#C8A24A] font-bold uppercase tracking-wider block">CUSTOMER NOTES</span>
+            <div className="bg-[var(--brand-primary-deep)] border border-white/10 p-4 rounded-2xl text-xs space-y-1">
+              <span className="text-[10px] text-[var(--brand-gold)] font-bold uppercase tracking-wider block">CUSTOMER NOTES</span>
               <p className="text-slate-300 italic">{customerNotes || 'No special instructions provided.'}</p>
             </div>
-            <div className="bg-[#072a20] border border-white/10 p-4 rounded-2xl text-xs space-y-1">
-              <span className="text-[10px] text-[#C8A24A] font-bold uppercase tracking-wider block">ADMIN INTERNAL NOTES</span>
+            <div className="bg-[var(--brand-primary-deep)] border border-white/10 p-4 rounded-2xl text-xs space-y-1">
+              <span className="text-[10px] text-[var(--brand-gold)] font-bold uppercase tracking-wider block">ADMIN INTERNAL NOTES</span>
               <p className="text-slate-300 italic">{adminNotes || 'No internal team notes.'}</p>
             </div>
           </div>
 
           {/* Complete Order Timeline Visualizer */}
-          <div className="bg-[#072a20] border border-white/10 p-5 rounded-2xl space-y-4">
+          <div className="bg-[var(--brand-primary-deep)] border border-white/10 p-5 rounded-2xl space-y-4">
             <div className="flex items-center justify-between">
-              <h3 className="text-xs font-bold text-[#C8A24A] uppercase tracking-wider flex items-center gap-2">
+              <h3 className="text-xs font-bold text-[var(--brand-gold)] uppercase tracking-wider flex items-center gap-2">
                 <Clock className="w-4 h-4" />
                 <span>Complete Order Timeline</span>
               </h3>
@@ -1129,7 +1129,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                       key={step.key}
                       className={`p-3 rounded-xl border transition-all text-center flex flex-col items-center justify-between gap-1.5 ${
                         isCurrent
-                          ? 'bg-[#C8A24A]/20 border-[#C8A24A] text-white shadow-lg'
+                          ? 'bg-[var(--brand-gold)]/20 border-[var(--brand-gold)] text-white shadow-lg'
                           : isCompleted
                           ? 'bg-emerald-950/40 border-emerald-500/40 text-emerald-300'
                           : 'bg-black/20 border-white/5 text-slate-500'
@@ -1155,7 +1155,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
         </div>
 
         {/* Modal Footer */}
-        <div className="sticky bottom-0 bg-[#041a13] border-t border-white/10 px-6 py-4 flex justify-between items-center z-10">
+        <div className="sticky bottom-0 bg-[var(--brand-primary-deeper)] border-t border-white/10 px-6 py-4 flex justify-between items-center z-10">
           <p className="text-[11px] text-slate-400 font-sans">
             HAKKIVEDA Order Management • 100% Verified DB Record
           </p>

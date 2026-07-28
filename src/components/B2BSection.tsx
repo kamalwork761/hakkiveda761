@@ -43,11 +43,11 @@ export const B2BSection: React.FC = () => {
   return (
     <>
       {/* On-page B2B Banner Section */}
-      <section className="py-20 bg-[#0B3D2E] relative overflow-hidden border-t border-b border-white/10">
-        <div className="max-w-7xl mx-auto px-6 sm:px-12 bg-gradient-to-br from-[#072a20] to-[#041a13] border border-[#C8A24A]/40 rounded-2xl p-8 sm:p-12 shadow-2xl relative">
+      <section className="py-20 bg-[var(--brand-primary-dark)] relative overflow-hidden border-t border-b border-white/10">
+        <div className="max-w-7xl mx-auto px-6 sm:px-12 bg-gradient-to-br from-[var(--brand-primary-deep)] to-[var(--brand-primary-deeper)] border border-[var(--brand-gold)]/40 rounded-2xl p-8 sm:p-12 shadow-2xl relative">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
             <div className="lg:col-span-8 space-y-4">
-              <span className="bg-[#C8A24A]/20 border border-[#C8A24A] text-[#C8A24A] text-[10px] uppercase tracking-[0.25em] font-bold px-3 py-1 rounded-full">
+              <span className="bg-[var(--brand-gold)]/20 border border-[var(--brand-gold)] text-[var(--brand-gold)] text-[10px] uppercase tracking-[0.25em] font-bold px-3 py-1 rounded-full">
                 Global B2B & Export Partnerships
               </span>
 
@@ -60,15 +60,15 @@ export const B2BSection: React.FC = () => {
               </p>
 
               <div className="flex flex-wrap gap-6 pt-2 text-xs text-slate-200 font-sans font-semibold">
-                <span className="flex items-center gap-2 text-[#C8A24A]">
+                <span className="flex items-center gap-2 text-[var(--brand-gold)]">
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Custom OEM / Bulk Drums</span>
                 </span>
-                <span className="flex items-center gap-2 text-[#C8A24A]">
+                <span className="flex items-center gap-2 text-[var(--brand-gold)]">
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Customs & Phytosanitary Docs</span>
                 </span>
-                <span className="flex items-center gap-2 text-[#C8A24A]">
+                <span className="flex items-center gap-2 text-[var(--brand-gold)]">
                   <CheckCircle2 className="w-4 h-4" />
                   <span>Tiered Wholesale Pricing</span>
                 </span>
@@ -78,7 +78,7 @@ export const B2BSection: React.FC = () => {
             <div className="lg:col-span-4 flex justify-end">
               <button
                 onClick={() => setIsB2BModalOpen(true)}
-                className="w-full lg:w-auto bg-[#C8A24A] text-[#0B3D2E] px-8 py-4 rounded-xl font-sans text-xs font-bold uppercase tracking-[0.2em] hover:bg-white transition-all shadow-2xl flex items-center justify-center gap-2"
+                className="w-full lg:w-auto bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-8 py-4 rounded-xl font-sans text-xs font-bold uppercase tracking-[0.2em] hover:bg-white transition-all shadow-2xl flex items-center justify-center gap-2"
               >
                 <Building2 className="w-4 h-4" />
                 <span>Submit Export Enquiry</span>
@@ -91,17 +91,17 @@ export const B2BSection: React.FC = () => {
       {/* B2B Modal Form */}
       {isB2BModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto">
-          <div className="relative w-full max-w-2xl bg-[#072a20] border border-[#C8A24A]/50 rounded-2xl shadow-2xl p-6 sm:p-10 my-8 text-slate-100 font-sans">
+          <div className="relative w-full max-w-2xl bg-[var(--brand-primary-deep)] border border-[var(--brand-gold)]/50 rounded-2xl shadow-2xl p-6 sm:p-10 my-8 text-slate-100 font-sans">
             <button
               onClick={() => setIsB2BModalOpen(false)}
-              className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/40 text-white hover:bg-[#C8A24A] hover:text-[#0B3D2E] transition-all flex items-center justify-center"
+              className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/40 text-white hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all flex items-center justify-center"
             >
               <X className="w-5 h-5" />
             </button>
 
             {submitted ? (
               <div className="text-center py-12 space-y-4">
-                <CheckCircle2 className="w-16 h-16 text-[#C8A24A] mx-auto animate-bounce" />
+                <CheckCircle2 className="w-16 h-16 text-[var(--brand-gold)] mx-auto animate-bounce" />
                 <h3 className="text-2xl font-serif-luxury font-bold text-slate-100">Enquiry Received</h3>
                 <p className="text-xs text-slate-300">
                   Thank you for contacting HAKKIVEDA Herbal Enterprises. Our export director will review your enquiry and respond within 24 business hours.
@@ -110,7 +110,7 @@ export const B2BSection: React.FC = () => {
             ) : (
               <form onSubmit={handleSubmit} className="space-y-4">
                 <div>
-                  <span className="text-[#C8A24A] text-[10px] font-bold uppercase tracking-widest block mb-1">
+                  <span className="text-[var(--brand-gold)] text-[10px] font-bold uppercase tracking-widest block mb-1">
                     Wholesale & Distributor Application
                   </span>
                   <h3 className="text-2xl font-serif-luxury font-bold text-slate-100">
@@ -127,7 +127,7 @@ export const B2BSection: React.FC = () => {
                       value={companyName}
                       onChange={(e) => setCompanyName(e.target.value)}
                       placeholder="e.g. Pure Spa Singapore Pte Ltd"
-                      className="w-full bg-[#0B3D2E] border border-white/20 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-[#C8A24A]"
+                      className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
                     />
                   </div>
 
@@ -139,7 +139,7 @@ export const B2BSection: React.FC = () => {
                       value={contactName}
                       onChange={(e) => setContactName(e.target.value)}
                       placeholder="e.g. Marcus Lim"
-                      className="w-full bg-[#0B3D2E] border border-white/20 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-[#C8A24A]"
+                      className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
                     />
                   </div>
                 </div>
@@ -153,7 +153,7 @@ export const B2BSection: React.FC = () => {
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
                       placeholder="e.g. marcus@purespa.sg"
-                      className="w-full bg-[#0B3D2E] border border-white/20 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-[#C8A24A]"
+                      className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
                     />
                   </div>
 
@@ -164,7 +164,7 @@ export const B2BSection: React.FC = () => {
                       value={phone}
                       onChange={(e) => setPhone(e.target.value)}
                       placeholder="+65 9123 4567"
-                      className="w-full bg-[#0B3D2E] border border-white/20 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-[#C8A24A]"
+                      className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
                     />
                   </div>
                 </div>
@@ -177,7 +177,7 @@ export const B2BSection: React.FC = () => {
                       value={country}
                       onChange={(e) => setCountry(e.target.value)}
                       placeholder="e.g. Singapore, Malaysia, UAE"
-                      className="w-full bg-[#0B3D2E] border border-white/20 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-[#C8A24A]"
+                      className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
                     />
                   </div>
 
@@ -186,7 +186,7 @@ export const B2BSection: React.FC = () => {
                     <select
                       value={estimatedVolume}
                       onChange={(e) => setEstimatedVolume(e.target.value)}
-                      className="w-full bg-[#0B3D2E] border border-white/20 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-[#C8A24A]"
+                      className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
                     >
                       <option>100 - 500 Bottles / Month</option>
                       <option>500 - 1,000 Bottles / Month</option>
@@ -203,13 +203,13 @@ export const B2BSection: React.FC = () => {
                     value={message}
                     onChange={(e) => setMessage(e.target.value)}
                     placeholder="Tell us about your distribution channel, salon network, or required certifications..."
-                    className="w-full bg-[#0B3D2E] border border-white/20 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-[#C8A24A]"
+                    className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
                   ></textarea>
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-[#C8A24A] text-[#0B3D2E] py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-white transition-all shadow-xl flex items-center justify-center gap-2"
+                  className="w-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-white transition-all shadow-xl flex items-center justify-center gap-2"
                 >
                   <Send className="w-4 h-4" />
                   <span>Submit Wholesale Proposal</span>

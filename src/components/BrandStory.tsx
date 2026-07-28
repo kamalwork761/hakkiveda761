@@ -3,22 +3,22 @@ import { Flame, Compass, HeartHandshake, Leaf, ShieldAlert } from 'lucide-react'
 
 export const BrandStory: React.FC = () => {
   return (
-    <section id="brand-story" className="py-24 bg-[#0B3D2E] relative overflow-hidden">
+    <section id="brand-story" className="py-24 bg-[var(--brand-primary-dark)] relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 sm:px-12">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Visuals */}
           <div className="lg:col-span-6 relative">
-            <div className="relative rounded-2xl overflow-hidden border border-[#C8A24A]/40 shadow-2xl">
+            <div className="relative rounded-2xl overflow-hidden border border-[var(--brand-gold)]/40 shadow-2xl">
               <img
                 src="/images/hero_tribal_elders.jpg"
                 alt="Hakki-Pikki Forest Canopy and Tribal Elders"
                 className="w-full h-[480px] object-cover"
               />
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0B3D2E] via-transparent to-black/30"></div>
+              <div className="absolute inset-0 bg-gradient-to-t from-[var(--brand-primary-dark)] via-transparent to-black/30"></div>
 
               {/* Floating Tribal Lore Badge */}
-              <div className="absolute bottom-6 left-6 right-6 p-6 bg-black/60 backdrop-blur-xl border border-[#C8A24A]/40 rounded-xl space-y-2">
-                <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-[#C8A24A]">
+              <div className="absolute bottom-6 left-6 right-6 p-6 bg-black/60 backdrop-blur-xl border border-[var(--brand-gold)]/40 rounded-xl space-y-2">
+                <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-[var(--brand-gold)]">
                   Ancestral Mysore Heritage
                 </span>
                 <h4 className="text-lg font-serif-luxury font-bold text-slate-100">
@@ -33,7 +33,7 @@ export const BrandStory: React.FC = () => {
 
           {/* Right Brand Lore Story */}
           <div className="lg:col-span-6 space-y-6">
-            <span className="text-[#C8A24A] font-sans text-xs uppercase tracking-[0.28em] font-bold block">
+            <span className="text-[var(--brand-gold)] font-sans text-xs uppercase tracking-[0.28em] font-bold block">
               The Genesis of HAKKIVEDA
             </span>
             <h2 className="text-3xl sm:text-5xl font-serif-luxury font-bold text-slate-100 leading-tight">
@@ -50,8 +50,8 @@ export const BrandStory: React.FC = () => {
 
             {/* 4 Pillars */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-4 border-t border-white/10 font-sans">
-              <div className="p-4 bg-[#072a20] rounded-xl border border-white/10 space-y-1.5">
-                <div className="flex items-center gap-2 text-[#C8A24A]">
+              <div className="p-4 bg-[var(--brand-primary-deep)] rounded-xl border border-white/10 space-y-1.5">
+                <div className="flex items-center gap-2 text-[var(--brand-gold)]">
                   <Leaf className="w-4 h-4" />
                   <h4 className="text-xs font-bold uppercase tracking-wider">42 Wild Herbs</h4>
                 </div>
@@ -60,8 +60,8 @@ export const BrandStory: React.FC = () => {
                 </p>
               </div>
 
-              <div className="p-4 bg-[#072a20] rounded-xl border border-white/10 space-y-1.5">
-                <div className="flex items-center gap-2 text-[#C8A24A]">
+              <div className="p-4 bg-[var(--brand-primary-deep)] rounded-xl border border-white/10 space-y-1.5">
+                <div className="flex items-center gap-2 text-[var(--brand-gold)]">
                   <Flame className="w-4 h-4" />
                   <h4 className="text-xs font-bold uppercase tracking-wider">21-Day Woodfire Brew</h4>
                 </div>
@@ -70,8 +70,8 @@ export const BrandStory: React.FC = () => {
                 </p>
               </div>
 
-              <div className="p-4 bg-[#072a20] rounded-xl border border-white/10 space-y-1.5">
-                <div className="flex items-center gap-2 text-[#C8A24A]">
+              <div className="p-4 bg-[var(--brand-primary-deep)] rounded-xl border border-white/10 space-y-1.5">
+                <div className="flex items-center gap-2 text-[var(--brand-gold)]">
                   <HeartHandshake className="w-4 h-4" />
                   <h4 className="text-xs font-bold uppercase tracking-wider">Tribal Empowerment</h4>
                 </div>
@@ -80,8 +80,8 @@ export const BrandStory: React.FC = () => {
                 </p>
               </div>
 
-              <div className="p-4 bg-[#072a20] rounded-xl border border-white/10 space-y-1.5">
-                <div className="flex items-center gap-2 text-[#C8A24A]">
+              <div className="p-4 bg-[var(--brand-primary-deep)] rounded-xl border border-white/10 space-y-1.5">
+                <div className="flex items-center gap-2 text-[var(--brand-gold)]">
                   <Compass className="w-4 h-4" />
                   <h4 className="text-xs font-bold uppercase tracking-wider">Worldwide Shipping</h4>
                 </div>

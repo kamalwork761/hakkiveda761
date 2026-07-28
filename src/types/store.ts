@@ -184,6 +184,12 @@ export interface Review {
   date: string;
   verifiedPurchase: boolean;
   location: string;
+  customerImage?: string;
+  status?: 'APPROVED' | 'PENDING' | 'REJECTED';
+  approved?: boolean;
+  featured?: boolean;
+  images?: string[];
+  videos?: string[];
 }
 
 export interface BeforeAfterItem {
@@ -196,6 +202,12 @@ export interface BeforeAfterItem {
   testimonial: string;
   author: string;
   location: string;
+  description?: string;
+  customerName?: string;
+  treatmentDuration?: string;
+  active?: boolean;
+  showOnHomepage?: boolean;
+  sortOrder?: number;
 }
 
 export interface BlogArticle {
@@ -209,6 +221,14 @@ export interface BlogArticle {
   readTime: string;
   image: string;
   category: string;
+  status?: 'DRAFT' | 'PUBLISHED' | 'SCHEDULED';
+  scheduledDate?: string;
+  gallery?: string[];
+  tags?: string[];
+  seoTitle?: string;
+  metaDescription?: string;
+  relatedProducts?: string[];
+  relatedArticles?: string[];
 }
 
 export interface HeroSlide {
@@ -238,9 +258,9 @@ export interface HeroSlide {
   sortOrder?: number;
   textPosition?: 'LEFT' | 'CENTER' | 'RIGHT';
   textAlignment?: 'left' | 'center' | 'right';
-  overlayColor?: string; // e.g. '#0B3D2E' or '#000000'
+  overlayColor?: string; // e.g. 'var(--brand-primary-dark)' or '#000000'
   overlayOpacity?: number; // 0 to 100
-  textColor?: string; // e.g. 'white' or '#C8A24A'
+  textColor?: string; // e.g. 'white' or 'var(--brand-gold)'
   animation?: 'fade' | 'slide' | 'zoom' | 'parallax' | 'kenburns' | 'leaves' | 'goldsweep' | 'none';
   altText?: string;
   imageTitle?: string;
@@ -277,12 +297,37 @@ export interface TestimonialVideo {
   videoUrl: string;
   thumbnail: string;
   reviewText: string;
+  customerPhoto?: string;
+  country?: string;
+  productUsed?: string;
+  featured?: boolean;
+  sortOrder?: number;
+  active?: boolean;
+  showOnHomepage?: boolean;
+}
+
+export interface QuizOption {
+  id?: string;
+  text: string;
+  image?: string;
+  dosha?: string;
+  score?: number;
+  hairType?: string;
+  scalpCondition?: string;
+  recommendedProductIds?: string[];
 }
 
 export interface QuizQuestion {
   id: string;
   question: string;
-  options: { text: string; dosha: string }[];
+  subtitle?: string;
+  type?: 'single' | 'multiple' | 'text' | 'image';
+  options: QuizOption[];
+  conditionalLogic?: {
+    dependsOnQuestionId?: string;
+    dependsOnOptionIndex?: number;
+  };
+  sortOrder?: number;
 }
 
 export interface MediaItem {

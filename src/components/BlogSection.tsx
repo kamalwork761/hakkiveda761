@@ -8,11 +8,11 @@ export const BlogSection: React.FC = () => {
   const [activeBlog, setActiveBlog] = useState<BlogArticle | null>(null);
 
   return (
-    <section id="blogs" className="py-20 bg-[#072a20] border-t border-b border-white/10 relative">
+    <section id="blogs" className="py-20 bg-[var(--brand-primary-deep)] border-t border-b border-white/10 relative">
       <div className="max-w-7xl mx-auto px-6 sm:px-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
           <div>
-            <span className="text-[#C8A24A] font-sans text-xs uppercase tracking-[0.28em] font-bold block mb-2">
+            <span className="text-[var(--brand-gold)] font-sans text-xs uppercase tracking-[0.28em] font-bold block mb-2">
               The Botanical Journal
             </span>
             <h2 className="text-3xl sm:text-5xl font-serif-luxury font-bold text-slate-100">
@@ -29,7 +29,7 @@ export const BlogSection: React.FC = () => {
             <div
               key={blog.id}
               onClick={() => setActiveBlog(blog)}
-              className="group bg-[#0B3D2E] border border-white/10 rounded-2xl overflow-hidden hover:border-[#C8A24A]/60 transition-all duration-300 cursor-pointer shadow-xl flex flex-col justify-between"
+              className="group bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl overflow-hidden hover:border-[var(--brand-gold)]/60 transition-all duration-300 cursor-pointer shadow-xl flex flex-col justify-between"
             >
               <div className="h-60 overflow-hidden relative">
                 <img
@@ -37,7 +37,7 @@ export const BlogSection: React.FC = () => {
                   alt={blog.title}
                   className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80 group-hover:opacity-100"
                 />
-                <span className="absolute top-4 left-4 bg-black/70 backdrop-blur-md text-[#C8A24A] text-[10px] font-bold font-sans uppercase px-3 py-1 rounded-full border border-[#C8A24A]/30">
+                <span className="absolute top-4 left-4 bg-black/70 backdrop-blur-md text-[var(--brand-gold)] text-[10px] font-bold font-sans uppercase px-3 py-1 rounded-full border border-[var(--brand-gold)]/30">
                   {blog.category}
                 </span>
               </div>
@@ -46,14 +46,14 @@ export const BlogSection: React.FC = () => {
                 <div>
                   <div className="flex items-center gap-4 text-xs text-slate-400 font-sans mb-2">
                     <span className="flex items-center gap-1">
-                      <Clock className="w-3.5 h-3.5 text-[#C8A24A]" />
+                      <Clock className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
                       <span>{blog.readTime}</span>
                     </span>
                     <span>•</span>
                     <span>{blog.date}</span>
                   </div>
 
-                  <h3 className="text-xl font-bold font-serif-luxury text-slate-100 group-hover:text-[#C8A24A] transition-colors leading-snug">
+                  <h3 className="text-xl font-bold font-serif-luxury text-slate-100 group-hover:text-[var(--brand-gold)] transition-colors leading-snug">
                     {blog.title}
                   </h3>
                   <p className="text-xs text-slate-300 font-sans mt-2 line-clamp-3 leading-relaxed">
@@ -63,7 +63,7 @@ export const BlogSection: React.FC = () => {
 
                 <div className="pt-4 border-t border-white/10 flex items-center justify-between">
                   <span className="text-[11px] text-slate-400 font-sans italic">By {blog.author}</span>
-                  <span className="text-xs font-bold font-sans text-[#C8A24A] uppercase tracking-wider flex items-center gap-1 group-hover:translate-x-1 transition-transform">
+                  <span className="text-xs font-bold font-sans text-[var(--brand-gold)] uppercase tracking-wider flex items-center gap-1 group-hover:translate-x-1 transition-transform">
                     <span>Read Article</span>
                     <ArrowRight className="w-4 h-4" />
                   </span>
@@ -77,16 +77,16 @@ export const BlogSection: React.FC = () => {
       {/* Article Reader Modal */}
       {activeBlog && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto">
-          <div className="relative w-full max-w-3xl bg-[#072a20] border border-[#C8A24A]/40 rounded-2xl shadow-2xl p-6 sm:p-10 my-8 text-slate-100 font-sans max-h-[85vh] overflow-y-auto">
+          <div className="relative w-full max-w-3xl bg-[var(--brand-primary-deep)] border border-[var(--brand-gold)]/40 rounded-2xl shadow-2xl p-6 sm:p-10 my-8 text-slate-100 font-sans max-h-[85vh] overflow-y-auto">
             <button
               onClick={() => setActiveBlog(null)}
-              className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/40 text-white hover:bg-[#C8A24A] hover:text-[#0B3D2E] transition-all flex items-center justify-center"
+              className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/40 text-white hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all flex items-center justify-center"
             >
               <X className="w-5 h-5" />
             </button>
 
             <div className="space-y-4">
-              <span className="bg-[#C8A24A]/20 text-[#C8A24A] border border-[#C8A24A] text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
+              <span className="bg-[var(--brand-gold)]/20 text-[var(--brand-gold)] border border-[var(--brand-gold)] text-[10px] font-bold uppercase tracking-widest px-3 py-1 rounded-full">
                 {activeBlog.category}
               </span>
 
@@ -96,7 +96,7 @@ export const BlogSection: React.FC = () => {
 
               <div className="flex items-center gap-4 text-xs text-slate-400 border-b border-white/10 pb-4">
                 <span className="flex items-center gap-1.5">
-                  <User className="w-3.5 h-3.5 text-[#C8A24A]" />
+                  <User className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
                   <span>{activeBlog.author}</span>
                 </span>
                 <span>•</span>

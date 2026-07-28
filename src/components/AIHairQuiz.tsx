@@ -161,18 +161,18 @@ export const AIHairQuiz: React.FC = () => {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto">
-      <div className="relative w-full max-w-3xl bg-[#072a20] border border-[#C8A24A]/50 rounded-2xl shadow-2xl p-5 sm:p-8 my-6 text-slate-100 font-sans animate-in zoom-in-95 duration-300 max-h-[92vh] overflow-y-auto">
+      <div className="relative w-full max-w-3xl bg-[var(--brand-primary-deep)] border border-[var(--brand-gold)]/50 rounded-2xl shadow-2xl p-5 sm:p-8 my-6 text-slate-100 font-sans animate-in zoom-in-95 duration-300 max-h-[92vh] overflow-y-auto">
         {/* Close Button */}
         <button
           onClick={() => setIsQuizOpen(false)}
-          className="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-black/40 text-white hover:bg-[#C8A24A] hover:text-[#0B3D2E] transition-all flex items-center justify-center border border-[#C8A24A]/30"
+          className="absolute top-4 right-4 z-20 w-9 h-9 rounded-full bg-black/40 text-white hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all flex items-center justify-center border border-[var(--brand-gold)]/30"
           aria-label="Close Quiz"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Header Badge */}
-        <div className="flex items-center gap-2 mb-4 text-[#C8A24A]">
+        <div className="flex items-center gap-2 mb-4 text-[var(--brand-gold)]">
           <Sparkles className="w-5 h-5 animate-spin" />
           <span className="text-[11px] sm:text-xs uppercase font-bold tracking-[0.2em]">
             HAKKIVEDA AI Trichology Diagnostic
@@ -184,7 +184,7 @@ export const AIHairQuiz: React.FC = () => {
             {/* Progress Bar */}
             <div className="w-full bg-black/40 h-2 rounded-full mb-6 overflow-hidden border border-white/10">
               <div
-                className="bg-gradient-to-r from-[#C8A24A] to-[#E5C880] h-full transition-all duration-300"
+                className="bg-gradient-to-r from-[var(--brand-gold)] to-[var(--brand-gold-light)] h-full transition-all duration-300"
                 style={{ width: `${(step / 6) * 100}%` }}
               ></div>
             </div>
@@ -207,8 +207,8 @@ export const AIHairQuiz: React.FC = () => {
                       onClick={() => setHairType(option)}
                       className={`p-3.5 rounded-xl border text-left transition-all font-semibold text-xs sm:text-sm ${
                         hairType === option
-                          ? 'border-[#C8A24A] bg-[#0B3D2E] text-[#C8A24A] shadow-[0_0_15px_rgba(200,162,74,0.3)]'
-                          : 'border-white/10 bg-black/30 text-slate-200 hover:border-[#C8A24A]/50'
+                          ? 'border-[var(--brand-gold)] bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] shadow-[0_0_15px_rgba(200,162,74,0.3)]'
+                          : 'border-white/10 bg-black/30 text-slate-200 hover:border-[var(--brand-gold)]/50'
                       }`}
                     >
                       {option}
@@ -236,8 +236,8 @@ export const AIHairQuiz: React.FC = () => {
                       onClick={() => setScalpCondition(option)}
                       className={`p-3.5 rounded-xl border text-left transition-all font-semibold text-xs sm:text-sm ${
                         scalpCondition === option
-                          ? 'border-[#C8A24A] bg-[#0B3D2E] text-[#C8A24A] shadow-[0_0_15px_rgba(200,162,74,0.3)]'
-                          : 'border-white/10 bg-black/30 text-slate-200 hover:border-[#C8A24A]/50'
+                          ? 'border-[var(--brand-gold)] bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] shadow-[0_0_15px_rgba(200,162,74,0.3)]'
+                          : 'border-white/10 bg-black/30 text-slate-200 hover:border-[var(--brand-gold)]/50'
                       }`}
                     >
                       {option}
@@ -265,8 +265,8 @@ export const AIHairQuiz: React.FC = () => {
                       onClick={() => setPrimaryConcern(option)}
                       className={`p-3.5 rounded-xl border text-left transition-all font-semibold text-xs sm:text-sm ${
                         primaryConcern === option
-                          ? 'border-[#C8A24A] bg-[#0B3D2E] text-[#C8A24A] shadow-[0_0_15px_rgba(200,162,74,0.3)]'
-                          : 'border-white/10 bg-black/30 text-slate-200 hover:border-[#C8A24A]/50'
+                          ? 'border-[var(--brand-gold)] bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] shadow-[0_0_15px_rgba(200,162,74,0.3)]'
+                          : 'border-white/10 bg-black/30 text-slate-200 hover:border-[var(--brand-gold)]/50'
                       }`}
                     >
                       {option}
@@ -294,8 +294,8 @@ export const AIHairQuiz: React.FC = () => {
                       onClick={() => setHairLossLevel(option)}
                       className={`p-3.5 rounded-xl border text-left transition-all font-semibold text-xs sm:text-sm ${
                         hairLossLevel === option
-                          ? 'border-[#C8A24A] bg-[#0B3D2E] text-[#C8A24A] shadow-[0_0_15px_rgba(200,162,74,0.3)]'
-                          : 'border-white/10 bg-black/30 text-slate-200 hover:border-[#C8A24A]/50'
+                          ? 'border-[var(--brand-gold)] bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] shadow-[0_0_15px_rgba(200,162,74,0.3)]'
+                          : 'border-white/10 bg-black/30 text-slate-200 hover:border-[var(--brand-gold)]/50'
                       }`}
                     >
                       {option}
@@ -323,8 +323,8 @@ export const AIHairQuiz: React.FC = () => {
                       onClick={() => setHairGoal(option)}
                       className={`p-3.5 rounded-xl border text-left transition-all font-semibold text-xs sm:text-sm ${
                         hairGoal === option
-                          ? 'border-[#C8A24A] bg-[#0B3D2E] text-[#C8A24A] shadow-[0_0_15px_rgba(200,162,74,0.3)]'
-                          : 'border-white/10 bg-black/30 text-slate-200 hover:border-[#C8A24A]/50'
+                          ? 'border-[var(--brand-gold)] bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] shadow-[0_0_15px_rgba(200,162,74,0.3)]'
+                          : 'border-white/10 bg-black/30 text-slate-200 hover:border-[var(--brand-gold)]/50'
                       }`}
                     >
                       {option}
@@ -352,8 +352,8 @@ export const AIHairQuiz: React.FC = () => {
                       onClick={() => setLifestyle(option)}
                       className={`p-3.5 rounded-xl border text-left transition-all font-semibold text-xs sm:text-sm ${
                         lifestyle === option
-                          ? 'border-[#C8A24A] bg-[#0B3D2E] text-[#C8A24A] shadow-[0_0_15px_rgba(200,162,74,0.3)]'
-                          : 'border-white/10 bg-black/30 text-slate-200 hover:border-[#C8A24A]/50'
+                          ? 'border-[var(--brand-gold)] bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] shadow-[0_0_15px_rgba(200,162,74,0.3)]'
+                          : 'border-white/10 bg-black/30 text-slate-200 hover:border-[var(--brand-gold)]/50'
                       }`}
                     >
                       {option}
@@ -368,7 +368,7 @@ export const AIHairQuiz: React.FC = () => {
               {step > 1 ? (
                 <button
                   onClick={() => setStep(step - 1)}
-                  className="flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-[#C8A24A] uppercase tracking-wider"
+                  className="flex items-center gap-1.5 text-xs font-bold text-slate-300 hover:text-[var(--brand-gold)] uppercase tracking-wider"
                 >
                   <ChevronLeft className="w-4 h-4" />
                   <span>Previous</span>
@@ -380,7 +380,7 @@ export const AIHairQuiz: React.FC = () => {
               {step < 6 ? (
                 <button
                   onClick={() => setStep(step + 1)}
-                  className="bg-[#C8A24A] text-[#0B3D2E] px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-white transition-all flex items-center gap-2 shadow-lg"
+                  className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-5 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-white transition-all flex items-center gap-2 shadow-lg"
                 >
                   <span>Next Step</span>
                   <ChevronRight className="w-4 h-4" />
@@ -389,7 +389,7 @@ export const AIHairQuiz: React.FC = () => {
                 <button
                   onClick={handleAnalyze}
                   disabled={isLoading}
-                  className="bg-gradient-to-r from-[#C8A24A] to-[#E5C880] text-[#0B3D2E] px-7 py-3 rounded-lg text-xs font-bold uppercase tracking-wider hover:brightness-110 transition-all flex items-center gap-2 shadow-xl"
+                  className="bg-gradient-to-r from-[var(--brand-gold)] to-[var(--brand-gold-light)] text-[var(--brand-primary-dark)] px-7 py-3 rounded-lg text-xs font-bold uppercase tracking-wider hover:brightness-110 transition-all flex items-center gap-2 shadow-xl"
                 >
                   {isLoading ? (
                     <>
@@ -412,17 +412,17 @@ export const AIHairQuiz: React.FC = () => {
         {step === 7 && quizResult && (
           <div className="space-y-6 animate-in fade-in duration-500">
             {/* Diagnosis Overview Header */}
-            <div className="bg-[#0B3D2E] border border-[#C8A24A]/40 p-5 sm:p-6 rounded-2xl space-y-3">
+            <div className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/40 p-5 sm:p-6 rounded-2xl space-y-3">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-white/10 pb-3">
                 <div>
-                  <span className="text-[10px] uppercase font-bold text-[#C8A24A] tracking-widest block">
+                  <span className="text-[10px] uppercase font-bold text-[var(--brand-gold)] tracking-widest block">
                     Ayurvedic Trichology Assessment
                   </span>
                   <h3 className="text-lg sm:text-xl font-serif-luxury font-bold text-slate-100">
-                    Classification: <span className="text-[#C8A24A]">{quizResult.doshaType}</span>
+                    Classification: <span className="text-[var(--brand-gold)]">{quizResult.doshaType}</span>
                   </h3>
                 </div>
-                <span className="self-start sm:self-auto bg-[#C8A24A]/20 border border-[#C8A24A] text-[#C8A24A] text-[10px] sm:text-[11px] font-bold px-3 py-1 rounded-full">
+                <span className="self-start sm:self-auto bg-[var(--brand-gold)]/20 border border-[var(--brand-gold)] text-[var(--brand-gold)] text-[10px] sm:text-[11px] font-bold px-3 py-1 rounded-full">
                   Expected Transformation: {quizResult.estimatedResultsWeeks} Weeks
                 </span>
               </div>
@@ -436,7 +436,7 @@ export const AIHairQuiz: React.FC = () => {
             <div className="space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-[10px] uppercase tracking-widest font-bold text-[#C8A24A]">
+                  <span className="text-[10px] uppercase tracking-widest font-bold text-[var(--brand-gold)]">
                     Master Vaidya Prescription
                   </span>
                   <h4 className="text-sm sm:text-base font-serif-luxury font-bold text-white">
@@ -445,7 +445,7 @@ export const AIHairQuiz: React.FC = () => {
                 </div>
                 <button
                   onClick={handleAddAllRecommended}
-                  className="bg-[#C8A24A] text-[#0B3D2E] px-3.5 py-1.5 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider hover:bg-white transition-all flex items-center gap-1.5 shadow-md shrink-0"
+                  className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-3.5 py-1.5 rounded-lg text-[10px] sm:text-xs font-bold uppercase tracking-wider hover:bg-white transition-all flex items-center gap-1.5 shadow-md shrink-0"
                 >
                   <ShoppingBag className="w-3.5 h-3.5" />
                   <span>Add All To Bag</span>
@@ -456,7 +456,7 @@ export const AIHairQuiz: React.FC = () => {
                 {getRecommendedProducts().map((prod) => (
                   <div
                     key={prod.id}
-                    className="bg-black/40 border border-[#C8A24A]/30 rounded-xl p-3 flex gap-3 items-center hover:border-[#C8A24A] transition-all group"
+                    className="bg-black/40 border border-[var(--brand-gold)]/30 rounded-xl p-3 flex gap-3 items-center hover:border-[var(--brand-gold)] transition-all group"
                   >
                     <img
                       src={prod.image}
@@ -464,11 +464,11 @@ export const AIHairQuiz: React.FC = () => {
                       className="w-16 h-16 sm:w-20 sm:h-20 object-contain rounded-lg border border-white/10 shrink-0 bg-black/30 p-1"
                     />
                     <div className="flex-1 min-w-0">
-                      <h5 className="font-bold text-xs sm:text-sm text-white truncate group-hover:text-[#C8A24A] transition-colors">
+                      <h5 className="font-bold text-xs sm:text-sm text-white truncate group-hover:text-[var(--brand-gold)] transition-colors">
                         {prod.name}
                       </h5>
                       <p className="text-[10px] text-slate-300 truncate">{prod.subtitle}</p>
-                      <div className="text-xs font-bold text-[#C8A24A] mt-1">
+                      <div className="text-xs font-bold text-[var(--brand-gold)] mt-1">
                         {formatPrice(prod.priceINR)}
                       </div>
                       <button
@@ -476,7 +476,7 @@ export const AIHairQuiz: React.FC = () => {
                         className={`mt-2 text-[10px] uppercase font-bold tracking-wider px-3 py-1 rounded-md transition-all flex items-center gap-1.5 ${
                           addedIds.includes(prod.id)
                             ? 'bg-emerald-800 text-white'
-                            : 'bg-[#C8A24A]/20 border border-[#C8A24A] text-[#C8A24A] hover:bg-[#C8A24A] hover:text-[#0B3D2E]'
+                            : 'bg-[var(--brand-gold)]/20 border border-[var(--brand-gold)] text-[var(--brand-gold)] hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)]'
                         }`}
                       >
                         {addedIds.includes(prod.id) ? (
@@ -505,7 +505,7 @@ export const AIHairQuiz: React.FC = () => {
               <ul className="space-y-2">
                 {quizResult.recommendedRoutine.map((stepItem, i) => (
                   <li key={i} className="flex items-start gap-2.5 text-xs text-slate-200">
-                    <CheckCircle2 className="w-4 h-4 text-[#C8A24A] shrink-0 mt-0.5" />
+                    <CheckCircle2 className="w-4 h-4 text-[var(--brand-gold)] shrink-0 mt-0.5" />
                     <span>{stepItem}</span>
                   </li>
                 ))}
@@ -514,7 +514,7 @@ export const AIHairQuiz: React.FC = () => {
 
             {/* Selected Forest Botanicals */}
             <div className="space-y-2">
-              <h4 className="text-xs uppercase tracking-widest font-bold text-[#C8A24A] flex items-center gap-1.5">
+              <h4 className="text-xs uppercase tracking-widest font-bold text-[var(--brand-gold)] flex items-center gap-1.5">
                 <Leaf className="w-3.5 h-3.5" />
                 <span>Selected Forest Botanicals</span>
               </h4>
@@ -522,7 +522,7 @@ export const AIHairQuiz: React.FC = () => {
                 {quizResult.keyHerbs.map((herb, i) => (
                   <span
                     key={i}
-                    className="bg-black/40 border border-[#C8A24A]/30 text-slate-200 text-[11px] px-2.5 py-1 rounded-full font-semibold"
+                    className="bg-black/40 border border-[var(--brand-gold)]/30 text-slate-200 text-[11px] px-2.5 py-1 rounded-full font-semibold"
                   >
                     🌿 {herb}
                   </span>
@@ -534,14 +534,14 @@ export const AIHairQuiz: React.FC = () => {
             <div className="pt-2 flex flex-col sm:flex-row items-center gap-3">
               <button
                 onClick={handleAddAllRecommended}
-                className="w-full sm:w-auto flex-1 bg-gradient-to-r from-[#C8A24A] to-[#E5C880] text-[#0B3D2E] py-3 px-6 rounded-lg font-bold text-xs uppercase tracking-wider hover:brightness-110 transition-all shadow-xl flex items-center justify-center gap-2"
+                className="w-full sm:w-auto flex-1 bg-gradient-to-r from-[var(--brand-gold)] to-[var(--brand-gold-light)] text-[var(--brand-primary-dark)] py-3 px-6 rounded-lg font-bold text-xs uppercase tracking-wider hover:brightness-110 transition-all shadow-xl flex items-center justify-center gap-2"
               >
                 <ShoppingBag className="w-4 h-4" />
                 <span>Add Recommended Hair Care System To Bag</span>
               </button>
               <button
                 onClick={resetQuiz}
-                className="text-xs text-slate-300 hover:text-[#C8A24A] underline font-medium"
+                className="text-xs text-slate-300 hover:text-[var(--brand-gold)] underline font-medium"
               >
                 Retake Hair Diagnostic
               </button>

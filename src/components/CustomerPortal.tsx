@@ -400,11 +400,11 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
 
           {!currentUser ? (
             /* LARGE CENTERED LUXURY MODAL FOR AUTH */
-            <div className="relative w-full max-w-xl bg-[#06261d] border border-[#C8A24A]/30 rounded-3xl shadow-2xl p-6 sm:p-10 text-slate-100 font-sans z-10 animate-in fade-in zoom-in-95 duration-300 my-auto">
+            <div className="relative w-full max-w-xl bg-[#06261d] border border-[var(--brand-gold)]/30 rounded-3xl shadow-2xl p-6 sm:p-10 text-slate-100 font-sans z-10 animate-in fade-in zoom-in-95 duration-300 my-auto">
               {/* Top Bar with Brand Title & Close Button */}
-              <div className="flex items-center justify-between border-b border-[#C8A24A]/20 pb-5 mb-6">
+              <div className="flex items-center justify-between border-b border-[var(--brand-gold)]/20 pb-5 mb-6">
                 <div>
-                  <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-[#C8A24A] block mb-1 font-serif-luxury">
+                  <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-[var(--brand-gold)] block mb-1 font-serif-luxury">
                     HAKKIVEDA TRIBAL AYURVEDA
                   </span>
                   <h2 className="text-2xl sm:text-3xl font-serif-luxury font-bold text-slate-100 tracking-tight">
@@ -419,7 +419,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                     playSound('nav_click');
                     setIsAuthModalOpen(false);
                   }}
-                  className="w-10 h-10 rounded-full bg-[#0B3D2E] text-slate-300 hover:text-white hover:bg-[#C8A24A] hover:text-[#0B3D2E] transition-all flex items-center justify-center border border-[#C8A24A]/30 shrink-0"
+                  className="w-10 h-10 rounded-full bg-[var(--brand-primary-dark)] text-slate-300 hover:text-white hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all flex items-center justify-center border border-[var(--brand-gold)]/30 shrink-0"
                   title="Close Modal (Esc)"
                 >
                   <X className="w-5 h-5" />
@@ -438,13 +438,13 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                   }}
                   className={`pb-3 px-3 sm:px-5 transition-all relative font-serif-luxury ${
                     authTab === 'SIGN_IN'
-                      ? 'text-[#C8A24A] font-bold'
+                      ? 'text-[var(--brand-gold)] font-bold'
                       : 'text-slate-400 hover:text-slate-200'
                   }`}
                 >
                   Sign In
                   {authTab === 'SIGN_IN' && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#C8A24A] rounded-full"></span>
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--brand-gold)] rounded-full"></span>
                   )}
                 </button>
 
@@ -458,13 +458,13 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                   }}
                   className={`pb-3 px-3 sm:px-5 transition-all relative font-serif-luxury ${
                     authTab === 'CREATE_ACCOUNT'
-                      ? 'text-[#C8A24A] font-bold'
+                      ? 'text-[var(--brand-gold)] font-bold'
                       : 'text-slate-400 hover:text-slate-200'
                   }`}
                 >
                   Create Account
                   {authTab === 'CREATE_ACCOUNT' && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#C8A24A] rounded-full"></span>
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--brand-gold)] rounded-full"></span>
                   )}
                 </button>
 
@@ -478,13 +478,13 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                   }}
                   className={`pb-3 px-3 sm:px-5 transition-all relative font-serif-luxury ${
                     authTab === 'FORGOT_PASSWORD'
-                      ? 'text-[#C8A24A] font-bold'
+                      ? 'text-[var(--brand-gold)] font-bold'
                       : 'text-slate-400 hover:text-slate-200'
                   }`}
                 >
                   Forgot Password
                   {authTab === 'FORGOT_PASSWORD' && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[#C8A24A] rounded-full"></span>
+                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--brand-gold)] rounded-full"></span>
                   )}
                 </button>
               </div>
@@ -517,7 +517,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                       value={signInEmail}
                       onChange={(e) => setSignInEmail(e.target.value)}
                       placeholder="e.g. name@domain.com"
-                      className="w-full bg-[#0B3D2E] border border-[#C8A24A]/25 rounded-xl p-3.5 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[#C8A24A] focus:ring-1 focus:ring-[#C8A24A]/50 transition-all"
+                      className="w-full bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/25 rounded-xl p-3.5 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[var(--brand-gold)] focus:ring-1 focus:ring-[var(--brand-gold)]/50 transition-all"
                     />
                   </div>
 
@@ -534,12 +534,12 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                         value={signInPassword}
                         onChange={(e) => setSignInPassword(e.target.value)}
                         placeholder="••••••••"
-                        className="w-full bg-[#0B3D2E] border border-[#C8A24A]/25 rounded-xl p-3.5 pr-10 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[#C8A24A] focus:ring-1 focus:ring-[#C8A24A]/50 transition-all"
+                        className="w-full bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/25 rounded-xl p-3.5 pr-10 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[var(--brand-gold)] focus:ring-1 focus:ring-[var(--brand-gold)]/50 transition-all"
                       />
                       <button
                         type="button"
                         onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#C8A24A] transition-colors"
+                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[var(--brand-gold)] transition-colors"
                         title={showPassword ? 'Hide password' : 'Show password'}
                       >
                         {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -553,7 +553,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                         type="checkbox"
                         checked={rememberMe}
                         onChange={(e) => setRememberMe(e.target.checked)}
-                        className="w-4 h-4 rounded border-[#C8A24A]/40 bg-[#0B3D2E] accent-[#C8A24A] focus:ring-0 cursor-pointer"
+                        className="w-4 h-4 rounded border-[var(--brand-gold)]/40 bg-[var(--brand-primary-dark)] accent-[var(--brand-gold)] focus:ring-0 cursor-pointer"
                       />
                       <span>Remember Me</span>
                     </label>
@@ -565,7 +565,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                         setAuthError('');
                         setAuthSuccess('');
                       }}
-                      className="text-xs text-[#C8A24A] hover:underline font-serif-luxury"
+                      className="text-xs text-[var(--brand-gold)] hover:underline font-serif-luxury"
                     >
                       Forgot Password?
                     </button>
@@ -573,7 +573,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
 
                   <button
                     type="submit"
-                    className="w-full bg-[#C8A24A] text-[#0B3D2E] py-4 rounded-xl font-bold font-serif-luxury text-xs uppercase tracking-[0.2em] hover:bg-[#d8b45c] transition-all shadow-lg active:scale-[0.99] mt-2"
+                    className="w-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] py-4 rounded-xl font-bold font-serif-luxury text-xs uppercase tracking-[0.2em] hover:bg-[#d8b45c] transition-all shadow-lg active:scale-[0.99] mt-2"
                   >
                     Sign In
                   </button>
@@ -593,7 +593,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                       value={regName}
                       onChange={(e) => setRegName(e.target.value)}
                       placeholder="e.g. Maharani Gayatri Devi"
-                      className="w-full bg-[#0B3D2E] border border-[#C8A24A]/25 rounded-xl p-3.5 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[#C8A24A] focus:ring-1 focus:ring-[#C8A24A]/50 transition-all"
+                      className="w-full bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/25 rounded-xl p-3.5 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[var(--brand-gold)] focus:ring-1 focus:ring-[var(--brand-gold)]/50 transition-all"
                     />
                   </div>
 
@@ -608,7 +608,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                         value={regPhone}
                         onChange={(e) => setRegPhone(e.target.value)}
                         placeholder="+91 98000 00000"
-                        className="w-full bg-[#0B3D2E] border border-[#C8A24A]/25 rounded-xl p-3.5 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[#C8A24A] focus:ring-1 focus:ring-[#C8A24A]/50 transition-all"
+                        className="w-full bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/25 rounded-xl p-3.5 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[var(--brand-gold)] focus:ring-1 focus:ring-[var(--brand-gold)]/50 transition-all"
                       />
                     </div>
 
@@ -622,7 +622,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                         value={regEmail}
                         onChange={(e) => setRegEmail(e.target.value)}
                         placeholder="name@domain.com"
-                        className="w-full bg-[#0B3D2E] border border-[#C8A24A]/25 rounded-xl p-3.5 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[#C8A24A] focus:ring-1 focus:ring-[#C8A24A]/50 transition-all"
+                        className="w-full bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/25 rounded-xl p-3.5 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[var(--brand-gold)] focus:ring-1 focus:ring-[var(--brand-gold)]/50 transition-all"
                       />
                     </div>
                   </div>
@@ -639,12 +639,12 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                           value={regPassword}
                           onChange={(e) => setRegPassword(e.target.value)}
                           placeholder="Create password"
-                          className="w-full bg-[#0B3D2E] border border-[#C8A24A]/25 rounded-xl p-3.5 pr-10 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[#C8A24A] focus:ring-1 focus:ring-[#C8A24A]/50 transition-all"
+                          className="w-full bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/25 rounded-xl p-3.5 pr-10 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[var(--brand-gold)] focus:ring-1 focus:ring-[var(--brand-gold)]/50 transition-all"
                         />
                         <button
                           type="button"
                           onClick={() => setShowRegPassword(!showRegPassword)}
-                          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[#C8A24A] transition-colors"
+                          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[var(--brand-gold)] transition-colors"
                         >
                           {showRegPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
                         </button>
@@ -661,14 +661,14 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                         value={regConfirmPassword}
                         onChange={(e) => setRegConfirmPassword(e.target.value)}
                         placeholder="Confirm password"
-                        className="w-full bg-[#0B3D2E] border border-[#C8A24A]/25 rounded-xl p-3.5 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[#C8A24A] focus:ring-1 focus:ring-[#C8A24A]/50 transition-all"
+                        className="w-full bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/25 rounded-xl p-3.5 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[var(--brand-gold)] focus:ring-1 focus:ring-[var(--brand-gold)]/50 transition-all"
                       />
                     </div>
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full bg-[#C8A24A] text-[#0B3D2E] py-4 rounded-xl font-bold font-serif-luxury text-xs uppercase tracking-[0.2em] hover:bg-[#d8b45c] transition-all shadow-lg active:scale-[0.99] mt-3"
+                    className="w-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] py-4 rounded-xl font-bold font-serif-luxury text-xs uppercase tracking-[0.2em] hover:bg-[#d8b45c] transition-all shadow-lg active:scale-[0.99] mt-3"
                   >
                     Create Account
                   </button>
@@ -692,13 +692,13 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                       value={signInEmail}
                       onChange={(e) => setSignInEmail(e.target.value)}
                       placeholder="e.g. name@domain.com"
-                      className="w-full bg-[#0B3D2E] border border-[#C8A24A]/25 rounded-xl p-3.5 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[#C8A24A] focus:ring-1 focus:ring-[#C8A24A]/50 transition-all"
+                      className="w-full bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/25 rounded-xl p-3.5 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[var(--brand-gold)] focus:ring-1 focus:ring-[var(--brand-gold)]/50 transition-all"
                     />
                   </div>
 
                   <button
                     type="submit"
-                    className="w-full bg-[#C8A24A] text-[#0B3D2E] py-4 rounded-xl font-bold font-serif-luxury text-xs uppercase tracking-[0.2em] hover:bg-[#d8b45c] transition-all shadow-lg active:scale-[0.99] mt-2"
+                    className="w-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] py-4 rounded-xl font-bold font-serif-luxury text-xs uppercase tracking-[0.2em] hover:bg-[#d8b45c] transition-all shadow-lg active:scale-[0.99] mt-2"
                   >
                     Send Reset Link
                   </button>
@@ -706,19 +706,19 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
               )}
 
               {/* Footer */}
-              <div className="border-t border-[#C8A24A]/20 pt-6 mt-8 flex items-center justify-center gap-6 text-[11px] text-slate-400 font-medium">
+              <div className="border-t border-[var(--brand-gold)]/20 pt-6 mt-8 flex items-center justify-center gap-6 text-[11px] text-slate-400 font-medium">
                 <button
                   type="button"
                   onClick={() => setPolicyModal('PRIVACY')}
-                  className="hover:text-[#C8A24A] transition-colors underline-offset-4 hover:underline"
+                  className="hover:text-[var(--brand-gold)] transition-colors underline-offset-4 hover:underline"
                 >
                   Privacy Policy
                 </button>
-                <span className="text-[#C8A24A]/40">•</span>
+                <span className="text-[var(--brand-gold)]/40">•</span>
                 <button
                   type="button"
                   onClick={() => setPolicyModal('TERMS')}
-                  className="hover:text-[#C8A24A] transition-colors underline-offset-4 hover:underline"
+                  className="hover:text-[var(--brand-gold)] transition-colors underline-offset-4 hover:underline"
                 >
                   Terms & Conditions
                 </button>
@@ -726,15 +726,15 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
             </div>
           ) : (
             /* SLIDING / SPACIOUS DASHBOARD PANEL WHEN LOGGED IN */
-            <div className="relative w-full max-w-4xl bg-[#06261d] border border-[#C8A24A]/30 text-slate-100 shadow-2xl rounded-3xl flex flex-col max-h-[90vh] font-sans z-10 animate-in fade-in zoom-in-95 duration-300 overflow-hidden my-auto">
+            <div className="relative w-full max-w-4xl bg-[#06261d] border border-[var(--brand-gold)]/30 text-slate-100 shadow-2xl rounded-3xl flex flex-col max-h-[90vh] font-sans z-10 animate-in fade-in zoom-in-95 duration-300 overflow-hidden my-auto">
               {/* Header Bar */}
-              <div className="p-4 sm:p-6 bg-[#0B3D2E] border-b border-[#C8A24A]/30 flex items-center justify-between shrink-0 shadow-lg">
+              <div className="p-4 sm:p-6 bg-[var(--brand-primary-dark)] border-b border-[var(--brand-gold)]/30 flex items-center justify-between shrink-0 shadow-lg">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-full bg-[#C8A24A]/20 border border-[#C8A24A] flex items-center justify-center text-[#C8A24A]">
+                  <div className="w-9 h-9 rounded-full bg-[var(--brand-gold)]/20 border border-[var(--brand-gold)] flex items-center justify-center text-[var(--brand-gold)]">
                     <UserIcon className="w-5 h-5" />
                   </div>
                   <div>
-                    <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#C8A24A] block">
+                    <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[var(--brand-gold)] block">
                       HAKKIVEDA LUXURY ACCOUNT
                     </span>
                     <h2 className="text-lg sm:text-xl font-bold font-serif-luxury text-slate-100">
@@ -748,7 +748,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                     playSound('nav_click');
                     setIsAuthModalOpen(false);
                   }}
-                  className="w-9 h-9 rounded-full bg-black/40 text-slate-300 hover:text-white hover:bg-[#C8A24A] hover:text-[#0B3D2E] transition-all flex items-center justify-center border border-white/10"
+                  className="w-9 h-9 rounded-full bg-black/40 text-slate-300 hover:text-white hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all flex items-center justify-center border border-white/10"
                   title="Close Portal (Esc)"
                 >
                   <X className="w-5 h-5" />
@@ -762,8 +762,8 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                 {/* ========================================================= */}
                 <div className="p-4 sm:p-8 space-y-6">
                   {/* Top Profile Summary Header Card */}
-                  <div className="bg-[#0B3D2E] border border-[#C8A24A]/40 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden">
-                    <div className="absolute right-0 top-0 w-64 h-64 bg-[#C8A24A]/5 rounded-full blur-3xl pointer-events-none"></div>
+                  <div className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/40 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden">
+                    <div className="absolute right-0 top-0 w-64 h-64 bg-[var(--brand-gold)]/5 rounded-full blur-3xl pointer-events-none"></div>
 
                     <div className="flex items-center gap-4 z-10 w-full sm:w-auto">
                       <div className="relative shrink-0">
@@ -771,14 +771,14 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                           <img
                             src={currentUser.avatar}
                             alt={currentUser.name}
-                            className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-[#C8A24A] shadow-lg"
+                            className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-[var(--brand-gold)] shadow-lg"
                           />
                         ) : (
-                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#C8A24A] text-[#0B3D2E] font-bold text-2xl font-serif-luxury flex items-center justify-center border-2 border-white/20 shadow-lg">
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold text-2xl font-serif-luxury flex items-center justify-center border-2 border-white/20 shadow-lg">
                             {currentUser.name[0]?.toUpperCase()}
                           </div>
                         )}
-                        <span className="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 rounded-full border-2 border-[#0B3D2E]"></span>
+                        <span className="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 rounded-full border-2 border-[var(--brand-primary-dark)]"></span>
                       </div>
 
                       <div>
@@ -786,11 +786,11 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                           <h3 className="text-xl sm:text-2xl font-bold font-serif-luxury text-slate-100">
                             {currentUser.name}
                           </h3>
-                          <span className="bg-[#C8A24A]/20 text-[#C8A24A] border border-[#C8A24A]/40 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">
+                          <span className="bg-[var(--brand-gold)]/20 text-[var(--brand-gold)] border border-[var(--brand-gold)]/40 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">
                             {currentUser.isAdmin ? 'Master Admin' : 'Tribal Gold Member'}
                           </span>
                         </div>
-                        <p className="text-xs text-[#C8A24A]">{currentUser.email}</p>
+                        <p className="text-xs text-[var(--brand-gold)]">{currentUser.email}</p>
                         <p className="text-[11px] text-slate-300 mt-0.5">
                           {currentUser.phone || 'Phone not set'} • Member since {currentUser.createdAt || '2026'}
                         </p>
@@ -798,9 +798,9 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                     </div>
 
                     <div className="flex items-center gap-3 shrink-0 z-10 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-white/10 pt-3 sm:pt-0">
-                      <div className="bg-[#072a20] border border-[#C8A24A]/30 px-4 py-2 rounded-xl text-center">
+                      <div className="bg-[var(--brand-primary-deep)] border border-[var(--brand-gold)]/30 px-4 py-2 rounded-xl text-center">
                         <span className="text-[10px] uppercase font-bold text-slate-400 block">Reward Balance</span>
-                        <span className="text-base font-bold text-[#C8A24A]">
+                        <span className="text-base font-bold text-[var(--brand-gold)]">
                           {currentUser.loyaltyPoints || 100} Hakki-Points
                         </span>
                       </div>
@@ -827,7 +827,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                       <button
                         type="button"
                         onClick={() => scrollNav('left')}
-                        className="pointer-events-auto w-7 h-7 rounded-full bg-[#0B3D2E] text-[#C8A24A] border border-[#C8A24A]/40 flex items-center justify-center hover:bg-[#C8A24A] hover:text-[#0B3D2E] transition-all shadow-md ml-0.5 active:scale-90"
+                        className="pointer-events-auto w-7 h-7 rounded-full bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] border border-[var(--brand-gold)]/40 flex items-center justify-center hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all shadow-md ml-0.5 active:scale-90"
                         title="Scroll left"
                         aria-label="Scroll left"
                       >
@@ -844,7 +844,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                       <button
                         type="button"
                         onClick={() => scrollNav('right')}
-                        className="pointer-events-auto w-7 h-7 rounded-full bg-[#0B3D2E] text-[#C8A24A] border border-[#C8A24A]/40 flex items-center justify-center hover:bg-[#C8A24A] hover:text-[#0B3D2E] transition-all shadow-md mr-0.5 active:scale-90"
+                        className="pointer-events-auto w-7 h-7 rounded-full bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] border border-[var(--brand-gold)]/40 flex items-center justify-center hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all shadow-md mr-0.5 active:scale-90"
                         title="Scroll right"
                         aria-label="Scroll right"
                       >
@@ -881,8 +881,8 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                             }}
                             className={`snap-center flex items-center justify-center gap-2.5 px-4 min-h-[44px] h-11 rounded-xl shrink-0 whitespace-nowrap transition-all duration-200 select-none touch-manipulation ${
                               isActive
-                                ? 'bg-[#C8A24A] text-[#0B3D2E] shadow-lg font-bold border border-[#C8A24A] scale-[1.02]'
-                                : 'bg-[#0B3D2E]/80 text-slate-300 hover:bg-[#0B3D2E] hover:text-white border border-white/10 active:scale-95'
+                                ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] shadow-lg font-bold border border-[var(--brand-gold)] scale-[1.02]'
+                                : 'bg-[var(--brand-primary-dark)]/80 text-slate-300 hover:bg-[var(--brand-primary-dark)] hover:text-white border border-white/10 active:scale-95'
                             }`}
                           >
                             <IconComponent className="w-4 h-4 shrink-0" />
@@ -899,7 +899,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
 
                   {/* 1. PROFILE TAB */}
                   {activeTab === 'profile' && (
-                    <div className="bg-[#0B3D2E] border border-white/10 rounded-2xl p-6 space-y-6 animate-in fade-in">
+                    <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-6 space-y-6 animate-in fade-in">
                       <div className="flex items-center justify-between border-b border-white/10 pb-4">
                         <div>
                           <h4 className="text-lg font-bold font-serif-luxury text-slate-100">Personal Information</h4>
@@ -907,7 +907,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                         </div>
                         <button
                           onClick={() => setIsEditingProfile(!isEditingProfile)}
-                          className="bg-[#C8A24A]/20 hover:bg-[#C8A24A] text-[#C8A24A] hover:text-[#0B3D2E] px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all border border-[#C8A24A]/40"
+                          className="bg-[var(--brand-gold)]/20 hover:bg-[var(--brand-gold)] text-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all border border-[var(--brand-gold)]/40"
                         >
                           <Edit2 className="w-3.5 h-3.5" />
                           <span>{isEditingProfile ? 'Cancel Edit' : 'Edit Profile'}</span>
@@ -923,7 +923,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                                 type="text"
                                 value={editName}
                                 onChange={(e) => setEditName(e.target.value)}
-                                className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100 focus:border-[#C8A24A]"
+                                className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100 focus:border-[var(--brand-gold)]"
                               />
                             </div>
                             <div>
@@ -932,7 +932,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                                 type="text"
                                 value={editPhone}
                                 onChange={(e) => setEditPhone(e.target.value)}
-                                className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100 focus:border-[#C8A24A]"
+                                className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100 focus:border-[var(--brand-gold)]"
                               />
                             </div>
                           </div>
@@ -944,34 +944,34 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                               value={editAvatar}
                               onChange={(e) => setEditAvatar(e.target.value)}
                               placeholder="https://images.unsplash.com/..."
-                              className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100 focus:border-[#C8A24A]"
+                              className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100 focus:border-[var(--brand-gold)]"
                             />
                           </div>
 
                           <button
                             type="submit"
-                            className="bg-[#C8A24A] text-[#0B3D2E] px-5 py-2.5 rounded-lg font-bold uppercase text-xs hover:bg-white transition-all shadow-md"
+                            className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-5 py-2.5 rounded-lg font-bold uppercase text-xs hover:bg-white transition-all shadow-md"
                           >
                             Save Profile Updates
                           </button>
                         </form>
                       ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                          <div className="bg-[#072a20] p-4 rounded-xl border border-white/10 space-y-1">
+                          <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-1">
                             <span className="text-slate-400 block text-[10px] uppercase font-bold">Full Name</span>
                             <span className="font-bold text-white text-sm">{currentUser.name}</span>
                           </div>
-                          <div className="bg-[#072a20] p-4 rounded-xl border border-white/10 space-y-1">
+                          <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-1">
                             <span className="text-slate-400 block text-[10px] uppercase font-bold">Email Address</span>
-                            <span className="font-bold text-[#C8A24A] text-sm">{currentUser.email}</span>
+                            <span className="font-bold text-[var(--brand-gold)] text-sm">{currentUser.email}</span>
                           </div>
-                          <div className="bg-[#072a20] p-4 rounded-xl border border-white/10 space-y-1">
+                          <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-1">
                             <span className="text-slate-400 block text-[10px] uppercase font-bold">Phone Number</span>
                             <span className="font-bold text-white text-sm">{currentUser.phone || 'Not provided'}</span>
                           </div>
-                          <div className="bg-[#072a20] p-4 rounded-xl border border-white/10 space-y-1">
+                          <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-1">
                             <span className="text-slate-400 block text-[10px] uppercase font-bold">Account Referral Code</span>
-                            <span className="font-bold text-[#C8A24A] text-sm font-mono">
+                            <span className="font-bold text-[var(--brand-gold)] text-sm font-mono">
                               {currentUser.referralCode || 'HAKKI-VIP-100'}
                             </span>
                           </div>
@@ -985,11 +985,11 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                     <div className="space-y-4 animate-in fade-in">
                       <div className="flex items-center justify-between">
                         <h4 className="text-lg font-bold font-serif-luxury text-slate-100">Your Order History</h4>
-                        <span className="text-xs text-[#C8A24A] font-bold">{userOrders.length} Total Orders</span>
+                        <span className="text-xs text-[var(--brand-gold)] font-bold">{userOrders.length} Total Orders</span>
                       </div>
 
                       {userOrders.length === 0 ? (
-                        <div className="bg-[#0B3D2E] border border-white/10 rounded-2xl p-12 text-center space-y-3">
+                        <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-12 text-center space-y-3">
                           <Package className="w-12 h-12 text-slate-500 mx-auto" />
                           <h5 className="font-serif-luxury text-base font-bold text-slate-200">No orders placed yet</h5>
                           <p className="text-xs text-slate-400 max-w-sm mx-auto">
@@ -997,7 +997,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                           </p>
                           <button
                             onClick={() => setIsAuthModalOpen(false)}
-                            className="bg-[#C8A24A] text-[#0B3D2E] px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-white transition-all shadow-lg mt-2"
+                            className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-white transition-all shadow-lg mt-2"
                           >
                             Explore Collections
                           </button>
@@ -1007,12 +1007,12 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                           {userOrders.map((order) => (
                             <div
                               key={order.id}
-                              className="bg-[#0B3D2E] border border-white/10 rounded-2xl p-5 space-y-4 shadow-lg hover:border-[#C8A24A]/40 transition-all"
+                              className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-5 space-y-4 shadow-lg hover:border-[var(--brand-gold)]/40 transition-all"
                             >
                               {/* Order Header */}
                               <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3 text-xs">
                                 <div>
-                                  <span className="font-bold text-[#C8A24A] font-mono text-sm block">
+                                  <span className="font-bold text-[var(--brand-gold)] font-mono text-sm block">
                                     {order.orderNumber}
                                   </span>
                                   <span className="text-slate-400 text-[10px]">Placed on {order.date}</span>
@@ -1037,7 +1037,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                               {/* Order Items */}
                               <div className="space-y-2">
                                 {order.items.map((item, idx) => (
-                                  <div key={idx} className="flex items-center gap-3 bg-[#072a20] p-2.5 rounded-xl">
+                                  <div key={idx} className="flex items-center gap-3 bg-[var(--brand-primary-deep)] p-2.5 rounded-xl">
                                     <img
                                       src={item.product.image}
                                       alt={item.product.name}
@@ -1049,7 +1049,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                                       </h5>
                                       <p className="text-[10px] text-slate-400">Qty: {item.quantity}</p>
                                     </div>
-                                    <span className="text-xs font-bold text-[#C8A24A]">
+                                    <span className="text-xs font-bold text-[var(--brand-gold)]">
                                       {formatPrice(item.product.priceINR * item.quantity)}
                                     </span>
                                   </div>
@@ -1068,7 +1068,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                                       playSound('nav_click');
                                       setTrackingOrder(order);
                                     }}
-                                    className="bg-[#C8A24A] text-[#0B3D2E] px-3 py-1.5 rounded-lg font-bold text-[11px] flex items-center gap-1 hover:bg-white transition-all shadow-sm"
+                                    className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-3 py-1.5 rounded-lg font-bold text-[11px] flex items-center gap-1 hover:bg-white transition-all shadow-sm"
                                   >
                                     <Truck className="w-3.5 h-3.5" />
                                     <span>Track Shipment</span>
@@ -1076,9 +1076,9 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
 
                                   <button
                                     onClick={() => handleDownloadInvoice(order)}
-                                    className="bg-[#072a20] hover:bg-black/40 border border-white/20 text-slate-200 px-3 py-1.5 rounded-lg font-bold text-[11px] flex items-center gap-1 transition-all"
+                                    className="bg-[var(--brand-primary-deep)] hover:bg-black/40 border border-white/20 text-slate-200 px-3 py-1.5 rounded-lg font-bold text-[11px] flex items-center gap-1 transition-all"
                                   >
-                                    <Download className="w-3.5 h-3.5 text-[#C8A24A]" />
+                                    <Download className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
                                     <span>Invoice</span>
                                   </button>
 
@@ -1087,7 +1087,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                                       playSound('nav_click');
                                       setReturnOrder(order);
                                     }}
-                                    className="bg-[#072a20] hover:bg-rose-950/60 border border-white/20 text-slate-300 hover:text-rose-300 px-3 py-1.5 rounded-lg font-bold text-[11px] transition-all"
+                                    className="bg-[var(--brand-primary-deep)] hover:bg-rose-950/60 border border-white/20 text-slate-300 hover:text-rose-300 px-3 py-1.5 rounded-lg font-bold text-[11px] transition-all"
                                   >
                                     Return
                                   </button>
@@ -1105,11 +1105,11 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                     <div className="space-y-4 animate-in fade-in">
                       <div className="flex items-center justify-between">
                         <h4 className="text-lg font-bold font-serif-luxury text-slate-100">Saved Wishlist</h4>
-                        <span className="text-xs text-[#C8A24A] font-bold">{wishlist.length} Formulations Saved</span>
+                        <span className="text-xs text-[var(--brand-gold)] font-bold">{wishlist.length} Formulations Saved</span>
                       </div>
 
                       {wishlist.length === 0 ? (
-                        <div className="bg-[#0B3D2E] border border-white/10 rounded-2xl p-12 text-center space-y-3">
+                        <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-12 text-center space-y-3">
                           <Heart className="w-12 h-12 text-slate-500 mx-auto" />
                           <h5 className="font-serif-luxury text-base font-bold text-slate-200">Wishlist is empty</h5>
                           <p className="text-xs text-slate-400">Save your favorite herbal hair products here for quick access.</p>
@@ -1119,19 +1119,19 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                           {wishlist.map((prod) => (
                             <div
                               key={prod.id}
-                              className="bg-[#0B3D2E] border border-white/10 rounded-2xl p-4 flex gap-3 items-center justify-between"
+                              className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-4 flex gap-3 items-center justify-between"
                             >
                               <img src={prod.image} alt={prod.name} className="w-16 h-16 object-contain rounded-xl shrink-0 bg-black/30 p-1 border border-white/10" />
                               <div className="flex-1 min-w-0">
                                 <h5 className="font-bold font-serif-luxury text-xs text-white truncate">{prod.name}</h5>
-                                <span className="text-xs text-[#C8A24A] font-bold block mt-0.5">
+                                <span className="text-xs text-[var(--brand-gold)] font-bold block mt-0.5">
                                   {formatPrice(prod.priceINR)}
                                 </span>
                               </div>
                               <div className="flex flex-col gap-1 shrink-0">
                                 <button
                                   onClick={() => addToCart(prod, 1)}
-                                  className="bg-[#C8A24A] text-[#0B3D2E] px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase hover:bg-white"
+                                  className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase hover:bg-white"
                                 >
                                   Add to Cart
                                 </button>
@@ -1159,7 +1159,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                         </div>
                         <button
                           onClick={() => openAddressModal()}
-                          className="bg-[#C8A24A] text-[#0B3D2E] px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 hover:bg-white transition-all shadow-md"
+                          className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-3.5 py-2 rounded-xl text-xs font-bold flex items-center gap-1.5 hover:bg-white transition-all shadow-md"
                         >
                           <Plus className="w-4 h-4" />
                           <span>Add New Address</span>
@@ -1167,7 +1167,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                       </div>
 
                       {currentUser.addresses.length === 0 ? (
-                        <div className="bg-[#0B3D2E] border border-white/10 rounded-2xl p-8 text-center text-xs text-slate-400">
+                        <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-8 text-center text-xs text-slate-400">
                           No address saved yet. Click "Add New Address" above.
                         </div>
                       ) : (
@@ -1175,8 +1175,8 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                           {currentUser.addresses.map((addr) => (
                             <div
                               key={addr.id}
-                              className={`bg-[#0B3D2E] border rounded-2xl p-5 space-y-3 relative ${
-                                addr.isDefault ? 'border-[#C8A24A] shadow-xl' : 'border-white/10'
+                              className={`bg-[var(--brand-primary-dark)] border rounded-2xl p-5 space-y-3 relative ${
+                                addr.isDefault ? 'border-[var(--brand-gold)] shadow-xl' : 'border-white/10'
                               }`}
                             >
                               <div className="flex items-center justify-between">
@@ -1185,7 +1185,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                                     {addr.title || 'Address'}
                                   </span>
                                   {addr.isDefault && (
-                                    <span className="bg-[#C8A24A]/20 text-[#C8A24A] border border-[#C8A24A]/40 text-[9px] font-bold px-2 py-0.5 rounded-full">
+                                    <span className="bg-[var(--brand-gold)]/20 text-[var(--brand-gold)] border border-[var(--brand-gold)]/40 text-[9px] font-bold px-2 py-0.5 rounded-full">
                                       DEFAULT
                                     </span>
                                   )}
@@ -1219,7 +1219,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                                   {addr.city}, {addr.state} - {addr.pincode}
                                 </p>
                                 <p>{addr.country}</p>
-                                <p className="text-[#C8A24A] pt-1">Phone: {addr.phone}</p>
+                                <p className="text-[var(--brand-gold)] pt-1">Phone: {addr.phone}</p>
                               </div>
 
                               {!addr.isDefault && (
@@ -1228,7 +1228,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                                     playSound('toggle_switch');
                                     setDefaultAddress(addr.id);
                                   }}
-                                  className="text-[10px] font-bold uppercase tracking-wider text-[#C8A24A] hover:underline block pt-1"
+                                  className="text-[10px] font-bold uppercase tracking-wider text-[var(--brand-gold)] hover:underline block pt-1"
                                 >
                                   Set as Default Shipping Address
                                 </button>
@@ -1242,7 +1242,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
 
                   {/* 5. PAYMENTS TAB */}
                   {activeTab === 'payments' && (
-                    <div className="bg-[#0B3D2E] border border-white/10 rounded-2xl p-6 space-y-4 animate-in fade-in text-xs">
+                    <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-6 space-y-4 animate-in fade-in text-xs">
                       <h4 className="text-lg font-bold font-serif-luxury text-slate-100">Saved Payment Methods</h4>
                       <p className="text-slate-300">
                         HAKKIVEDA supports 100% secure encrypted checkout via Razorpay, Stripe, PayPal, and Cash on Delivery.
@@ -1252,10 +1252,10 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                         {(currentUser.savedPayments || []).map((pay) => (
                           <div
                             key={pay.id}
-                            className="bg-[#072a20] border border-white/10 p-4 rounded-xl flex items-center justify-between"
+                            className="bg-[var(--brand-primary-deep)] border border-white/10 p-4 rounded-xl flex items-center justify-between"
                           >
                             <div className="flex items-center gap-3">
-                              <CreditCard className="w-6 h-6 text-[#C8A24A]" />
+                              <CreditCard className="w-6 h-6 text-[var(--brand-gold)]" />
                               <div>
                                 <h5 className="font-bold text-white text-sm">{pay.title}</h5>
                                 <span className="text-slate-400 text-xs font-mono">{pay.details}</span>
@@ -1277,26 +1277,26 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
 
                   {/* 6. PREFERENCES TAB */}
                   {activeTab === 'preferences' && (
-                    <div className="bg-[#0B3D2E] border border-white/10 rounded-2xl p-6 space-y-6 animate-in fade-in text-xs">
+                    <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-6 space-y-6 animate-in fade-in text-xs">
                       <div>
                         <h4 className="text-lg font-bold font-serif-luxury text-slate-100">Global Account Preferences</h4>
                         <p className="text-slate-300">Customize regional delivery settings and communication alerts.</p>
                       </div>
 
                       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                        <div className="bg-[#072a20] p-4 rounded-xl border border-white/10">
+                        <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10">
                           <label className="block font-bold text-slate-400 mb-1">Country</label>
                           <span className="font-bold text-white text-sm block">
                             {currentUser.preferences?.country || 'India 🇮🇳'}
                           </span>
                         </div>
-                        <div className="bg-[#072a20] p-4 rounded-xl border border-white/10">
+                        <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10">
                           <label className="block font-bold text-slate-400 mb-1">Currency</label>
-                          <span className="font-bold text-[#C8A24A] text-sm block">
+                          <span className="font-bold text-[var(--brand-gold)] text-sm block">
                             {currentUser.preferences?.currency || 'INR (₹)'}
                           </span>
                         </div>
-                        <div className="bg-[#072a20] p-4 rounded-xl border border-white/10">
+                        <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10">
                           <label className="block font-bold text-slate-400 mb-1">Language</label>
                           <span className="font-bold text-white text-sm block">
                             {currentUser.preferences?.language || 'English'}
@@ -1306,19 +1306,19 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
 
                       <div className="border-t border-white/10 pt-4 space-y-3">
                         <h5 className="font-bold text-white uppercase text-[11px] tracking-wider">Alert Notifications</h5>
-                        <label className="flex items-center gap-3 bg-[#072a20] p-3 rounded-xl border border-white/10 cursor-pointer">
+                        <label className="flex items-center gap-3 bg-[var(--brand-primary-deep)] p-3 rounded-xl border border-white/10 cursor-pointer">
                           <input
                             type="checkbox"
                             defaultChecked={currentUser.preferences?.emailOrders ?? true}
-                            className="w-4 h-4 rounded accent-[#C8A24A]"
+                            className="w-4 h-4 rounded accent-[var(--brand-gold)]"
                           />
                           <span className="text-slate-200">Email Order Dispatch & Tracking Receipt</span>
                         </label>
-                        <label className="flex items-center gap-3 bg-[#072a20] p-3 rounded-xl border border-white/10 cursor-pointer">
+                        <label className="flex items-center gap-3 bg-[var(--brand-primary-deep)] p-3 rounded-xl border border-white/10 cursor-pointer">
                           <input
                             type="checkbox"
                             defaultChecked={currentUser.preferences?.whatsappUpdates ?? true}
-                            className="w-4 h-4 rounded accent-[#C8A24A]"
+                            className="w-4 h-4 rounded accent-[var(--brand-gold)]"
                           />
                           <span className="text-slate-200">WhatsApp Dispatch & Delivery Updates</span>
                         </label>
@@ -1330,9 +1330,9 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                   {activeTab === 'rewards' && (
                     <div className="space-y-6 animate-in fade-in">
                       {/* Loyalty Balance Header */}
-                      <div className="bg-gradient-to-br from-[#0B3D2E] to-[#041a13] border border-[#C8A24A]/40 rounded-2xl p-6 shadow-xl flex items-center justify-between">
+                      <div className="bg-gradient-to-br from-[var(--brand-primary-dark)] to-[var(--brand-primary-deeper)] border border-[var(--brand-gold)]/40 rounded-2xl p-6 shadow-xl flex items-center justify-between">
                         <div>
-                          <span className="text-[10px] uppercase font-bold tracking-widest text-[#C8A24A] block">
+                          <span className="text-[10px] uppercase font-bold tracking-widest text-[var(--brand-gold)] block">
                             HAKKIVEDA Tribal Rewards Club
                           </span>
                           <h4 className="text-2xl font-bold font-serif-luxury text-white">
@@ -1342,20 +1342,20 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                             100 Hakki-Points = ₹100 direct discount at checkout!
                           </p>
                         </div>
-                        <Gift className="w-12 h-12 text-[#C8A24A]" />
+                        <Gift className="w-12 h-12 text-[var(--brand-gold)]" />
                       </div>
 
                       {/* Active Coupons List */}
-                      <div className="bg-[#0B3D2E] border border-white/10 rounded-2xl p-6 space-y-4 text-xs">
+                      <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-6 space-y-4 text-xs">
                         <h4 className="text-base font-bold font-serif-luxury text-slate-100">Available Promotional Codes</h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                           {coupons.map((c) => (
                             <div
                               key={c.code}
-                              className="bg-[#072a20] border border-[#C8A24A]/30 p-4 rounded-xl flex items-center justify-between"
+                              className="bg-[var(--brand-primary-deep)] border border-[var(--brand-gold)]/30 p-4 rounded-xl flex items-center justify-between"
                             >
                               <div>
-                                <span className="font-mono text-base font-bold text-[#C8A24A]">{c.code}</span>
+                                <span className="font-mono text-base font-bold text-[var(--brand-gold)]">{c.code}</span>
                                 <p className="text-slate-200 text-xs font-bold">
                                   {c.discountType === 'PERCENT' ? `${c.value}% OFF` : `FLAT ₹${c.value} OFF`}
                                 </p>
@@ -1367,7 +1367,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                                   applyCoupon(c.code);
                                   setIsCartOpen(true);
                                 }}
-                                className="bg-[#C8A24A] text-[#0B3D2E] px-3 py-1.5 rounded-lg font-bold text-[10px] uppercase hover:bg-white"
+                                className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-3 py-1.5 rounded-lg font-bold text-[10px] uppercase hover:bg-white"
                               >
                                 Apply to Cart
                               </button>
@@ -1377,7 +1377,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                       </div>
 
                       {/* Referral Program */}
-                      <div className="bg-[#0B3D2E] border border-white/10 rounded-2xl p-6 space-y-3 text-xs">
+                      <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-6 space-y-3 text-xs">
                         <h4 className="text-base font-bold font-serif-luxury text-slate-100">Refer & Earn Program</h4>
                         <p className="text-slate-300">
                           Share your unique referral code with friends & family. They receive ₹200 OFF their first order, and you earn 200 Hakki-Points!
@@ -1388,7 +1388,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                             type="text"
                             readOnly
                             value={currentUser.referralCode || 'HAKKI-VIP-100'}
-                            className="bg-[#072a20] border border-[#C8A24A]/40 text-[#C8A24A] font-mono font-bold p-2.5 rounded-xl text-center text-sm w-full"
+                            className="bg-[var(--brand-primary-deep)] border border-[var(--brand-gold)]/40 text-[var(--brand-gold)] font-mono font-bold p-2.5 rounded-xl text-center text-sm w-full"
                           />
                           <button
                             onClick={() => {
@@ -1396,7 +1396,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                               playSound('form_submit');
                               alert('Referral code copied to clipboard!');
                             }}
-                            className="bg-[#C8A24A] text-[#0B3D2E] p-2.5 rounded-xl font-bold hover:bg-white shrink-0"
+                            className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] p-2.5 rounded-xl font-bold hover:bg-white shrink-0"
                             title="Copy Code"
                           >
                             <Copy className="w-5 h-5" />
@@ -1408,7 +1408,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
 
                   {/* 8. SUPPORT TAB */}
                   {activeTab === 'support' && (
-                    <div className="bg-[#0B3D2E] border border-white/10 rounded-2xl p-6 space-y-6 animate-in fade-in text-xs">
+                    <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-6 space-y-6 animate-in fade-in text-xs">
                       <div>
                         <h4 className="text-lg font-bold font-serif-luxury text-slate-100">Customer Support & Concierge</h4>
                         <p className="text-slate-300">Our tribal herbal experts in Mysore are here to guide your hair recovery.</p>
@@ -1421,10 +1421,10 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                             setIsQuizOpen(true);
                             setIsAuthModalOpen(false);
                           }}
-                          className="bg-[#072a20] hover:bg-[#041a13] border border-[#C8A24A]/40 p-5 rounded-2xl text-left space-y-2 transition-all group"
+                          className="bg-[var(--brand-primary-deep)] hover:bg-[var(--brand-primary-deeper)] border border-[var(--brand-gold)]/40 p-5 rounded-2xl text-left space-y-2 transition-all group"
                         >
-                          <Sparkles className="w-6 h-6 text-[#C8A24A]" />
-                          <h5 className="font-bold text-white group-hover:text-[#C8A24A]">AI Hair Analysis Quiz</h5>
+                          <Sparkles className="w-6 h-6 text-[var(--brand-gold)]" />
+                          <h5 className="font-bold text-white group-hover:text-[var(--brand-gold)]">AI Hair Analysis Quiz</h5>
                           <p className="text-[11px] text-slate-400">Get custom hair oiling ritual recommendations.</p>
                         </button>
 
@@ -1433,7 +1433,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                           target="_blank"
                           rel="noopener noreferrer"
                           onClick={() => playSound('nav_click')}
-                          className="bg-[#072a20] hover:bg-[#041a13] border border-emerald-500/40 p-5 rounded-2xl text-left space-y-2 transition-all group"
+                          className="bg-[var(--brand-primary-deep)] hover:bg-[var(--brand-primary-deeper)] border border-emerald-500/40 p-5 rounded-2xl text-left space-y-2 transition-all group"
                         >
                           <MessageSquare className="w-6 h-6 text-emerald-400" />
                           <h5 className="font-bold text-white group-hover:text-emerald-400">WhatsApp Concierge</h5>
@@ -1443,10 +1443,10 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                         <a
                           href="tel:+917619536831"
                           onClick={() => playSound('nav_click')}
-                          className="bg-[#072a20] hover:bg-[#041a13] border border-white/20 p-5 rounded-2xl text-left space-y-2 transition-all group"
+                          className="bg-[var(--brand-primary-deep)] hover:bg-[var(--brand-primary-deeper)] border border-white/20 p-5 rounded-2xl text-left space-y-2 transition-all group"
                         >
-                          <Phone className="w-6 h-6 text-[#C8A24A]" />
-                          <h5 className="font-bold text-white group-hover:text-[#C8A24A]">Toll-Free Helpline</h5>
+                          <Phone className="w-6 h-6 text-[var(--brand-gold)]" />
+                          <h5 className="font-bold text-white group-hover:text-[var(--brand-gold)]">Toll-Free Helpline</h5>
                           <p className="text-[11px] text-slate-400">+91 76195 36831 (Mon - Sat 10 AM - 7 PM IST)</p>
                         </a>
                       </div>
@@ -1455,21 +1455,21 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
 
                   {/* 9. SETTINGS TAB */}
                   {activeTab === 'settings' && (
-                    <div className="bg-[#0B3D2E] border border-white/10 rounded-2xl p-6 space-y-6 animate-in fade-in text-xs">
+                    <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-6 space-y-6 animate-in fade-in text-xs">
                       <div>
                         <h4 className="text-lg font-bold font-serif-luxury text-slate-100">Account Security & Privacy</h4>
                         <p className="text-slate-300">Manage credentials and export your account data.</p>
                       </div>
 
                       {/* Download Data Export */}
-                      <div className="bg-[#072a20] p-4 rounded-xl border border-white/10 flex items-center justify-between">
+                      <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 flex items-center justify-between">
                         <div>
                           <h5 className="font-bold text-white">Download Personal Account Dossier</h5>
                           <p className="text-[11px] text-slate-400">Export a complete JSON file of your profile and orders.</p>
                         </div>
                         <button
                           onClick={() => exportCustomerData(currentUser.id)}
-                          className="bg-[#C8A24A] text-[#0B3D2E] px-4 py-2 rounded-xl font-bold uppercase text-[10px] hover:bg-white"
+                          className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-4 py-2 rounded-xl font-bold uppercase text-[10px] hover:bg-white"
                         >
                           Export Data
                         </button>
@@ -1507,7 +1507,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
       {/* ========================================================= */}
       {trackingOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-          <div className="relative w-full max-w-lg bg-[#072a20] border border-[#C8A24A]/50 rounded-2xl shadow-2xl p-6 space-y-6 text-slate-100 font-sans">
+          <div className="relative w-full max-w-lg bg-[var(--brand-primary-deep)] border border-[var(--brand-gold)]/50 rounded-2xl shadow-2xl p-6 space-y-6 text-slate-100 font-sans">
             <button
               onClick={() => setTrackingOrder(null)}
               className="absolute top-4 right-4 text-slate-400 hover:text-white p-1"
@@ -1516,14 +1516,14 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
             </button>
 
             <div>
-              <span className="text-[#C8A24A] text-[10px] uppercase font-bold tracking-widest block">
+              <span className="text-[var(--brand-gold)] text-[10px] uppercase font-bold tracking-widest block">
                 Live Shipment Telemetry
               </span>
               <h3 className="text-xl font-bold font-serif-luxury text-slate-100">
                 Tracking Order {trackingOrder.orderNumber}
               </h3>
               <p className="text-xs text-slate-300 mt-0.5">
-                Courier: <span className="font-bold text-white">{trackingOrder.courierName || 'BlueDart Air Express'}</span> • AWB: <span className="font-mono text-[#C8A24A]">{trackingOrder.trackingNumber || 'BD-EXP-883901'}</span>
+                Courier: <span className="font-bold text-white">{trackingOrder.courierName || 'BlueDart Air Express'}</span> • AWB: <span className="font-mono text-[var(--brand-gold)]">{trackingOrder.trackingNumber || 'BD-EXP-883901'}</span>
               </p>
             </div>
 
@@ -1542,8 +1542,8 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                     <div
                       className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs shrink-0 z-10 ${
                         isCompleted
-                          ? 'bg-[#C8A24A] text-[#0B3D2E] shadow-md'
-                          : 'bg-[#0B3D2E] text-slate-500 border border-white/20'
+                          ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] shadow-md'
+                          : 'bg-[var(--brand-primary-dark)] text-slate-500 border border-white/20'
                       }`}
                     >
                       {isCompleted ? <Check className="w-4 h-4" /> : idx + 1}
@@ -1559,7 +1559,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
 
             <button
               onClick={() => setTrackingOrder(null)}
-              className="w-full bg-[#C8A24A] text-[#0B3D2E] py-3 rounded-xl font-bold text-xs uppercase tracking-wider"
+              className="w-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] py-3 rounded-xl font-bold text-xs uppercase tracking-wider"
             >
               Close Telemetry
             </button>
@@ -1572,13 +1572,13 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
       {/* ========================================================= */}
       {returnOrder && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-          <div className="relative w-full max-w-md bg-[#072a20] border border-[#C8A24A]/50 rounded-2xl shadow-2xl p-6 space-y-5 text-slate-100 font-sans">
+          <div className="relative w-full max-w-md bg-[var(--brand-primary-deep)] border border-[var(--brand-gold)]/50 rounded-2xl shadow-2xl p-6 space-y-5 text-slate-100 font-sans">
             <button onClick={() => setReturnOrder(null)} className="absolute top-4 right-4 text-slate-400 hover:text-white p-1">
               <X className="w-5 h-5" />
             </button>
 
             <div>
-              <span className="text-[#C8A24A] text-[10px] uppercase font-bold tracking-widest block">100% Satisfaction Guarantee</span>
+              <span className="text-[var(--brand-gold)] text-[10px] uppercase font-bold tracking-widest block">100% Satisfaction Guarantee</span>
               <h3 className="text-xl font-bold font-serif-luxury text-slate-100">
                 Return Request for {returnOrder.orderNumber}
               </h3>
@@ -1596,7 +1596,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                   <select
                     value={returnReason}
                     onChange={(e) => setReturnReason(e.target.value)}
-                    className="w-full bg-[#0B3D2E] border border-white/20 rounded-xl p-2.5 text-xs text-slate-100"
+                    className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-xl p-2.5 text-xs text-slate-100"
                   >
                     <option value="Defective product / Leaking bottle">Defective product / Leaking bottle</option>
                     <option value="Wrong item delivered">Wrong item delivered</option>
@@ -1612,13 +1612,13 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                     value={returnComments}
                     onChange={(e) => setReturnComments(e.target.value)}
                     placeholder="Provide details for our Mysore quality team..."
-                    className="w-full bg-[#0B3D2E] border border-white/20 rounded-xl p-2.5 text-xs text-slate-100"
+                    className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-xl p-2.5 text-xs text-slate-100"
                   ></textarea>
                 </div>
 
                 <button
                   type="submit"
-                  className="w-full bg-[#C8A24A] text-[#0B3D2E] py-3 rounded-xl font-bold uppercase tracking-wider hover:bg-white transition-all shadow-xl"
+                  className="w-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] py-3 rounded-xl font-bold uppercase tracking-wider hover:bg-white transition-all shadow-xl"
                 >
                   Submit Reverse Pickup Request
                 </button>
@@ -1633,7 +1633,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
       {/* ========================================================= */}
       {isAddressModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-          <div className="relative w-full max-w-md bg-[#072a20] border border-[#C8A24A]/50 rounded-2xl shadow-2xl p-6 space-y-4 text-slate-100 font-sans">
+          <div className="relative w-full max-w-md bg-[var(--brand-primary-deep)] border border-[var(--brand-gold)]/50 rounded-2xl shadow-2xl p-6 space-y-4 text-slate-100 font-sans">
             <button
               onClick={() => setIsAddressModalOpen(false)}
               className="absolute top-4 right-4 text-slate-400 hover:text-white p-1"
@@ -1652,7 +1652,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                   <select
                     value={addrTitle}
                     onChange={(e) => setAddrTitle(e.target.value)}
-                    className="w-full bg-[#0B3D2E] border border-white/20 p-2.5 rounded-xl text-white"
+                    className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2.5 rounded-xl text-white"
                   >
                     <option value="Home">Home</option>
                     <option value="Office">Office</option>
@@ -1666,7 +1666,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                     required
                     value={addrName}
                     onChange={(e) => setAddrName(e.target.value)}
-                    className="w-full bg-[#0B3D2E] border border-white/20 p-2.5 rounded-xl text-white"
+                    className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2.5 rounded-xl text-white"
                   />
                 </div>
               </div>
@@ -1679,7 +1679,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                   value={addrLine1}
                   onChange={(e) => setAddrLine1(e.target.value)}
                   placeholder="House/Apt No., Building, Street"
-                  className="w-full bg-[#0B3D2E] border border-white/20 p-2.5 rounded-xl text-white"
+                  className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2.5 rounded-xl text-white"
                 />
               </div>
 
@@ -1691,7 +1691,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                     required
                     value={addrCity}
                     onChange={(e) => setAddrCity(e.target.value)}
-                    className="w-full bg-[#0B3D2E] border border-white/20 p-2.5 rounded-xl text-white"
+                    className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2.5 rounded-xl text-white"
                   />
                 </div>
                 <div>
@@ -1701,7 +1701,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                     required
                     value={addrState}
                     onChange={(e) => setAddrState(e.target.value)}
-                    className="w-full bg-[#0B3D2E] border border-white/20 p-2.5 rounded-xl text-white"
+                    className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2.5 rounded-xl text-white"
                   />
                 </div>
               </div>
@@ -1714,7 +1714,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                     required
                     value={addrCountry}
                     onChange={(e) => setAddrCountry(e.target.value)}
-                    className="w-full bg-[#0B3D2E] border border-white/20 p-2.5 rounded-xl text-white"
+                    className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2.5 rounded-xl text-white"
                   />
                 </div>
                 <div>
@@ -1724,7 +1724,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                     required
                     value={addrPincode}
                     onChange={(e) => setAddrPincode(e.target.value)}
-                    className="w-full bg-[#0B3D2E] border border-white/20 p-2.5 rounded-xl text-white"
+                    className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2.5 rounded-xl text-white"
                   />
                 </div>
               </div>
@@ -1736,7 +1736,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                   required
                   value={addrPhone}
                   onChange={(e) => setAddrPhone(e.target.value)}
-                  className="w-full bg-[#0B3D2E] border border-white/20 p-2.5 rounded-xl text-white"
+                  className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2.5 rounded-xl text-white"
                 />
               </div>
 
@@ -1745,14 +1745,14 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                   type="checkbox"
                   checked={addrIsDefault}
                   onChange={(e) => setAddrIsDefault(e.target.checked)}
-                  className="w-4 h-4 rounded accent-[#C8A24A]"
+                  className="w-4 h-4 rounded accent-[var(--brand-gold)]"
                 />
                 <span className="text-slate-300">Set as default delivery address</span>
               </label>
 
               <button
                 type="submit"
-                className="w-full bg-[#C8A24A] text-[#0B3D2E] py-3 rounded-xl font-bold uppercase tracking-wider hover:bg-white transition-all shadow-xl"
+                className="w-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] py-3 rounded-xl font-bold uppercase tracking-wider hover:bg-white transition-all shadow-xl"
               >
                 Save Shipping Address
               </button>
@@ -1772,10 +1772,10 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
           ></div>
 
           <div className="fixed inset-y-0 right-0 max-w-full flex pl-10 z-10">
-            <div className="w-screen max-w-md bg-[#072a20] border-l border-[#C8A24A]/40 text-slate-100 shadow-2xl flex flex-col justify-between font-sans">
-              <div className="p-6 bg-[#0B3D2E] border-b border-white/10 flex items-center justify-between">
+            <div className="w-screen max-w-md bg-[var(--brand-primary-deep)] border-l border-[var(--brand-gold)]/40 text-slate-100 shadow-2xl flex flex-col justify-between font-sans">
+              <div className="p-6 bg-[var(--brand-primary-dark)] border-b border-white/10 flex items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Heart className="w-5 h-5 text-[#C8A24A] fill-current" />
+                  <Heart className="w-5 h-5 text-[var(--brand-gold)] fill-current" />
                   <h2 className="text-xl font-bold font-serif-luxury text-slate-100">Saved Wishlist</h2>
                 </div>
                 <button
@@ -1796,19 +1796,19 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                   wishlist.map((prod) => (
                     <div
                       key={prod.id}
-                      className="flex gap-4 p-3 bg-[#0B3D2E] border border-white/10 rounded-xl items-center justify-between"
+                      className="flex gap-4 p-3 bg-[var(--brand-primary-dark)] border border-white/10 rounded-xl items-center justify-between"
                     >
                       <img src={prod.image} alt={prod.name} className="w-16 h-16 object-contain rounded-lg bg-black/30 p-1 border border-white/10" />
                       <div className="flex-1 px-2">
                         <h4 className="text-xs font-bold font-serif-luxury text-slate-100 line-clamp-1">
                           {prod.name}
                         </h4>
-                        <span className="text-xs text-[#C8A24A] font-bold">{formatPrice(prod.priceINR)}</span>
+                        <span className="text-xs text-[var(--brand-gold)] font-bold">{formatPrice(prod.priceINR)}</span>
                       </div>
                       <div className="flex items-center gap-2">
                         <button
                           onClick={() => addToCart(prod, 1)}
-                          className="bg-[#C8A24A] text-[#0B3D2E] px-3 py-1.5 rounded text-[10px] font-bold uppercase"
+                          className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-3 py-1.5 rounded text-[10px] font-bold uppercase"
                         >
                           Add
                         </button>
@@ -1833,9 +1833,9 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
       {/* ========================================================= */}
       {policyModal && (
         <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
-          <div className="relative w-full max-w-lg bg-[#06261d] border border-[#C8A24A]/40 rounded-2xl shadow-2xl p-6 text-slate-100 font-sans space-y-4">
-            <div className="flex items-center justify-between border-b border-[#C8A24A]/20 pb-3">
-              <h3 className="text-xl font-serif-luxury font-bold text-[#C8A24A]">
+          <div className="relative w-full max-w-lg bg-[#06261d] border border-[var(--brand-gold)]/40 rounded-2xl shadow-2xl p-6 text-slate-100 font-sans space-y-4">
+            <div className="flex items-center justify-between border-b border-[var(--brand-gold)]/20 pb-3">
+              <h3 className="text-xl font-serif-luxury font-bold text-[var(--brand-gold)]">
                 {policyModal === 'PRIVACY' ? 'Privacy Policy' : 'Terms & Conditions'}
               </h3>
               <button
@@ -1877,7 +1877,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
             <div className="pt-2 text-right">
               <button
                 onClick={() => setPolicyModal(null)}
-                className="bg-[#C8A24A] text-[#0B3D2E] px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-white transition-colors"
+                className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-white transition-colors"
               >
                 Close
               </button>

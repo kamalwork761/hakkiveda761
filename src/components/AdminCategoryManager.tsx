@@ -435,7 +435,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
         <div>
           <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-lg bg-[#C8A24A]/20 border border-[#C8A24A]/40 flex items-center justify-center text-[#C8A24A]">
+            <div className="w-8 h-8 rounded-lg bg-[var(--brand-gold)]/20 border border-[var(--brand-gold)]/40 flex items-center justify-center text-[var(--brand-gold)]">
               <FolderTree className="w-4 h-4" />
             </div>
             <h1 className="text-xl sm:text-2xl font-bold font-serif-luxury text-slate-100">
@@ -449,7 +449,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
 
         <button
           onClick={handleOpenCreate}
-          className="bg-[#C8A24A] text-[#0B3D2E] px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-white transition-all shadow-lg flex items-center justify-center gap-2 shrink-0 cursor-pointer"
+          className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-white transition-all shadow-lg flex items-center justify-center gap-2 shrink-0 cursor-pointer"
         >
           <Plus className="w-4 h-4" />
           <span>Create Category</span>
@@ -458,12 +458,12 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
 
       {/* Metrics Bar */}
       <div className="grid grid-cols-2 sm:grid-cols-5 gap-3">
-        <div className="bg-[#0B3D2E] border border-white/10 rounded-xl p-3 flex flex-col justify-between">
+        <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-xl p-3 flex flex-col justify-between">
           <span className="text-[10px] text-slate-400 uppercase font-semibold">Total Categories</span>
           <span className="text-lg font-bold text-slate-100 font-mono mt-1">{categories.length}</span>
         </div>
 
-        <div className="bg-[#0B3D2E] border border-emerald-500/30 rounded-xl p-3 flex flex-col justify-between bg-emerald-950/10">
+        <div className="bg-[var(--brand-primary-dark)] border border-emerald-500/30 rounded-xl p-3 flex flex-col justify-between bg-emerald-950/10">
           <span className="text-[10px] text-emerald-400 uppercase font-semibold flex items-center gap-1">
             <CheckCircle2 className="w-3 h-3" />
             <span>Active</span>
@@ -473,7 +473,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
           </span>
         </div>
 
-        <div className="bg-[#0B3D2E] border border-amber-500/30 rounded-xl p-3 flex flex-col justify-between bg-amber-950/10">
+        <div className="bg-[var(--brand-primary-dark)] border border-amber-500/30 rounded-xl p-3 flex flex-col justify-between bg-amber-950/10">
           <span className="text-[10px] text-amber-400 uppercase font-semibold flex items-center gap-1">
             <AlertTriangle className="w-3 h-3" />
             <span>Draft</span>
@@ -483,26 +483,26 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
           </span>
         </div>
 
-        <div className="bg-[#0B3D2E] border border-slate-500/30 rounded-xl p-3 flex flex-col justify-between">
+        <div className="bg-[var(--brand-primary-dark)] border border-slate-500/30 rounded-xl p-3 flex flex-col justify-between">
           <span className="text-[10px] text-slate-400 uppercase font-semibold">Hidden</span>
           <span className="text-lg font-bold text-slate-300 font-mono mt-1">
             {categories.filter((c) => c.status === 'HIDDEN').length}
           </span>
         </div>
 
-        <div className="bg-[#0B3D2E] border border-[#C8A24A]/40 rounded-xl p-3 flex flex-col justify-between bg-[#C8A24A]/10 col-span-2 sm:col-span-1">
-          <span className="text-[10px] text-[#C8A24A] uppercase font-semibold flex items-center gap-1">
+        <div className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/40 rounded-xl p-3 flex flex-col justify-between bg-[var(--brand-gold)]/10 col-span-2 sm:col-span-1">
+          <span className="text-[10px] text-[var(--brand-gold)] uppercase font-semibold flex items-center gap-1">
             <Star className="w-3 h-3 fill-current" />
             <span>Featured</span>
           </span>
-          <span className="text-lg font-bold text-[#C8A24A] font-mono mt-1">
+          <span className="text-lg font-bold text-[var(--brand-gold)] font-mono mt-1">
             {categories.filter((c) => c.isFeatured).length}
           </span>
         </div>
       </div>
 
       {/* Controls Bar: Search & Filter Options */}
-      <div className="bg-[#0B3D2E] border border-white/10 rounded-2xl p-4 space-y-3">
+      <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-4 space-y-3">
         <div className="flex flex-col md:flex-row gap-3 items-stretch md:items-center justify-between">
           {/* Search Box */}
           <div className="relative flex-1">
@@ -512,7 +512,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search categories by name, slug or description..."
-              className="w-full bg-[#072a20] border border-white/20 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#C8A24A]"
+              className="w-full bg-[var(--brand-primary-deep)] border border-white/20 rounded-xl pl-9 pr-4 py-2.5 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[var(--brand-gold)]"
             />
             {searchQuery && (
               <button
@@ -527,14 +527,14 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
           {/* Status & Feature Filters */}
           <div className="flex flex-wrap items-center gap-2">
             {/* Status Filter */}
-            <div className="flex items-center gap-1 bg-[#072a20] border border-white/20 p-1 rounded-xl">
+            <div className="flex items-center gap-1 bg-[var(--brand-primary-deep)] border border-white/20 p-1 rounded-xl">
               {(['ALL', 'ACTIVE', 'DRAFT', 'HIDDEN'] as const).map((st) => (
                 <button
                   key={st}
                   onClick={() => setStatusFilter(st)}
                   className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase transition-colors ${
                     statusFilter === st
-                      ? 'bg-[#C8A24A] text-[#0B3D2E]'
+                      ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]'
                       : 'text-slate-400 hover:text-slate-200'
                   }`}
                 >
@@ -547,7 +547,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
             <select
               value={featureFilter}
               onChange={(e) => setFeatureFilter(e.target.value as any)}
-              className="bg-[#072a20] border border-white/20 text-slate-200 text-xs px-3 py-2 rounded-xl focus:outline-none focus:border-[#C8A24A]"
+              className="bg-[var(--brand-primary-deep)] border border-white/20 text-slate-200 text-xs px-3 py-2 rounded-xl focus:outline-none focus:border-[var(--brand-gold)]"
             >
               <option value="ALL">All Visibility Controls</option>
               <option value="FEATURED">⭐ Featured Only</option>
@@ -563,7 +563,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
         <div className="space-y-3">
           <p className="text-[11px] text-slate-400 flex items-center justify-between px-1">
             <span>Showing {filteredCategories.length} categories</span>
-            <span className="font-mono text-[10px] text-[#C8A24A]">
+            <span className="font-mono text-[10px] text-[var(--brand-gold)]">
               Drag handle to reorder homepage / nav listing order
             </span>
           </p>
@@ -587,14 +587,14 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                   onDragStart={(e) => handleDragStart(e, index)}
                   onDragOver={(e) => handleDragOver(e, index)}
                   onDrop={(e) => handleDrop(e, index)}
-                  className={`bg-[#0B3D2E] border rounded-2xl p-4 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
-                    isChild ? 'ml-0 sm:ml-8 border-l-4 border-l-[#C8A24A]/60 border-white/10' : 'border-white/10'
-                  } hover:border-[#C8A24A]/50`}
+                  className={`bg-[var(--brand-primary-dark)] border rounded-2xl p-4 transition-all flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 ${
+                    isChild ? 'ml-0 sm:ml-8 border-l-4 border-l-[var(--brand-gold)]/60 border-white/10' : 'border-white/10'
+                  } hover:border-[var(--brand-gold)]/50`}
                 >
                   <div className="flex items-center gap-3 w-full sm:w-auto">
                     {/* Drag Handle */}
                     <span
-                      className="text-slate-500 hover:text-[#C8A24A] cursor-grab active:cursor-grabbing p-1"
+                      className="text-slate-500 hover:text-[var(--brand-gold)] cursor-grab active:cursor-grabbing p-1"
                       title="Drag to reorder"
                     >
                       <GripVertical className="w-4 h-4" />
@@ -630,9 +630,9 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
 
                         {/* Parent Indicator Badge */}
                         {parentCategory && (
-                          <span className="bg-[#072a20] text-slate-300 border border-white/15 px-2 py-0.5 rounded-md text-[10px] flex items-center gap-1">
+                          <span className="bg-[var(--brand-primary-deep)] text-slate-300 border border-white/15 px-2 py-0.5 rounded-md text-[10px] flex items-center gap-1">
                             <span>Child of:</span>
-                            <span className="font-bold text-[#C8A24A]">{parentCategory.name}</span>
+                            <span className="font-bold text-[var(--brand-gold)]">{parentCategory.name}</span>
                           </span>
                         )}
                       </div>
@@ -646,7 +646,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                             setCategoryForProducts(cat);
                             setIsProductsModalOpen(true);
                           }}
-                          className="text-[#C8A24A] hover:underline font-bold flex items-center gap-1"
+                          className="text-[var(--brand-gold)] hover:underline font-bold flex items-center gap-1"
                         >
                           <PackageCheck className="w-3.5 h-3.5" />
                           <span>{productCount} Products</span>
@@ -662,7 +662,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                   {/* Visibility Badges & Quick Action Controls */}
                   <div className="flex flex-wrap sm:flex-nowrap items-center justify-between sm:justify-end gap-2 w-full sm:w-auto pt-2 sm:pt-0 border-t sm:border-t-0 border-white/10">
                     {/* Toggles Status Bar */}
-                    <div className="flex items-center gap-1 bg-[#072a20] p-1 rounded-xl border border-white/10">
+                    <div className="flex items-center gap-1 bg-[var(--brand-primary-deep)] p-1 rounded-xl border border-white/10">
                       <span
                         className={`p-1.5 rounded-lg text-[10px] flex items-center gap-1 ${
                           cat.showInNav !== false
@@ -688,7 +688,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                       <span
                         className={`p-1.5 rounded-lg text-[10px] flex items-center gap-1 ${
                           cat.isFeatured
-                            ? 'bg-[#C8A24A]/20 text-[#C8A24A]'
+                            ? 'bg-[var(--brand-gold)]/20 text-[var(--brand-gold)]'
                             : 'text-slate-500 opacity-50'
                         }`}
                         title={cat.isFeatured ? 'Featured Category' : 'Not Featured'}
@@ -725,7 +725,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                           setPreviewCategory(cat);
                           setIsPreviewOpen(true);
                         }}
-                        className="p-2 bg-[#072a20] text-slate-200 hover:text-white hover:bg-black/40 rounded-lg border border-white/10"
+                        className="p-2 bg-[var(--brand-primary-deep)] text-slate-200 hover:text-white hover:bg-black/40 rounded-lg border border-white/10"
                         title="View Full Details"
                       >
                         <Eye className="w-3.5 h-3.5" />
@@ -734,7 +734,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                       {/* Duplicate */}
                       <button
                         onClick={() => handleDuplicate(cat)}
-                        className="p-2 bg-[#072a20] text-[#C8A24A] hover:bg-[#C8A24A] hover:text-[#0B3D2E] rounded-lg border border-[#C8A24A]/30 transition-colors"
+                        className="p-2 bg-[var(--brand-primary-deep)] text-[var(--brand-gold)] hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] rounded-lg border border-[var(--brand-gold)]/30 transition-colors"
                         title="Duplicate Category"
                       >
                         <Copy className="w-3.5 h-3.5" />
@@ -743,7 +743,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                       {/* Edit */}
                       <button
                         onClick={() => handleOpenEdit(cat)}
-                        className="p-2 bg-[#C8A24A] text-[#0B3D2E] hover:bg-white rounded-lg font-bold transition-all"
+                        className="p-2 bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] hover:bg-white rounded-lg font-bold transition-all"
                         title="Edit Category"
                       >
                         <Edit2 className="w-3.5 h-3.5" />
@@ -768,7 +768,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
           </div>
         </div>
       ) : (
-        <div className="bg-[#0B3D2E] border border-white/10 rounded-2xl p-8 text-center space-y-3">
+        <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-8 text-center space-y-3">
           <FolderTree className="w-10 h-10 text-slate-500 mx-auto" />
           <h3 className="text-base font-bold text-slate-200">No categories found</h3>
           <p className="text-xs text-slate-400 max-w-md mx-auto">
@@ -776,7 +776,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
           </p>
           <button
             onClick={handleOpenCreate}
-            className="bg-[#C8A24A] text-[#0B3D2E] px-4 py-2 rounded-xl font-bold text-xs inline-flex items-center gap-2"
+            className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-4 py-2 rounded-xl font-bold text-xs inline-flex items-center gap-2"
           >
             <Plus className="w-4 h-4" />
             <span>Add New Category</span>
@@ -789,15 +789,15 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
       {/* ========================================================= */}
       {isEditorOpen && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4">
-          <div className="bg-[#0B3D2E] border border-[#C8A24A] rounded-2xl p-5 sm:p-6 max-w-3xl w-full max-h-[92vh] overflow-y-auto space-y-5 text-xs">
+          <div className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)] rounded-2xl p-5 sm:p-6 max-w-3xl w-full max-h-[92vh] overflow-y-auto space-y-5 text-xs">
             {/* Modal Header */}
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2">
-                <div className="w-8 h-8 rounded-lg bg-[#C8A24A]/20 text-[#C8A24A] flex items-center justify-center border border-[#C8A24A]/30">
+                <div className="w-8 h-8 rounded-lg bg-[var(--brand-gold)]/20 text-[var(--brand-gold)] flex items-center justify-center border border-[var(--brand-gold)]/30">
                   <FolderTree className="w-4 h-4" />
                 </div>
                 <div>
-                  <h3 className="text-base font-bold text-[#C8A24A] uppercase tracking-wider">
+                  <h3 className="text-base font-bold text-[var(--brand-gold)] uppercase tracking-wider">
                     {editingCategory ? `Edit Category: ${editingCategory.name}` : 'Create New Category'}
                   </h3>
                   <p className="text-[11px] text-slate-400">
@@ -822,7 +822,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                 onClick={() => setActiveFormTab('basic')}
                 className={`pb-2.5 px-3 font-bold text-xs uppercase flex items-center gap-1.5 transition-colors border-b-2 ${
                   activeFormTab === 'basic'
-                    ? 'border-[#C8A24A] text-[#C8A24A]'
+                    ? 'border-[var(--brand-gold)] text-[var(--brand-gold)]'
                     : 'border-transparent text-slate-400 hover:text-slate-200'
                 }`}
               >
@@ -835,7 +835,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                 onClick={() => setActiveFormTab('images')}
                 className={`pb-2.5 px-3 font-bold text-xs uppercase flex items-center gap-1.5 transition-colors border-b-2 ${
                   activeFormTab === 'images'
-                    ? 'border-[#C8A24A] text-[#C8A24A]'
+                    ? 'border-[var(--brand-gold)] text-[var(--brand-gold)]'
                     : 'border-transparent text-slate-400 hover:text-slate-200'
                 }`}
               >
@@ -848,7 +848,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                 onClick={() => setActiveFormTab('seo')}
                 className={`pb-2.5 px-3 font-bold text-xs uppercase flex items-center gap-1.5 transition-colors border-b-2 ${
                   activeFormTab === 'seo'
-                    ? 'border-[#C8A24A] text-[#C8A24A]'
+                    ? 'border-[var(--brand-gold)] text-[var(--brand-gold)]'
                     : 'border-transparent text-slate-400 hover:text-slate-200'
                 }`}
               >
@@ -882,7 +882,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                           if (formErrors.name) setFormErrors((p) => ({ ...p, name: undefined }));
                         }}
                         placeholder="e.g. Hair Oils & Elixirs"
-                        className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-xl text-slate-100 placeholder-slate-500 focus:border-[#C8A24A] focus:outline-none"
+                        className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-xl text-slate-100 placeholder-slate-500 focus:border-[var(--brand-gold)] focus:outline-none"
                       />
                       {formErrors.name && (
                         <p className="text-rose-400 text-[10px] font-bold mt-1">{formErrors.name}</p>
@@ -902,7 +902,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                               slug: generateSlug(prev.name || ''),
                             }))
                           }
-                          className="text-[10px] text-[#C8A24A] hover:underline font-bold"
+                          className="text-[10px] text-[var(--brand-gold)] hover:underline font-bold"
                         >
                           Auto-generate
                         </button>
@@ -920,7 +920,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                             if (formErrors.slug) setFormErrors((p) => ({ ...p, slug: undefined }));
                           }}
                           placeholder="hair-oils"
-                          className="w-full bg-[#072a20] border border-white/20 p-2.5 pl-22 rounded-xl text-slate-100 font-mono text-[11px] focus:border-[#C8A24A] focus:outline-none"
+                          className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 pl-22 rounded-xl text-slate-100 font-mono text-[11px] focus:border-[var(--brand-gold)] focus:outline-none"
                         />
                       </div>
                       {formErrors.slug && (
@@ -940,7 +940,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                         onChange={(e) =>
                           setFormData((prev) => ({ ...prev, parentId: e.target.value || null }))
                         }
-                        className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-xl text-slate-100 focus:border-[#C8A24A] focus:outline-none"
+                        className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-xl text-slate-100 focus:border-[var(--brand-gold)] focus:outline-none"
                       >
                         <option value="">None (Top-Level Category)</option>
                         {availableParentCategories.map((c) => (
@@ -958,7 +958,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                         onChange={(e) =>
                           setFormData((prev) => ({ ...prev, status: e.target.value as any }))
                         }
-                        className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-xl text-slate-100 font-bold focus:border-[#C8A24A] focus:outline-none"
+                        className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-xl text-slate-100 font-bold focus:border-[var(--brand-gold)] focus:outline-none"
                       >
                         <option value="ACTIVE">🟢 Active (Visible to store visitors)</option>
                         <option value="DRAFT">🟡 Draft (In progress, hidden from public)</option>
@@ -977,7 +977,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                       value={formData.description || ''}
                       onChange={(e) => setFormData((prev) => ({ ...prev, description: e.target.value }))}
                       placeholder="A brief 1-2 sentence overview of formulations in this category..."
-                      className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-xl text-slate-100 placeholder-slate-500 focus:border-[#C8A24A] focus:outline-none"
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-xl text-slate-100 placeholder-slate-500 focus:border-[var(--brand-gold)] focus:outline-none"
                     />
                   </div>
 
@@ -993,25 +993,25 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                         setFormData((prev) => ({ ...prev, fullDescription: e.target.value }))
                       }
                       placeholder="Detailed origin story, tribal harvesting techniques, or ingredients guide..."
-                      className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-xl text-slate-100 placeholder-slate-500 focus:border-[#C8A24A] focus:outline-none font-sans"
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-xl text-slate-100 placeholder-slate-500 focus:border-[var(--brand-gold)] focus:outline-none font-sans"
                     />
                   </div>
 
                   {/* Display & Homepage Controls Toggles */}
-                  <div className="bg-[#072a20] p-4 rounded-xl border border-white/10 space-y-3">
-                    <span className="text-xs font-bold text-[#C8A24A] uppercase tracking-wider block">
+                  <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-3">
+                    <span className="text-xs font-bold text-[var(--brand-gold)] uppercase tracking-wider block">
                       Visibility & Placement Controls
                     </span>
 
                     <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                      <label className="flex items-center gap-2 cursor-pointer bg-black/30 p-2.5 rounded-lg border border-white/10 hover:border-[#C8A24A]/40">
+                      <label className="flex items-center gap-2 cursor-pointer bg-black/30 p-2.5 rounded-lg border border-white/10 hover:border-[var(--brand-gold)]/40">
                         <input
                           type="checkbox"
                           checked={formData.showInNav !== false}
                           onChange={(e) =>
                             setFormData((prev) => ({ ...prev, showInNav: e.target.checked }))
                           }
-                          className="accent-[#C8A24A] w-4 h-4 rounded"
+                          className="accent-[var(--brand-gold)] w-4 h-4 rounded"
                         />
                         <div>
                           <span className="font-bold text-slate-200 block">Main Navigation</span>
@@ -1019,14 +1019,14 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                         </div>
                       </label>
 
-                      <label className="flex items-center gap-2 cursor-pointer bg-black/30 p-2.5 rounded-lg border border-white/10 hover:border-[#C8A24A]/40">
+                      <label className="flex items-center gap-2 cursor-pointer bg-black/30 p-2.5 rounded-lg border border-white/10 hover:border-[var(--brand-gold)]/40">
                         <input
                           type="checkbox"
                           checked={formData.showOnHomepage !== false}
                           onChange={(e) =>
                             setFormData((prev) => ({ ...prev, showOnHomepage: e.target.checked }))
                           }
-                          className="accent-[#C8A24A] w-4 h-4 rounded"
+                          className="accent-[var(--brand-gold)] w-4 h-4 rounded"
                         />
                         <div>
                           <span className="font-bold text-slate-200 block">Homepage Section</span>
@@ -1034,14 +1034,14 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                         </div>
                       </label>
 
-                      <label className="flex items-center gap-2 cursor-pointer bg-black/30 p-2.5 rounded-lg border border-white/10 hover:border-[#C8A24A]/40">
+                      <label className="flex items-center gap-2 cursor-pointer bg-black/30 p-2.5 rounded-lg border border-white/10 hover:border-[var(--brand-gold)]/40">
                         <input
                           type="checkbox"
                           checked={!!formData.isFeatured}
                           onChange={(e) =>
                             setFormData((prev) => ({ ...prev, isFeatured: e.target.checked }))
                           }
-                          className="accent-[#C8A24A] w-4 h-4 rounded"
+                          className="accent-[var(--brand-gold)] w-4 h-4 rounded"
                         />
                         <div>
                           <span className="font-bold text-slate-200 block">Featured Category</span>
@@ -1057,14 +1057,14 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
               {activeFormTab === 'images' && (
                 <div className="space-y-4">
                   {/* Category Thumbnail */}
-                  <div className="bg-[#072a20] p-4 rounded-xl border border-white/10 space-y-3">
+                  <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-3">
                     <div className="flex items-center justify-between">
                       <label className="text-slate-200 font-bold flex items-center gap-2">
-                        <ImageIcon className="w-4 h-4 text-[#C8A24A]" />
+                        <ImageIcon className="w-4 h-4 text-[var(--brand-gold)]" />
                         <span>Category Square Thumbnail Image *</span>
                       </label>
                       {formData.imageFilename && (
-                        <span className="text-[10px] text-[#C8A24A] font-mono font-bold bg-black/40 px-2 py-0.5 rounded border border-[#C8A24A]/30">
+                        <span className="text-[10px] text-[var(--brand-gold)] font-mono font-bold bg-black/40 px-2 py-0.5 rounded border border-[var(--brand-gold)]/30">
                           {formData.imageFilename}
                         </span>
                       )}
@@ -1086,7 +1086,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
 
                       <div className="flex-1 space-y-2 w-full">
                         <div className="flex items-center gap-2">
-                          <label className="cursor-pointer bg-[#C8A24A] text-[#0B3D2E] px-3.5 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 hover:bg-white transition-all">
+                          <label className="cursor-pointer bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-3.5 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 hover:bg-white transition-all">
                             <Upload className="w-3.5 h-3.5" />
                             <span>Upload Thumbnail</span>
                             <input
@@ -1122,21 +1122,21 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                             }))
                           }
                           placeholder="Or paste direct image URL (https://...)"
-                          className="w-full bg-[#0B3D2E] border border-white/20 p-2 rounded-xl text-slate-100 text-[11px]"
+                          className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2 rounded-xl text-slate-100 text-[11px]"
                         />
                       </div>
                     </div>
                   </div>
 
                   {/* Desktop Banner Image */}
-                  <div className="bg-[#072a20] p-4 rounded-xl border border-white/10 space-y-3">
+                  <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-3">
                     <div className="flex items-center justify-between">
                       <label className="text-slate-200 font-bold flex items-center gap-2">
-                        <Monitor className="w-4 h-4 text-[#C8A24A]" />
+                        <Monitor className="w-4 h-4 text-[var(--brand-gold)]" />
                         <span>Desktop Header Banner Image</span>
                       </label>
                       {formData.desktopBannerFilename && (
-                        <span className="text-[10px] text-[#C8A24A] font-mono font-bold bg-black/40 px-2 py-0.5 rounded border border-[#C8A24A]/30">
+                        <span className="text-[10px] text-[var(--brand-gold)] font-mono font-bold bg-black/40 px-2 py-0.5 rounded border border-[var(--brand-gold)]/30">
                           {formData.desktopBannerFilename}
                         </span>
                       )}
@@ -1158,7 +1158,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <label className="cursor-pointer bg-[#0B3D2E] text-[#C8A24A] border border-[#C8A24A]/40 px-3.5 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 hover:bg-[#C8A24A] hover:text-[#0B3D2E] transition-all">
+                        <label className="cursor-pointer bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] border border-[var(--brand-gold)]/40 px-3.5 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all">
                           <Upload className="w-3.5 h-3.5" />
                           <span>Upload Desktop Banner</span>
                           <input
@@ -1183,7 +1183,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                             }))
                           }
                           placeholder="Or paste Desktop Banner URL"
-                          className="flex-1 bg-[#0B3D2E] border border-white/20 p-2 rounded-xl text-slate-100 text-[11px]"
+                          className="flex-1 bg-[var(--brand-primary-dark)] border border-white/20 p-2 rounded-xl text-slate-100 text-[11px]"
                         />
 
                         {formData.desktopBanner && (
@@ -1206,14 +1206,14 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                   </div>
 
                   {/* Mobile Banner Image */}
-                  <div className="bg-[#072a20] p-4 rounded-xl border border-white/10 space-y-3">
+                  <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-3">
                     <div className="flex items-center justify-between">
                       <label className="text-slate-200 font-bold flex items-center gap-2">
-                        <Smartphone className="w-4 h-4 text-[#C8A24A]" />
+                        <Smartphone className="w-4 h-4 text-[var(--brand-gold)]" />
                         <span>Mobile Banner Image</span>
                       </label>
                       {formData.mobileBannerFilename && (
-                        <span className="text-[10px] text-[#C8A24A] font-mono font-bold bg-black/40 px-2 py-0.5 rounded border border-[#C8A24A]/30">
+                        <span className="text-[10px] text-[var(--brand-gold)] font-mono font-bold bg-black/40 px-2 py-0.5 rounded border border-[var(--brand-gold)]/30">
                           {formData.mobileBannerFilename}
                         </span>
                       )}
@@ -1234,7 +1234,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
 
                       <div className="flex-1 space-y-2">
                         <div className="flex items-center gap-2">
-                          <label className="cursor-pointer bg-[#0B3D2E] text-[#C8A24A] border border-[#C8A24A]/40 px-3.5 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 hover:bg-[#C8A24A] hover:text-[#0B3D2E] transition-all">
+                          <label className="cursor-pointer bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] border border-[var(--brand-gold)]/40 px-3.5 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all">
                             <Upload className="w-3.5 h-3.5" />
                             <span>Upload Mobile Banner</span>
                             <input
@@ -1276,7 +1276,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                             }))
                           }
                           placeholder="Or paste Mobile Banner URL"
-                          className="w-full bg-[#0B3D2E] border border-white/20 p-2 rounded-xl text-slate-100 text-[11px]"
+                          className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2 rounded-xl text-slate-100 text-[11px]"
                         />
                       </div>
                     </div>
@@ -1301,7 +1301,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                       value={formData.seoTitle || ''}
                       onChange={(e) => setFormData((prev) => ({ ...prev, seoTitle: e.target.value }))}
                       placeholder="e.g. Adivasi Hair Oils & Natural Elixirs - HakkiVeda"
-                      className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-xl text-slate-100 placeholder-slate-500 focus:border-[#C8A24A] focus:outline-none"
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-xl text-slate-100 placeholder-slate-500 focus:border-[var(--brand-gold)] focus:outline-none"
                     />
                   </div>
 
@@ -1321,7 +1321,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                         setFormData((prev) => ({ ...prev, seoMetaDescription: e.target.value }))
                       }
                       placeholder="Pure adivasi 108 herbal hair oils handcrafted in Mysore for deep root regrowth..."
-                      className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-xl text-slate-100 placeholder-slate-500 focus:border-[#C8A24A] focus:outline-none"
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-xl text-slate-100 placeholder-slate-500 focus:border-[var(--brand-gold)] focus:outline-none"
                     />
                   </div>
 
@@ -1335,14 +1335,14 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                       value={formData.seoKeywords || ''}
                       onChange={(e) => setFormData((prev) => ({ ...prev, seoKeywords: e.target.value }))}
                       placeholder="adivasi hair oil, 108 herbs, root growth, natural shampoo"
-                      className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-xl text-slate-100 placeholder-slate-500 focus:border-[#C8A24A] focus:outline-none"
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-xl text-slate-100 placeholder-slate-500 focus:border-[var(--brand-gold)] focus:outline-none"
                     />
                   </div>
 
                   {/* Live Google Search Snippet Preview Box */}
                   <div className="bg-black/50 p-4 rounded-xl border border-white/10 space-y-1">
                     <span className="text-[10px] text-slate-400 uppercase font-mono font-bold block mb-2 flex items-center gap-1">
-                      <Globe className="w-3 h-3 text-[#C8A24A]" />
+                      <Globe className="w-3 h-3 text-[var(--brand-gold)]" />
                       <span>Google Search Result Snippet Preview</span>
                     </span>
 
@@ -1373,7 +1373,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
 
                 <button
                   type="submit"
-                  className="bg-[#C8A24A] text-[#0B3D2E] px-6 py-2 rounded-xl font-bold uppercase tracking-wider hover:bg-white transition-all shadow-lg flex items-center gap-1.5"
+                  className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-6 py-2 rounded-xl font-bold uppercase tracking-wider hover:bg-white transition-all shadow-lg flex items-center gap-1.5"
                 >
                   <Check className="w-4 h-4" />
                   <span>{editingCategory ? 'Save Changes' : 'Create Category'}</span>
@@ -1389,9 +1389,9 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
       {/* ========================================================= */}
       {isPreviewOpen && previewCategory && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0B3D2E] border border-[#C8A24A] rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto space-y-5 text-xs">
+          <div className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)] rounded-2xl p-6 max-w-2xl w-full max-h-[90vh] overflow-y-auto space-y-5 text-xs">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
-              <h3 className="text-base font-bold text-[#C8A24A] uppercase flex items-center gap-2">
+              <h3 className="text-base font-bold text-[var(--brand-gold)] uppercase flex items-center gap-2">
                 <Eye className="w-4 h-4" />
                 <span>Category Details: {previewCategory.name}</span>
               </h3>
@@ -1415,7 +1415,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                 className="w-full h-full object-cover"
               />
               <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/30 to-transparent flex flex-col justify-end p-4">
-                <span className="text-[10px] text-[#C8A24A] font-mono uppercase tracking-widest font-bold">
+                <span className="text-[10px] text-[var(--brand-gold)] font-mono uppercase tracking-widest font-bold">
                   Slug: /{previewCategory.slug}
                 </span>
                 <h2 className="text-lg font-bold text-white font-serif-luxury">
@@ -1426,15 +1426,15 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
 
             {/* Description & Metadata */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div className="bg-[#072a20] p-3 rounded-xl border border-white/10 space-y-1">
+              <div className="bg-[var(--brand-primary-deep)] p-3 rounded-xl border border-white/10 space-y-1">
                 <span className="text-[10px] text-slate-400 uppercase font-bold">Short Overview</span>
                 <p className="text-slate-200">{previewCategory.description}</p>
               </div>
 
-              <div className="bg-[#072a20] p-3 rounded-xl border border-white/10 space-y-1">
+              <div className="bg-[var(--brand-primary-deep)] p-3 rounded-xl border border-white/10 space-y-1">
                 <span className="text-[10px] text-slate-400 uppercase font-bold">Category Status</span>
                 <div className="flex items-center gap-2 pt-1">
-                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[#C8A24A] text-[#0B3D2E]">
+                  <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]">
                     {previewCategory.status || 'ACTIVE'}
                   </span>
                   <span className="text-slate-300">
@@ -1446,8 +1446,8 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
 
             {/* Full Story */}
             {previewCategory.fullDescription && (
-              <div className="bg-[#072a20] p-4 rounded-xl border border-white/10 space-y-1">
-                <span className="text-[10px] text-[#C8A24A] uppercase font-bold">Formulation Story</span>
+              <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-1">
+                <span className="text-[10px] text-[var(--brand-gold)] uppercase font-bold">Formulation Story</span>
                 <p className="text-slate-200 whitespace-pre-line leading-relaxed">
                   {previewCategory.fullDescription}
                 </p>
@@ -1477,7 +1477,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                   setIsPreviewOpen(false);
                   handleOpenEdit(previewCategory);
                 }}
-                className="bg-[#C8A24A] text-[#0B3D2E] px-5 py-2 rounded-xl font-bold text-xs uppercase"
+                className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-5 py-2 rounded-xl font-bold text-xs uppercase"
               >
                 Edit Category
               </button>
@@ -1491,7 +1491,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
       {/* ========================================================= */}
       {isDeleteModalOpen && categoryToDelete && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0B3D2E] border border-rose-500/50 rounded-2xl p-6 max-w-md w-full space-y-4 text-xs">
+          <div className="bg-[var(--brand-primary-dark)] border border-rose-500/50 rounded-2xl p-6 max-w-md w-full space-y-4 text-xs">
             <div className="flex items-center gap-3 text-rose-400 border-b border-white/10 pb-3">
               <div className="w-10 h-10 rounded-full bg-rose-950/80 border border-rose-500/40 flex items-center justify-center shrink-0">
                 <AlertTriangle className="w-5 h-5 text-rose-400" />
@@ -1504,7 +1504,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
 
             <p className="text-slate-200">
               Are you sure you want to permanently delete the category{' '}
-              <strong className="text-[#C8A24A]">"{categoryToDelete.name}"</strong>?
+              <strong className="text-[var(--brand-gold)]">"{categoryToDelete.name}"</strong>?
             </p>
 
             {getProductCountForCategory(categoryToDelete) > 0 && (
@@ -1541,10 +1541,10 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
       {/* ========================================================= */}
       {isProductsModalOpen && categoryForProducts && (
         <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-          <div className="bg-[#0B3D2E] border border-[#C8A24A] rounded-2xl p-6 max-w-2xl w-full max-h-[85vh] overflow-y-auto space-y-4 text-xs">
+          <div className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)] rounded-2xl p-6 max-w-2xl w-full max-h-[85vh] overflow-y-auto space-y-4 text-xs">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div>
-                <h3 className="text-base font-bold text-[#C8A24A] uppercase flex items-center gap-2">
+                <h3 className="text-base font-bold text-[var(--brand-gold)] uppercase flex items-center gap-2">
                   <PackageCheck className="w-4 h-4" />
                   <span>Products in "{categoryForProducts.name}"</span>
                 </h3>
@@ -1567,7 +1567,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                 {getProductsForCategory(categoryForProducts).map((p) => (
                   <div
                     key={p.id}
-                    className="flex items-center justify-between gap-3 bg-[#072a20] p-3 rounded-xl border border-white/10 hover:border-white/30"
+                    className="flex items-center justify-between gap-3 bg-[var(--brand-primary-deep)] p-3 rounded-xl border border-white/10 hover:border-white/30"
                   >
                     <div className="flex items-center gap-3">
                       <img
@@ -1583,14 +1583,14 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                       </div>
                     </div>
 
-                    <div className="text-right font-mono font-bold text-[#C8A24A]">
+                    <div className="text-right font-mono font-bold text-[var(--brand-gold)]">
                       ₹{p.priceINR}
                     </div>
                   </div>
                 ))}
               </div>
             ) : (
-              <div className="p-6 text-center text-slate-400 bg-[#072a20] rounded-xl border border-white/10">
+              <div className="p-6 text-center text-slate-400 bg-[var(--brand-primary-deep)] rounded-xl border border-white/10">
                 No products are currently assigned to this category.
               </div>
             )}
@@ -1606,7 +1606,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
                     onSwitchToProductsTab(categoryForProducts.name);
                   }
                 }}
-                className="bg-[#C8A24A] text-[#0B3D2E] px-4 py-2 rounded-xl font-bold uppercase text-[11px] flex items-center gap-1.5"
+                className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-4 py-2 rounded-xl font-bold uppercase text-[11px] flex items-center gap-1.5"
               >
                 <span>View in Products Tab</span>
                 <ExternalLink className="w-3.5 h-3.5" />

@@ -3,6 +3,11 @@ import { AdminProductImageManager } from './AdminProductImageManager';
 import { AdminCategoryManager } from './AdminCategoryManager';
 import { AdminHeroSliderManager } from './AdminHeroSliderManager';
 import { AdminNavManager } from './AdminNavManager';
+import { AdminReviewsManager } from './AdminReviewsManager';
+import { AdminBeforeAfterManager } from './AdminBeforeAfterManager';
+import { AdminVideoTestimonialsManager } from './AdminVideoTestimonialsManager';
+import { AdminBlogManager } from './AdminBlogManager';
+import { AdminQuizManager } from './AdminQuizManager';
 import {
   Lock,
   LayoutDashboard,
@@ -328,32 +333,32 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
   });
 
   return (
-    <div className="min-h-screen bg-[#072a20] text-slate-100 font-sans flex flex-col sm:flex-row">
+    <div className="min-h-screen bg-[var(--brand-primary-deep)] text-slate-100 font-sans flex flex-col sm:flex-row">
       {/* Toast Popup */}
       {toastMsg && (
-        <div className="fixed top-5 right-5 bg-[#C8A24A] text-[#0B3D2E] font-bold px-4 py-2.5 rounded-xl shadow-2xl z-50 flex items-center gap-2 animate-bounce">
+        <div className="fixed top-5 right-5 bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold px-4 py-2.5 rounded-xl shadow-2xl z-50 flex items-center gap-2 animate-bounce">
           <CheckCircle2 className="w-5 h-5" />
           <span>{toastMsg}</span>
         </div>
       )}
 
       {/* Sidebar Navigation */}
-      <aside className="w-full sm:w-64 bg-[#0B3D2E] border-r border-[#C8A24A]/30 p-4 shrink-0 flex flex-col justify-between">
+      <aside className="w-full sm:w-64 bg-[var(--brand-primary-dark)] border-r border-[var(--brand-gold)]/30 p-4 shrink-0 flex flex-col justify-between">
         <div>
           {/* Brand header */}
           <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 border-2 border-[#C8A24A] flex items-center justify-center rotate-45 bg-[#072a20]">
-                <span className="-rotate-45 font-bold font-brand text-[#C8A24A] text-xs">HV</span>
+              <div className="w-8 h-8 border-2 border-[var(--brand-gold)] flex items-center justify-center rotate-45 bg-[var(--brand-primary-deep)]">
+                <span className="-rotate-45 font-bold font-brand text-[var(--brand-gold)] text-xs">HV</span>
               </div>
               <div>
-                <h2 className="text-sm font-bold font-brand tracking-widest text-[#C8A24A]">HAKKIVEDA</h2>
+                <h2 className="text-sm font-bold font-brand tracking-widest text-[var(--brand-gold)]">HAKKIVEDA</h2>
                 <p className="text-[8px] uppercase tracking-wider text-slate-300">Admin Control Suite</p>
               </div>
             </div>
             <button
               onClick={onReturnToStoreFront}
-              className="text-slate-400 hover:text-[#C8A24A] p-1"
+              className="text-slate-400 hover:text-[var(--brand-gold)] p-1"
               title="Return to Store Front"
             >
               <Eye className="w-4 h-4" />
@@ -365,20 +370,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <button
               onClick={() => setActiveTab('overview')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'overview' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'overview' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <LayoutDashboard className="w-4 h-4" />
               <span>Dashboard Overview</span>
             </button>
 
-            <div className="pt-3 pb-1 text-[9px] uppercase tracking-widest text-[#C8A24A]/70 font-bold px-3">
+            <div className="pt-3 pb-1 text-[9px] uppercase tracking-widest text-[var(--brand-gold)]/70 font-bold px-3">
               Catalog & Inventory
             </div>
             <button
               onClick={() => setActiveTab('products')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'products' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'products' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <Package className="w-4 h-4" />
@@ -387,7 +392,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <button
               onClick={() => setActiveTab('inventory')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'inventory' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'inventory' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <Layers className="w-4 h-4" />
@@ -396,20 +401,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <button
               onClick={() => setActiveTab('categories')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'categories' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'categories' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <Tag className="w-4 h-4" />
               <span>Categories</span>
             </button>
 
-            <div className="pt-3 pb-1 text-[9px] uppercase tracking-widest text-[#C8A24A]/70 font-bold px-3">
+            <div className="pt-3 pb-1 text-[9px] uppercase tracking-widest text-[var(--brand-gold)]/70 font-bold px-3">
               Website & Content
             </div>
             <button
               onClick={() => setActiveTab('announcement')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'announcement' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'announcement' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <Megaphone className="w-4 h-4" />
@@ -418,7 +423,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <button
               onClick={() => setActiveTab('hero')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'hero' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'hero' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <Sliders className="w-4 h-4" />
@@ -427,7 +432,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <button
               onClick={() => setActiveTab('nav')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'nav' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'nav' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <Navigation className="w-4 h-4" />
@@ -436,7 +441,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <button
               onClick={() => setActiveTab('reviews')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'reviews' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'reviews' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <CheckCircle2 className="w-4 h-4" />
@@ -445,7 +450,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <button
               onClick={() => setActiveTab('before_after')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'before_after' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'before_after' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <Sparkles className="w-4 h-4" />
@@ -454,7 +459,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <button
               onClick={() => setActiveTab('videos')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'videos' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'videos' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <Video className="w-4 h-4" />
@@ -463,7 +468,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <button
               onClick={() => setActiveTab('blogs')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'blogs' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'blogs' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <FileText className="w-4 h-4" />
@@ -472,7 +477,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <button
               onClick={() => setActiveTab('quiz')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'quiz' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'quiz' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <HelpCircle className="w-4 h-4" />
@@ -481,20 +486,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <button
               onClick={() => setActiveTab('media')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'media' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'media' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <Image className="w-4 h-4" />
               <span>Media Gallery</span>
             </button>
 
-            <div className="pt-3 pb-1 text-[9px] uppercase tracking-widest text-[#C8A24A]/70 font-bold px-3">
+            <div className="pt-3 pb-1 text-[9px] uppercase tracking-widest text-[var(--brand-gold)]/70 font-bold px-3">
               Sales & Customers
             </div>
             <button
               onClick={() => setActiveTab('orders')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'orders' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'orders' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <ShoppingBag className="w-4 h-4" />
@@ -503,7 +508,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <button
               onClick={() => setActiveTab('b2b')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'b2b' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'b2b' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <Building2 className="w-4 h-4" />
@@ -512,7 +517,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <button
               onClick={() => setActiveTab('customers')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'customers' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'customers' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <Users className="w-4 h-4" />
@@ -521,20 +526,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <button
               onClick={() => setActiveTab('coupons')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'coupons' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'coupons' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <DollarSign className="w-4 h-4" />
               <span>Coupons & Offers</span>
             </button>
 
-            <div className="pt-3 pb-1 text-[9px] uppercase tracking-widest text-[#C8A24A]/70 font-bold px-3">
+            <div className="pt-3 pb-1 text-[9px] uppercase tracking-widest text-[var(--brand-gold)]/70 font-bold px-3">
               Store Configuration
             </div>
             <button
               onClick={() => setActiveTab('currency')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'currency' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'currency' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <Globe className="w-4 h-4" />
@@ -543,7 +548,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <button
               onClick={() => setActiveTab('payments')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'payments' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'payments' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <CreditCard className="w-4 h-4" />
@@ -552,7 +557,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <button
               onClick={() => setActiveTab('shipping')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'shipping' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'shipping' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <Truck className="w-4 h-4" />
@@ -561,7 +566,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <button
               onClick={() => setActiveTab('seo')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'seo' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'seo' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <Search className="w-4 h-4" />
@@ -570,7 +575,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <button
               onClick={() => setActiveTab('branding')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'branding' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'branding' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <Sparkles className="w-4 h-4" />
@@ -579,7 +584,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <button
               onClick={() => setActiveTab('contact')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'contact' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'contact' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <PhoneCall className="w-4 h-4" />
@@ -588,7 +593,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <button
               onClick={() => setActiveTab('footer')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'footer' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'footer' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <MapPin className="w-4 h-4" />
@@ -597,7 +602,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <button
               onClick={() => setActiveTab('settings')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'settings' ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold' : 'text-slate-200 hover:bg-white/5'
+                activeTab === 'settings' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
               }`}
             >
               <Settings className="w-4 h-4" />
@@ -632,18 +637,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
               <div
                 onClick={() => setActiveTab('orders')}
-                className="bg-[#0B3D2E] border border-[#C8A24A]/30 p-5 rounded-2xl cursor-pointer hover:border-[#C8A24A] hover:bg-[#0e4837] hover:scale-[1.02] hover:shadow-2xl hover:shadow-[#C8A24A]/10 transition-all duration-200 group flex flex-col justify-between"
+                className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/30 p-5 rounded-2xl cursor-pointer hover:border-[var(--brand-gold)] hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] hover:shadow-2xl hover:shadow-[var(--brand-gold)]/10 transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <div className="text-[10px] uppercase tracking-widest text-[#C8A24A] font-bold">
+                    <div className="text-[10px] uppercase tracking-widest text-[var(--brand-gold)] font-bold">
                       Total Orders
                     </div>
-                    <ShoppingBag className="w-4 h-4 text-[#C8A24A] opacity-70 group-hover:opacity-100 transition-opacity" />
+                    <ShoppingBag className="w-4 h-4 text-[var(--brand-gold)] opacity-70 group-hover:opacity-100 transition-opacity" />
                   </div>
                   <div className="text-3xl font-bold font-mono text-white mt-1">{orders.length}</div>
                 </div>
-                <div className="text-[10px] text-[#C8A24A] group-hover:underline font-bold mt-3 flex items-center justify-between">
+                <div className="text-[10px] text-[var(--brand-gold)] group-hover:underline font-bold mt-3 flex items-center justify-between">
                   <span>View All Orders</span>
                   <span>→</span>
                 </div>
@@ -651,18 +656,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
 
               <div
                 onClick={() => setActiveTab('products')}
-                className="bg-[#0B3D2E] border border-[#C8A24A]/30 p-5 rounded-2xl cursor-pointer hover:border-[#C8A24A] hover:bg-[#0e4837] hover:scale-[1.02] hover:shadow-2xl hover:shadow-[#C8A24A]/10 transition-all duration-200 group flex flex-col justify-between"
+                className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/30 p-5 rounded-2xl cursor-pointer hover:border-[var(--brand-gold)] hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] hover:shadow-2xl hover:shadow-[var(--brand-gold)]/10 transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <div className="text-[10px] uppercase tracking-widest text-[#C8A24A] font-bold">
+                    <div className="text-[10px] uppercase tracking-widest text-[var(--brand-gold)] font-bold">
                       Active Products
                     </div>
-                    <Package className="w-4 h-4 text-[#C8A24A] opacity-70 group-hover:opacity-100 transition-opacity" />
+                    <Package className="w-4 h-4 text-[var(--brand-gold)] opacity-70 group-hover:opacity-100 transition-opacity" />
                   </div>
                   <div className="text-3xl font-bold font-mono text-white mt-1">{products.length}</div>
                 </div>
-                <div className="text-[10px] text-[#C8A24A] group-hover:underline font-bold mt-3 flex items-center justify-between">
+                <div className="text-[10px] text-[var(--brand-gold)] group-hover:underline font-bold mt-3 flex items-center justify-between">
                   <span>Across {categories.length} categories</span>
                   <span>→</span>
                 </div>
@@ -670,18 +675,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
 
               <div
                 onClick={() => setActiveTab('b2b')}
-                className="bg-[#0B3D2E] border border-[#C8A24A]/30 p-5 rounded-2xl cursor-pointer hover:border-[#C8A24A] hover:bg-[#0e4837] hover:scale-[1.02] hover:shadow-2xl hover:shadow-[#C8A24A]/10 transition-all duration-200 group flex flex-col justify-between"
+                className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/30 p-5 rounded-2xl cursor-pointer hover:border-[var(--brand-gold)] hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] hover:shadow-2xl hover:shadow-[var(--brand-gold)]/10 transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <div className="text-[10px] uppercase tracking-widest text-[#C8A24A] font-bold">
+                    <div className="text-[10px] uppercase tracking-widest text-[var(--brand-gold)] font-bold">
                       B2B Wholesale Enquiries
                     </div>
-                    <Building2 className="w-4 h-4 text-[#C8A24A] opacity-70 group-hover:opacity-100 transition-opacity" />
+                    <Building2 className="w-4 h-4 text-[var(--brand-gold)] opacity-70 group-hover:opacity-100 transition-opacity" />
                   </div>
                   <div className="text-3xl font-bold font-mono text-white mt-1">{b2bLeads.length}</div>
                 </div>
-                <div className="text-[10px] text-[#C8A24A] group-hover:underline font-bold mt-3 flex items-center justify-between">
+                <div className="text-[10px] text-[var(--brand-gold)] group-hover:underline font-bold mt-3 flex items-center justify-between">
                   <span>View Global Enquiries</span>
                   <span>→</span>
                 </div>
@@ -689,18 +694,18 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
 
               <div
                 onClick={() => setActiveTab('customers')}
-                className="bg-[#0B3D2E] border border-[#C8A24A]/30 p-5 rounded-2xl cursor-pointer hover:border-[#C8A24A] hover:bg-[#0e4837] hover:scale-[1.02] hover:shadow-2xl hover:shadow-[#C8A24A]/10 transition-all duration-200 group flex flex-col justify-between"
+                className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/30 p-5 rounded-2xl cursor-pointer hover:border-[var(--brand-gold)] hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] hover:shadow-2xl hover:shadow-[var(--brand-gold)]/10 transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <div className="text-[10px] uppercase tracking-widest text-[#C8A24A] font-bold">
+                    <div className="text-[10px] uppercase tracking-widest text-[var(--brand-gold)] font-bold">
                       Registered Customers
                     </div>
-                    <Users className="w-4 h-4 text-[#C8A24A] opacity-70 group-hover:opacity-100 transition-opacity" />
+                    <Users className="w-4 h-4 text-[var(--brand-gold)] opacity-70 group-hover:opacity-100 transition-opacity" />
                   </div>
                   <div className="text-3xl font-bold font-mono text-white mt-1">{customerAccounts.length}</div>
                 </div>
-                <div className="text-[10px] text-[#C8A24A] group-hover:underline font-bold mt-3 flex items-center justify-between">
+                <div className="text-[10px] text-[var(--brand-gold)] group-hover:underline font-bold mt-3 flex items-center justify-between">
                   <span>Customer Accounts</span>
                   <span>→</span>
                 </div>
@@ -708,7 +713,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             </div>
 
             {/* Recent Orders Overview */}
-            <div className="bg-[#0B3D2E] border border-white/10 p-6 rounded-2xl space-y-4">
+            <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-6 rounded-2xl space-y-4">
               <div className="flex items-center justify-between">
                 <div>
                   <h3 className="text-base font-bold font-serif-luxury text-slate-100">Recent Customer Orders</h3>
@@ -716,7 +721,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                 </div>
                 <button
                   onClick={() => setActiveTab('orders')}
-                  className="text-xs font-bold text-[#C8A24A] hover:underline"
+                  className="text-xs font-bold text-[var(--brand-gold)] hover:underline"
                 >
                   View All Orders →
                 </button>
@@ -729,7 +734,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs font-sans">
-                    <thead className="text-[10px] uppercase tracking-wider text-[#C8A24A] border-b border-white/10">
+                    <thead className="text-[10px] uppercase tracking-wider text-[var(--brand-gold)] border-b border-white/10">
                       <tr>
                         <th className="py-2.5 px-3">Order ID</th>
                         <th className="py-2.5 px-3">Date</th>
@@ -746,7 +751,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                           onClick={() => setSelectedOrder(o)}
                           className="cursor-pointer hover:bg-white/10 transition-colors group"
                         >
-                          <td className="py-3 px-3 font-mono font-bold text-[#C8A24A] group-hover:underline">{o.orderNumber}</td>
+                          <td className="py-3 px-3 font-mono font-bold text-[var(--brand-gold)] group-hover:underline">{o.orderNumber}</td>
                           <td className="py-3 px-3 text-slate-300 font-mono text-[11px]">{o.date}</td>
                           <td className="py-3 px-3">
                             <span className="font-bold text-white block">{o.customer.name}</span>
@@ -768,7 +773,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                                 e.stopPropagation();
                                 setSelectedOrder(o);
                               }}
-                              className="px-2.5 py-1 bg-[#C8A24A] text-[#0B3D2E] font-bold text-[10px] rounded-lg hover:bg-white transition-colors inline-flex items-center gap-1 shadow-sm"
+                              className="px-2.5 py-1 bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold text-[10px] rounded-lg hover:bg-white transition-colors inline-flex items-center gap-1 shadow-sm"
                             >
                               <Eye className="w-3 h-3" />
                               <span>View Details</span>
@@ -794,7 +799,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               </div>
               <button
                 onClick={() => setIsAddingProduct(!isAddingProduct)}
-                className="bg-[#C8A24A] text-[#0B3D2E] px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 hover:bg-white transition-all shadow-lg"
+                className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-4 py-2 rounded-xl text-xs font-bold uppercase tracking-wider flex items-center gap-2 hover:bg-white transition-all shadow-lg"
               >
                 <Plus className="w-4 h-4" />
                 <span>{isAddingProduct ? 'Cancel' : 'Add New Product'}</span>
@@ -802,8 +807,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             </div>
 
             {isAddingProduct && (
-              <form onSubmit={handleProductSubmit} className="bg-[#0B3D2E] border border-[#C8A24A]/40 p-6 rounded-2xl space-y-4">
-                <h3 className="text-sm font-bold text-[#C8A24A] uppercase tracking-wider">New Product Details</h3>
+              <form onSubmit={handleProductSubmit} className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/40 p-6 rounded-2xl space-y-4">
+                <h3 className="text-sm font-bold text-[var(--brand-gold)] uppercase tracking-wider">New Product Details</h3>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
                   <div>
                     <label className="block text-slate-300 font-bold mb-1">Product Title *</label>
@@ -813,7 +818,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                       value={prodForm.name}
                       onChange={(e) => setProdForm({ ...prodForm, name: e.target.value })}
                       placeholder="e.g. 42 Herbs Tribal Elixir Oil"
-                      className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
                     />
                   </div>
                   <div>
@@ -821,7 +826,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                     <select
                       value={prodForm.category}
                       onChange={(e) => setProdForm({ ...prodForm, category: e.target.value })}
-                      className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
                     >
                       {categories.map((c) => (
                         <option key={c.id} value={c.name}>{c.name}</option>
@@ -835,7 +840,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                       required
                       value={prodForm.priceINR}
                       onChange={(e) => setProdForm({ ...prodForm, priceINR: Number(e.target.value) })}
-                      className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
                     />
                   </div>
                   <div>
@@ -845,7 +850,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                       required
                       value={prodForm.stock}
                       onChange={(e) => setProdForm({ ...prodForm, stock: Number(e.target.value) })}
-                      className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
                     />
                   </div>
                   <div>
@@ -855,7 +860,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                       required
                       value={prodForm.sku}
                       onChange={(e) => setProdForm({ ...prodForm, sku: e.target.value })}
-                      className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
                     />
                   </div>
                   <div className="sm:col-span-2 pt-2">
@@ -874,7 +879,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                 </div>
                 <button
                   type="submit"
-                  className="bg-[#C8A24A] text-[#0B3D2E] px-6 py-2.5 rounded-xl font-bold text-xs uppercase hover:bg-white"
+                  className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-6 py-2.5 rounded-xl font-bold text-xs uppercase hover:bg-white"
                 >
                   Save Formulation
                 </button>
@@ -886,24 +891,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               {products.map((p) => {
                 const gallery = [p.image, ...(p.additionalImages || [])].filter(Boolean);
                 return (
-                  <div key={p.id} className="bg-[#0B3D2E] border border-white/10 rounded-2xl p-4 flex gap-4 relative">
+                  <div key={p.id} className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-4 flex gap-4 relative">
                     <div className="relative shrink-0">
                       <img src={p.image} alt={p.name} loading="lazy" className="w-20 h-20 object-contain rounded-xl bg-black/30 border border-white/10" />
                       {gallery.length > 1 && (
-                        <span className="absolute -bottom-1 -right-1 bg-[#C8A24A] text-[#0B3D2E] text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow border border-[#0B3D2E]">
+                        <span className="absolute -bottom-1 -right-1 bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow border border-[var(--brand-primary-dark)]">
                           {gallery.length} Photos
                         </span>
                       )}
                     </div>
                     <div className="flex-1 space-y-1">
                       <h4 className="text-sm font-bold text-slate-100 line-clamp-1">{p.name}</h4>
-                      <p className="text-[10px] text-[#C8A24A] uppercase font-semibold">{p.category}</p>
+                      <p className="text-[10px] text-[var(--brand-gold)] uppercase font-semibold">{p.category}</p>
                       <p className="text-xs font-mono font-bold">{formatPrice(p.priceINR)}</p>
                       <div className="text-[10px] text-slate-400">SKU: {p.sku} • Stock: {p.stock}</div>
                       <div className="flex items-center gap-3 pt-1">
                         <button
                           onClick={() => setEditingProduct(p)}
-                          className="text-[#C8A24A] hover:text-white text-[10px] font-bold flex items-center gap-1"
+                          className="text-[var(--brand-gold)] hover:text-white text-[10px] font-bold flex items-center gap-1"
                         >
                           <Edit2 className="w-3 h-3" />
                           <span>Edit Product / Gallery</span>
@@ -928,9 +933,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             {/* Edit Product Modal */}
             {editingProduct && (
               <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-                <div className="bg-[#0B3D2E] border border-[#C8A24A] rounded-2xl p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto space-y-4 text-xs">
+                <div className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)] rounded-2xl p-6 max-w-3xl w-full max-h-[90vh] overflow-y-auto space-y-4 text-xs">
                   <div className="flex items-center justify-between border-b border-white/10 pb-3">
-                    <h3 className="text-base font-bold text-[#C8A24A] uppercase">Edit Product & Gallery Images</h3>
+                    <h3 className="text-base font-bold text-[var(--brand-gold)] uppercase">Edit Product & Gallery Images</h3>
                     <button
                       onClick={() => setEditingProduct(null)}
                       className="text-slate-400 hover:text-white"
@@ -955,7 +960,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                         required
                         value={editingProduct.name}
                         onChange={(e) => setEditingProduct({ ...editingProduct, name: e.target.value })}
-                        className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                        className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
                       />
                     </div>
 
@@ -967,7 +972,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                           required
                           value={editingProduct.priceINR}
                           onChange={(e) => setEditingProduct({ ...editingProduct, priceINR: Number(e.target.value) })}
-                          className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                          className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
                         />
                       </div>
                       <div>
@@ -977,7 +982,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                           required
                           value={editingProduct.stock}
                           onChange={(e) => setEditingProduct({ ...editingProduct, stock: Number(e.target.value) })}
-                          className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                          className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
                         />
                       </div>
                     </div>
@@ -1010,7 +1015,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                       </button>
                       <button
                         type="submit"
-                        className="px-5 py-2 rounded-xl bg-[#C8A24A] text-[#0B3D2E] font-bold uppercase"
+                        className="px-5 py-2 rounded-xl bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold uppercase"
                       >
                         Save Changes
                       </button>
@@ -1030,9 +1035,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               <p className="text-xs text-slate-300">Update stock counts, SKUs, and availability status.</p>
             </div>
 
-            <div className="bg-[#0B3D2E] border border-white/10 rounded-2xl overflow-x-auto p-4">
+            <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl overflow-x-auto p-4">
               <table className="w-full text-left text-xs font-sans">
-                <thead className="text-[10px] uppercase text-[#C8A24A] border-b border-white/10">
+                <thead className="text-[10px] uppercase text-[var(--brand-gold)] border-b border-white/10">
                   <tr>
                     <th className="py-2 px-3">SKU</th>
                     <th className="py-2 px-3">Product Name</th>
@@ -1044,7 +1049,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                 <tbody className="divide-y divide-white/5">
                   {products.map((p) => (
                     <tr key={p.id}>
-                      <td className="py-3 px-3 font-mono text-[#C8A24A]">{p.sku}</td>
+                      <td className="py-3 px-3 font-mono text-[var(--brand-gold)]">{p.sku}</td>
                       <td className="py-3 px-3 font-bold">{p.name}</td>
                       <td className="py-3 px-3 font-mono">{p.stock}</td>
                       <td className="py-3 px-3">
@@ -1071,7 +1076,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                             updateProduct(p.id, { stock: p.stock + 50 });
                             showToast('Stock added');
                           }}
-                          className="bg-[#C8A24A] text-[#0B3D2E] hover:bg-white px-2 py-1 rounded text-[10px] font-bold"
+                          className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] hover:bg-white px-2 py-1 rounded text-[10px] font-bold"
                         >
                           +50
                         </button>
@@ -1102,14 +1107,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               <p className="text-xs text-slate-300">Edit top announcement text, background color, and active state.</p>
             </div>
 
-            <div className="bg-[#0B3D2E] border border-white/10 p-6 rounded-2xl space-y-4 font-sans text-xs">
+            <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-6 rounded-2xl space-y-4 font-sans text-xs">
               <div>
                 <label className="block font-bold text-slate-300 mb-1">Announcement Text *</label>
                 <input
                   type="text"
                   value={siteSettings.announcementText}
                   onChange={(e) => updateSiteSettings({ announcementText: e.target.value })}
-                  className="w-full bg-[#072a20] border border-white/20 p-3 rounded-xl text-slate-100"
+                  className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100"
                 />
               </div>
 
@@ -1120,7 +1125,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                     type="color"
                     value={siteSettings.announcementBgColor}
                     onChange={(e) => updateSiteSettings({ announcementBgColor: e.target.value })}
-                    className="w-full h-10 bg-[#072a20] border border-white/20 rounded-xl cursor-pointer p-1"
+                    className="w-full h-10 bg-[var(--brand-primary-deep)] border border-white/20 rounded-xl cursor-pointer p-1"
                   />
                 </div>
                 <div>
@@ -1129,7 +1134,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                     type="color"
                     value={siteSettings.announcementTextColor}
                     onChange={(e) => updateSiteSettings({ announcementTextColor: e.target.value })}
-                    className="w-full h-10 bg-[#072a20] border border-white/20 rounded-xl cursor-pointer p-1"
+                    className="w-full h-10 bg-[var(--brand-primary-deep)] border border-white/20 rounded-xl cursor-pointer p-1"
                   />
                 </div>
               </div>
@@ -1140,7 +1145,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                   id="ann-active"
                   checked={siteSettings.announcementActive}
                   onChange={(e) => updateSiteSettings({ announcementActive: e.target.checked })}
-                  className="w-4 h-4 accent-[#C8A24A]"
+                  className="w-4 h-4 accent-[var(--brand-gold)]"
                 />
                 <label htmlFor="ann-active" className="font-bold text-slate-200">
                   Show Announcement Bar on Header
@@ -1148,7 +1153,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               </div>
 
               <div className="pt-4 border-t border-white/10">
-                <p className="text-[10px] uppercase text-[#C8A24A] font-bold mb-2">Live Bar Preview:</p>
+                <p className="text-[10px] uppercase text-[var(--brand-gold)] font-bold mb-2">Live Bar Preview:</p>
                 <div
                   style={{
                     backgroundColor: siteSettings.announcementBgColor,
@@ -1169,6 +1174,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
         {/* Tab 7: Navigation Menu */}
         {activeTab === 'nav' && <AdminNavManager showToast={showToast} />}
 
+        {/* Reviews & Ratings Module */}
+        {activeTab === 'reviews' && <AdminReviewsManager showToast={showToast} />}
+
+        {/* Before & After Slider Module */}
+        {activeTab === 'before_after' && <AdminBeforeAfterManager showToast={showToast} />}
+
+        {/* Video Testimonials Module */}
+        {activeTab === 'videos' && <AdminVideoTestimonialsManager showToast={showToast} />}
+
+        {/* Journal & Articles Module */}
+        {activeTab === 'blogs' && <AdminBlogManager showToast={showToast} />}
+
+        {/* AI Quiz Questions Module */}
+        {activeTab === 'quiz' && <AdminQuizManager showToast={showToast} />}
+
         {/* Tab 8: Orders & Tracking */}
         {activeTab === 'orders' && (
           <div className="space-y-6 animate-in fade-in">
@@ -1184,10 +1204,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             ) : (
               <div className="space-y-4">
                 {orders.map((o) => (
-                  <div key={o.id} className="bg-[#0B3D2E] border border-white/10 p-5 rounded-2xl space-y-3 text-xs">
+                  <div key={o.id} className="bg-[var(--brand-primary-dark)] border border-white/10 p-5 rounded-2xl space-y-3 text-xs">
                     <div className="flex flex-wrap justify-between items-center gap-2 border-b border-white/10 pb-3">
                       <div>
-                        <span className="font-mono text-base font-bold text-[#C8A24A]">{o.orderNumber}</span>
+                        <span className="font-mono text-base font-bold text-[var(--brand-gold)]">{o.orderNumber}</span>
                         <span className="text-slate-400 ml-3">Date: {o.date}</span>
                       </div>
                       <div className="font-mono font-bold text-sm text-white">{formatPrice(o.totalAmountINR)}</div>
@@ -1195,10 +1215,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-slate-300">
                       <div>
-                        <span className="text-[#C8A24A] font-bold">Customer:</span> {o.customer.name} ({o.customer.email})
+                        <span className="text-[var(--brand-gold)] font-bold">Customer:</span> {o.customer.name} ({o.customer.email})
                       </div>
                       <div>
-                        <span className="text-[#C8A24A] font-bold">Shipping Address:</span> {o.customer.address}, {o.customer.city}, {o.customer.country}
+                        <span className="text-[var(--brand-gold)] font-bold">Shipping Address:</span> {o.customer.address}, {o.customer.city}, {o.customer.country}
                       </div>
                     </div>
 
@@ -1211,7 +1231,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                             updateOrderStatus(o.id, e.target.value as any);
                             showToast('Order status updated');
                           }}
-                          className="bg-[#072a20] border border-white/20 p-2 rounded-lg text-slate-100 text-xs font-bold"
+                          className="bg-[var(--brand-primary-deep)] border border-white/20 p-2 rounded-lg text-slate-100 text-xs font-bold"
                         >
                           <option value="ORDER_PLACED">ORDER_PLACED</option>
                           <option value="PROCESSING">PROCESSING</option>
@@ -1225,7 +1245,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
 
                       <button
                         onClick={() => setSelectedOrder(o)}
-                        className="px-3.5 py-1.5 bg-[#C8A24A] text-[#0B3D2E] font-bold text-xs rounded-xl hover:bg-white transition-colors inline-flex items-center gap-1.5 shadow-md"
+                        className="px-3.5 py-1.5 bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold text-xs rounded-xl hover:bg-white transition-colors inline-flex items-center gap-1.5 shadow-md"
                       >
                         <Eye className="w-3.5 h-3.5" />
                         <span>Manage Complete Order Details</span>
@@ -1253,9 +1273,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             ) : (
               <div className="space-y-4">
                 {b2bLeads.map((lead) => (
-                  <div key={lead.id} className="bg-[#0B3D2E] border border-white/10 p-5 rounded-2xl space-y-3 text-xs">
+                  <div key={lead.id} className="bg-[var(--brand-primary-dark)] border border-white/10 p-5 rounded-2xl space-y-3 text-xs">
                     <div className="flex justify-between items-center border-b border-white/10 pb-2">
-                      <h4 className="font-bold text-sm text-[#C8A24A]">{lead.companyName}</h4>
+                      <h4 className="font-bold text-sm text-[var(--brand-gold)]">{lead.companyName}</h4>
                       <span className="text-slate-400 font-mono text-[10px]">{lead.createdAt}</span>
                     </div>
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-300">
@@ -1263,7 +1283,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                       <div>Phone: {lead.phone} | Country: {lead.country}</div>
                       <div>Estimated Volume: {lead.estimatedVolume}</div>
                     </div>
-                    <p className="p-3 bg-[#072a20] rounded-xl text-slate-200 italic">{lead.message}</p>
+                    <p className="p-3 bg-[var(--brand-primary-deep)] rounded-xl text-slate-200 italic">{lead.message}</p>
                     <div className="flex items-center justify-between pt-2">
                       <select
                         value={lead.status}
@@ -1271,7 +1291,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                           updateB2BLeadStatus(lead.id, e.target.value as any);
                           showToast('Lead status updated');
                         }}
-                        className="bg-[#072a20] border border-white/20 p-2 rounded-lg text-slate-100 text-xs font-bold"
+                        className="bg-[var(--brand-primary-deep)] border border-white/20 p-2 rounded-lg text-slate-100 text-xs font-bold"
                       >
                         <option value="NEW">NEW</option>
                         <option value="CONTACTED">CONTACTED</option>
@@ -1312,7 +1332,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                   playSound('form_submit');
                   exportCustomerData();
                 }}
-                className="bg-[#C8A24A] text-[#0B3D2E] px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-2 hover:bg-white transition-all shadow-lg shrink-0"
+                className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-4 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider flex items-center gap-2 hover:bg-white transition-all shadow-lg shrink-0"
               >
                 <Download className="w-4 h-4" />
                 <span>Export All Customers (CSV)</span>
@@ -1320,15 +1340,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             </div>
 
             {/* Customer Search & Filter Bar */}
-            <div className="bg-[#0B3D2E] border border-white/10 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
+            <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-4 rounded-2xl flex flex-col sm:flex-row items-center justify-between gap-4 text-xs">
               <div className="relative w-full sm:w-80">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#C8A24A]" />
+                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--brand-gold)]" />
                 <input
                   type="text"
                   placeholder="Search name, email, phone, city..."
                   value={customerSearch}
                   onChange={(e) => setCustomerSearch(e.target.value)}
-                  className="w-full bg-[#072a20] border border-white/20 rounded-xl pl-9 pr-3 py-2 text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#C8A24A]"
+                  className="w-full bg-[var(--brand-primary-deep)] border border-white/20 rounded-xl pl-9 pr-3 py-2 text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[var(--brand-gold)]"
                 />
               </div>
 
@@ -1337,7 +1357,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                 <select
                   value={customerStatusFilter}
                   onChange={(e) => setCustomerStatusFilter(e.target.value as any)}
-                  className="bg-[#072a20] border border-white/20 rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-[#C8A24A]"
+                  className="bg-[var(--brand-primary-deep)] border border-white/20 rounded-xl px-3 py-2 text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
                 >
                   <option value="ALL">All Statuses ({customerAccounts.length})</option>
                   <option value="ACTIVE">Active Only</option>
@@ -1348,15 +1368,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
 
             {/* Customers Table / List */}
             {filteredCustomers.length === 0 ? (
-              <div className="bg-[#0B3D2E] border border-white/10 p-12 text-center rounded-2xl space-y-2">
+              <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-12 text-center rounded-2xl space-y-2">
                 <Users className="w-12 h-12 text-slate-500 mx-auto" />
                 <p className="text-slate-300 font-serif-luxury text-sm">No customers matched your filter query.</p>
               </div>
             ) : (
-              <div className="bg-[#0B3D2E] border border-white/10 rounded-2xl overflow-hidden shadow-xl">
+              <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl overflow-hidden shadow-xl">
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs text-slate-200">
-                    <thead className="bg-[#072a20] text-[#C8A24A] font-bold uppercase tracking-wider text-[10px] border-b border-white/10">
+                    <thead className="bg-[var(--brand-primary-deep)] text-[var(--brand-gold)] font-bold uppercase tracking-wider text-[10px] border-b border-white/10">
                       <tr>
                         <th className="p-4">Customer Details</th>
                         <th className="p-4">Contact Info</th>
@@ -1374,23 +1394,23 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                         const totalSpent = custOrders.reduce((sum, o) => sum + o.totalAmountINR, 0);
 
                         return (
-                          <tr key={cust.id} className="hover:bg-[#072a20]/60 transition-colors">
+                          <tr key={cust.id} className="hover:bg-[var(--brand-primary-deep)]/60 transition-colors">
                             <td className="p-4">
                               <div className="flex items-center gap-3">
                                 {cust.avatar ? (
                                   <img
                                     src={cust.avatar}
                                     alt={cust.name}
-                                    className="w-10 h-10 rounded-full object-cover border border-[#C8A24A]"
+                                    className="w-10 h-10 rounded-full object-cover border border-[var(--brand-gold)]"
                                   />
                                 ) : (
-                                  <div className="w-10 h-10 rounded-full bg-[#C8A24A] text-[#0B3D2E] font-bold flex items-center justify-center font-serif-luxury">
+                                  <div className="w-10 h-10 rounded-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold flex items-center justify-center font-serif-luxury">
                                     {cust.name[0]?.toUpperCase()}
                                   </div>
                                 )}
                                 <div>
                                   <span className="font-bold text-white text-sm block">{cust.name}</span>
-                                  <span className="text-[10px] font-mono text-[#C8A24A]">{cust.id}</span>
+                                  <span className="text-[10px] font-mono text-[var(--brand-gold)]">{cust.id}</span>
                                 </div>
                               </div>
                             </td>
@@ -1410,7 +1430,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                               >
                                 {cust.status || 'ACTIVE'}
                               </span>
-                              <div className="text-[10px] text-[#C8A24A] font-bold">
+                              <div className="text-[10px] text-[var(--brand-gold)] font-bold">
                                 {cust.loyaltyPoints || 100} Hakki-Points
                               </div>
                             </td>
@@ -1432,7 +1452,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                                     playSound('nav_click');
                                     setSelectedCustomerDossier(cust);
                                   }}
-                                  className="bg-[#C8A24A] text-[#0B3D2E] px-3 py-1.5 rounded-lg font-bold text-[11px] hover:bg-white transition-all shadow-sm"
+                                  className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-3 py-1.5 rounded-lg font-bold text-[11px] hover:bg-white transition-all shadow-sm"
                                 >
                                   Inspect Profile
                                 </button>
@@ -1477,7 +1497,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             {/* Customer Profile Dossier Inspection Modal */}
             {selectedCustomerDossier && (
               <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md">
-                <div className="relative w-full max-w-2xl bg-[#072a20] border border-[#C8A24A]/50 rounded-2xl shadow-2xl p-6 space-y-6 text-slate-100 max-h-[90vh] overflow-y-auto font-sans">
+                <div className="relative w-full max-w-2xl bg-[var(--brand-primary-deep)] border border-[var(--brand-gold)]/50 rounded-2xl shadow-2xl p-6 space-y-6 text-slate-100 max-h-[90vh] overflow-y-auto font-sans">
                   <button
                     onClick={() => setSelectedCustomerDossier(null)}
                     className="absolute top-4 right-4 text-slate-400 hover:text-white p-1"
@@ -1490,16 +1510,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                       <img
                         src={selectedCustomerDossier.avatar}
                         alt={selectedCustomerDossier.name}
-                        className="w-16 h-16 rounded-full object-cover border-2 border-[#C8A24A]"
+                        className="w-16 h-16 rounded-full object-cover border-2 border-[var(--brand-gold)]"
                       />
                     ) : (
-                      <div className="w-16 h-16 rounded-full bg-[#C8A24A] text-[#0B3D2E] font-bold text-2xl font-serif-luxury flex items-center justify-center">
+                      <div className="w-16 h-16 rounded-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold text-2xl font-serif-luxury flex items-center justify-center">
                         {selectedCustomerDossier.name[0]?.toUpperCase()}
                       </div>
                     )}
 
                     <div>
-                      <span className="text-[10px] font-bold uppercase tracking-wider text-[#C8A24A] block">
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-[var(--brand-gold)] block">
                         Customer Account Dossier
                       </span>
                       <h3 className="text-xl font-bold font-serif-luxury text-white">{selectedCustomerDossier.name}</h3>
@@ -1509,19 +1529,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
 
                   {/* Dossier Quick Stats Grid */}
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
-                    <div className="bg-[#0B3D2E] p-3 rounded-xl border border-white/10">
+                    <div className="bg-[var(--brand-primary-dark)] p-3 rounded-xl border border-white/10">
                       <span className="text-[10px] text-slate-400 uppercase font-bold block">Account Status</span>
-                      <span className="font-bold text-[#C8A24A]">{selectedCustomerDossier.status || 'ACTIVE'}</span>
+                      <span className="font-bold text-[var(--brand-gold)]">{selectedCustomerDossier.status || 'ACTIVE'}</span>
                     </div>
-                    <div className="bg-[#0B3D2E] p-3 rounded-xl border border-white/10">
+                    <div className="bg-[var(--brand-primary-dark)] p-3 rounded-xl border border-white/10">
                       <span className="text-[10px] text-slate-400 uppercase font-bold block">Joined Date</span>
                       <span className="font-bold text-white">{selectedCustomerDossier.createdAt || '2026'}</span>
                     </div>
-                    <div className="bg-[#0B3D2E] p-3 rounded-xl border border-white/10">
+                    <div className="bg-[var(--brand-primary-dark)] p-3 rounded-xl border border-white/10">
                       <span className="text-[10px] text-slate-400 uppercase font-bold block">Reward Points</span>
-                      <span className="font-bold text-[#C8A24A]">{selectedCustomerDossier.loyaltyPoints || 100} Points</span>
+                      <span className="font-bold text-[var(--brand-gold)]">{selectedCustomerDossier.loyaltyPoints || 100} Points</span>
                     </div>
-                    <div className="bg-[#0B3D2E] p-3 rounded-xl border border-white/10">
+                    <div className="bg-[var(--brand-primary-dark)] p-3 rounded-xl border border-white/10">
                       <span className="text-[10px] text-slate-400 uppercase font-bold block">Saved Addresses</span>
                       <span className="font-bold text-white">{selectedCustomerDossier.addresses?.length || 0}</span>
                     </div>
@@ -1529,16 +1549,16 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
 
                   {/* Saved Addresses */}
                   <div className="space-y-2 text-xs">
-                    <h4 className="font-bold text-[#C8A24A] uppercase tracking-wider text-[11px]">Saved Shipping Addresses</h4>
+                    <h4 className="font-bold text-[var(--brand-gold)] uppercase tracking-wider text-[11px]">Saved Shipping Addresses</h4>
                     {selectedCustomerDossier.addresses?.length === 0 ? (
                       <p className="text-slate-400">No saved addresses for this customer.</p>
                     ) : (
                       <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                         {selectedCustomerDossier.addresses.map((a) => (
-                          <div key={a.id} className="bg-[#0B3D2E] p-3 rounded-xl border border-white/10 text-[11px]">
+                          <div key={a.id} className="bg-[var(--brand-primary-dark)] p-3 rounded-xl border border-white/10 text-[11px]">
                             <div className="font-bold text-white">{a.title} ({a.name})</div>
                             <div className="text-slate-300">{a.line1}, {a.city}, {a.state} - {a.pincode}, {a.country}</div>
-                            <div className="text-[#C8A24A]">Phone: {a.phone}</div>
+                            <div className="text-[var(--brand-gold)]">Phone: {a.phone}</div>
                           </div>
                         ))}
                       </div>
@@ -1547,8 +1567,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
 
                   {/* Login Activity Logs */}
                   <div className="space-y-2 text-xs">
-                    <h4 className="font-bold text-[#C8A24A] uppercase tracking-wider text-[11px]">Login Activity Telemetry</h4>
-                    <div className="bg-[#0B3D2E] p-3 rounded-xl border border-white/10 space-y-2">
+                    <h4 className="font-bold text-[var(--brand-gold)] uppercase tracking-wider text-[11px]">Login Activity Telemetry</h4>
+                    <div className="bg-[var(--brand-primary-dark)] p-3 rounded-xl border border-white/10 space-y-2">
                       {(selectedCustomerDossier.loginHistory || [
                         {
                           id: 'log-def',
@@ -1562,7 +1582,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                             <span className="font-bold text-white block">{log.ipLocation}</span>
                             <span className="text-[10px] text-slate-400">{log.device}</span>
                           </div>
-                          <span className="text-[10px] text-[#C8A24A]">{log.timestamp}</span>
+                          <span className="text-[10px] text-[var(--brand-gold)]">{log.timestamp}</span>
                         </div>
                       ))}
                     </div>
@@ -1572,13 +1592,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                   <div className="flex items-center justify-between pt-2">
                     <button
                       onClick={() => exportCustomerData(selectedCustomerDossier.id)}
-                      className="bg-[#C8A24A] text-[#0B3D2E] px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-white"
+                      className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider hover:bg-white"
                     >
                       Export JSON Dossier
                     </button>
                     <button
                       onClick={() => setSelectedCustomerDossier(null)}
-                      className="bg-[#0B3D2E] text-slate-300 border border-white/20 px-4 py-2 rounded-xl font-bold text-xs"
+                      className="bg-[var(--brand-primary-dark)] text-slate-300 border border-white/20 px-4 py-2 rounded-xl font-bold text-xs"
                     >
                       Close Dossier
                     </button>
@@ -1599,7 +1619,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                   Shopify-style Original Media System. 100% exact original pixels stored without AI alteration, background removal, or recoloring.
                 </p>
               </div>
-              <label className="cursor-pointer bg-[#C8A24A] text-[#0B3D2E] px-4 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-white transition-all shadow-lg">
+              <label className="cursor-pointer bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-4 py-2.5 rounded-xl font-bold text-xs flex items-center justify-center gap-2 hover:bg-white transition-all shadow-lg">
                 <Upload className="w-4 h-4" />
                 <span>Upload Original Media File</span>
                 <input
@@ -1629,15 +1649,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             </div>
 
             {/* Upload Area Dropzone */}
-            <div className="bg-[#0B3D2E] border-2 border-dashed border-[#C8A24A]/40 rounded-2xl p-8 text-center space-y-3">
-              <div className="w-12 h-12 rounded-full bg-[#C8A24A]/10 text-[#C8A24A] flex items-center justify-center mx-auto">
+            <div className="bg-[var(--brand-primary-dark)] border-2 border-dashed border-[var(--brand-gold)]/40 rounded-2xl p-8 text-center space-y-3">
+              <div className="w-12 h-12 rounded-full bg-[var(--brand-gold)]/10 text-[var(--brand-gold)] flex items-center justify-center mx-auto">
                 <Image className="w-6 h-6" />
               </div>
               <h3 className="font-bold text-slate-100 text-sm">Upload High-Resolution Product Photos</h3>
               <p className="text-xs text-slate-300 max-w-md mx-auto">
                 Select JPEG, PNG, WebP or GIF photos. The exact uploaded image file will be stored separately and displayed across all store views without AI modification.
               </p>
-              <label className="inline-flex cursor-pointer bg-[#072a20] border border-white/20 text-slate-200 px-4 py-2 rounded-xl text-xs font-bold hover:border-[#C8A24A] transition-all">
+              <label className="inline-flex cursor-pointer bg-[var(--brand-primary-deep)] border border-white/20 text-slate-200 px-4 py-2 rounded-xl text-xs font-bold hover:border-[var(--brand-gold)] transition-all">
                 <span>Browse Local Files</span>
                 <input
                   type="file"
@@ -1668,14 +1688,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             {/* Media Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
               {mediaItems.map((m) => (
-                <div key={m.id} className="bg-[#0B3D2E] border border-white/10 rounded-xl overflow-hidden group hover:border-[#C8A24A] transition-all flex flex-col justify-between">
+                <div key={m.id} className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-xl overflow-hidden group hover:border-[var(--brand-gold)] transition-all flex flex-col justify-between">
                   <div className="h-36 bg-black/40 relative flex items-center justify-center p-2">
                     <img src={m.url} alt={m.title} className="max-h-full max-w-full object-contain" />
-                    <span className="absolute top-2 left-2 bg-black/60 text-[#C8A24A] text-[9px] font-mono px-1.5 py-0.5 rounded uppercase">
+                    <span className="absolute top-2 left-2 bg-black/60 text-[var(--brand-gold)] text-[9px] font-mono px-1.5 py-0.5 rounded uppercase">
                       Original
                     </span>
                   </div>
-                  <div className="p-3 space-y-2 bg-[#072a20]">
+                  <div className="p-3 space-y-2 bg-[var(--brand-primary-deep)]">
                     <p className="text-xs font-bold text-slate-200 truncate">{m.title}</p>
                     <div className="flex items-center gap-2">
                       <button
@@ -1683,7 +1703,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                           navigator.clipboard.writeText(m.url);
                           showToast('Image URL copied to clipboard');
                         }}
-                        className="flex-1 bg-white/10 hover:bg-[#C8A24A] hover:text-[#0B3D2E] text-slate-200 text-[10px] py-1 rounded font-bold transition-all"
+                        className="flex-1 bg-white/10 hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] text-slate-200 text-[10px] py-1 rounded font-bold transition-all"
                       >
                         Copy URL
                       </button>
@@ -1713,8 +1733,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               <p className="text-xs text-slate-300">Create promotional discount codes for global checkout.</p>
             </div>
 
-            <form onSubmit={handleCouponSubmit} className="bg-[#0B3D2E] border border-white/10 p-5 rounded-2xl space-y-3 text-xs">
-              <h3 className="font-bold text-[#C8A24A] uppercase">Create New Coupon</h3>
+            <form onSubmit={handleCouponSubmit} className="bg-[var(--brand-primary-dark)] border border-white/10 p-5 rounded-2xl space-y-3 text-xs">
+              <h3 className="font-bold text-[var(--brand-gold)] uppercase">Create New Coupon</h3>
               <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
                 <input
                   type="text"
@@ -1722,12 +1742,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                   placeholder="Coupon Code e.g. TRIBAL15"
                   value={couponCode}
                   onChange={(e) => setCouponCode(e.target.value)}
-                  className="bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                  className="bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
                 />
                 <select
                   value={couponType}
                   onChange={(e) => setCouponType(e.target.value as any)}
-                  className="bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100 font-bold"
+                  className="bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100 font-bold"
                 >
                   <option value="PERCENT">PERCENTAGE (%)</option>
                   <option value="FLAT">FLAT INR (₹)</option>
@@ -1738,7 +1758,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                   placeholder="Value e.g. 15 or 500"
                   value={couponVal}
                   onChange={(e) => setCouponVal(Number(e.target.value))}
-                  className="bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                  className="bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
                 />
                 <input
                   type="number"
@@ -1746,19 +1766,19 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                   placeholder="Min Order INR"
                   value={couponMinINR}
                   onChange={(e) => setCouponMinINR(Number(e.target.value))}
-                  className="bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                  className="bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
                 />
               </div>
-              <button type="submit" className="bg-[#C8A24A] text-[#0B3D2E] px-4 py-2 rounded-lg font-bold">
+              <button type="submit" className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-4 py-2 rounded-lg font-bold">
                 Add Coupon Code
               </button>
             </form>
 
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
               {coupons.map((c) => (
-                <div key={c.code} className="bg-[#0B3D2E] border border-white/10 p-4 rounded-xl flex items-center justify-between">
+                <div key={c.code} className="bg-[var(--brand-primary-dark)] border border-white/10 p-4 rounded-xl flex items-center justify-between">
                   <div>
-                    <h4 className="font-mono text-base font-bold text-[#C8A24A]">{c.code}</h4>
+                    <h4 className="font-mono text-base font-bold text-[var(--brand-gold)]">{c.code}</h4>
                     <p className="text-xs text-slate-300">
                       {c.discountType === 'PERCENT' ? `${c.value}% OFF` : `₹${c.value} FLAT OFF`}
                     </p>
@@ -1787,11 +1807,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               <p className="text-xs text-slate-300">Adjust exchange rates and enabled country targets.</p>
             </div>
 
-            <div className="bg-[#0B3D2E] border border-white/10 p-5 rounded-2xl space-y-4">
-              <h3 className="text-sm font-bold text-[#C8A24A] uppercase">Exchange Rates to Base INR (₹)</h3>
+            <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-5 rounded-2xl space-y-4">
+              <h3 className="text-sm font-bold text-[var(--brand-gold)] uppercase">Exchange Rates to Base INR (₹)</h3>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-sans">
                 {currencies.map((curr) => (
-                  <div key={curr.code} className="p-3 bg-[#072a20] rounded-xl flex items-center justify-between">
+                  <div key={curr.code} className="p-3 bg-[var(--brand-primary-deep)] rounded-xl flex items-center justify-between">
                     <div>
                       <span className="font-bold text-slate-100">{curr.flag} {curr.country}</span>
                       <p className="text-[10px] text-slate-400">{curr.code} ({curr.symbol})</p>
@@ -1803,7 +1823,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                         step="0.01"
                         value={curr.rateToINR}
                         onChange={(e) => updateCurrencyRate(curr.code, Number(e.target.value))}
-                        className="w-20 bg-[#0B3D2E] border border-white/20 p-1.5 rounded text-slate-100 font-mono text-xs"
+                        className="w-20 bg-[var(--brand-primary-dark)] border border-white/20 p-1.5 rounded text-slate-100 font-mono text-xs"
                       />
                       <span className="text-slate-400 text-[10px]">INR</span>
                     </div>
@@ -1822,14 +1842,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               <p className="text-xs text-slate-300">Configure Razorpay key IDs, Cash on Delivery rules, and International payment settings.</p>
             </div>
 
-            <div className="bg-[#0B3D2E] border border-white/10 p-6 rounded-2xl space-y-5 text-xs font-sans">
+            <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-6 rounded-2xl space-y-5 text-xs font-sans">
               <div>
                 <label className="block font-bold text-slate-300 mb-1">Razorpay Live API Key ID</label>
                 <input
                   type="text"
                   value={siteSettings.razorpayKeyId}
                   onChange={(e) => updateSiteSettings({ razorpayKeyId: e.target.value })}
-                  className="w-full bg-[#072a20] border border-white/20 p-3 rounded-xl text-slate-100 font-mono"
+                  className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100 font-mono"
                 />
               </div>
 
@@ -1839,7 +1859,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                   id="cod-enabled"
                   checked={siteSettings.codEnabled}
                   onChange={(e) => updateSiteSettings({ codEnabled: e.target.checked })}
-                  className="w-4 h-4 accent-[#C8A24A]"
+                  className="w-4 h-4 accent-[var(--brand-gold)]"
                 />
                 <label htmlFor="cod-enabled" className="font-bold text-slate-200">
                   Enable Cash on Delivery (COD) for Domestic India Orders
@@ -1857,14 +1877,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               <p className="text-xs text-slate-300">Set free shipping threshold and express courier delivery partners.</p>
             </div>
 
-            <div className="bg-[#0B3D2E] border border-white/10 p-6 rounded-2xl space-y-4 text-xs font-sans">
+            <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-6 rounded-2xl space-y-4 text-xs font-sans">
               <div>
                 <label className="block font-bold text-slate-300 mb-1">Free Express Shipping Threshold (INR)</label>
                 <input
                   type="number"
                   value={siteSettings.freeShippingThresholdINR}
                   onChange={(e) => updateSiteSettings({ freeShippingThresholdINR: Number(e.target.value) })}
-                  className="w-full bg-[#072a20] border border-white/20 p-3 rounded-xl text-slate-100 font-mono"
+                  className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100 font-mono"
                 />
               </div>
 
@@ -1874,7 +1894,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                   type="text"
                   value={siteSettings.expressCourierPartner}
                   onChange={(e) => updateSiteSettings({ expressCourierPartner: e.target.value })}
-                  className="w-full bg-[#072a20] border border-white/20 p-3 rounded-xl text-slate-100"
+                  className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100"
                 />
               </div>
             </div>
@@ -1889,14 +1909,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               <p className="text-xs text-slate-300">Update store name, tagline, and brand initials.</p>
             </div>
 
-            <div className="bg-[#0B3D2E] border border-white/10 p-6 rounded-2xl space-y-4 text-xs font-sans">
+            <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-6 rounded-2xl space-y-4 text-xs font-sans">
               <div>
                 <label className="block font-bold text-slate-300 mb-1">Brand Name *</label>
                 <input
                   type="text"
                   value={siteSettings.logoText}
                   onChange={(e) => updateSiteSettings({ logoText: e.target.value })}
-                  className="w-full bg-[#072a20] border border-white/20 p-3 rounded-xl text-slate-100 font-bold"
+                  className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100 font-bold"
                 />
               </div>
 
@@ -1906,7 +1926,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                   type="text"
                   value={siteSettings.logoSubtext}
                   onChange={(e) => updateSiteSettings({ logoSubtext: e.target.value })}
-                  className="w-full bg-[#072a20] border border-white/20 p-3 rounded-xl text-slate-100"
+                  className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100"
                 />
               </div>
 
@@ -1916,7 +1936,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                   type="text"
                   value={siteSettings.logoInitials}
                   onChange={(e) => updateSiteSettings({ logoInitials: e.target.value })}
-                  className="w-full bg-[#072a20] border border-white/20 p-3 rounded-xl text-slate-100 font-mono font-bold"
+                  className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100 font-mono font-bold"
                 />
               </div>
             </div>
@@ -1931,14 +1951,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               <p className="text-xs text-slate-300">Update official company address, phone, WhatsApp, and support email.</p>
             </div>
 
-            <div className="bg-[#0B3D2E] border border-white/10 p-6 rounded-2xl space-y-4 text-xs font-sans">
+            <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-6 rounded-2xl space-y-4 text-xs font-sans">
               <div>
                 <label className="block font-bold text-slate-300 mb-1">Company Legal Name</label>
                 <input
                   type="text"
                   value={siteSettings.companyName}
                   onChange={(e) => updateSiteSettings({ companyName: e.target.value })}
-                  className="w-full bg-[#072a20] border border-white/20 p-3 rounded-xl text-slate-100"
+                  className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100"
                 />
               </div>
 
@@ -1948,7 +1968,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                   type="text"
                   value={siteSettings.address}
                   onChange={(e) => updateSiteSettings({ address: e.target.value })}
-                  className="w-full bg-[#072a20] border border-white/20 p-3 rounded-xl text-slate-100"
+                  className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100"
                 />
               </div>
 
@@ -1959,7 +1979,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                     type="text"
                     value={siteSettings.phone}
                     onChange={(e) => updateSiteSettings({ phone: e.target.value })}
-                    className="w-full bg-[#072a20] border border-white/20 p-3 rounded-xl text-slate-100"
+                    className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100"
                   />
                 </div>
                 <div>
@@ -1968,7 +1988,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                     type="text"
                     value={siteSettings.whatsappNumber}
                     onChange={(e) => updateSiteSettings({ whatsappNumber: e.target.value })}
-                    className="w-full bg-[#072a20] border border-white/20 p-3 rounded-xl text-slate-100"
+                    className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100"
                   />
                 </div>
                 <div>
@@ -1977,7 +1997,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                     type="email"
                     value={siteSettings.email}
                     onChange={(e) => updateSiteSettings({ email: e.target.value })}
-                    className="w-full bg-[#072a20] border border-white/20 p-3 rounded-xl text-slate-100"
+                    className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100"
                   />
                 </div>
               </div>
@@ -1993,14 +2013,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               <p className="text-xs text-slate-300">Manage global search engine optimization settings.</p>
             </div>
 
-            <div className="bg-[#0B3D2E] border border-white/10 p-6 rounded-2xl space-y-4 text-xs font-sans">
+            <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-6 rounded-2xl space-y-4 text-xs font-sans">
               <div>
                 <label className="block font-bold text-slate-300 mb-1">Meta Title Tag</label>
                 <input
                   type="text"
                   value={siteSettings.seoTitle}
                   onChange={(e) => updateSiteSettings({ seoTitle: e.target.value })}
-                  className="w-full bg-[#072a20] border border-white/20 p-3 rounded-xl text-slate-100 font-bold"
+                  className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100 font-bold"
                 />
               </div>
 
@@ -2010,7 +2030,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                   rows={3}
                   value={siteSettings.seoDescription}
                   onChange={(e) => updateSiteSettings({ seoDescription: e.target.value })}
-                  className="w-full bg-[#072a20] border border-white/20 p-3 rounded-xl text-slate-100"
+                  className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100"
                 />
               </div>
 
@@ -2020,7 +2040,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                   type="text"
                   value={siteSettings.seoKeywords}
                   onChange={(e) => updateSiteSettings({ seoKeywords: e.target.value })}
-                  className="w-full bg-[#072a20] border border-white/20 p-3 rounded-xl text-slate-100"
+                  className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100"
                 />
               </div>
             </div>
@@ -2036,11 +2056,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             </div>
 
             {/* HAKKIVEDA Premium Website Sound System Control Panel */}
-            <div className="bg-[#0B3D2E] border border-[#C8A24A]/40 p-6 rounded-2xl space-y-6 text-xs max-w-2xl shadow-xl">
-              <div className="flex items-center justify-between border-b border-[#C8A24A]/20 pb-4">
+            <div className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/40 p-6 rounded-2xl space-y-6 text-xs max-w-2xl shadow-xl">
+              <div className="flex items-center justify-between border-b border-[var(--brand-gold)]/20 pb-4">
                 <div>
-                  <h3 className="text-sm font-bold text-[#C8A24A] uppercase flex items-center gap-2 tracking-wider">
-                    <Volume2 className="w-5 h-5 text-[#C8A24A]" />
+                  <h3 className="text-sm font-bold text-[var(--brand-gold)] uppercase flex items-center gap-2 tracking-wider">
+                    <Volume2 className="w-5 h-5 text-[var(--brand-gold)]" />
                     <span>HAKKIVEDA Luxury Sound System Engine</span>
                   </h3>
                   <p className="text-[11px] text-slate-300 mt-1">
@@ -2052,7 +2072,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                   className={`px-3.5 py-1.5 rounded-full font-bold text-xs flex items-center gap-2 transition-all ${
                     adminMutedSound
                       ? 'bg-rose-950 text-rose-300 border border-rose-500/50'
-                      : 'bg-[#C8A24A] text-[#0B3D2E]'
+                      : 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]'
                   }`}
                 >
                   {adminMutedSound ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
@@ -2061,12 +2081,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               </div>
 
               {/* Continuous Nature & Forest Music Ambient Panel */}
-              <div className="bg-[#072a20] border border-[#C8A24A]/30 p-5 rounded-2xl space-y-4">
+              <div className="bg-[var(--brand-primary-deep)] border border-[var(--brand-gold)]/30 p-5 rounded-2xl space-y-4">
                 <div className="flex items-center justify-between">
                   <div className="flex items-center gap-2.5">
-                    <Trees className="w-5 h-5 text-[#C8A24A]" />
+                    <Trees className="w-5 h-5 text-[var(--brand-gold)]" />
                     <div>
-                      <h4 className="font-bold text-sm text-[#C8A24A]">Continuous Nature Ambience (Forest, River, Ayurvedic Drone)</h4>
+                      <h4 className="font-bold text-sm text-[var(--brand-gold)]">Continuous Nature Ambience (Forest, River, Ayurvedic Drone)</h4>
                       <p className="text-[11px] text-slate-300">Continuous background audio loop synthesized with Web Audio API.</p>
                     </div>
                   </div>
@@ -2074,7 +2094,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                     onClick={() => toggleAmbient()}
                     className={`px-4 py-2 rounded-xl font-bold text-xs transition-all ${
                       ambientEnabled && !adminMutedSound
-                        ? 'bg-[#C8A24A] text-[#0B3D2E] shadow-lg'
+                        ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] shadow-lg'
                         : 'bg-black/40 border border-white/20 text-slate-400 hover:text-white'
                     }`}
                   >
@@ -2088,7 +2108,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                     <select
                       value={ambientPreset}
                       onChange={(e) => setAmbientPreset(e.target.value as any)}
-                      className="w-full bg-black/40 border border-white/20 p-2 rounded-xl text-slate-100 font-semibold focus:border-[#C8A24A] outline-none text-xs"
+                      className="w-full bg-black/40 border border-white/20 p-2 rounded-xl text-slate-100 font-semibold focus:border-[var(--brand-gold)] outline-none text-xs"
                     >
                       <option value="nilgiri_forest">🌲 Nilgiri Forest & Stream (Water + Drone + Birds)</option>
                       <option value="ayurvedic_garden">🍃 Ayurvedic Herbal Garden (Bamboo Wind + Drone)</option>
@@ -2099,7 +2119,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                   <div className="space-y-1.5">
                     <div className="flex justify-between items-center text-[11px] font-bold text-slate-200">
                       <span>Background Volume ({Math.round(ambientVolume * 100)}%)</span>
-                      <span className="text-[#C8A24A] font-mono">Default: 15%</span>
+                      <span className="text-[var(--brand-gold)] font-mono">Default: 15%</span>
                     </div>
                     <input
                       type="range"
@@ -2108,7 +2128,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                       step="0.01"
                       value={ambientVolume}
                       onChange={(e) => setAmbientVolume(parseFloat(e.target.value))}
-                      className="w-full accent-[#C8A24A] bg-black/40 h-2 rounded-lg cursor-pointer"
+                      className="w-full accent-[var(--brand-gold)] bg-black/40 h-2 rounded-lg cursor-pointer"
                     />
                   </div>
                 </div>
@@ -2116,7 +2136,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
 
               {/* Instant Sound Tester Grid */}
               <div className="pt-2">
-                <h4 className="text-[11px] font-bold text-[#C8A24A] uppercase tracking-wider mb-3">
+                <h4 className="text-[11px] font-bold text-[var(--brand-gold)] uppercase tracking-wider mb-3">
                   Test Audio Triggers (12 Event Types)
                 </h4>
                 <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2">
@@ -2136,7 +2156,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                     <button
                       key={s.id}
                       onClick={() => playSound(s.id as any)}
-                      className="bg-[#072a20] hover:bg-[#C8A24A] hover:text-[#0B3D2E] text-slate-200 border border-white/10 p-2 rounded-lg text-[10px] font-semibold text-left transition-all active:scale-95 flex items-center justify-between"
+                      className="bg-[var(--brand-primary-deep)] hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] text-slate-200 border border-white/10 p-2 rounded-lg text-[10px] font-semibold text-left transition-all active:scale-95 flex items-center justify-between"
                     >
                       <span className="truncate">{s.label}</span>
                       <Volume2 className="w-3 h-3 shrink-0 opacity-70" />
@@ -2147,14 +2167,14 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             </div>
 
             {/* Change Admin Password */}
-            <form onSubmit={handlePasswordChange} className="bg-[#0B3D2E] border border-[#C8A24A]/30 p-6 rounded-2xl space-y-4 text-xs max-w-lg">
-              <h3 className="text-sm font-bold text-[#C8A24A] uppercase flex items-center gap-2">
+            <form onSubmit={handlePasswordChange} className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/30 p-6 rounded-2xl space-y-4 text-xs max-w-lg">
+              <h3 className="text-sm font-bold text-[var(--brand-gold)] uppercase flex items-center gap-2">
                 <Key className="w-4 h-4" />
                 <span>Update Master Admin Password</span>
               </h3>
 
               {passMsg && (
-                <div className="p-3 bg-[#072a20] border border-[#C8A24A]/40 text-[#C8A24A] font-bold rounded-lg">
+                <div className="p-3 bg-[var(--brand-primary-deep)] border border-[var(--brand-gold)]/40 text-[var(--brand-gold)] font-bold rounded-lg">
                   {passMsg}
                 </div>
               )}
@@ -2166,7 +2186,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                   required
                   value={oldPass}
                   onChange={(e) => setOldPass(e.target.value)}
-                  className="w-full bg-[#072a20] border border-white/20 p-3 rounded-xl text-slate-100"
+                  className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100"
                 />
               </div>
 
@@ -2177,13 +2197,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                   required
                   value={newPass}
                   onChange={(e) => setNewPass(e.target.value)}
-                  className="w-full bg-[#072a20] border border-white/20 p-3 rounded-xl text-slate-100"
+                  className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100"
                 />
               </div>
 
               <button
                 type="submit"
-                className="bg-[#C8A24A] text-[#0B3D2E] px-6 py-3 rounded-xl font-bold uppercase tracking-wider hover:bg-white transition-all shadow-lg"
+                className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-6 py-3 rounded-xl font-bold uppercase tracking-wider hover:bg-white transition-all shadow-lg"
               >
                 Hash & Update Password
               </button>

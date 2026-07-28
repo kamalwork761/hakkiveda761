@@ -43,6 +43,7 @@ import {
   INITIAL_COUNTRIES,
 } from '../data/initialData';
 import { hashPassword, DEFAULT_ADMIN_EMAIL, DEFAULT_ADMIN_PASSWORD_PLAIN } from '../utils/auth';
+import { idbGet, idbSet, idbClear } from '../utils/idbStorage';
 import { CountryItem, DEFAULT_COUNTRY } from '../data/countriesData';
 
 import { soundManager } from '../utils/soundManager';
@@ -212,6 +213,7 @@ interface StoreContextType {
   addBlog: (blog: Omit<BlogArticle, 'id'>) => void;
   updateBlog: (id: string, blog: Partial<BlogArticle>) => void;
   deleteBlog: (id: string) => void;
+  setAllBlogs: (blogs: BlogArticle[]) => void;
 
   addCoupon: (coupon: Coupon) => void;
   deleteCoupon: (code: string) => void;
@@ -219,18 +221,22 @@ interface StoreContextType {
   addReview: (review: Omit<Review, 'id' | 'date'>) => void;
   updateReview: (id: string, partial: Partial<Review>) => void;
   deleteReview: (id: string) => void;
+  setAllReviews: (reviews: Review[]) => void;
 
   addBeforeAfterItem: (item: Omit<BeforeAfterItem, 'id'>) => void;
   updateBeforeAfterItem: (id: string, partial: Partial<BeforeAfterItem>) => void;
   deleteBeforeAfterItem: (id: string) => void;
+  setAllBeforeAfterItems: (items: BeforeAfterItem[]) => void;
 
   addTestimonialVideo: (video: Omit<TestimonialVideo, 'id'>) => void;
   updateTestimonialVideo: (id: string, partial: Partial<TestimonialVideo>) => void;
   deleteTestimonialVideo: (id: string) => void;
+  setAllTestimonialVideos: (videos: TestimonialVideo[]) => void;
 
   addQuizQuestion: (q: Omit<QuizQuestion, 'id'>) => void;
   updateQuizQuestion: (id: string, partial: Partial<QuizQuestion>) => void;
   deleteQuizQuestion: (id: string) => void;
+  setAllQuizQuestions: (questions: QuizQuestion[]) => void;
 
   addMediaItem: (item: Omit<MediaItem, 'id' | 'uploadedAt'>) => void;
   deleteMediaItem: (id: string) => void;
@@ -252,10 +258,19 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const setStored = <T,>(key: string, value: T) => {
+    const fullKey = `hakkiveda_${key}`;
+    // Always persist to IndexedDB asynchronously (handles large assets & base64 images without quota limits)
+    idbSet(fullKey, value).catch(() => {});
+
     try {
-      localStorage.setItem(`hakkiveda_${key}`, JSON.stringify(value));
+      localStorage.setItem(fullKey, JSON.stringify(value));
     } catch (e) {
-      console.error('Storage set failed', e);
+      // If localStorage quota is exceeded (common for large base64 hero slides or media items),
+      // IndexedDB has already saved the complete data safely.
+      // Remove any partial or stale item from localStorage so other small keys continue working smoothly.
+      try {
+        localStorage.removeItem(fullKey);
+      } catch (_) {}
     }
   };
 
@@ -338,7 +353,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       hashPassword(DEFAULT_ADMIN_PASSWORD_PLAIN).then((hash) => {
         const initAccount = { email: DEFAULT_ADMIN_EMAIL, passwordHash: hash };
         setAdminAccount(initAccount);
-        localStorage.setItem('hakkiveda_admin_credentials', JSON.stringify(initAccount));
+        try {
+          localStorage.setItem('hakkiveda_admin_credentials', JSON.stringify(initAccount));
+        } catch (_) {}
       });
     }
   }, [adminAccount.passwordHash]);
@@ -372,7 +389,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     const newHash = await hashPassword(newPassword);
     const updated = { ...adminAccount, passwordHash: newHash };
     setAdminAccount(updated);
-    localStorage.setItem('hakkiveda_admin_credentials', JSON.stringify(updated));
+    try {
+      localStorage.setItem('hakkiveda_admin_credentials', JSON.stringify(updated));
+    } catch (_) {}
     return { success: true, message: 'Admin password updated securely.' };
   };
 
@@ -527,7 +546,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const selectCountry = (country: CountryItem) => {
     soundManager.play('country_select');
     setSelectedCountry(country);
-    localStorage.setItem('hakkiveda_selected_country', JSON.stringify(country));
+    try {
+      localStorage.setItem('hakkiveda_selected_country', JSON.stringify(country));
+    } catch (_) {}
     setCurrencyByCode(country.currencyCode);
   };
 
@@ -614,6 +635,32 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(() => getStored('applied_coupon', null));
   const [wishlist, setWishlist] = useState<Product[]>(() => getStored('wishlist', []));
   const [currentUser, setCurrentUser] = useState<User | null>(() => getStored('current_user', null));
+
+  // Asynchronously hydrate state from IndexedDB if available (for large payloads like base64 images that exceed localStorage quota)
+  useEffect(() => {
+    const keysToHydrate: Array<{ key: string; setter: (val: any) => void }> = [
+      { key: 'hero_slides', setter: setHeroSlides },
+      { key: 'media_items', setter: setMediaItems },
+      { key: 'products', setter: setProducts },
+      { key: 'blogs', setter: setBlogs },
+      { key: 'site_settings', setter: setSiteSettings },
+      { key: 'nav_links', setter: setNavLinks },
+      { key: 'reviews', setter: setReviews },
+      { key: 'before_after', setter: setBeforeAfterItems },
+      { key: 'quiz_questions', setter: setQuizQuestions },
+      { key: 'testimonial_videos', setter: setTestimonialVideos },
+      { key: 'orders', setter: setOrders },
+      { key: 'b2b_leads', setter: setB2BLeads },
+    ];
+
+    keysToHydrate.forEach(({ key, setter }) => {
+      idbGet(`hakkiveda_${key}`).then((storedVal) => {
+        if (storedVal !== null && storedVal !== undefined) {
+          setter(storedVal);
+        }
+      }).catch(() => {});
+    });
+  }, []);
 
   // Modals
   const [isCartOpen, setIsCartOpen] = useState(false);
@@ -1227,6 +1274,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   };
 
+  const setAllBlogs = (nextBlogs: BlogArticle[]) => {
+    setBlogs(nextBlogs);
+    setStored('blogs', nextBlogs);
+  };
+
   // CRUD Coupons
   const addCoupon = (coupon: Coupon) => {
     setCoupons((prev) => {
@@ -1274,6 +1326,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   };
 
+  const setAllReviews = (nextReviews: Review[]) => {
+    setReviews(nextReviews);
+    setStored('reviews', nextReviews);
+  };
+
   // CRUD Before & After
   const addBeforeAfterItem = (item: Omit<BeforeAfterItem, 'id'>) => {
     const newItem: BeforeAfterItem = { ...item, id: `ba-${Date.now()}` };
@@ -1298,6 +1355,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setStored('before_after', next);
       return next;
     });
+  };
+
+  const setAllBeforeAfterItems = (nextItems: BeforeAfterItem[]) => {
+    setBeforeAfterItems(nextItems);
+    setStored('before_after', nextItems);
   };
 
   // CRUD Testimonial Videos
@@ -1326,6 +1388,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   };
 
+  const setAllTestimonialVideos = (nextVideos: TestimonialVideo[]) => {
+    setTestimonialVideos(nextVideos);
+    setStored('testimonial_videos', nextVideos);
+  };
+
   // CRUD Quiz Questions
   const addQuizQuestion = (q: Omit<QuizQuestion, 'id'>) => {
     const newQ: QuizQuestion = { ...q, id: `qq-${Date.now()}` };
@@ -1350,6 +1417,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setStored('quiz_questions', next);
       return next;
     });
+  };
+
+  const setAllQuizQuestions = (nextQuestions: QuizQuestion[]) => {
+    setQuizQuestions(nextQuestions);
+    setStored('quiz_questions', nextQuestions);
   };
 
   // CRUD Media Items
@@ -1377,6 +1449,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const resetToDefaults = () => {
     localStorage.clear();
     sessionStorage.clear();
+    idbClear().catch(() => {});
     setCurrencies(INITIAL_CURRENCIES);
     setCurrentCurrency(INITIAL_CURRENCIES[0]);
     setProducts(INITIAL_PRODUCTS);
@@ -1535,20 +1608,25 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         addBlog,
         updateBlog,
         deleteBlog,
+        setAllBlogs,
         addCoupon,
         deleteCoupon,
         addReview,
         updateReview,
         deleteReview,
+        setAllReviews,
         addBeforeAfterItem,
         updateBeforeAfterItem,
         deleteBeforeAfterItem,
+        setAllBeforeAfterItems,
         addTestimonialVideo,
         updateTestimonialVideo,
         deleteTestimonialVideo,
+        setAllTestimonialVideos,
         addQuizQuestion,
         updateQuizQuestion,
         deleteQuizQuestion,
+        setAllQuizQuestions,
         addMediaItem,
         deleteMediaItem,
         resetToDefaults,

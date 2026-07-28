@@ -374,10 +374,10 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
   // Render Badge component helper
   const renderBadgeTag = (badge?: NavLink['badge'], customText?: string) => {
     if (!badge || badge === 'NONE') return null;
-    let bg = 'bg-[#C8A24A] text-[#0B3D2E]';
+    let bg = 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]';
     let text = badge;
     if (badge === 'HOT') bg = 'bg-rose-500 text-white animate-pulse';
-    if (badge === 'NEW') bg = 'bg-[#C8A24A] text-[#0B3D2E]';
+    if (badge === 'NEW') bg = 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]';
     if (badge === 'SALE') bg = 'bg-emerald-500 text-white';
     if (badge === 'B2B') bg = 'bg-amber-500 text-slate-950 font-bold';
     if (badge === 'CUSTOM' && customText) text = customText as any;
@@ -400,10 +400,10 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
   return (
     <div className="space-y-6 animate-in fade-in">
       {/* Header Bar */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[#0B3D2E] p-6 rounded-2xl border border-white/10 shadow-2xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 bg-[var(--brand-primary-dark)] p-6 rounded-2xl border border-white/10 shadow-2xl">
         <div>
           <div className="flex items-center gap-2">
-            <FolderTree className="w-6 h-6 text-[#C8A24A]" />
+            <FolderTree className="w-6 h-6 text-[var(--brand-gold)]" />
             <h1 className="text-2xl font-bold font-serif-luxury text-slate-100">
               Navigation Menu Manager
             </h1>
@@ -416,7 +416,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
         <div className="flex items-center gap-2">
           <button
             onClick={() => openEditModal()}
-            className="flex items-center gap-2 bg-[#C8A24A] text-[#0B3D2E] font-bold px-4 py-2 rounded-xl text-xs hover:bg-[#d8b25a] transition-all shadow-lg active:scale-95"
+            className="flex items-center gap-2 bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold px-4 py-2 rounded-xl text-xs hover:bg-[#d8b25a] transition-all shadow-lg active:scale-95"
           >
             <Plus className="w-4 h-4" />
             <span>Add Menu Item</span>
@@ -430,8 +430,8 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
           onClick={() => setActiveTab('items')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
             activeTab === 'items'
-              ? 'bg-[#C8A24A] text-[#0B3D2E] shadow-lg'
-              : 'bg-[#072a20] text-slate-300 hover:text-white border border-white/5'
+              ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] shadow-lg'
+              : 'bg-[var(--brand-primary-deep)] text-slate-300 hover:text-white border border-white/5'
           }`}
         >
           <Layers className="w-4 h-4" />
@@ -442,8 +442,8 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
           onClick={() => setActiveTab('layout')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
             activeTab === 'layout'
-              ? 'bg-[#C8A24A] text-[#0B3D2E] shadow-lg'
-              : 'bg-[#072a20] text-slate-300 hover:text-white border border-white/5'
+              ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] shadow-lg'
+              : 'bg-[var(--brand-primary-deep)] text-slate-300 hover:text-white border border-white/5'
           }`}
         >
           <Layout className="w-4 h-4" />
@@ -454,8 +454,8 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
           onClick={() => setActiveTab('preview')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
             activeTab === 'preview'
-              ? 'bg-[#C8A24A] text-[#0B3D2E] shadow-lg'
-              : 'bg-[#072a20] text-slate-300 hover:text-white border border-white/5'
+              ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] shadow-lg'
+              : 'bg-[var(--brand-primary-deep)] text-slate-300 hover:text-white border border-white/5'
           }`}
         >
           <Eye className="w-4 h-4" />
@@ -466,8 +466,8 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
           onClick={() => setActiveTab('analytics')}
           className={`flex items-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all ${
             activeTab === 'analytics'
-              ? 'bg-[#C8A24A] text-[#0B3D2E] shadow-lg'
-              : 'bg-[#072a20] text-slate-300 hover:text-white border border-white/5'
+              ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] shadow-lg'
+              : 'bg-[var(--brand-primary-deep)] text-slate-300 hover:text-white border border-white/5'
           }`}
         >
           <BarChart2 className="w-4 h-4" />
@@ -479,7 +479,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
       {activeTab === 'items' && (
         <div className="space-y-4">
           {/* Search & Filter Toolbar */}
-          <div className="bg-[#0B3D2E] p-4 rounded-xl border border-white/10 flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
+          <div className="bg-[var(--brand-primary-dark)] p-4 rounded-xl border border-white/10 flex flex-col md:flex-row items-center justify-between gap-3 text-xs">
             <div className="relative w-full md:w-72">
               <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
               <input
@@ -487,7 +487,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                 placeholder="Search menu label or link..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-[#072a20] border border-white/15 rounded-lg pl-9 pr-3 py-1.5 text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#C8A24A]"
+                className="w-full bg-[var(--brand-primary-deep)] border border-white/15 rounded-lg pl-9 pr-3 py-1.5 text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[var(--brand-gold)]"
               />
             </div>
 
@@ -496,7 +496,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
               <select
                 value={filterStatus}
                 onChange={(e) => setFilterStatus(e.target.value)}
-                className="bg-[#072a20] border border-white/15 rounded-lg px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-[#C8A24A]"
+                className="bg-[var(--brand-primary-deep)] border border-white/15 rounded-lg px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-[var(--brand-gold)]"
               >
                 <option value="ALL">Status: All</option>
                 <option value="ACTIVE">Status: Active</option>
@@ -509,7 +509,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
               <select
                 value={filterBadge}
                 onChange={(e) => setFilterBadge(e.target.value)}
-                className="bg-[#072a20] border border-white/15 rounded-lg px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-[#C8A24A]"
+                className="bg-[var(--brand-primary-deep)] border border-white/15 rounded-lg px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-[var(--brand-gold)]"
               >
                 <option value="ALL">Badge: All</option>
                 <option value="HOT">Badge: HOT</option>
@@ -523,7 +523,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
               <select
                 value={filterLinkType}
                 onChange={(e) => setFilterLinkType(e.target.value)}
-                className="bg-[#072a20] border border-white/15 rounded-lg px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-[#C8A24A]"
+                className="bg-[var(--brand-primary-deep)] border border-white/15 rounded-lg px-2.5 py-1.5 text-slate-200 focus:outline-none focus:border-[var(--brand-gold)]"
               >
                 <option value="ALL">Type: All</option>
                 <option value="HOMEPAGE">Type: Homepage</option>
@@ -539,7 +539,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
           </div>
 
           {/* Menu Items Tree List */}
-          <div className="bg-[#0B3D2E] border border-white/10 rounded-2xl p-4 space-y-3 shadow-xl">
+          <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-4 space-y-3 shadow-xl">
             {rootNavItems.length === 0 ? (
               <div className="text-center py-12 text-slate-400 space-y-2">
                 <FolderTree className="w-10 h-10 mx-auto text-slate-500 opacity-50" />
@@ -557,8 +557,8 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                     <div
                       className={`flex flex-col sm:flex-row sm:items-center justify-between p-3.5 rounded-xl border transition-all ${
                         isEnabled
-                          ? 'bg-[#072a20] border-white/10 hover:border-[#C8A24A]/40'
-                          : 'bg-[#041a13]/60 border-white/5 opacity-60'
+                          ? 'bg-[var(--brand-primary-deep)] border-white/10 hover:border-[var(--brand-gold)]/40'
+                          : 'bg-[var(--brand-primary-deeper)]/60 border-white/5 opacity-60'
                       }`}
                     >
                       <div className="flex items-center gap-3">
@@ -567,7 +567,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                           <button
                             onClick={() => handleMove(index, 'UP')}
                             disabled={index === 0}
-                            className="p-1 rounded bg-black/30 hover:bg-[#C8A24A]/20 text-slate-300 disabled:opacity-20 text-[10px]"
+                            className="p-1 rounded bg-black/30 hover:bg-[var(--brand-gold)]/20 text-slate-300 disabled:opacity-20 text-[10px]"
                             title="Move Up"
                           >
                             <ArrowUp className="w-3 h-3" />
@@ -575,7 +575,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                           <button
                             onClick={() => handleMove(index, 'DOWN')}
                             disabled={index === rootNavItems.length - 1}
-                            className="p-1 rounded bg-black/30 hover:bg-[#C8A24A]/20 text-slate-300 disabled:opacity-20 text-[10px]"
+                            className="p-1 rounded bg-black/30 hover:bg-[var(--brand-gold)]/20 text-slate-300 disabled:opacity-20 text-[10px]"
                             title="Move Down"
                           >
                             <ArrowDown className="w-3 h-3" />
@@ -584,7 +584,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
 
                         {/* Icon & Label */}
                         <div className="flex items-center gap-2.5">
-                          <div className="w-8 h-8 rounded-lg bg-[#0B3D2E] border border-[#C8A24A]/30 flex items-center justify-center text-[#C8A24A]">
+                          <div className="w-8 h-8 rounded-lg bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/30 flex items-center justify-center text-[var(--brand-gold)]">
                             {renderIcon(item.icon)}
                           </div>
 
@@ -593,7 +593,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                               <span className="font-bold text-slate-100 text-sm">{item.label}</span>
                               {renderBadgeTag(item.badge, item.badgeCustomText)}
                               {item.megaMenu?.enabled && (
-                                <span className="text-[9px] bg-[#C8A24A]/20 text-[#C8A24A] border border-[#C8A24A]/40 px-1.5 py-0.5 rounded font-bold uppercase">
+                                <span className="text-[9px] bg-[var(--brand-gold)]/20 text-[var(--brand-gold)] border border-[var(--brand-gold)]/40 px-1.5 py-0.5 rounded font-bold uppercase">
                                   Mega Menu
                                 </span>
                               )}
@@ -611,7 +611,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                                 {item.linkType || 'LINK'}
                               </span>
                               {childItems.length > 0 && (
-                                <span className="text-[#C8A24A] text-[10px] font-bold">
+                                <span className="text-[var(--brand-gold)] text-[10px] font-bold">
                                   ({childItems.length} sub-links)
                                 </span>
                               )}
@@ -640,10 +640,10 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                         {/* Edit */}
                         <button
                           onClick={() => openEditModal(item)}
-                          className="p-1.5 rounded-lg bg-[#0B3D2E] hover:bg-[#C8A24A]/20 text-slate-200 border border-white/10 hover:border-[#C8A24A]/40 transition-colors"
+                          className="p-1.5 rounded-lg bg-[var(--brand-primary-dark)] hover:bg-[var(--brand-gold)]/20 text-slate-200 border border-white/10 hover:border-[var(--brand-gold)]/40 transition-colors"
                           title="Edit Menu Item"
                         >
-                          <Edit3 className="w-3.5 h-3.5 text-[#C8A24A]" />
+                          <Edit3 className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
                         </button>
 
                         {/* Duplicate */}
@@ -652,7 +652,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                             duplicateNavLink(item.id);
                             showToast(`Duplicated ${item.label}`);
                           }}
-                          className="p-1.5 rounded-lg bg-[#0B3D2E] hover:bg-[#C8A24A]/20 text-slate-200 border border-white/10 hover:border-[#C8A24A]/40 transition-colors"
+                          className="p-1.5 rounded-lg bg-[var(--brand-primary-dark)] hover:bg-[var(--brand-gold)]/20 text-slate-200 border border-white/10 hover:border-[var(--brand-gold)]/40 transition-colors"
                           title="Duplicate Item"
                         >
                           <Copy className="w-3.5 h-3.5 text-slate-300" />
@@ -676,14 +676,14 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
 
                     {/* Child Menu Sub-Items Tree */}
                     {childItems.length > 0 && (
-                      <div className="ml-8 pl-4 border-l-2 border-[#C8A24A]/30 space-y-2 pt-1">
+                      <div className="ml-8 pl-4 border-l-2 border-[var(--brand-gold)]/30 space-y-2 pt-1">
                         {childItems.map((child) => (
                           <div
                             key={child.id}
-                            className="flex items-center justify-between p-2.5 bg-[#041a13] rounded-lg border border-white/5 text-xs hover:border-white/15"
+                            className="flex items-center justify-between p-2.5 bg-[var(--brand-primary-deeper)] rounded-lg border border-white/5 text-xs hover:border-white/15"
                           >
                             <div className="flex items-center gap-2">
-                              <ChevronRight className="w-3.5 h-3.5 text-[#C8A24A]" />
+                              <ChevronRight className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
                               <span className="font-semibold text-slate-200">{child.label}</span>
                               {renderBadgeTag(child.badge, child.badgeCustomText)}
                               <span className="text-slate-400 font-mono text-[11px] ml-2">{child.url}</span>
@@ -692,7 +692,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                             <div className="flex items-center gap-2">
                               <button
                                 onClick={() => openEditModal(child)}
-                                className="p-1 text-slate-300 hover:text-[#C8A24A]"
+                                className="p-1 text-slate-300 hover:text-[var(--brand-gold)]"
                                 title="Edit Child Item"
                               >
                                 <Edit3 className="w-3.5 h-3.5" />
@@ -722,10 +722,10 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
 
       {/* TAB 2: HEADER LAYOUT & STYLES MANAGER */}
       {activeTab === 'layout' && (
-        <div className="bg-[#0B3D2E] border border-white/10 p-6 rounded-2xl space-y-6 shadow-xl">
+        <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-6 rounded-2xl space-y-6 shadow-xl">
           <div>
             <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
-              <Layout className="w-5 h-5 text-[#C8A24A]" />
+              <Layout className="w-5 h-5 text-[var(--brand-gold)]" />
               Header Elements & Interactive Hover Styles
             </h2>
             <p className="text-xs text-slate-300 mt-1">
@@ -735,10 +735,10 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Element Visibility Toggles */}
-            <div className="bg-[#072a20] p-5 rounded-xl border border-white/10 space-y-4">
+            <div className="bg-[var(--brand-primary-deep)] p-5 rounded-xl border border-white/10 space-y-4">
               <h3 className="font-bold text-slate-100 text-sm border-b border-white/10 pb-2 flex items-center justify-between">
                 <span>Header Component Elements</span>
-                <span className="text-[10px] text-[#C8A24A]">Live Website Switcher</span>
+                <span className="text-[10px] text-[var(--brand-gold)]">Live Website Switcher</span>
               </h3>
 
               <div className="space-y-3 text-xs">
@@ -748,7 +748,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                     type="checkbox"
                     checked={headerSettings.showLogo}
                     onChange={(e) => updateHeaderLayoutSettings({ showLogo: e.target.checked })}
-                    className="w-4 h-4 accent-[#C8A24A]"
+                    className="w-4 h-4 accent-[var(--brand-gold)]"
                   />
                 </label>
 
@@ -758,7 +758,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                     type="checkbox"
                     checked={headerSettings.showSearch}
                     onChange={(e) => updateHeaderLayoutSettings({ showSearch: e.target.checked })}
-                    className="w-4 h-4 accent-[#C8A24A]"
+                    className="w-4 h-4 accent-[var(--brand-gold)]"
                   />
                 </label>
 
@@ -768,7 +768,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                     type="checkbox"
                     checked={headerSettings.showCountrySelector}
                     onChange={(e) => updateHeaderLayoutSettings({ showCountrySelector: e.target.checked })}
-                    className="w-4 h-4 accent-[#C8A24A]"
+                    className="w-4 h-4 accent-[var(--brand-gold)]"
                   />
                 </label>
 
@@ -778,7 +778,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                     type="checkbox"
                     checked={headerSettings.showWishlist}
                     onChange={(e) => updateHeaderLayoutSettings({ showWishlist: e.target.checked })}
-                    className="w-4 h-4 accent-[#C8A24A]"
+                    className="w-4 h-4 accent-[var(--brand-gold)]"
                   />
                 </label>
 
@@ -788,7 +788,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                     type="checkbox"
                     checked={headerSettings.showAccount}
                     onChange={(e) => updateHeaderLayoutSettings({ showAccount: e.target.checked })}
-                    className="w-4 h-4 accent-[#C8A24A]"
+                    className="w-4 h-4 accent-[var(--brand-gold)]"
                   />
                 </label>
 
@@ -798,14 +798,14 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                     type="checkbox"
                     checked={headerSettings.showCart}
                     onChange={(e) => updateHeaderLayoutSettings({ showCart: e.target.checked })}
-                    className="w-4 h-4 accent-[#C8A24A]"
+                    className="w-4 h-4 accent-[var(--brand-gold)]"
                   />
                 </label>
               </div>
             </div>
 
             {/* Hover Style & Layout Selector */}
-            <div className="bg-[#072a20] p-5 rounded-xl border border-white/10 space-y-5">
+            <div className="bg-[var(--brand-primary-deep)] p-5 rounded-xl border border-white/10 space-y-5">
               <h3 className="font-bold text-slate-100 text-sm border-b border-white/10 pb-2">
                 Navigation Hover Effect & Style
               </h3>
@@ -825,11 +825,11 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                       onClick={() => updateHeaderLayoutSettings({ hoverStyle: style.id as any })}
                       className={`p-3 rounded-xl text-left border transition-all ${
                         headerSettings.hoverStyle === style.id
-                          ? 'bg-[#0B3D2E] border-[#C8A24A] text-white shadow-lg'
-                          : 'bg-[#041a13] border-white/10 text-slate-300 hover:border-white/30'
+                          ? 'bg-[var(--brand-primary-dark)] border-[var(--brand-gold)] text-white shadow-lg'
+                          : 'bg-[var(--brand-primary-deeper)] border-white/10 text-slate-300 hover:border-white/30'
                       }`}
                     >
-                      <div className="font-bold text-xs text-[#C8A24A]">{style.name}</div>
+                      <div className="font-bold text-xs text-[var(--brand-gold)]">{style.name}</div>
                       <div className="text-[10px] text-slate-400 mt-1">{style.desc}</div>
                     </button>
                   ))}
@@ -841,7 +841,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                 <select
                   value={headerSettings.headerLayout}
                   onChange={(e) => updateHeaderLayoutSettings({ headerLayout: e.target.value as any })}
-                  className="w-full bg-[#0B3D2E] border border-white/20 p-2.5 rounded-lg text-xs text-slate-100 focus:outline-none focus:border-[#C8A24A]"
+                  className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2.5 rounded-lg text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
                 >
                   <option value="standard">Standard (Logo Left, Links Center, Actions Right)</option>
                   <option value="centered">Centered Branding (Logo Top Center)</option>
@@ -855,11 +855,11 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
 
       {/* TAB 3: LIVE HEADER PREVIEW */}
       {activeTab === 'preview' && (
-        <div className="bg-[#0B3D2E] border border-white/10 p-6 rounded-2xl space-y-6 shadow-xl">
+        <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-6 rounded-2xl space-y-6 shadow-xl">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
             <div>
               <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
-                <Eye className="w-5 h-5 text-[#C8A24A]" />
+                <Eye className="w-5 h-5 text-[var(--brand-gold)]" />
                 Live Header Interactive Simulator
               </h2>
               <p className="text-xs text-slate-300 mt-1">
@@ -868,11 +868,11 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
             </div>
 
             {/* Device Frame Switcher */}
-            <div className="flex items-center gap-1.5 bg-[#072a20] p-1 rounded-xl border border-white/10 text-xs">
+            <div className="flex items-center gap-1.5 bg-[var(--brand-primary-deep)] p-1 rounded-xl border border-white/10 text-xs">
               <button
                 onClick={() => setPreviewDevice('desktop')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${
-                  previewDevice === 'desktop' ? 'bg-[#C8A24A] text-[#0B3D2E]' : 'text-slate-300 hover:text-white'
+                  previewDevice === 'desktop' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]' : 'text-slate-300 hover:text-white'
                 }`}
               >
                 <Monitor className="w-3.5 h-3.5" />
@@ -881,7 +881,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
               <button
                 onClick={() => setPreviewDevice('tablet')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${
-                  previewDevice === 'tablet' ? 'bg-[#C8A24A] text-[#0B3D2E]' : 'text-slate-300 hover:text-white'
+                  previewDevice === 'tablet' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]' : 'text-slate-300 hover:text-white'
                 }`}
               >
                 <Tablet className="w-3.5 h-3.5" />
@@ -890,7 +890,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
               <button
                 onClick={() => setPreviewDevice('mobile')}
                 className={`flex items-center gap-1.5 px-3 py-1.5 rounded-lg font-bold transition-all ${
-                  previewDevice === 'mobile' ? 'bg-[#C8A24A] text-[#0B3D2E]' : 'text-slate-300 hover:text-white'
+                  previewDevice === 'mobile' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]' : 'text-slate-300 hover:text-white'
                 }`}
               >
                 <Smartphone className="w-3.5 h-3.5" />
@@ -902,7 +902,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
           {/* Interactive Frame Wrapper */}
           <div className="bg-black/60 p-4 sm:p-8 rounded-2xl flex justify-center overflow-x-auto min-h-[400px]">
             <div
-              className={`bg-[#0B3D2E] border border-[#C8A24A]/40 rounded-xl overflow-hidden shadow-2xl transition-all duration-300 ${
+              className={`bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/40 rounded-xl overflow-hidden shadow-2xl transition-all duration-300 ${
                 previewDevice === 'desktop'
                   ? 'w-full max-w-[1100px]'
                   : previewDevice === 'tablet'
@@ -911,12 +911,12 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
               }`}
             >
               {/* Simulated Header Component */}
-              <div className="bg-[#0B3D2E]/95 border-b border-[#C8A24A]/20 px-4 py-3 flex items-center justify-between relative z-30">
+              <div className="bg-[var(--brand-primary-dark)]/95 border-b border-[var(--brand-gold)]/20 px-4 py-3 flex items-center justify-between relative z-30">
                 {/* Logo */}
                 {headerSettings.showLogo && (
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 border-2 border-[#C8A24A] flex items-center justify-center rotate-45">
-                      <span className="-rotate-45 font-bold font-brand text-[#C8A24A] text-[10px]">HV</span>
+                    <div className="w-7 h-7 border-2 border-[var(--brand-gold)] flex items-center justify-center rotate-45">
+                      <span className="-rotate-45 font-bold font-brand text-[var(--brand-gold)] text-[10px]">HV</span>
                     </div>
                     <HakkivedaWordmark size="sm" theme="dark-header" />
                   </div>
@@ -943,15 +943,15 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                             }}
                             className={`flex items-center gap-1.5 transition-all ${
                               headerSettings.hoverStyle === 'gold_line'
-                                ? 'hover:text-[#C8A24A] border-b-2 border-transparent hover:border-[#C8A24A]'
+                                ? 'hover:text-[var(--brand-gold)] border-b-2 border-transparent hover:border-[var(--brand-gold)]'
                                 : headerSettings.hoverStyle === 'underline'
-                                ? 'hover:underline hover:text-[#C8A24A]'
+                                ? 'hover:underline hover:text-[var(--brand-gold)]'
                                 : headerSettings.hoverStyle === 'glow'
-                                ? 'hover:text-[#C8A24A] hover:drop-shadow-[0_0_8px_rgba(200,162,74,0.8)]'
-                                : 'hover:text-[#C8A24A]'
+                                ? 'hover:text-[var(--brand-gold)] hover:drop-shadow-[0_0_8px_rgba(200,162,74,0.8)]'
+                                : 'hover:text-[var(--brand-gold)]'
                             }`}
                           >
-                            {renderIcon(item.icon, 'w-3 h-3 text-[#C8A24A]')}
+                            {renderIcon(item.icon, 'w-3 h-3 text-[var(--brand-gold)]')}
                             <span>{item.label}</span>
                             {renderBadgeTag(item.badge, item.badgeCustomText)}
                           </a>
@@ -959,16 +959,16 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                           {/* Mega Menu Dropdown Preview */}
                           {item.megaMenu?.enabled && previewHoveredNavId === item.id && (
                             <div className="absolute left-1/2 -translate-x-1/2 top-full pt-2 w-[580px] z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                              <div className="bg-[#072a20] border border-[#C8A24A]/40 rounded-xl shadow-2xl p-5 text-left grid grid-cols-3 gap-4 normal-case">
+                              <div className="bg-[var(--brand-primary-deep)] border border-[var(--brand-gold)]/40 rounded-xl shadow-2xl p-5 text-left grid grid-cols-3 gap-4 normal-case">
                                 {item.megaMenu.columns.map((col) => (
                                   <div key={col.id} className="space-y-2">
-                                    <h4 className="text-[11px] font-bold text-[#C8A24A] uppercase tracking-wider border-b border-white/10 pb-1">
+                                    <h4 className="text-[11px] font-bold text-[var(--brand-gold)] uppercase tracking-wider border-b border-white/10 pb-1">
                                       {col.title}
                                     </h4>
                                     <ul className="space-y-1.5 text-xs text-slate-200">
                                       {col.links.map((link, lIdx) => (
                                         <li key={lIdx}>
-                                          <a href={link.url} className="hover:text-[#C8A24A] flex items-center gap-1.5">
+                                          <a href={link.url} className="hover:text-[var(--brand-gold)] flex items-center gap-1.5">
                                             <span>{link.label}</span>
                                             {renderBadgeTag(link.badge as any)}
                                           </a>
@@ -979,7 +979,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                                 ))}
 
                                 {item.megaMenu.featuredImageUrl && (
-                                  <div className="bg-[#0B3D2E] p-3 rounded-xl border border-white/10 flex flex-col justify-between">
+                                  <div className="bg-[var(--brand-primary-dark)] p-3 rounded-xl border border-white/10 flex flex-col justify-between">
                                     <img
                                       src={item.megaMenu.featuredImageUrl}
                                       alt="Featured"
@@ -1009,7 +1009,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                     </div>
                   )}
                   {headerSettings.showCart && (
-                    <div className="bg-black/40 border border-[#C8A24A]/40 px-2.5 py-1 rounded-full text-xs font-bold text-[#C8A24A]">
+                    <div className="bg-black/40 border border-[var(--brand-gold)]/40 px-2.5 py-1 rounded-full text-xs font-bold text-[var(--brand-gold)]">
                       Cart (0)
                     </div>
                   )}
@@ -1018,16 +1018,16 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
 
               {/* Mobile Drawer Simulator Preview */}
               {previewDevice !== 'desktop' && (
-                <div className="p-4 bg-[#072a20] space-y-3 text-xs">
-                  <div className="text-[10px] font-bold uppercase text-[#C8A24A] tracking-wider border-b border-white/10 pb-1">
+                <div className="p-4 bg-[var(--brand-primary-deep)] space-y-3 text-xs">
+                  <div className="text-[10px] font-bold uppercase text-[var(--brand-gold)] tracking-wider border-b border-white/10 pb-1">
                     Mobile / Tablet Drawer Menu
                   </div>
                   {rootNavItems
                     .filter((i) => i.visible !== false)
                     .map((item) => (
-                      <div key={item.id} className="p-2 bg-[#0B3D2E] rounded-lg border border-white/5 flex items-center justify-between">
+                      <div key={item.id} className="p-2 bg-[var(--brand-primary-dark)] rounded-lg border border-white/5 flex items-center justify-between">
                         <div className="flex items-center gap-2">
-                          {renderIcon(item.icon, 'w-3.5 h-3.5 text-[#C8A24A]')}
+                          {renderIcon(item.icon, 'w-3.5 h-3.5 text-[var(--brand-gold)]')}
                           <span className="font-bold text-slate-200">{item.label}</span>
                         </div>
                         {renderBadgeTag(item.badge, item.badgeCustomText)}
@@ -1037,8 +1037,8 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
               )}
 
               {/* Canvas Content Placeholder */}
-              <div className="p-12 text-center text-slate-400 bg-[#041a13]">
-                <Sparkles className="w-8 h-8 text-[#C8A24A] mx-auto mb-2 animate-pulse" />
+              <div className="p-12 text-center text-slate-400 bg-[var(--brand-primary-deeper)]">
+                <Sparkles className="w-8 h-8 text-[var(--brand-gold)] mx-auto mb-2 animate-pulse" />
                 <h3 className="text-sm font-bold text-slate-200">Hakki-Pikki Store Canvas</h3>
                 <p className="text-xs text-slate-400 mt-1">Hover over menu links above to test live mega menus and click links to trigger events.</p>
               </div>
@@ -1049,11 +1049,11 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
 
       {/* TAB 4: MENU ANALYTICS & CTR */}
       {activeTab === 'analytics' && (
-        <div className="bg-[#0B3D2E] border border-white/10 p-6 rounded-2xl space-y-6 shadow-xl">
+        <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-6 rounded-2xl space-y-6 shadow-xl">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
             <div>
               <h2 className="text-lg font-bold text-slate-100 flex items-center gap-2">
-                <BarChart2 className="w-5 h-5 text-[#C8A24A]" />
+                <BarChart2 className="w-5 h-5 text-[var(--brand-gold)]" />
                 Navigation Engagement & Click-Through Analytics
               </h2>
               <p className="text-xs text-slate-300 mt-1">
@@ -1077,26 +1077,26 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
 
           {/* Metric Summary Cards */}
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-            <div className="bg-[#072a20] p-4 rounded-xl border border-white/10">
+            <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10">
               <span className="text-slate-400 text-xs font-medium">Total Menu Impressions</span>
               <div className="text-2xl font-bold text-slate-100 mt-1">{totalImpressions.toLocaleString()}</div>
             </div>
 
-            <div className="bg-[#072a20] p-4 rounded-xl border border-white/10">
+            <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10">
               <span className="text-slate-400 text-xs font-medium">Total Menu Clicks</span>
-              <div className="text-2xl font-bold text-[#C8A24A] mt-1">{totalClicks.toLocaleString()}</div>
+              <div className="text-2xl font-bold text-[var(--brand-gold)] mt-1">{totalClicks.toLocaleString()}</div>
             </div>
 
-            <div className="bg-[#072a20] p-4 rounded-xl border border-white/10">
+            <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10">
               <span className="text-slate-400 text-xs font-medium">Average CTR Rate</span>
               <div className="text-2xl font-bold text-emerald-400 mt-1">{overallCTR}%</div>
             </div>
           </div>
 
           {/* Performance Table */}
-          <div className="bg-[#072a20] rounded-xl border border-white/10 overflow-hidden text-xs">
+          <div className="bg-[var(--brand-primary-deep)] rounded-xl border border-white/10 overflow-hidden text-xs">
             <table className="w-full text-left">
-              <thead className="bg-[#041a13] text-[#C8A24A] uppercase text-[10px] tracking-wider border-b border-white/10">
+              <thead className="bg-[var(--brand-primary-deeper)] text-[var(--brand-gold)] uppercase text-[10px] tracking-wider border-b border-white/10">
                 <tr>
                   <th className="p-3">Menu Item</th>
                   <th className="p-3">Link Type</th>
@@ -1115,17 +1115,17 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                   return (
                     <tr key={item.id} className="hover:bg-black/20">
                       <td className="p-3 font-bold flex items-center gap-2">
-                        {renderIcon(item.icon, 'w-3.5 h-3.5 text-[#C8A24A]')}
+                        {renderIcon(item.icon, 'w-3.5 h-3.5 text-[var(--brand-gold)]')}
                         <span>{item.label}</span>
                       </td>
                       <td className="p-3 text-slate-400 uppercase text-[10px]">{item.linkType || 'LINK'}</td>
                       <td className="p-3 font-mono">{impressions}</td>
-                      <td className="p-3 font-mono text-[#C8A24A] font-bold">{clicks}</td>
+                      <td className="p-3 font-mono text-[var(--brand-gold)] font-bold">{clicks}</td>
                       <td className="p-3 font-mono text-emerald-400 font-bold">{ctr}%</td>
                       <td className="p-3 w-40">
                         <div className="w-full bg-black/40 h-2 rounded-full overflow-hidden border border-white/10">
                           <div
-                            className="bg-[#C8A24A] h-full transition-all"
+                            className="bg-[var(--brand-gold)] h-full transition-all"
                             style={{ width: `${Math.min(Number(ctr) * 2, 100)}%` }}
                           />
                         </div>
@@ -1142,10 +1142,10 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
       {/* CREATE / EDIT MENU ITEM MODAL */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-[#0B3D2E] border border-[#C8A24A]/40 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl space-y-5 p-6">
+          <div className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/40 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl space-y-5 p-6">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="text-lg font-bold font-serif-luxury text-slate-100 flex items-center gap-2">
-                <FolderTree className="w-5 h-5 text-[#C8A24A]" />
+                <FolderTree className="w-5 h-5 text-[var(--brand-gold)]" />
                 {editingItem ? `Edit Menu Item: "${editingItem.label}"` : 'Create New Menu Item'}
               </h3>
               <button
@@ -1162,7 +1162,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                 type="button"
                 onClick={() => setModalTab('basic')}
                 className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
-                  modalTab === 'basic' ? 'bg-[#C8A24A] text-[#0B3D2E]' : 'bg-[#072a20] text-slate-300'
+                  modalTab === 'basic' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]' : 'bg-[var(--brand-primary-deep)] text-slate-300'
                 }`}
               >
                 1. Basic Info & Link
@@ -1171,7 +1171,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                 type="button"
                 onClick={() => setModalTab('visibility')}
                 className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
-                  modalTab === 'visibility' ? 'bg-[#C8A24A] text-[#0B3D2E]' : 'bg-[#072a20] text-slate-300'
+                  modalTab === 'visibility' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]' : 'bg-[var(--brand-primary-deep)] text-slate-300'
                 }`}
               >
                 2. Visibility & Schedule
@@ -1180,7 +1180,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                 type="button"
                 onClick={() => setModalTab('megamenu')}
                 className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
-                  modalTab === 'megamenu' ? 'bg-[#C8A24A] text-[#0B3D2E]' : 'bg-[#072a20] text-slate-300'
+                  modalTab === 'megamenu' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]' : 'bg-[var(--brand-primary-deep)] text-slate-300'
                 }`}
               >
                 3. Mega Menu Builder
@@ -1203,7 +1203,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                         placeholder="e.g. Collections, B2B, AI Hair Quiz"
                         value={formLabel}
                         onChange={(e) => setFormLabel(e.target.value)}
-                        className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100 focus:outline-none focus:border-[#C8A24A]"
+                        className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
                       />
                     </div>
 
@@ -1212,7 +1212,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                       <select
                         value={formIcon}
                         onChange={(e) => setFormIcon(e.target.value)}
-                        className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100 focus:outline-none focus:border-[#C8A24A]"
+                        className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
                       >
                         {Object.keys(ICON_MAP).map((iconKey) => (
                           <option key={iconKey} value={iconKey}>
@@ -1230,7 +1230,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                       <select
                         value={formLinkType}
                         onChange={(e) => handleLinkTypeChange(e.target.value as any)}
-                        className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100 focus:outline-none focus:border-[#C8A24A]"
+                        className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
                       >
                         <option value="HOMEPAGE">Homepage Anchor Section</option>
                         <option value="COLLECTION">Collections Grid (#products)</option>
@@ -1251,7 +1251,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                         value={formUrl}
                         onChange={(e) => setFormUrl(e.target.value)}
                         placeholder="e.g. #products or https://..."
-                        className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100 focus:outline-none focus:border-[#C8A24A]"
+                        className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
                       />
                     </div>
                   </div>
@@ -1262,7 +1262,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                     <select
                       value={formParentId}
                       onChange={(e) => setFormParentId(e.target.value)}
-                      className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100 focus:outline-none focus:border-[#C8A24A]"
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
                     >
                       <option value="">Root Level (Main Header Menu)</option>
                       {navLinks
@@ -1282,7 +1282,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                       <select
                         value={formBadge}
                         onChange={(e) => setFormBadge(e.target.value as any)}
-                        className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100 focus:outline-none focus:border-[#C8A24A]"
+                        className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
                       >
                         <option value="NONE">No Badge</option>
                         <option value="HOT">HOT (Red Pulsing)</option>
@@ -1297,7 +1297,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                           placeholder="Custom text e.g. 50% OFF"
                           value={formBadgeCustomText}
                           onChange={(e) => setFormBadgeCustomText(e.target.value)}
-                          className="w-full bg-[#072a20] border border-white/20 p-2 rounded text-slate-100 mt-2"
+                          className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2 rounded text-slate-100 mt-2"
                         />
                       )}
                     </div>
@@ -1308,7 +1308,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                           type="checkbox"
                           checked={formOpenInNewTab}
                           onChange={(e) => setFormOpenInNewTab(e.target.checked)}
-                          className="w-4 h-4 accent-[#C8A24A]"
+                          className="w-4 h-4 accent-[var(--brand-gold)]"
                         />
                         <span className="text-slate-200 font-semibold">Open link in new browser tab (_blank)</span>
                       </label>
@@ -1321,7 +1321,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
               {modalTab === 'visibility' && (
                 <div className="space-y-4">
                   {/* Devices */}
-                  <div className="bg-[#072a20] p-4 rounded-xl border border-white/10 space-y-2">
+                  <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-2">
                     <label className="block text-slate-100 font-bold">Device Visibility</label>
                     <div className="flex items-center gap-6">
                       <label className="flex items-center gap-2 cursor-pointer">
@@ -1329,7 +1329,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                           type="checkbox"
                           checked={formShowOnDesktop}
                           onChange={(e) => setFormShowOnDesktop(e.target.checked)}
-                          className="w-4 h-4 accent-[#C8A24A]"
+                          className="w-4 h-4 accent-[var(--brand-gold)]"
                         />
                         <span className="text-slate-200">Desktop</span>
                       </label>
@@ -1338,7 +1338,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                           type="checkbox"
                           checked={formShowOnTablet}
                           onChange={(e) => setFormShowOnTablet(e.target.checked)}
-                          className="w-4 h-4 accent-[#C8A24A]"
+                          className="w-4 h-4 accent-[var(--brand-gold)]"
                         />
                         <span className="text-slate-200">Tablet</span>
                       </label>
@@ -1347,7 +1347,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                           type="checkbox"
                           checked={formShowOnMobile}
                           onChange={(e) => setFormShowOnMobile(e.target.checked)}
-                          className="w-4 h-4 accent-[#C8A24A]"
+                          className="w-4 h-4 accent-[var(--brand-gold)]"
                         />
                         <span className="text-slate-200">Mobile</span>
                       </label>
@@ -1360,7 +1360,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                     <select
                       value={formUserVisibility}
                       onChange={(e) => setFormUserVisibility(e.target.value as any)}
-                      className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
                     >
                       <option value="EVERYONE">Everyone (Public & Customers)</option>
                       <option value="GUEST">Guests / Unauthenticated Users Only</option>
@@ -1370,7 +1370,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                   </div>
 
                   {/* Country Rules */}
-                  <div className="bg-[#072a20] p-4 rounded-xl border border-white/10 space-y-2">
+                  <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-2">
                     <label className="block text-slate-100 font-bold">Country / Regional Visibility Rules</label>
                     <p className="text-[11px] text-slate-400">
                       Uncheck all to make this link available worldwide. Check specific countries to restrict.
@@ -1390,7 +1390,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                                   setFormAllowedCountries(formAllowedCountries.filter((c) => c !== country.code));
                                 }
                               }}
-                              className="w-3.5 h-3.5 accent-[#C8A24A]"
+                              className="w-3.5 h-3.5 accent-[var(--brand-gold)]"
                             />
                             <span>{country.name}</span>
                           </label>
@@ -1406,7 +1406,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                       <select
                         value={formStatus}
                         onChange={(e) => setFormStatus(e.target.value as any)}
-                        className="w-full bg-[#072a20] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                        className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
                       >
                         <option value="ACTIVE">Active</option>
                         <option value="DRAFT">Draft</option>
@@ -1420,7 +1420,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                         type="date"
                         value={formStartDate}
                         onChange={(e) => setFormStartDate(e.target.value)}
-                        className="w-full bg-[#072a20] border border-white/20 p-2 rounded text-slate-100"
+                        className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2 rounded text-slate-100"
                       />
                     </div>
 
@@ -1430,7 +1430,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                         type="date"
                         value={formEndDate}
                         onChange={(e) => setFormEndDate(e.target.value)}
-                        className="w-full bg-[#072a20] border border-white/20 p-2 rounded text-slate-100"
+                        className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2 rounded text-slate-100"
                       />
                     </div>
                   </div>
@@ -1440,7 +1440,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
               {/* MODAL TAB 3: MEGA MENU BUILDER */}
               {modalTab === 'megamenu' && (
                 <div className="space-y-4">
-                  <div className="flex items-center justify-between p-4 bg-[#072a20] rounded-xl border border-white/10">
+                  <div className="flex items-center justify-between p-4 bg-[var(--brand-primary-deep)] rounded-xl border border-white/10">
                     <div>
                       <span className="font-bold text-slate-100 text-sm">Enable Rich Mega Menu Dropdown</span>
                       <p className="text-[11px] text-slate-400">
@@ -1451,14 +1451,14 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                       type="checkbox"
                       checked={megaEnabled}
                       onChange={(e) => setMegaEnabled(e.target.checked)}
-                      className="w-5 h-5 accent-[#C8A24A]"
+                      className="w-5 h-5 accent-[var(--brand-gold)]"
                     />
                   </div>
 
                   {megaEnabled && (
-                    <div className="space-y-4 bg-[#072a20] p-4 rounded-xl border border-white/10">
+                    <div className="space-y-4 bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10">
                       {/* Featured Banner */}
-                      <h4 className="font-bold text-[#C8A24A] text-xs uppercase tracking-wider border-b border-white/10 pb-1">
+                      <h4 className="font-bold text-[var(--brand-gold)] text-xs uppercase tracking-wider border-b border-white/10 pb-1">
                         Featured Side Banner / Highlighted Formulation
                       </h4>
 
@@ -1470,7 +1470,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                             value={megaFeaturedImage}
                             onChange={(e) => setMegaFeaturedImage(e.target.value)}
                             placeholder="https://images.unsplash.com/..."
-                            className="w-full bg-[#0B3D2E] border border-white/20 p-2 rounded text-slate-100"
+                            className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2 rounded text-slate-100"
                           />
                         </div>
 
@@ -1481,7 +1481,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                             value={megaFeaturedTitle}
                             onChange={(e) => setMegaFeaturedTitle(e.target.value)}
                             placeholder="Royal Hakki-Pikki Hair Oil"
-                            className="w-full bg-[#0B3D2E] border border-white/20 p-2 rounded text-slate-100"
+                            className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2 rounded text-slate-100"
                           />
                         </div>
                       </div>
@@ -1489,7 +1489,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                       {/* Mega Columns */}
                       <div className="pt-2">
                         <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-3">
-                          <h4 className="font-bold text-[#C8A24A] text-xs uppercase tracking-wider">
+                          <h4 className="font-bold text-[var(--brand-gold)] text-xs uppercase tracking-wider">
                             Mega Menu Content Columns ({megaColumns.length})
                           </h4>
                           <button
@@ -1504,7 +1504,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                                 },
                               ])
                             }
-                            className="bg-[#C8A24A] text-[#0B3D2E] px-2.5 py-1 rounded font-bold text-[11px]"
+                            className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-2.5 py-1 rounded font-bold text-[11px]"
                           >
                             + Add Column
                           </button>
@@ -1512,7 +1512,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
 
                         <div className="space-y-3">
                           {megaColumns.map((col, colIdx) => (
-                            <div key={col.id} className="bg-[#0B3D2E] p-3 rounded-lg border border-white/10 space-y-2">
+                            <div key={col.id} className="bg-[var(--brand-primary-dark)] p-3 rounded-lg border border-white/10 space-y-2">
                               <div className="flex items-center justify-between">
                                 <input
                                   type="text"
@@ -1522,7 +1522,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                                     next[colIdx].title = e.target.value;
                                     setMegaColumns(next);
                                   }}
-                                  className="bg-[#072a20] border border-white/20 p-1.5 rounded text-xs text-slate-100 font-bold"
+                                  className="bg-[var(--brand-primary-deep)] border border-white/20 p-1.5 rounded text-xs text-slate-100 font-bold"
                                 />
                                 <button
                                   type="button"
@@ -1546,7 +1546,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                                         next[colIdx].links[linkIdx].label = e.target.value;
                                         setMegaColumns(next);
                                       }}
-                                      className="w-1/3 bg-[#072a20] border border-white/15 p-1 rounded text-[11px] text-slate-100"
+                                      className="w-1/3 bg-[var(--brand-primary-deep)] border border-white/15 p-1 rounded text-[11px] text-slate-100"
                                     />
                                     <input
                                       type="text"
@@ -1557,7 +1557,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                                         next[colIdx].links[linkIdx].url = e.target.value;
                                         setMegaColumns(next);
                                       }}
-                                      className="w-1/3 bg-[#072a20] border border-white/15 p-1 rounded text-[11px] text-slate-100"
+                                      className="w-1/3 bg-[var(--brand-primary-deep)] border border-white/15 p-1 rounded text-[11px] text-slate-100"
                                     />
                                     <button
                                       type="button"
@@ -1579,7 +1579,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                                     next[colIdx].links.push({ label: 'New Link', url: '#products' });
                                     setMegaColumns(next);
                                   }}
-                                  className="text-[10px] text-[#C8A24A] font-bold hover:underline"
+                                  className="text-[10px] text-[var(--brand-gold)] font-bold hover:underline"
                                 >
                                   + Add Link
                                 </button>
@@ -1604,7 +1604,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                 </button>
                 <button
                   type="submit"
-                  className="px-5 py-2 rounded-xl bg-[#C8A24A] text-[#0B3D2E] font-bold shadow-lg hover:bg-[#d8b25a] transition-all"
+                  className="px-5 py-2 rounded-xl bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold shadow-lg hover:bg-[#d8b25a] transition-all"
                 >
                   Save Menu Item
                 </button>

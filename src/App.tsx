@@ -121,7 +121,7 @@ export function AppContent() {
   }
 
   return (
-    <div className="min-h-screen bg-[#0B3D2E] text-slate-100 flex flex-col font-sans selection:bg-[#C8A24A] selection:text-[#0B3D2E]">
+    <div className="min-h-screen bg-[var(--brand-primary-dark)] text-slate-100 flex flex-col font-sans selection:bg-[var(--brand-gold)] selection:text-[var(--brand-primary-dark)]">
       {/* Customer Header */}
       <Header selectedCategory={selectedCategory} onSelectCategory={handleSelectCategory} />
 

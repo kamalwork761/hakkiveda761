@@ -38,12 +38,12 @@ export const WhatsAppButton: React.FC = () => {
           </div>
 
           {/* Body message */}
-          <div className="p-3.5 space-y-3 bg-[#0B3D2E]/90 text-xs">
-            <div className="bg-[#072a20] border border-white/10 rounded-xl p-3 text-slate-200 shadow-inner space-y-1.5">
+          <div className="p-3.5 space-y-3 bg-[var(--brand-primary-dark)]/90 text-xs">
+            <div className="bg-[var(--brand-primary-deep)] border border-white/10 rounded-xl p-3 text-slate-200 shadow-inner space-y-1.5">
               <p className="text-[11px] leading-relaxed">
                 🙏 <strong>Namaste!</strong> Need assistance with your hair care routine or order status? Chat live with our Hakki-Pikki tribal herbal team:
               </p>
-              <div className="text-[11px] text-[#C8A24A] font-semibold flex items-center gap-1.5 pt-1">
+              <div className="text-[11px] text-[var(--brand-gold)] font-semibold flex items-center gap-1.5 pt-1">
                 <PhoneCall className="w-3.5 h-3.5" />
                 <span>{displayPhone}</span>
               </div>
@@ -69,7 +69,7 @@ export const WhatsAppButton: React.FC = () => {
         <span className="absolute -inset-1 rounded-full bg-[#25D366] opacity-50 animate-ping pointer-events-none"></span>
 
         {/* Hover Text Banner for Desktop */}
-        <div className="hidden sm:flex absolute right-full mr-3 bg-[#072a20]/90 backdrop-blur-md text-slate-100 text-xs px-3.5 py-2 rounded-xl border border-[#25D366]/40 shadow-2xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all pointer-events-none items-center gap-2 font-medium transform translate-x-2 group-hover:translate-x-0">
+        <div className="hidden sm:flex absolute right-full mr-3 bg-[var(--brand-primary-deep)]/90 backdrop-blur-md text-slate-100 text-xs px-3.5 py-2 rounded-xl border border-[#25D366]/40 shadow-2xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all pointer-events-none items-center gap-2 font-medium transform translate-x-2 group-hover:translate-x-0">
           <span className="w-2 h-2 rounded-full bg-[#25D366] animate-pulse"></span>
           <span>Chat with Herbal Expert ({displayPhone})</span>
         </div>
@@ -89,7 +89,7 @@ export const WhatsAppButton: React.FC = () => {
           </svg>
           
           {/* Active notification badge */}
-          <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-[#0B3D2E] shadow-md animate-bounce">
+          <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-[var(--brand-primary-dark)] shadow-md animate-bounce">
             1
           </span>
         </a>

@@ -166,10 +166,10 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
   // Render Badge helper
   const renderBadgeTag = (badge?: NavLink['badge'], customText?: string) => {
     if (!badge || badge === 'NONE') return null;
-    let bg = 'bg-[#C8A24A] text-[#0B3D2E]';
+    let bg = 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]';
     let text = badge;
     if (badge === 'HOT') bg = 'bg-rose-500 text-white animate-pulse';
-    if (badge === 'NEW') bg = 'bg-[#C8A24A] text-[#0B3D2E]';
+    if (badge === 'NEW') bg = 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]';
     if (badge === 'SALE') bg = 'bg-emerald-500 text-white';
     if (badge === 'B2B') bg = 'bg-amber-500 text-slate-950 font-bold';
     if (badge === 'CUSTOM' && customText) text = customText as any;
@@ -185,15 +185,15 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
   const getHoverStyleClass = () => {
     const style = headerSettings.hoverStyle || 'gold_line';
     if (style === 'gold_line') {
-      return 'hover:text-[#C8A24A] border-b-2 border-transparent hover:border-[#C8A24A]';
+      return 'hover:text-[var(--brand-gold)] border-b-2 border-transparent hover:border-[var(--brand-gold)]';
     }
     if (style === 'underline') {
-      return 'hover:underline hover:text-[#C8A24A]';
+      return 'hover:underline hover:text-[var(--brand-gold)]';
     }
     if (style === 'glow') {
-      return 'hover:text-[#C8A24A] hover:drop-shadow-[0_0_8px_rgba(200,162,74,0.8)]';
+      return 'hover:text-[var(--brand-gold)] hover:drop-shadow-[0_0_8px_rgba(212,175,55,0.8)]';
     }
-    return 'hover:text-[#C8A24A]';
+    return 'hover:text-[var(--brand-gold)]';
   };
 
   return (
@@ -202,10 +202,10 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
       {showBar && (
         <div
           style={{
-            backgroundColor: siteSettings?.announcementBgColor || '#C8A24A',
-            color: siteSettings?.announcementTextColor || '#0B3D2E',
+            backgroundColor: siteSettings?.announcementBgColor || 'var(--brand-gold)',
+            color: siteSettings?.announcementTextColor || 'var(--brand-primary-dark)',
           }}
-          className="relative py-1.5 px-2 text-xs font-bold font-sans uppercase tracking-[0.18em] overflow-hidden z-50 border-b border-[#0B3D2E]/10 flex items-center justify-between"
+          className="relative py-1.5 px-2 text-xs font-bold font-sans uppercase tracking-[0.18em] overflow-hidden z-50 border-b border-[var(--brand-primary-dark)]/10 flex items-center justify-between"
         >
           {/* Continuous Running Ticker Track */}
           <div className="overflow-hidden flex-1 relative flex items-center py-0.5">
@@ -246,24 +246,24 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
             <span className="hidden lg:inline text-[10px] tracking-wider uppercase opacity-80 font-bold">Country:</span>
             <button
               onClick={() => setIsCountryModalOpen(true)}
-              className="flex items-center gap-1.5 bg-[#0B3D2E] text-[#C8A24A] px-2.5 py-1 rounded text-[11px] font-semibold hover:bg-[#072a20] transition-colors shadow-sm border border-[#C8A24A]/30 active:scale-95"
+              className="flex items-center gap-1.5 bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] px-2.5 py-1 rounded text-[11px] font-semibold hover:bg-[var(--brand-primary-deeper)] transition-colors shadow-sm border border-[var(--brand-gold)]/30 active:scale-95"
               id="country-selector-btn"
               title="Change Country"
             >
               <span className="text-sm leading-none">{selectedCountry.flag}</span>
               <span>{selectedCountry.name}</span>
-              <ChevronDown className="w-3 h-3 text-[#C8A24A]" />
+              <ChevronDown className="w-3 h-3 text-[var(--brand-gold)]" />
             </button>
           </div>
         </div>
       )}
 
       {/* Main Header Container */}
-      <div className="bg-[#0B3D2E]/95 backdrop-blur-md border-b border-[#C8A24A]/20 px-3 sm:px-8 py-2.5 sm:py-3.5 flex items-center justify-between shadow-2xl relative">
+      <div className="bg-[var(--brand-primary-dark)]/95 backdrop-blur-md border-b border-[var(--brand-gold)]/20 px-3 sm:px-8 py-2.5 sm:py-3.5 flex items-center justify-between shadow-2xl relative">
         {/* Brand Logo & Wordmark */}
         <a href="#" className="flex items-center gap-2 sm:gap-3.5 group min-w-0 shrink">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 border-2 border-[#C8A24A] flex items-center justify-center rotate-45 group-hover:bg-[#C8A24A] transition-all duration-500 shadow-lg shrink-0">
-            <span className="-rotate-45 font-bold font-brand text-[#C8A24A] group-hover:text-[#0B3D2E] text-xs sm:text-sm tracking-tighter">
+          <div className="w-8 h-8 sm:w-9 sm:h-9 border-2 border-[var(--brand-gold)] flex items-center justify-center rotate-45 group-hover:bg-[var(--brand-gold)] transition-all duration-500 shadow-lg shrink-0">
+            <span className="-rotate-45 font-bold font-brand text-[var(--brand-gold)] group-hover:text-[var(--brand-primary-dark)] text-xs sm:text-sm tracking-tighter">
               HV
             </span>
           </div>
@@ -299,21 +299,21 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
                     }}
                     className={`flex items-center gap-1.5 transition-colors py-1 ${getHoverStyleClass()}`}
                   >
-                    {renderNavIcon(item.icon, 'w-3.5 h-3.5 text-[#C8A24A]')}
+                    {renderNavIcon(item.icon, 'w-3.5 h-3.5 text-[var(--brand-gold)]')}
                     <span>{item.label}</span>
                     {renderBadgeTag(item.badge, item.badgeCustomText)}
                     {(subLinks.length > 0 || hasMegaMenu) && (
-                      <ChevronDown className="w-3 h-3 text-[#C8A24A] transition-transform duration-200" />
+                      <ChevronDown className="w-3 h-3 text-[var(--brand-gold)] transition-transform duration-200" />
                     )}
                   </a>
 
                   {/* Mega Menu Dropdown */}
                   {hasMegaMenu && isHovered && (
                     <div className="absolute left-1/2 -translate-x-1/2 top-full pt-1 w-[680px] z-50 animate-in fade-in slide-in-from-top-1 duration-200">
-                      <div className="bg-[#072a20] border border-[#C8A24A]/40 rounded-xl shadow-2xl p-5 text-left grid grid-cols-3 gap-5 normal-case font-sans">
+                      <div className="bg-[var(--brand-primary-deeper)] border border-[var(--brand-gold)]/40 rounded-xl shadow-2xl p-5 text-left grid grid-cols-3 gap-5 normal-case font-sans">
                         {item.megaMenu?.columns.map((col) => (
                           <div key={col.id} className="space-y-2">
-                            <h4 className="text-[11px] font-bold text-[#C8A24A] uppercase tracking-wider border-b border-white/10 pb-1 flex items-center justify-between">
+                            <h4 className="text-[11px] font-bold text-[var(--brand-gold)] uppercase tracking-wider border-b border-white/10 pb-1 flex items-center justify-between">
                               <span>{col.title}</span>
                             </h4>
                             <ul className="space-y-1.5 text-xs text-slate-200">
@@ -322,7 +322,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
                                   <a
                                     href={link.url}
                                     onClick={() => playSound('nav_click')}
-                                    className="hover:text-[#C8A24A] flex items-center justify-between py-0.5 transition-colors"
+                                    className="hover:text-[var(--brand-gold)] flex items-center justify-between py-0.5 transition-colors"
                                   >
                                     <span>{link.label}</span>
                                     {renderBadgeTag(link.badge as any)}
@@ -334,7 +334,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
                         ))}
 
                         {item.megaMenu?.featuredImageUrl && (
-                          <div className="bg-[#0B3D2E] p-3 rounded-xl border border-white/10 flex flex-col justify-between">
+                          <div className="bg-[var(--brand-primary-dark)] p-3 rounded-xl border border-white/10 flex flex-col justify-between">
                             <img
                               src={item.megaMenu.featuredImageUrl}
                               alt="Featured"
@@ -357,16 +357,16 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
                   {/* Standard Multi-Level Sub-Menu Dropdown */}
                   {!hasMegaMenu && subLinks.length > 0 && isHovered && (
                     <div className="absolute left-0 top-full pt-1 w-56 z-50 animate-in fade-in slide-in-from-top-1 duration-200">
-                      <div className="bg-[#072a20] border border-[#C8A24A]/40 rounded-xl shadow-2xl p-2 font-sans normal-case">
+                      <div className="bg-[var(--brand-primary-deeper)] border border-[var(--brand-gold)]/40 rounded-xl shadow-2xl p-2 font-sans normal-case">
                         {subLinks.map((sub) => (
                           <a
                             key={sub.id}
                             href={sub.url}
                             onClick={() => handleNavClick(sub)}
-                            className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-[#0B3D2E] hover:text-[#C8A24A] transition-colors flex items-center justify-between"
+                            className="w-full text-left px-3 py-2 rounded-lg text-xs font-semibold text-slate-200 hover:bg-[var(--brand-primary-dark)] hover:text-[var(--brand-gold)] transition-colors flex items-center justify-between"
                           >
                             <div className="flex items-center gap-2">
-                              {renderNavIcon(sub.icon, 'w-3.5 h-3.5 text-[#C8A24A]')}
+                              {renderNavIcon(sub.icon, 'w-3.5 h-3.5 text-[var(--brand-gold)]')}
                               <span>{sub.label}</span>
                             </div>
                             {renderBadgeTag(sub.badge, sub.badgeCustomText)}
@@ -386,7 +386,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
           {/* Quick Search */}
           <div className="relative hidden md:block w-44 lg:w-56">
             <div className="relative">
-              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[#C8A24A]" />
+              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--brand-gold)]" />
               <input
                 type="text"
                 placeholder="Search products, herbs..."
@@ -397,14 +397,14 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
                   setIsSearchFocused(true);
                 }}
                 onBlur={() => setTimeout(() => setIsSearchFocused(false), 200)}
-                className="w-full bg-black/30 border border-[#C8A24A]/30 rounded-full pl-8 pr-3 py-1.5 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#C8A24A] transition-all"
+                className="w-full bg-black/30 border border-[var(--brand-gold)]/30 rounded-full pl-8 pr-3 py-1.5 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[var(--brand-gold)] transition-all"
               />
             </div>
 
             {/* Live Search Autocomplete Popup */}
             {isSearchFocused && filteredProducts.length > 0 && (
-              <div className="absolute right-0 top-full mt-2 w-72 bg-[#072a20] border border-[#C8A24A]/40 rounded-xl shadow-2xl p-2 z-50">
-                <div className="text-[10px] uppercase font-bold text-[#C8A24A] px-2 py-1 tracking-wider border-b border-white/10">
+              <div className="absolute right-0 top-full mt-2 w-72 bg-[var(--brand-primary-deeper)] border border-[var(--brand-gold)]/40 rounded-xl shadow-2xl p-2 z-50">
+                <div className="text-[10px] uppercase font-bold text-[var(--brand-gold)] px-2 py-1 tracking-wider border-b border-white/10">
                   Matching Herbal Formulations
                 </div>
                 {filteredProducts.map((prod) => (
@@ -414,12 +414,12 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
                       playSound('nav_click');
                       openQuickView(prod);
                     }}
-                    className="flex items-center gap-3 p-2 hover:bg-[#0B3D2E] rounded-lg cursor-pointer transition-colors"
+                    className="flex items-center gap-3 p-2 hover:bg-[var(--brand-primary-dark)] rounded-lg cursor-pointer transition-colors"
                   >
                     <img src={prod.image} alt={prod.name} className="w-10 h-10 object-contain rounded bg-black/30 p-0.5 border border-white/10" />
                     <div>
                       <h4 className="text-xs font-bold text-slate-100 line-clamp-1">{prod.name}</h4>
-                      <p className="text-[10px] text-[#C8A24A]">{prod.subtitle}</p>
+                      <p className="text-[10px] text-[var(--brand-gold)]">{prod.subtitle}</p>
                     </div>
                   </div>
                 ))}
@@ -436,12 +436,12 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
               playSound('nav_click');
               setIsAuthModalOpen(true);
             }}
-            className="text-slate-200 hover:text-[#C8A24A] transition-colors p-1 relative"
+            className="text-slate-200 hover:text-[var(--brand-gold)] transition-colors p-1 relative"
             title={currentUser ? `Account: ${currentUser.name}` : 'Login / Register'}
             id="user-account-btn"
           >
             <User className="w-5 h-5" />
-            {currentUser && <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-[#C8A24A]"></span>}
+            {currentUser && <span className="absolute top-0 right-0 w-2 h-2 rounded-full bg-[var(--brand-gold)]"></span>}
           </button>
 
           {/* Wishlist Icon */}
@@ -450,13 +450,13 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
               playSound('menu_toggle');
               setIsWishlistOpen(true);
             }}
-            className="text-slate-200 hover:text-[#C8A24A] transition-colors p-1 relative"
+            className="text-slate-200 hover:text-[var(--brand-gold)] transition-colors p-1 relative"
             title="Wishlist"
             id="wishlist-btn"
           >
             <Heart className="w-5 h-5" />
             {wishlist.length > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 bg-[#C8A24A] text-[#0B3D2E] text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
+              <span className="absolute -top-1.5 -right-1.5 bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                 {wishlist.length}
               </span>
             )}
@@ -468,7 +468,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
               playSound('menu_toggle');
               setIsCartOpen(true);
             }}
-            className="text-[#C8A24A] hover:text-white transition-colors p-1 relative flex items-center gap-1.5 bg-black/30 border border-[#C8A24A]/40 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full"
+            className="text-[var(--brand-gold)] hover:text-white transition-colors p-1 relative flex items-center gap-1.5 bg-black/30 border border-[var(--brand-gold)]/40 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full"
             id="cart-btn"
           >
             <ShoppingBag className="w-4 h-4" />
@@ -481,30 +481,30 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
               playSound('menu_toggle');
               setIsMobileMenuOpen(!isMobileMenuOpen);
             }}
-            className="lg:hidden text-slate-200 hover:text-[#C8A24A] p-1.5 rounded-lg bg-black/20 border border-[#C8A24A]/30 active:scale-95 transition-all"
+            className="lg:hidden text-slate-200 hover:text-[var(--brand-gold)] p-1.5 rounded-lg bg-black/20 border border-[var(--brand-gold)]/30 active:scale-95 transition-all"
             id="mobile-menu-btn"
             aria-label="Toggle navigation menu"
           >
-            {isMobileMenuOpen ? <X className="w-5 h-5 text-[#C8A24A]" /> : <Menu className="w-5 h-5 text-[#C8A24A]" />}
+            {isMobileMenuOpen ? <X className="w-5 h-5 text-[var(--brand-gold)]" /> : <Menu className="w-5 h-5 text-[var(--brand-gold)]" />}
           </button>
         </div>
       </div>
 
       {/* Mobile Drawer Menu */}
       {isMobileMenuOpen && (
-        <div className="lg:hidden bg-[#072a20] border-b border-[#C8A24A]/30 px-5 py-5 space-y-3 font-sans text-xs uppercase tracking-widest shadow-2xl animate-in slide-in-from-top duration-300 z-50 relative">
+        <div className="lg:hidden bg-[var(--brand-primary-deeper)] border-b border-[var(--brand-gold)]/30 px-5 py-5 space-y-3 font-sans text-xs uppercase tracking-widest shadow-2xl animate-in slide-in-from-top duration-300 z-50 relative">
           {/* Mobile Search Box */}
           <div className="relative pb-2">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-3 text-[#C8A24A]" />
+            <Search className="w-3.5 h-3.5 absolute left-3 top-3 text-[var(--brand-gold)]" />
             <input
               type="text"
               placeholder="Search products or herbs..."
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[#041a13] border border-[#C8A24A]/30 rounded-xl pl-8 pr-3 py-2 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#C8A24A]"
+              className="w-full bg-[var(--brand-primary-deeper)] border border-[var(--brand-gold)]/30 rounded-xl pl-8 pr-3 py-2 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[var(--brand-gold)]"
             />
             {filteredProducts.length > 0 && searchQuery.trim() && (
-              <div className="mt-2 bg-[#0B3D2E] border border-[#C8A24A]/30 rounded-lg p-2 max-h-48 overflow-y-auto space-y-2">
+              <div className="mt-2 bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/30 rounded-lg p-2 max-h-48 overflow-y-auto space-y-2">
                 {filteredProducts.map((prod) => (
                   <div
                     key={prod.id}
@@ -512,12 +512,12 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
                       setIsMobileMenuOpen(false);
                       openQuickView(prod);
                     }}
-                    className="flex items-center gap-2 p-1.5 hover:bg-[#072a20] rounded cursor-pointer"
+                    className="flex items-center gap-2 p-1.5 hover:bg-[var(--brand-primary-deeper)] rounded cursor-pointer"
                   >
                     <img src={prod.image} alt={prod.name} className="w-8 h-8 object-contain rounded bg-black/30 p-0.5 border border-white/10" />
                     <div>
                       <div className="font-bold text-white text-[11px] normal-case">{prod.name}</div>
-                      <div className="text-[9px] text-[#C8A24A] normal-case">{prod.subtitle}</div>
+                      <div className="text-[9px] text-[var(--brand-gold)] normal-case">{prod.subtitle}</div>
                     </div>
                   </div>
                 ))}
@@ -527,7 +527,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
 
           {/* Collections & Categories Section */}
           <div className="border-b border-white/10 pb-2">
-            <div className="flex items-center justify-between py-1 text-[#C8A24A] font-bold text-[10px] tracking-widest uppercase">
+            <div className="flex items-center justify-between py-1 text-[var(--brand-gold)] font-bold text-[10px] tracking-widest uppercase">
               <span>Botanical Categories</span>
             </div>
             <div className="grid grid-cols-2 gap-1.5 mt-1.5">
@@ -538,8 +538,8 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
                 }}
                 className={`text-left p-2 rounded-lg text-[11px] font-semibold transition-all ${
                   selectedCategory === 'ALL'
-                    ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold'
-                    : 'bg-[#0B3D2E] text-slate-200 hover:text-[#C8A24A]'
+                    ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold'
+                    : 'bg-[var(--brand-primary-dark)] text-slate-200 hover:text-[var(--brand-gold)]'
                 }`}
               >
                 All Formulations
@@ -556,8 +556,8 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
                   }}
                   className={`text-left p-2 rounded-lg text-[11px] font-semibold transition-all line-clamp-1 ${
                     selectedCategory === cat.name
-                      ? 'bg-[#C8A24A] text-[#0B3D2E] font-bold'
-                      : 'bg-[#0B3D2E] text-slate-200 hover:text-[#C8A24A]'
+                      ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold'
+                      : 'bg-[var(--brand-primary-dark)] text-slate-200 hover:text-[var(--brand-gold)]'
                   }`}
                 >
                   {cat.name}
@@ -580,10 +580,10 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
                         setIsMobileMenuOpen(false);
                         handleNavClick(link);
                       }}
-                      className="w-full text-left py-2 px-3 bg-[#0B3D2E] rounded-xl text-slate-200 hover:text-[#C8A24A] font-semibold text-xs flex items-center justify-between border border-white/5"
+                      className="w-full text-left py-2 px-3 bg-[var(--brand-primary-dark)] rounded-xl text-slate-200 hover:text-[var(--brand-gold)] font-semibold text-xs flex items-center justify-between border border-white/5"
                     >
                       <div className="flex items-center gap-2">
-                        {renderNavIcon(link.icon, 'w-4 h-4 text-[#C8A24A]')}
+                        {renderNavIcon(link.icon, 'w-4 h-4 text-[var(--brand-gold)]')}
                         <span>{link.label}</span>
                       </div>
                       {renderBadgeTag(link.badge, link.badgeCustomText)}
@@ -591,7 +591,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
 
                     {/* Sub Links in Mobile */}
                     {subLinks.length > 0 && (
-                      <div className="ml-4 space-y-1 pl-2 border-l border-[#C8A24A]/30">
+                      <div className="ml-4 space-y-1 pl-2 border-l border-[var(--brand-gold)]/30">
                         {subLinks.map((sub) => (
                           <button
                             key={sub.id}
@@ -599,7 +599,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
                               setIsMobileMenuOpen(false);
                               handleNavClick(sub);
                             }}
-                            className="w-full text-left py-1.5 px-2 text-xs text-slate-300 hover:text-[#C8A24A] flex items-center justify-between"
+                            className="w-full text-left py-1.5 px-2 text-xs text-slate-300 hover:text-[var(--brand-gold)] flex items-center justify-between"
                           >
                             <span>{sub.label}</span>
                             {renderBadgeTag(sub.badge, sub.badgeCustomText)}

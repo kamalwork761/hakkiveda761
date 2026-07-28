@@ -1,18 +1,51 @@
 @import "tailwindcss";
 
+@theme {
+  --color-brand-primary: #3AA91F;
+  --color-brand-primary-dark: #1C550E;
+  --color-brand-primary-deeper: #103308;
+  --color-brand-primary-light: #53C938;
+
+  --color-brand-gold: #D4AF37;
+  --color-brand-gold-light: #E8D279;
+  --color-brand-gold-dark: #A68725;
+  --color-brand-gold-shimmer: #FFF0B2;
+
+  --color-forest: #1C550E;
+  --color-forest-dark: #103308;
+  --color-forest-deeper: #0A2005;
+  --color-gold: #D4AF37;
+  --color-gold-light: #E8D279;
+  --color-gold-dark: #A68725;
+}
+
 @layer base {
   :root {
-    --color-forest: #0B3D2E;
-    --color-forest-dark: #072a20;
-    --color-forest-deeper: #041a13;
-    --color-gold: #C8A24A;
-    --color-gold-light: #E5C880;
-    --color-gold-dark: #A68032;
+    --brand-primary: #3AA91F;
+    --brand-primary-dark: #1C550E;
+    --brand-primary-deeper: #103308;
+    --brand-primary-light: #53C938;
+    --brand-primary-subtle: rgba(58, 169, 31, 0.15);
+
+    --brand-gold: #D4AF37;
+    --brand-gold-light: #E8D279;
+    --brand-gold-dark: #A68725;
+    --brand-gold-shimmer: #FFF0B2;
+    --brand-gold-subtle: rgba(212, 175, 55, 0.15);
+    --brand-gold-border: rgba(212, 175, 55, 0.35);
+
+    /* Legacy mapping tokens for component variable compatibility */
+    --color-forest: var(--brand-primary-dark);
+    --color-forest-dark: var(--brand-primary-deeper);
+    --color-forest-deeper: #0A2005;
+    --color-gold: var(--brand-gold);
+    --color-gold-light: var(--brand-gold-light);
+    --color-gold-dark: var(--brand-gold-dark);
   }
 
   body {
     font-family: 'Plus Jakarta Sans', sans-serif;
-    background-color: var(--color-forest);
+    background-color: var(--brand-primary-dark);
     color: #F8FAFC;
     overflow-x: hidden;
   }
@@ -33,16 +66,16 @@
 }
 
 ::-webkit-scrollbar-track {
-  background: #072a20;
+  background: var(--brand-primary-deeper);
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #C8A24A;
+  background: var(--brand-gold);
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #E5C880;
+  background: var(--brand-gold-light);
 }
 
 /* Luxury animations and effects */
@@ -67,41 +100,45 @@
 }
 
 .gold-glow {
-  box-shadow: 0 0 20px rgba(200, 162, 74, 0.25);
+  box-shadow: 0 0 20px rgba(212, 175, 55, 0.3);
 }
 
 .gold-border-glow {
-  border-color: rgba(200, 162, 74, 0.4);
-  box-shadow: 0 0 15px rgba(200, 162, 74, 0.15);
+  border-color: rgba(212, 175, 55, 0.4);
+  box-shadow: 0 0 15px rgba(212, 175, 55, 0.2);
 }
 
 .bg-gold-gradient {
-  background: linear-gradient(135deg, #C8A24A 0%, #E5C880 50%, #A68032 100%);
+  background: linear-gradient(135deg, #D4AF37 0%, #E8D279 50%, #A68725 100%);
+}
+
+.bg-brand-gradient {
+  background: linear-gradient(135deg, #3AA91F 0%, #1C550E 100%);
 }
 
 @keyframes goldTextShimmer {
   0% {
     background-position: 0% 50%;
-    filter: drop-shadow(0 0 2px rgba(200, 162, 74, 0.3));
+    filter: drop-shadow(0 0 2px rgba(212, 175, 55, 0.3));
   }
   50% {
     background-position: 100% 50%;
-    filter: drop-shadow(0 0 10px rgba(229, 200, 128, 0.8));
+    filter: drop-shadow(0 0 10px rgba(232, 210, 121, 0.8));
   }
   100% {
     background-position: 0% 50%;
-    filter: drop-shadow(0 0 2px rgba(200, 162, 74, 0.3));
+    filter: drop-shadow(0 0 2px rgba(212, 175, 55, 0.3));
   }
 }
 
 .animate-gold-shimmer {
   background: linear-gradient(
     90deg,
-    #C8A24A 0%,
-    #FFF2B2 25%,
-    #E5C880 50%,
-    #FFF2B2 75%,
-    #C8A24A 100%
+    #D4AF37 0%,
+    #FFF0B2 25%,
+    #E8D279 50%,
+    #FFF0B2 75%,
+    #D4AF37 100%
   );
   background-size: 200% auto;
   -webkit-background-clip: text;
@@ -111,7 +148,7 @@
 }
 
 .text-gold-gradient {
-  background: linear-gradient(135deg, #E5C880 0%, #C8A24A 50%, #B89038 100%);
+  background: linear-gradient(135deg, #E8D279 0%, #D4AF37 50%, #A68725 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
 }
@@ -142,4 +179,3 @@
     display: none !important;
   }
 }
-

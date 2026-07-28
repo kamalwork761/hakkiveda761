@@ -473,8 +473,8 @@ export const INITIAL_COUPONS: Coupon[] = [];
 export const INITIAL_SITE_SETTINGS: SiteSettings = {
   announcementText: 'Worldwide Express Shipping • 100% Authentic 42 Mountain Herbs Formula',
   announcementActive: true,
-  announcementBgColor: '#C8A24A',
-  announcementTextColor: '#0B3D2E',
+  announcementBgColor: '#D4AF37',
+  announcementTextColor: '#1C550E',
 
   logoText: 'HAKKIVEDA',
   logoSubtext: 'Hakki-Pikki Tribe & Ayurveda',

@@ -11,11 +11,11 @@ export const CustomerReviews: React.FC = () => {
     : reviews;
 
   return (
-    <section className="py-20 bg-[#0B3D2E] relative">
+    <section className="py-20 bg-[var(--brand-primary-dark)] relative">
       <div className="max-w-7xl mx-auto px-6 sm:px-12">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 border-b border-white/10 pb-8">
           <div>
-            <span className="text-[#C8A24A] font-sans text-xs uppercase tracking-[0.28em] font-bold block mb-2">
+            <span className="text-[var(--brand-gold)] font-sans text-xs uppercase tracking-[0.28em] font-bold block mb-2">
               Verified Feedback
             </span>
             <h2 className="text-3xl sm:text-5xl font-serif-luxury font-bold text-slate-100">
@@ -24,10 +24,10 @@ export const CustomerReviews: React.FC = () => {
           </div>
 
           {/* Rating Summary Pill */}
-          <div className="mt-6 lg:mt-0 flex items-center gap-4 bg-[#072a20] border border-[#C8A24A]/40 p-4 rounded-xl shadow-xl">
-            <div className="text-3xl font-bold font-serif-luxury text-[#C8A24A]">4.95</div>
+          <div className="mt-6 lg:mt-0 flex items-center gap-4 bg-[var(--brand-primary-deep)] border border-[var(--brand-gold)]/40 p-4 rounded-xl shadow-xl">
+            <div className="text-3xl font-bold font-serif-luxury text-[var(--brand-gold)]">4.95</div>
             <div>
-              <div className="flex text-[#C8A24A]">
+              <div className="flex text-[var(--brand-gold)]">
                 {[...Array(5)].map((_, i) => (
                   <Star key={i} className="w-4 h-4 fill-current" />
                 ))}
@@ -44,8 +44,8 @@ export const CustomerReviews: React.FC = () => {
             onClick={() => setStarFilter(null)}
             className={`px-3.5 py-1.5 rounded-full border transition-all ${
               starFilter === null
-                ? 'border-[#C8A24A] bg-[#C8A24A] text-[#0B3D2E] font-bold'
-                : 'border-white/20 text-slate-300 hover:border-[#C8A24A]'
+                ? 'border-[var(--brand-gold)] bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold'
+                : 'border-white/20 text-slate-300 hover:border-[var(--brand-gold)]'
             }`}
           >
             All Reviews ({reviews.length})
@@ -56,8 +56,8 @@ export const CustomerReviews: React.FC = () => {
               onClick={() => setStarFilter(star)}
               className={`px-3.5 py-1.5 rounded-full border transition-all flex items-center gap-1 ${
                 starFilter === star
-                  ? 'border-[#C8A24A] bg-[#C8A24A] text-[#0B3D2E] font-bold'
-                  : 'border-white/20 text-slate-300 hover:border-[#C8A24A]'
+                  ? 'border-[var(--brand-gold)] bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold'
+                  : 'border-white/20 text-slate-300 hover:border-[var(--brand-gold)]'
               }`}
             >
               <span>{star} Stars</span>
@@ -71,11 +71,11 @@ export const CustomerReviews: React.FC = () => {
           {filteredReviews.map((rev) => (
             <div
               key={rev.id}
-              className="bg-[#072a20] border border-white/10 rounded-xl p-6 space-y-4 hover:border-[#C8A24A]/40 transition-all shadow-lg flex flex-col justify-between"
+              className="bg-[var(--brand-primary-deep)] border border-white/10 rounded-xl p-6 space-y-4 hover:border-[var(--brand-gold)]/40 transition-all shadow-lg flex flex-col justify-between"
             >
               <div className="space-y-3">
                 <div className="flex items-center justify-between">
-                  <div className="flex text-[#C8A24A]">
+                  <div className="flex text-[var(--brand-gold)]">
                     {[...Array(5)].map((_, i) => (
                       <Star
                         key={i}

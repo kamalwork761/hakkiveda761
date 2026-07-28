@@ -22,13 +22,13 @@ export const Footer: React.FC = () => {
   };
 
   return (
-    <footer className="bg-[#041a13] text-slate-100 font-sans border-t border-[#C8A24A]/30 pt-16 pb-12 relative">
+    <footer className="bg-[var(--brand-primary-deeper)] text-slate-100 font-sans border-t border-[var(--brand-gold)]/30 pt-16 pb-12 relative">
       <div className="max-w-7xl mx-auto px-6 sm:px-12">
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-12 gap-10 pb-12 border-b border-white/10">
           {/* Brand Info */}
           <div className="lg:col-span-4 space-y-4">
             <div className="flex items-center gap-2">
-              <span className="w-8 h-8 rounded-full bg-[#C8A24A] text-[#0B3D2E] flex items-center justify-center font-serif font-bold text-lg shrink-0">
+              <span className="w-8 h-8 rounded-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] flex items-center justify-center font-serif font-bold text-lg shrink-0">
                 H
               </span>
               <HakkivedaWordmark size="md" theme="dark-header" />
@@ -40,18 +40,18 @@ export const Footer: React.FC = () => {
 
             <div className="pt-2 space-y-2 text-xs text-slate-300">
               <div className="flex items-start gap-2.5">
-                <MapPin className="w-4 h-4 text-[#C8A24A] shrink-0 mt-0.5" />
+                <MapPin className="w-4 h-4 text-[var(--brand-gold)] shrink-0 mt-0.5" />
                 <span>Door No. 574, V.P. Bore, Hunsur, Mysore, Karnataka, India - 571105</span>
               </div>
               <div className="flex items-center gap-2.5">
-                <Phone className="w-4 h-4 text-[#C8A24A] shrink-0" />
-                <a href="https://wa.me/917619536831" target="_blank" rel="noreferrer" className="hover:text-[#C8A24A]">
+                <Phone className="w-4 h-4 text-[var(--brand-gold)] shrink-0" />
+                <a href="https://wa.me/917619536831" target="_blank" rel="noreferrer" className="hover:text-[var(--brand-gold)]">
                   +91 76195 36831 (WhatsApp)
                 </a>
               </div>
               <div className="flex items-center gap-2.5">
-                <Mail className="w-4 h-4 text-[#C8A24A] shrink-0" />
-                <a href="mailto:hakkiveda@gmail.com" className="hover:text-[#C8A24A]">
+                <Mail className="w-4 h-4 text-[var(--brand-gold)] shrink-0" />
+                <a href="mailto:hakkiveda@gmail.com" className="hover:text-[var(--brand-gold)]">
                   hakkiveda@gmail.com
                 </a>
               </div>
@@ -60,47 +60,47 @@ export const Footer: React.FC = () => {
 
           {/* Quick Links */}
           <div className="lg:col-span-2 space-y-3">
-            <h4 className="text-xs font-bold font-serif-luxury text-[#C8A24A] uppercase tracking-[0.2em]">
+            <h4 className="text-xs font-bold font-serif-luxury text-[var(--brand-gold)] uppercase tracking-[0.2em]">
               Botanical Catalog
             </h4>
             <ul className="space-y-2 text-xs text-slate-300">
-              <li><a href="#products" className="hover:text-[#C8A24A] transition-colors">Tribal Gold Oil</a></li>
-              <li><a href="#products" className="hover:text-[#C8A24A] transition-colors">Density Serums</a></li>
-              <li><a href="#products" className="hover:text-[#C8A24A] transition-colors">Soapnut Shampoos</a></li>
-              <li><a href="#products" className="hover:text-[#C8A24A] transition-colors">Hair Masks & Lepas</a></li>
-              <li><button onClick={() => setIsQuizOpen(true)} className="text-[#C8A24A] font-bold flex items-center gap-1 hover:underline"><Sparkles className="w-3 h-3" /> AI Hair Quiz</button></li>
+              <li><a href="#products" className="hover:text-[var(--brand-gold)] transition-colors">Tribal Gold Oil</a></li>
+              <li><a href="#products" className="hover:text-[var(--brand-gold)] transition-colors">Density Serums</a></li>
+              <li><a href="#products" className="hover:text-[var(--brand-gold)] transition-colors">Soapnut Shampoos</a></li>
+              <li><a href="#products" className="hover:text-[var(--brand-gold)] transition-colors">Hair Masks & Lepas</a></li>
+              <li><button onClick={() => setIsQuizOpen(true)} className="text-[var(--brand-gold)] font-bold flex items-center gap-1 hover:underline"><Sparkles className="w-3 h-3" /> AI Hair Quiz</button></li>
             </ul>
           </div>
 
           {/* Worldwide Shipping Section */}
           <div className="lg:col-span-3 space-y-3">
-            <h4 className="text-xs font-bold font-serif-luxury text-[#C8A24A] uppercase tracking-[0.2em] flex items-center gap-1.5">
+            <h4 className="text-xs font-bold font-serif-luxury text-[var(--brand-gold)] uppercase tracking-[0.2em] flex items-center gap-1.5">
               <span>🌍 WORLDWIDE SHIPPING</span>
             </h4>
 
             <ul className="space-y-1.5 text-xs text-slate-300 font-sans">
               <li className="flex items-center gap-2">
-                <span className="text-[#C8A24A] font-bold">✓</span>
+                <span className="text-[var(--brand-gold)] font-bold">✓</span>
                 <span>Ships Worldwide</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-[#C8A24A] font-bold">✓</span>
+                <span className="text-[var(--brand-gold)] font-bold">✓</span>
                 <span>Express International Delivery</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-[#C8A24A] font-bold">✓</span>
+                <span className="text-[var(--brand-gold)] font-bold">✓</span>
                 <span>Secure Packaging</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-[#C8A24A] font-bold">✓</span>
+                <span className="text-[var(--brand-gold)] font-bold">✓</span>
                 <span>Real-Time Order Tracking</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-[#C8A24A] font-bold">✓</span>
+                <span className="text-[var(--brand-gold)] font-bold">✓</span>
                 <span>Customs Assistance</span>
               </li>
               <li className="flex items-center gap-2">
-                <span className="text-[#C8A24A] font-bold">✓</span>
+                <span className="text-[var(--brand-gold)] font-bold">✓</span>
                 <span>Delivery in 3–12 Business Days*</span>
               </li>
             </ul>
@@ -110,7 +110,7 @@ export const Footer: React.FC = () => {
                 onClick={() => {
                   alert('Shipping Policy:\n• Orders dispatched within 24-48 business hours.\n• Tracked shipping via DHL/FedEx/SpeedPost.\n• Free Express Shipping on orders over ₹1,999 (India) or $99 (Global).');
                 }}
-                className="text-xs font-bold text-[#C8A24A] hover:text-white transition-colors inline-flex items-center gap-1 group text-left"
+                className="text-xs font-bold text-[var(--brand-gold)] hover:text-white transition-colors inline-flex items-center gap-1 group text-left"
               >
                 <span>View Shipping Policy</span>
                 <span className="group-hover:translate-x-1 transition-transform">→</span>
@@ -118,7 +118,7 @@ export const Footer: React.FC = () => {
 
               <button
                 onClick={() => setIsB2BModalOpen(true)}
-                className="text-[11px] text-slate-300 hover:text-[#C8A24A] underline font-medium text-left"
+                className="text-[11px] text-slate-300 hover:text-[var(--brand-gold)] underline font-medium text-left"
               >
                 Wholesale & Export Enquiries →
               </button>
@@ -127,7 +127,7 @@ export const Footer: React.FC = () => {
 
           {/* Newsletter Subscription */}
           <div className="lg:col-span-3 space-y-3">
-            <h4 className="text-xs font-bold font-serif-luxury text-[#C8A24A] uppercase tracking-[0.2em]">
+            <h4 className="text-xs font-bold font-serif-luxury text-[var(--brand-gold)] uppercase tracking-[0.2em]">
               Tribal Secrets Newsletter
             </h4>
             <p className="text-xs text-slate-300 leading-relaxed font-light">
@@ -147,11 +147,11 @@ export const Footer: React.FC = () => {
                     placeholder="Enter email address"
                     value={newsletterEmail}
                     onChange={(e) => setNewsletterEmail(e.target.value)}
-                    className="flex-1 bg-[#0B3D2E] border border-white/20 rounded px-3 py-2 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[#C8A24A]"
+                    className="flex-1 bg-[var(--brand-primary-dark)] border border-white/20 rounded px-3 py-2 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[var(--brand-gold)]"
                   />
                   <button
                     type="submit"
-                    className="bg-[#C8A24A] text-[#0B3D2E] px-3 py-2 rounded text-xs font-bold uppercase hover:bg-white transition-all"
+                    className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-3 py-2 rounded text-xs font-bold uppercase hover:bg-white transition-all"
                   >
                     <Send className="w-4 h-4" />
                   </button>
@@ -171,9 +171,9 @@ export const Footer: React.FC = () => {
           <div className="flex items-center gap-4 flex-wrap">
             <SoundToggle variant="footer" />
             <span>•</span>
-            <a href="#brand-story" className="hover:text-[#C8A24A] transition-colors">Tribal Lore</a>
+            <a href="#brand-story" className="hover:text-[var(--brand-gold)] transition-colors">Tribal Lore</a>
             <span>•</span>
-            <a href="#products" className="hover:text-[#C8A24A] transition-colors">100% Organic Guarantee</a>
+            <a href="#products" className="hover:text-[var(--brand-gold)] transition-colors">100% Organic Guarantee</a>
             <span>•</span>
             <a
               href="/admin"
@@ -182,7 +182,7 @@ export const Footer: React.FC = () => {
                 window.history.pushState({}, '', '/admin');
                 window.dispatchEvent(new Event('popstate'));
               }}
-              className="hover:text-[#C8A24A] transition-colors text-slate-300 font-semibold"
+              className="hover:text-[var(--brand-gold)] transition-colors text-slate-300 font-semibold"
             >
               🔐 Admin Portal
             </a>

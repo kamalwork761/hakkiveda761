@@ -21,9 +21,8 @@ export const HakkivedaWordmark: React.FC<HakkivedaWordmarkProps> = ({
   }[size];
 
   // Colors based on theme
-  // Forest Green Fill: #1B5E43 or #2D6A4F with #C8A24A Golden Stroke
-  const strokeColor = '#C8A24A';
-  const fillColor = theme === 'dark-header' ? '#1f6b4e' : '#144533';
+  const strokeColor = '#D4AF37';
+  const fillColor = theme === 'dark-header' ? '#3AA91F' : '#246F13';
 
   return (
     <div className={`relative inline-flex items-center select-none ${className}`}>
@@ -48,11 +47,11 @@ export const HakkivedaWordmark: React.FC<HakkivedaWordmarkProps> = ({
             </feMerge>
           </filter>
 
-          {/* Luxury Forest Green Fill Gradient */}
+          {/* Luxury Brand Green Fill Gradient */}
           <linearGradient id="forest-green-luxury" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#2D6A4F" />
-            <stop offset="50%" stopColor="#1B5E43" />
-            <stop offset="100%" stopColor="#0F3828" />
+            <stop offset="0%" stopColor="#3AA91F" />
+            <stop offset="50%" stopColor="#246F13" />
+            <stop offset="100%" stopColor="#113308" />
           </linearGradient>
         </defs>
 
@@ -86,22 +85,22 @@ export const HakkivedaWordmark: React.FC<HakkivedaWordmarkProps> = ({
 
           @keyframes goldenGlowPulse {
             0%, 25% {
-              filter: drop-shadow(0 0 0px rgba(200, 162, 74, 0));
+              filter: drop-shadow(0 0 0px rgba(212, 175, 55, 0));
             }
             35% {
-              filter: drop-shadow(0 0 10px rgba(200, 162, 74, 0.85));
+              filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.85));
             }
             48% {
-              filter: drop-shadow(0 0 3px rgba(200, 162, 74, 0.3));
+              filter: drop-shadow(0 0 3px rgba(212, 175, 55, 0.3));
             }
             65% {
-              filter: drop-shadow(0 0 7px rgba(200, 162, 74, 0.55));
+              filter: drop-shadow(0 0 7px rgba(212, 175, 55, 0.55));
             }
             80% {
-              filter: drop-shadow(0 0 3px rgba(200, 162, 74, 0.3));
+              filter: drop-shadow(0 0 3px rgba(212, 175, 55, 0.3));
             }
             90%, 100% {
-              filter: drop-shadow(0 0 0px rgba(200, 162, 74, 0));
+              filter: drop-shadow(0 0 0px rgba(212, 175, 55, 0));
             }
           }
 

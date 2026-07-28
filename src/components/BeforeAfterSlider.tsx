@@ -33,10 +33,10 @@ export const BeforeAfterSlider: React.FC = () => {
   };
 
   return (
-    <section id="before-after" className="py-20 bg-[#072a20] border-t border-b border-white/10 relative overflow-hidden">
+    <section id="before-after" className="py-20 bg-[var(--brand-primary-deep)] border-t border-b border-white/10 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-6 sm:px-12">
         <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
-          <span className="text-[#C8A24A] font-sans text-xs uppercase tracking-[0.28em] font-bold block">
+          <span className="text-[var(--brand-gold)] font-sans text-xs uppercase tracking-[0.28em] font-bold block">
             Real Verified Transformations
           </span>
           <h2 className="text-3xl sm:text-5xl font-serif-luxury font-bold text-slate-100">
@@ -47,7 +47,7 @@ export const BeforeAfterSlider: React.FC = () => {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-[#0B3D2E] border border-[#C8A24A]/30 rounded-2xl p-6 sm:p-10 shadow-2xl">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/30 rounded-2xl p-6 sm:p-10 shadow-2xl">
           {/* Interactive Dual Image Comparison Slider */}
           <div className="lg:col-span-7 space-y-4">
             <div
@@ -61,7 +61,7 @@ export const BeforeAfterSlider: React.FC = () => {
                 alt="After"
                 className="absolute inset-0 w-full h-full object-cover"
               />
-              <span className="absolute top-4 right-4 bg-[#C8A24A] text-[#0B3D2E] text-[11px] font-bold font-sans uppercase px-3 py-1 rounded-full z-10 shadow-lg">
+              <span className="absolute top-4 right-4 bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] text-[11px] font-bold font-sans uppercase px-3 py-1 rounded-full z-10 shadow-lg">
                 After ({currentItem.days} Days)
               </span>
 
@@ -83,10 +83,10 @@ export const BeforeAfterSlider: React.FC = () => {
 
               {/* Draggable Divider Handle */}
               <div
-                className="absolute top-0 bottom-0 w-1 bg-[#C8A24A] z-20 cursor-ew-resize gold-glow"
+                className="absolute top-0 bottom-0 w-1 bg-[var(--brand-gold)] z-20 cursor-ew-resize gold-glow"
                 style={{ left: `${sliderPos}%` }}
               >
-                <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-[#C8A24A] text-[#0B3D2E] flex items-center justify-center font-bold text-xs shadow-2xl border-2 border-[#0B3D2E]">
+                <div className="absolute top-1/2 -translate-y-1/2 -translate-x-1/2 w-8 h-8 rounded-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] flex items-center justify-center font-bold text-xs shadow-2xl border-2 border-[var(--brand-primary-dark)]">
                   ↔
                 </div>
               </div>
@@ -100,12 +100,12 @@ export const BeforeAfterSlider: React.FC = () => {
           {/* Testimonial Details */}
           <div className="lg:col-span-5 space-y-6">
             <div className="flex items-center justify-between border-b border-white/10 pb-4">
-              <span className="bg-[#C8A24A]/20 text-[#C8A24A] border border-[#C8A24A]/40 text-xs font-bold font-sans uppercase px-3 py-1 rounded-full flex items-center gap-1.5">
+              <span className="bg-[var(--brand-gold)]/20 text-[var(--brand-gold)] border border-[var(--brand-gold)]/40 text-xs font-bold font-sans uppercase px-3 py-1 rounded-full flex items-center gap-1.5">
                 <Calendar className="w-3.5 h-3.5" />
                 <span>{currentItem.days} Days Transformation</span>
               </span>
               <div className="flex items-center gap-1.5 text-xs text-slate-300 font-sans">
-                <MapPin className="w-3.5 h-3.5 text-[#C8A24A]" />
+                <MapPin className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
                 <span>{currentItem.location}</span>
               </div>
             </div>
@@ -114,12 +114,12 @@ export const BeforeAfterSlider: React.FC = () => {
               <h3 className="text-2xl font-serif-luxury font-bold text-slate-100">
                 {currentItem.title}
               </h3>
-              <p className="text-xs text-[#C8A24A] font-sans uppercase tracking-wider font-semibold">
+              <p className="text-xs text-[var(--brand-gold)] font-sans uppercase tracking-wider font-semibold">
                 Concern: {currentItem.concern}
               </p>
               <div className="relative pt-2">
-                <Quote className="w-8 h-8 text-[#C8A24A]/30 absolute -top-2 -left-2" />
-                <p className="text-sm text-slate-200 leading-relaxed font-sans italic pl-4 border-l-2 border-[#C8A24A]">
+                <Quote className="w-8 h-8 text-[var(--brand-gold)]/30 absolute -top-2 -left-2" />
+                <p className="text-sm text-slate-200 leading-relaxed font-sans italic pl-4 border-l-2 border-[var(--brand-gold)]">
                   "{currentItem.testimonial}"
                 </p>
               </div>
@@ -135,13 +135,13 @@ export const BeforeAfterSlider: React.FC = () => {
               <div className="flex items-center gap-2">
                 <button
                   onClick={() => setCurrentIndex((prev) => (prev - 1 + itemsToDisplay.length) % itemsToDisplay.length)}
-                  className="w-10 h-10 rounded-full bg-black/40 border border-white/20 text-white hover:bg-[#C8A24A] hover:text-[#0B3D2E] transition-all flex items-center justify-center"
+                  className="w-10 h-10 rounded-full bg-black/40 border border-white/20 text-white hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all flex items-center justify-center"
                 >
                   <ChevronLeft className="w-5 h-5" />
                 </button>
                 <button
                   onClick={() => setCurrentIndex((prev) => (prev + 1) % itemsToDisplay.length)}
-                  className="w-10 h-10 rounded-full bg-black/40 border border-white/20 text-white hover:bg-[#C8A24A] hover:text-[#0B3D2E] transition-all flex items-center justify-center"
+                  className="w-10 h-10 rounded-full bg-black/40 border border-white/20 text-white hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all flex items-center justify-center"
                 >
                   <ChevronRight className="w-5 h-5" />
                 </button>

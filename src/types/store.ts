@@ -338,12 +338,86 @@ export interface MediaItem {
   uploadedAt: string;
 }
 
+export type PaymentGatewayId = 'RAZORPAY' | 'STRIPE' | 'PAYPAL' | 'PHONEPE' | 'UPI' | 'COD';
+
+export interface PaymentGatewayConfig {
+  id: PaymentGatewayId;
+  name: string;
+  enabled: boolean;
+  mode: 'TEST' | 'LIVE';
+  liveApiKey: string;
+  liveSecretKey: string;
+  testApiKey: string;
+  testSecretKey: string;
+  webhookStatus: 'ACTIVE' | 'PENDING' | 'DISCONNECTED' | 'SYNCED';
+  webhookUrl?: string;
+  lastTestedAt?: string;
+  connectionStatus?: 'CONNECTED' | 'FAILED' | 'UNTESTED';
+  supportedCurrencies: string[];
+  sortOrder: number;
+  description: string;
+  badgeText?: string;
+}
+
+export interface CodRulesConfig {
+  enabled: boolean;
+  indiaOnly: boolean;
+  minOrderINR: number;
+  maxOrderINR: number;
+  codFeeINR: number;
+}
+
+export interface MarketPaymentGatewayMapping {
+  marketId: string;
+  countryCode: string; // 'IN' | 'SG' | 'MY' | 'MU' | 'FJ' | 'AE' | 'SA' | 'NP' | 'INT'
+  marketName: string;
+  currencyCode: string;
+  gateways: PaymentGatewayId[];
+}
+
+export interface PaymentLog {
+  id: string;
+  orderId: string;
+  orderNumber: string;
+  customerName: string;
+  customerEmail?: string;
+  gateway: PaymentGatewayId;
+  amount: number;
+  currency: string;
+  amountINR: number;
+  status: 'SUCCESSFUL' | 'PENDING' | 'FAILED' | 'REFUNDED';
+  transactionId: string;
+  paymentMethodDetails?: string;
+  createdAt: string;
+  errorMessage?: string;
+  refundId?: string;
+  refundAmount?: number;
+  refundReason?: string;
+  refundedAt?: string;
+}
+
+export interface Market {
+  id: string;
+  name: string;
+  code: string; // e.g. 'IN', 'SG', 'MY', 'MU', 'FJ', 'AE', 'SA', 'NP', 'INT'
+  currencyCode: string;
+  shippingRule: 'COD_AND_PREPAID' | 'PREPAID_ONLY' | 'BLOCK_ORDERS';
+  paymentGateways: PaymentGatewayId[];
+  freeShippingThreshold: number;
+  enabled: boolean;
+  includedCountriesCount?: number;
+}
+
 export interface CountrySetting {
   code: string;
   name: string;
   flag: string;
   currencyCode: string;
   enabled: boolean;
+  region: string; // 'Asia' | 'GCC' | 'Europe' | 'Africa' | 'North America' | 'South America' | 'Oceania' | 'Antarctica'
+  marketId: string;
+  shippingRule: 'COD_AND_PREPAID' | 'PREPAID_ONLY' | 'BLOCK_ORDERS';
+  paymentRule: 'COD_AND_PREPAID' | 'PREPAID_ONLY' | 'BLOCK_ORDERS';
 }
 
 export interface MegaMenuColumn {
@@ -351,6 +425,48 @@ export interface MegaMenuColumn {
   title: string;
   categorySlug?: string;
   links: { label: string; url: string; badge?: string }[];
+}
+
+export interface GalleryImageItem {
+  id: string;
+  url: string;
+  filename?: string;
+  title?: string;
+  altText?: string;
+  sortOrder?: number;
+}
+
+export interface TribalHeritagePageContent {
+  // Hero Image
+  desktopHeroImage?: string;
+  desktopHeroFilename?: string;
+  mobileHeroImage?: string;
+  mobileHeroFilename?: string;
+
+  // Story Content
+  mainHeading?: string;
+  smallHeading?: string;
+  richText?: {
+    paragraphs: string[];
+    lists: string[];
+    quotes: string[];
+    highlightText: string;
+  };
+
+  // Gallery
+  gallery?: GalleryImageItem[];
+
+  // Optional Video
+  videoMp4Url?: string;
+  videoYoutubeUrl?: string;
+
+  // CTA
+  ctaText?: string;
+  ctaLink?: string;
+
+  // SEO
+  seoAltText?: string;
+  seoImageTitle?: string;
 }
 
 export interface MegaMenuConfig {
@@ -396,6 +512,9 @@ export interface NavLink {
   
   // Mega Menu
   megaMenu?: MegaMenuConfig;
+
+  // Page Content Manager
+  pageContent?: TribalHeritagePageContent;
   
   // Ordering & Analytics
   sortOrder?: number;

@@ -1,7 +1,8 @@
 import React, { useState } from 'react';
 import { X, ShieldCheck, CheckCircle2, CreditCard, Banknote, Truck, ArrowRight } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
-import { Order } from '../types/store';
+import { Order, PaymentGatewayId } from '../types/store';
+import { PaymentIcon } from './PaymentIcons';
 
 export const CheckoutModal: React.FC = () => {
   const {
@@ -14,6 +15,12 @@ export const CheckoutModal: React.FC = () => {
     formatPrice,
     currentCurrency,
     selectedCountry,
+    countries,
+    currentMarket,
+    markets,
+    paymentGateways,
+    codRules,
+    marketGateways,
     placeOrder,
   } = useStore();
 
@@ -29,18 +36,46 @@ export const CheckoutModal: React.FC = () => {
   const [country, setCountry] = useState(selectedCountry?.name || 'India');
   const [pincode, setPincode] = useState('');
 
-  const [paymentMethod, setPaymentMethod] = useState<'RAZORPAY' | 'COD' | 'INTERNATIONAL_PREPAID'>('RAZORPAY');
+  const [paymentMethod, setPaymentMethod] = useState<PaymentGatewayId>('RAZORPAY');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
 
   if (!isCheckoutOpen) return null;
 
-  const isIndia = country.toLowerCase() === 'india' || country.toLowerCase().includes('in');
+  const matchedCountry =
+    countries.find((c) => c.name.toLowerCase() === country.toLowerCase() || c.code.toLowerCase() === country.toLowerCase()) ||
+    countries.find((c) => c.code === selectedCountry.code);
+
+  const isBlocked = matchedCountry?.shippingRule === 'BLOCK_ORDERS';
+  const isIndia = matchedCountry?.code === 'IN' || country.toLowerCase() === 'india' || country.toLowerCase().includes('in');
+
+  // Determine market payment gateways
+  const marketMapping = marketGateways.find((mg) => mg.marketId === currentMarket.id) ||
+    marketGateways.find((mg) => mg.countryCode === matchedCountry?.code);
+  const activeGatewayIds: PaymentGatewayId[] = marketMapping
+    ? marketMapping.gateways
+    : (currentMarket.paymentGateways as PaymentGatewayId[]) || ['RAZORPAY', 'UPI', 'PHONEPE', 'COD'];
+
+  // Filter paymentGateways by enabled & active for this market
+  const availableGateways = paymentGateways
+    .filter((gw) => gw.enabled && activeGatewayIds.includes(gw.id))
+    .sort((a, b) => a.sortOrder - b.sortOrder);
+
+  // COD checks
+  const isCodGloballyEnabled = codRules.enabled && (!codRules.restrictToIndia || isIndia);
+  const isCodWithinLimits = cartTotalINR >= codRules.minOrderAmountINR && cartTotalINR <= codRules.maxOrderAmountINR;
+  const isCodAllowed = matchedCountry
+    ? matchedCountry.shippingRule === 'COD_AND_PREPAID' && matchedCountry.paymentRule === 'COD_AND_PREPAID' && isCodGloballyEnabled && isCodWithinLimits
+    : isIndia && isCodGloballyEnabled && isCodWithinLimits;
 
   const handleAddressSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (!isIndia && paymentMethod === 'COD') {
-      setPaymentMethod('INTERNATIONAL_PREPAID');
+    if (isBlocked) return;
+    if (!isCodAllowed && paymentMethod === 'COD') {
+      const fallback = availableGateways.find((g) => g.id !== 'COD')?.id || 'RAZORPAY';
+      setPaymentMethod(fallback);
+    } else if (availableGateways.length > 0 && !availableGateways.some((g) => g.id === paymentMethod)) {
+      setPaymentMethod(availableGateways[0].id);
     }
     setStep('payment');
   };
@@ -49,6 +84,9 @@ export const CheckoutModal: React.FC = () => {
     setIsProcessingPayment(true);
 
     setTimeout(() => {
+      const selectedGw = paymentGateways.find((g) => g.id === paymentMethod);
+      const isCod = paymentMethod === 'COD';
+
       const order = placeOrder({
         items: [...cart],
         totalAmountINR: cartTotalINR,
@@ -64,8 +102,8 @@ export const CheckoutModal: React.FC = () => {
           country,
           pincode,
         },
-        paymentMethod: isIndia ? paymentMethod : 'INTERNATIONAL_PREPAID',
-        paymentStatus: paymentMethod === 'COD' ? 'COD_DUE' : 'PAID',
+        paymentMethod: paymentMethod,
+        paymentStatus: isCod ? 'COD_DUE' : 'PAID',
         trackingStatus: 'ORDER_PLACED',
         trackingNumber: `HV-${Math.floor(100000 + Math.random() * 900000)}`,
         courierName: isIndia ? 'BlueDart Express / India Post' : 'DHL Express Worldwide',
@@ -75,7 +113,7 @@ export const CheckoutModal: React.FC = () => {
       setCompletedOrder(order);
       setIsProcessingPayment(false);
       setStep('confirmation');
-    }, 2000);
+    }, 1800);
   };
 
   return (
@@ -237,11 +275,27 @@ export const CheckoutModal: React.FC = () => {
               </div>
             )}
 
+            {isBlocked && (
+              <div className="p-4 bg-red-950/60 border border-red-500/50 rounded-xl text-xs text-rose-200 space-y-1">
+                <span className="font-bold flex items-center gap-1.5 text-rose-400">
+                  ⚠️ Shipping Unavailable
+                </span>
+                <p>
+                  Orders to <strong>{matchedCountry?.name || country}</strong> are currently blocked by store administration rules. Please select a different delivery country.
+                </p>
+              </div>
+            )}
+
             <button
               type="submit"
-              className="w-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-white transition-all shadow-xl flex items-center justify-center gap-2 mt-6"
+              disabled={isBlocked}
+              className={`w-full py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all shadow-xl flex items-center justify-center gap-2 mt-6 ${
+                isBlocked
+                  ? 'bg-slate-700 text-slate-400 cursor-not-allowed opacity-60'
+                  : 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] hover:bg-white'
+              }`}
             >
-              <span>Continue To Payment</span>
+              <span>{isBlocked ? 'Shipping Blocked' : 'Continue To Payment'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
@@ -256,56 +310,76 @@ export const CheckoutModal: React.FC = () => {
 
             {/* Rules Callout */}
             <div className="p-4 bg-black/40 border border-[var(--brand-gold)]/30 rounded-xl text-xs space-y-1">
-              <span className="text-[var(--brand-gold)] font-bold block">International E-Commerce Payment Rules:</span>
+              <div className="flex items-center justify-between">
+                <span className="text-[var(--brand-gold)] font-bold block">Market & Payment Policy:</span>
+                <span className="text-[10px] px-2 py-0.5 rounded bg-[var(--brand-gold)]/20 text-[var(--brand-gold)] border border-[var(--brand-gold)]/40 font-bold">
+                  {matchedCountry?.flag || selectedCountry.flag} {matchedCountry?.name || selectedCountry.name} ({currentCurrency.code})
+                </span>
+              </div>
               <p className="text-slate-300">
-                {isIndia
-                  ? '• Deliveries in India qualify for both Razorpay Online Payment and Cash on Delivery (COD).'
-                  : '• Cash on Delivery (COD) is available ONLY within India. International shipments (Singapore, Malaysia, Global) require Prepaid Payment.'}
+                {isCodAllowed
+                  ? `• Shipments to ${matchedCountry?.name || 'India'} qualify for both Razorpay Online Payment and Cash on Delivery (COD).`
+                  : `• Cash on Delivery (COD) is disabled for ${matchedCountry?.name || country}. International shipments require Prepaid Checkout.`}
               </p>
             </div>
 
             <div className="space-y-3">
-              {/* Razorpay Option */}
-              <label
-                onClick={() => setPaymentMethod('RAZORPAY')}
-                className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
-                  paymentMethod === 'RAZORPAY'
-                    ? 'border-[var(--brand-gold)] bg-[var(--brand-primary-dark)] text-[var(--brand-gold)]'
-                    : 'border-white/20 bg-black/30 text-slate-200'
-                }`}
-              >
-                <div className="flex items-center gap-3">
-                  <CreditCard className="w-5 h-5 text-[var(--brand-gold)]" />
-                  <div>
-                    <span className="font-bold text-sm block">Razorpay Payment Gateway</span>
-                    <span className="text-[10px] text-slate-400">Cards, UPI, NetBanking, International Cards</span>
-                  </div>
-                </div>
-                <input type="radio" name="pay" checked={paymentMethod === 'RAZORPAY'} readOnly />
-              </label>
+              {availableGateways.map((gw) => {
+                const isCod = gw.id === 'COD';
+                const isDisabledCod = isCod && !isCodAllowed;
 
-              {/* COD Option (Only if India) */}
-              {isIndia ? (
-                <label
-                  onClick={() => setPaymentMethod('COD')}
-                  className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
-                    paymentMethod === 'COD'
-                      ? 'border-[var(--brand-gold)] bg-[var(--brand-primary-dark)] text-[var(--brand-gold)]'
-                      : 'border-white/20 bg-black/30 text-slate-200'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <Banknote className="w-5 h-5 text-[var(--brand-gold)]" />
-                    <div>
-                      <span className="font-bold text-sm block">Cash On Delivery (COD)</span>
-                      <span className="text-[10px] text-slate-400">Pay cash upon delivery at your doorstep in India</span>
-                    </div>
+                return (
+                  <div key={gw.id}>
+                    {isDisabledCod ? (
+                      <div className="p-3.5 bg-red-950/30 border border-red-500/20 rounded-xl text-[11px] text-rose-300 flex items-center justify-between">
+                        <div className="flex items-center gap-3">
+                          <PaymentIcon gatewayId="COD" size="sm" />
+                          <span>
+                            Cash on Delivery unavailable for {matchedCountry?.name || country} (Min ₹{codRules.minOrderAmountINR}, Max ₹{codRules.maxOrderAmountINR})
+                          </span>
+                        </div>
+                        <span className="text-[10px] font-bold px-2 py-0.5 bg-red-900/40 text-red-300 rounded border border-red-500/30">
+                          Prepaid Only
+                        </span>
+                      </div>
+                    ) : (
+                      <label
+                        onClick={() => setPaymentMethod(gw.id)}
+                        className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
+                          paymentMethod === gw.id
+                            ? 'border-[var(--brand-gold)] bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] shadow-lg ring-1 ring-[var(--brand-gold)]/30'
+                            : 'border-white/15 bg-black/30 text-slate-200 hover:border-white/30'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3.5">
+                          <PaymentIcon gatewayId={gw.id} size="md" />
+                          <div>
+                            <div className="flex items-center gap-2">
+                              <span className="font-bold text-sm block text-slate-100">{gw.name}</span>
+                              {gw.mode === 'TEST' && (
+                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                  TEST MODE
+                                </span>
+                              )}
+                            </div>
+                            <span className="text-[11px] text-slate-400 block">{gw.description}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-3">
+                          <span className="text-[10px] font-mono font-bold text-slate-400 bg-white/5 px-2 py-1 rounded border border-white/10">
+                            {currentCurrency.code}
+                          </span>
+                          <input type="radio" name="pay" checked={paymentMethod === gw.id} readOnly className="accent-[var(--brand-gold)] w-4 h-4" />
+                        </div>
+                      </label>
+                    )}
                   </div>
-                  <input type="radio" name="pay" checked={paymentMethod === 'COD'} readOnly />
-                </label>
-              ) : (
-                <div className="p-3 bg-red-950/40 border border-red-500/20 rounded-xl text-[11px] text-rose-300">
-                  🚫 Cash on Delivery is disabled for international destinations ({country}). Please select prepaid checkout.
+                );
+              })}
+
+              {availableGateways.length === 0 && (
+                <div className="p-4 bg-amber-950/40 border border-amber-500/30 rounded-xl text-xs text-amber-200">
+                  No payment gateways configured for this market yet. Please contact store administration.
                 </div>
               )}
             </div>

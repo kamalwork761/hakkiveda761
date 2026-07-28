@@ -51,9 +51,17 @@ import {
   VolumeX,
   Trees,
   Upload,
+  ShieldCheck,
+  CheckCircle,
+  Banknote,
+  ArrowUpDown,
+  ArrowUp,
+  ArrowDown,
+  RotateCcw,
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { OrderDetailsModal } from './OrderDetailsModal';
+import { PaymentIcon } from './PaymentIcons';
 import {
   Product,
   Category,
@@ -68,6 +76,9 @@ import {
   CountrySetting,
   User,
   Order,
+  PaymentGatewayConfig,
+  PaymentGatewayId,
+  PaymentLog,
 } from '../types/store';
 
 interface AdminDashboardProps {
@@ -99,8 +110,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
     deleteCoupon,
     currencies,
     updateCurrencyRate,
+    markets,
+    updateMarket,
     countries,
     updateCountrySetting,
+    bulkUpdateCountries,
     siteSettings,
     updateSiteSettings,
     navLinks,
@@ -135,6 +149,17 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
     updateAdminPassword,
     formatPrice,
     resetToDefaults,
+    paymentGateways,
+    updatePaymentGateway,
+    reorderPaymentGateways,
+    testGatewayConnection,
+    codRules,
+    updateCodRules,
+    marketGateways,
+    updateMarketGateways,
+    paymentLogs,
+    addPaymentLog,
+    refundPaymentLog,
     soundEnabled,
     soundVolume,
     soundPack,
@@ -206,6 +231,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
   };
 
   // Forms states
+  const [paymentSubTab, setPaymentSubTab] = useState<'GATEWAYS' | 'MARKETS' | 'COD' | 'PRIORITY' | 'LOGS'>('GATEWAYS');
+  const [testingGatewayId, setTestingGatewayId] = useState<string | null>(null);
+  const [draggedGatewayIdx, setDraggedGatewayIdx] = useState<number | null>(null);
+  
+  // Refund Modal State
+  const [refundingLog, setRefundingLog] = useState<PaymentLog | null>(null);
+  const [refundAmountInput, setRefundAmountInput] = useState<number>(0);
+  const [refundReasonInput, setRefundReasonInput] = useState<string>('Customer requested return/refund');
+  const [isRefundModalOpen, setIsRefundModalOpen] = useState<boolean>(false);
+
+  // Payment Logs Filters
+  const [paymentLogStatusFilter, setPaymentLogStatusFilter] = useState<string>('ALL');
+  const [paymentLogSearch, setPaymentLogSearch] = useState<string>('');
+
+  const [countrySearch, setCountrySearch] = useState('');
+  const [selectedRegionFilter, setSelectedRegionFilter] = useState<string>('ALL');
+  const [selectedRuleFilter, setSelectedRuleFilter] = useState<string>('ALL');
+  const [countryPage, setCountryPage] = useState<number>(1);
+  const COUNTRIES_PER_PAGE = 20;
+
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
   const [prodForm, setProdForm] = useState<Partial<Product>>({
@@ -1800,72 +1845,1314 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
         )}
 
         {/* Tab 11: Currency & Countries */}
-        {activeTab === 'currency' && (
-          <div className="space-y-6 animate-in fade-in">
-            <div>
-              <h1 className="text-2xl font-bold font-serif-luxury text-slate-100">Currencies & Global Shipping Countries</h1>
-              <p className="text-xs text-slate-300">Adjust exchange rates and enabled country targets.</p>
-            </div>
+        {activeTab === 'currency' && (() => {
+          const filteredCountriesList = countries.filter((c) => {
+            const matchesSearch =
+              c.name.toLowerCase().includes(countrySearch.toLowerCase()) ||
+              c.code.toLowerCase().includes(countrySearch.toLowerCase());
+            const matchesRegion =
+              selectedRegionFilter === 'ALL' ||
+              (c.region && c.region.toUpperCase() === selectedRegionFilter.toUpperCase());
+            const matchesRule =
+              selectedRuleFilter === 'ALL' ||
+              (selectedRuleFilter === 'COD_AND_PREPAID' && c.shippingRule === 'COD_AND_PREPAID') ||
+              (selectedRuleFilter === 'PREPAID_ONLY' && c.shippingRule === 'PREPAID_ONLY') ||
+              (selectedRuleFilter === 'BLOCK_ORDERS' && c.shippingRule === 'BLOCK_ORDERS');
+            return matchesSearch && matchesRegion && matchesRule;
+          });
 
-            <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-5 rounded-2xl space-y-4">
-              <h3 className="text-sm font-bold text-[var(--brand-gold)] uppercase">Exchange Rates to Base INR (₹)</h3>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs font-sans">
-                {currencies.map((curr) => (
-                  <div key={curr.code} className="p-3 bg-[var(--brand-primary-deep)] rounded-xl flex items-center justify-between">
-                    <div>
-                      <span className="font-bold text-slate-100">{curr.flag} {curr.country}</span>
-                      <p className="text-[10px] text-slate-400">{curr.code} ({curr.symbol})</p>
+          const totalPages = Math.ceil(filteredCountriesList.length / COUNTRIES_PER_PAGE) || 1;
+          const currentPageSafe = Math.min(countryPage, totalPages);
+          const paginatedCountries = filteredCountriesList.slice(
+            (currentPageSafe - 1) * COUNTRIES_PER_PAGE,
+            currentPageSafe * COUNTRIES_PER_PAGE
+          );
+
+          const enabledCount = countries.filter((c) => c.enabled).length;
+
+          return (
+            <div className="space-y-8 animate-in fade-in">
+              {/* Module Header & Summary Banner */}
+              <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-white/10 pb-4">
+                <div>
+                  <div className="flex items-center gap-2">
+                    <Globe className="w-6 h-6 text-[var(--brand-gold)]" />
+                    <h1 className="text-2xl font-bold font-serif-luxury text-slate-100">
+                      Currencies & Global Shipping Countries
+                    </h1>
+                  </div>
+                  <p className="text-xs text-slate-300 mt-1">
+                    Manage Shopify-style Markets, exchange rates, global shipping rules, and payment gateways for 250+ world destinations.
+                  </p>
+                </div>
+
+                <div className="flex items-center gap-2 flex-wrap">
+                  <div className="bg-[var(--brand-primary-dark)] px-3 py-1.5 rounded-xl border border-white/10 text-xs">
+                    <span className="text-[10px] text-slate-400 block uppercase font-bold">Total Destinations</span>
+                    <span className="font-bold text-[var(--brand-gold)] font-mono">{countries.length} Countries</span>
+                  </div>
+                  <div className="bg-[var(--brand-primary-dark)] px-3 py-1.5 rounded-xl border border-white/10 text-xs">
+                    <span className="text-[10px] text-slate-400 block uppercase font-bold">Active Deliveries</span>
+                    <span className="font-bold text-emerald-400 font-mono">{enabledCount} Active</span>
+                  </div>
+                  <div className="bg-[var(--brand-primary-dark)] px-3 py-1.5 rounded-xl border border-white/10 text-xs">
+                    <span className="text-[10px] text-slate-400 block uppercase font-bold">Markets Configured</span>
+                    <span className="font-bold text-amber-300 font-mono">{markets.length} Markets</span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Section 1: Exchange Rates (9 Official Currencies) */}
+              <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-5 rounded-2xl space-y-4">
+                <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-[var(--brand-gold)] uppercase tracking-wider flex items-center gap-2">
+                      <DollarSign className="w-4 h-4" /> Official Currency Exchange Rates (Base: INR ₹)
+                    </h3>
+                    <p className="text-[11px] text-slate-300">
+                      Prices on the storefront automatically convert using these dynamic exchange rates.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-xs font-sans">
+                  {currencies.map((curr) => (
+                    <div
+                      key={curr.code}
+                      className="p-3 bg-[var(--brand-primary-deep)] border border-white/10 rounded-xl flex items-center justify-between hover:border-[var(--brand-gold)]/40 transition-all shadow-sm"
+                    >
+                      <div className="flex items-center gap-2.5">
+                        <span className="text-xl">{curr.flag}</span>
+                        <div>
+                          <span className="font-bold text-slate-100 block">{curr.country}</span>
+                          <span className="text-[10px] font-mono text-[var(--brand-gold)]">
+                            {curr.code} ({curr.symbol})
+                          </span>
+                        </div>
+                      </div>
+
+                      <div className="flex items-center gap-1.5 bg-[var(--brand-primary-dark)] p-1.5 rounded-lg border border-white/10">
+                        <span className="text-slate-400 text-[10px]">1 {curr.code} =</span>
+                        <input
+                          type="number"
+                          step="0.001"
+                          value={curr.rateToINR}
+                          onChange={(e) => {
+                            const newRate = Number(e.target.value);
+                            updateCurrencyRate(curr.code, newRate);
+                            showToast(`Updated exchange rate for ${curr.code}: 1 ${curr.code} = ₹${newRate}`);
+                          }}
+                          className="w-16 bg-black/40 border border-white/20 px-1.5 py-1 rounded text-slate-100 font-mono text-xs text-right focus:border-[var(--brand-gold)] outline-none"
+                        />
+                        <span className="text-slate-400 text-[10px]">INR</span>
+                      </div>
                     </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Section 2: Shopify-Style Markets Manager */}
+              <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-5 rounded-2xl space-y-4">
+                <div className="flex items-center justify-between border-b border-white/5 pb-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-[var(--brand-gold)] uppercase tracking-wider flex items-center gap-2">
+                      <Truck className="w-4 h-4" /> Global Markets Manager (Shopify Strategy)
+                    </h3>
+                    <p className="text-[11px] text-slate-300">
+                      Define shipping policies, free shipping thresholds, and payment gateway rules for regional markets.
+                    </p>
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+                  {markets.map((mkt) => {
+                    const countryCount = countries.filter((c) => c.marketId === mkt.id || (mkt.code === 'INT' && c.marketId === 'mkt-int')).length;
+
+                    return (
+                      <div
+                        key={mkt.id}
+                        className="bg-[var(--brand-primary-deep)] border border-white/10 p-4 rounded-xl space-y-3 relative overflow-hidden group hover:border-[var(--brand-gold)]/50 transition-all"
+                      >
+                        <div className="flex items-center justify-between border-b border-white/5 pb-2">
+                          <div>
+                            <span className="text-[10px] uppercase font-bold text-[var(--brand-gold)] tracking-wider">Market</span>
+                            <h4 className="text-sm font-bold text-white">{mkt.name}</h4>
+                          </div>
+                          <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-[var(--brand-gold)]/20 text-[var(--brand-gold)] border border-[var(--brand-gold)]/30 font-bold">
+                            {mkt.currencyCode}
+                          </span>
+                        </div>
+
+                        <div className="space-y-2 text-[11px]">
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-400">Shipping Rule:</span>
+                            <select
+                              value={mkt.shippingRule}
+                              onChange={(e) => {
+                                const newRule = e.target.value as any;
+                                updateMarket(mkt.id, { shippingRule: newRule });
+                                showToast(`Updated default shipping rule for ${mkt.name}`);
+                              }}
+                              className="bg-[var(--brand-primary-dark)] border border-white/20 text-slate-100 rounded px-2 py-1 text-[11px] focus:outline-none focus:border-[var(--brand-gold)]"
+                            >
+                              <option value="COD_AND_PREPAID">COD + Prepaid</option>
+                              <option value="PREPAID_ONLY">Prepaid Only</option>
+                              <option value="BLOCK_ORDERS">Block Orders</option>
+                            </select>
+                          </div>
+
+                          <div className="flex items-center justify-between">
+                            <span className="text-slate-400">Free Shipping Min:</span>
+                            <div className="flex items-center gap-1 font-mono">
+                              <input
+                                type="number"
+                                value={mkt.freeShippingThreshold}
+                                onChange={(e) => updateMarket(mkt.id, { freeShippingThreshold: Number(e.target.value) })}
+                                className="w-20 bg-[var(--brand-primary-dark)] border border-white/20 rounded px-2 py-0.5 text-right text-slate-100"
+                              />
+                              <span className="text-[10px] text-slate-400">{mkt.currencyCode}</span>
+                            </div>
+                          </div>
+
+                          <div className="flex items-center justify-between pt-1">
+                            <span className="text-slate-400">Target Countries:</span>
+                            <span className="font-bold text-slate-200 font-mono">{countryCount} Countries</span>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Section 3: Bulk Quick Actions */}
+              <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-5 rounded-2xl space-y-3">
+                <h3 className="text-sm font-bold text-[var(--brand-gold)] uppercase tracking-wider flex items-center gap-2">
+                  <CheckCircle2 className="w-4 h-4" /> Quick Bulk Target Toggles
+                </h3>
+                <p className="text-[11px] text-slate-300">Enable or disable delivery targets for entire global regions with a single click.</p>
+
+                <div className="flex items-center gap-2 flex-wrap pt-1 text-xs font-sans">
+                  <button
+                    onClick={() => {
+                      bulkUpdateCountries('ENABLE_ALL');
+                      showToast('Enabled delivery targets for ALL 250+ countries!');
+                    }}
+                    className="bg-emerald-700/80 hover:bg-emerald-600 text-white font-bold px-3 py-1.5 rounded-lg border border-emerald-400/30 flex items-center gap-1.5 shadow"
+                  >
+                    <CheckCircle2 className="w-3.5 h-3.5" />
+                    <span>Enable All Countries</span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      bulkUpdateCountries('DISABLE_ALL');
+                      showToast('Disabled delivery targets for all countries (except manually updated)');
+                    }}
+                    className="bg-rose-950/80 hover:bg-rose-900 text-rose-200 font-bold px-3 py-1.5 rounded-lg border border-rose-500/30 flex items-center gap-1.5"
+                  >
+                    <X className="w-3.5 h-3.5" />
+                    <span>Disable All Countries</span>
+                  </button>
+
+                  <div className="h-5 w-px bg-white/20 mx-1 hidden sm:block" />
+
+                  {['Asia', 'GCC', 'Europe', 'Africa', 'North America', 'South America', 'Oceania'].map((reg) => {
+                    const regCount = countries.filter((c) => c.region?.toLowerCase() === reg.toLowerCase()).length;
+                    return (
+                      <button
+                        key={reg}
+                        onClick={() => {
+                          bulkUpdateCountries('ENABLE_REGION', reg);
+                          showToast(`Enabled delivery targets for all ${reg} countries (${regCount} countries)`);
+                        }}
+                        className="bg-[var(--brand-primary-deep)] hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] text-slate-200 font-semibold px-3 py-1.5 rounded-lg border border-white/10 transition-all flex items-center gap-1"
+                      >
+                        <span>Enable {reg}</span>
+                        <span className="text-[10px] opacity-70 font-mono">({regCount})</span>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Section 4: All World Countries Table & Search */}
+              <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-5 rounded-2xl space-y-4">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/5 pb-3">
+                  <div>
+                    <h3 className="text-sm font-bold text-[var(--brand-gold)] uppercase tracking-wider flex items-center gap-2">
+                      <Globe className="w-4 h-4" /> Global Destinations Database ({filteredCountriesList.length} Matching)
+                    </h3>
+                    <p className="text-[11px] text-slate-300">
+                      Configure Enable/Disable, Shipping Rules (COD/Prepaid/Blocked), and Payment Rules for individual countries.
+                    </p>
+                  </div>
+
+                  {/* Search Input */}
+                  <div className="relative w-full sm:w-64">
+                    <Search className="w-4 h-4 absolute left-3 top-2.5 text-slate-400" />
+                    <input
+                      type="text"
+                      placeholder="Search country or code..."
+                      value={countrySearch}
+                      onChange={(e) => {
+                        setCountrySearch(e.target.value);
+                        setCountryPage(1);
+                      }}
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 pl-9 pr-3 py-1.5 rounded-xl text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[var(--brand-gold)] font-sans"
+                    />
+                  </div>
+                </div>
+
+                {/* Filter Pills */}
+                <div className="flex items-center gap-2 overflow-x-auto pb-1 text-xs">
+                  <span className="text-slate-400 font-bold shrink-0 text-[10px] uppercase">Region:</span>
+                  {['ALL', 'Asia', 'GCC', 'Europe', 'Africa', 'North America', 'South America', 'Oceania'].map((reg) => (
+                    <button
+                      key={reg}
+                      onClick={() => {
+                        setSelectedRegionFilter(reg);
+                        setCountryPage(1);
+                      }}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold shrink-0 transition-all ${
+                        selectedRegionFilter === reg
+                          ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] shadow'
+                          : 'bg-black/30 text-slate-300 hover:text-white border border-white/10'
+                      }`}
+                    >
+                      {reg}
+                    </button>
+                  ))}
+
+                  <div className="h-4 w-px bg-white/20 mx-1 shrink-0" />
+
+                  <span className="text-slate-400 font-bold shrink-0 text-[10px] uppercase">Rule:</span>
+                  {[
+                    { id: 'ALL', label: 'All Rules' },
+                    { id: 'COD_AND_PREPAID', label: 'COD + Prepaid' },
+                    { id: 'PREPAID_ONLY', label: 'Prepaid Only' },
+                    { id: 'BLOCK_ORDERS', label: 'Blocked' },
+                  ].map((rl) => (
+                    <button
+                      key={rl.id}
+                      onClick={() => {
+                        setSelectedRuleFilter(rl.id);
+                        setCountryPage(1);
+                      }}
+                      className={`px-2.5 py-1 rounded-lg text-[11px] font-bold shrink-0 transition-all ${
+                        selectedRuleFilter === rl.id
+                          ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] shadow'
+                          : 'bg-black/30 text-slate-300 hover:text-white border border-white/10'
+                      }`}
+                    >
+                      {rl.label}
+                    </button>
+                  ))}
+                </div>
+
+                {/* Table */}
+                <div className="overflow-x-auto rounded-xl border border-white/10 bg-[var(--brand-primary-deep)]">
+                  <table className="w-full text-left text-xs font-sans border-collapse">
+                    <thead>
+                      <tr className="bg-black/40 text-[var(--brand-gold)] uppercase text-[10px] tracking-wider border-b border-white/10">
+                        <th className="py-3 px-3">Country / Territory</th>
+                        <th className="py-3 px-2">ISO Code</th>
+                        <th className="py-3 px-2">Region</th>
+                        <th className="py-3 px-2">Assigned Market</th>
+                        <th className="py-3 px-2">Currency</th>
+                        <th className="py-3 px-3">Shipping Rule</th>
+                        <th className="py-3 px-3">Payment Rule</th>
+                        <th className="py-3 px-3 text-right">Status</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-white/5">
+                      {paginatedCountries.length === 0 ? (
+                        <tr>
+                          <td colSpan={8} className="py-8 text-center text-slate-400 text-xs">
+                            No countries found matching search query or active filter.
+                          </td>
+                        </tr>
+                      ) : (
+                        paginatedCountries.map((c) => {
+                          const mkt = markets.find((m) => m.id === c.marketId) || markets.find((m) => m.code === 'INT');
+
+                          return (
+                            <tr key={c.code} className="hover:bg-white/5 transition-colors">
+                              <td className="py-2.5 px-3 font-bold text-slate-100">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-lg">{c.flag}</span>
+                                  <span>{c.name}</span>
+                                </div>
+                              </td>
+
+                              <td className="py-2.5 px-2 font-mono text-[11px] text-slate-400">{c.code}</td>
+
+                              <td className="py-2.5 px-2">
+                                <span className="px-2 py-0.5 rounded bg-white/5 border border-white/10 text-[10px] text-slate-300">
+                                  {c.region || 'Asia'}
+                                </span>
+                              </td>
+
+                              <td className="py-2.5 px-2">
+                                <span className="text-[11px] text-amber-300 font-bold">{mkt?.name || 'International'}</span>
+                              </td>
+
+                              <td className="py-2.5 px-2">
+                                <span className="font-mono text-[11px] font-bold text-[var(--brand-gold)]">{c.currencyCode}</span>
+                              </td>
+
+                              <td className="py-2.5 px-3">
+                                <select
+                                  value={c.shippingRule}
+                                  onChange={(e) => {
+                                    const val = e.target.value as any;
+                                    updateCountrySetting(c.code, { shippingRule: val, paymentRule: val === 'COD_AND_PREPAID' ? 'COD_AND_PREPAID' : 'PREPAID_ONLY' });
+                                    showToast(`Updated ${c.name} shipping rule to ${val}`);
+                                  }}
+                                  className="bg-[var(--brand-primary-dark)] border border-white/20 text-slate-100 rounded px-2 py-1 text-[11px] focus:outline-none focus:border-[var(--brand-gold)] font-sans"
+                                >
+                                  <option value="COD_AND_PREPAID">COD + Prepaid</option>
+                                  <option value="PREPAID_ONLY">Prepaid Only</option>
+                                  <option value="BLOCK_ORDERS">Block Orders</option>
+                                </select>
+                              </td>
+
+                              <td className="py-2.5 px-3">
+                                <select
+                                  value={c.paymentRule}
+                                  onChange={(e) => {
+                                    const val = e.target.value as any;
+                                    updateCountrySetting(c.code, { paymentRule: val });
+                                    showToast(`Updated ${c.name} payment rule to ${val}`);
+                                  }}
+                                  className="bg-[var(--brand-primary-dark)] border border-white/20 text-slate-100 rounded px-2 py-1 text-[11px] focus:outline-none focus:border-[var(--brand-gold)] font-sans"
+                                >
+                                  <option value="COD_AND_PREPAID">COD + Prepaid</option>
+                                  <option value="PREPAID_ONLY">Prepaid Only</option>
+                                  <option value="BLOCK_ORDERS">Block Orders</option>
+                                </select>
+                              </td>
+
+                              <td className="py-2.5 px-3 text-right">
+                                <button
+                                  onClick={() => {
+                                    const nextState = !c.enabled;
+                                    updateCountrySetting(c.code, { enabled: nextState });
+                                    showToast(`${nextState ? 'Enabled' : 'Disabled'} shipping target for ${c.name}`);
+                                  }}
+                                  className={`px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider transition-all border ${
+                                    c.enabled
+                                      ? 'bg-emerald-950/80 border-emerald-500/50 text-emerald-300 hover:bg-emerald-900'
+                                      : 'bg-rose-950/80 border-rose-500/50 text-rose-300 hover:bg-rose-900'
+                                  }`}
+                                >
+                                  {c.enabled ? 'Enabled' : 'Disabled'}
+                                </button>
+                              </td>
+                            </tr>
+                          );
+                        })
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+
+                {/* Pagination Bar */}
+                {totalPages > 1 && (
+                  <div className="flex items-center justify-between pt-2 text-xs">
+                    <span className="text-slate-400">
+                      Showing {(currentPageSafe - 1) * COUNTRIES_PER_PAGE + 1} -{' '}
+                      {Math.min(currentPageSafe * COUNTRIES_PER_PAGE, filteredCountriesList.length)} of {filteredCountriesList.length} destinations
+                    </span>
+
                     <div className="flex items-center gap-2">
-                      <span className="text-slate-400 text-[10px]">1 {curr.code} =</span>
-                      <input
-                        type="number"
-                        step="0.01"
-                        value={curr.rateToINR}
-                        onChange={(e) => updateCurrencyRate(curr.code, Number(e.target.value))}
-                        className="w-20 bg-[var(--brand-primary-dark)] border border-white/20 p-1.5 rounded text-slate-100 font-mono text-xs"
-                      />
-                      <span className="text-slate-400 text-[10px]">INR</span>
+                      <button
+                        onClick={() => setCountryPage((p) => Math.max(1, p - 1))}
+                        disabled={currentPageSafe === 1}
+                        className="px-3 py-1.5 rounded-lg bg-[var(--brand-primary-deep)] border border-white/10 text-slate-300 hover:text-white disabled:opacity-40 disabled:hover:text-slate-300"
+                      >
+                        Previous
+                      </button>
+
+                      <span className="text-[11px] font-mono font-bold text-[var(--brand-gold)] px-2">
+                        Page {currentPageSafe} of {totalPages}
+                      </span>
+
+                      <button
+                        onClick={() => setCountryPage((p) => Math.min(totalPages, p + 1))}
+                        disabled={currentPageSafe >= totalPages}
+                        className="px-3 py-1.5 rounded-lg bg-[var(--brand-primary-deep)] border border-white/10 text-slate-300 hover:text-white disabled:opacity-40 disabled:hover:text-slate-300"
+                      >
+                        Next
+                      </button>
                     </div>
                   </div>
-                ))}
+                )}
               </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Tab 12: Payments */}
         {activeTab === 'payments' && (
           <div className="space-y-6 animate-in fade-in">
-            <div>
-              <h1 className="text-2xl font-bold font-serif-luxury text-slate-100">Payment Gateway Settings</h1>
-              <p className="text-xs text-slate-300">Configure Razorpay key IDs, Cash on Delivery rules, and International payment settings.</p>
-            </div>
-
-            <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-6 rounded-2xl space-y-5 text-xs font-sans">
+            {/* Header */}
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
               <div>
-                <label className="block font-bold text-slate-300 mb-1">Razorpay Live API Key ID</label>
-                <input
-                  type="text"
-                  value={siteSettings.razorpayKeyId}
-                  onChange={(e) => updateSiteSettings({ razorpayKeyId: e.target.value })}
-                  className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100 font-mono"
-                />
+                <h1 className="text-2xl font-bold font-serif-luxury text-slate-100 flex items-center gap-2">
+                  <ShieldCheck className="w-6 h-6 text-[var(--brand-gold)]" />
+                  Payment Gateway Settings
+                </h1>
+                <p className="text-xs text-slate-300">
+                  Manage multi-gateway API credentials, market payment rules, COD limits, priorities & transaction refunds.
+                </p>
               </div>
-
-              <div className="flex items-center gap-3 pt-2">
-                <input
-                  type="checkbox"
-                  id="cod-enabled"
-                  checked={siteSettings.codEnabled}
-                  onChange={(e) => updateSiteSettings({ codEnabled: e.target.checked })}
-                  className="w-4 h-4 accent-[var(--brand-gold)]"
-                />
-                <label htmlFor="cod-enabled" className="font-bold text-slate-200">
-                  Enable Cash on Delivery (COD) for Domestic India Orders
-                </label>
+              <div className="flex items-center gap-2">
+                <button
+                  onClick={() => {
+                    showToast('Payment configuration saved and active across all storefront markets!');
+                  }}
+                  className="px-4 py-2 rounded-xl bg-[var(--brand-gold)] text-[var(--brand-primary-deep)] font-extrabold text-xs hover:bg-amber-300 transition-all flex items-center gap-1.5 shadow-lg"
+                >
+                  <CheckCircle className="w-4 h-4" />
+                  Save Payment Settings
+                </button>
               </div>
             </div>
+
+            {/* Sub-Tab Navigation */}
+            <div className="flex flex-wrap items-center gap-2 border-b border-white/10 pb-3">
+              {[
+                { id: 'GATEWAYS', label: 'Payment Gateways', icon: Key },
+                { id: 'MARKETS', label: 'Market & Country Mappings', icon: Globe },
+                { id: 'COD', label: 'COD Rules & Limits', icon: Banknote },
+                { id: 'PRIORITY', label: 'Priority & Drag Order', icon: ArrowUpDown },
+                { id: 'LOGS', label: 'Payment Logs & Refunds', icon: CreditCard },
+              ].map((tab) => {
+                const IconComp = tab.icon;
+                const isActive = paymentSubTab === tab.id;
+                return (
+                  <button
+                    key={tab.id}
+                    onClick={() => setPaymentSubTab(tab.id as any)}
+                    className={`px-4 py-2 rounded-xl font-bold text-xs transition-all flex items-center gap-2 border ${
+                      isActive
+                        ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-deep)] border-[var(--brand-gold)] shadow-md'
+                        : 'bg-[var(--brand-primary-dark)] text-slate-300 border-white/10 hover:border-white/20 hover:text-white'
+                    }`}
+                  >
+                    <IconComp className="w-4 h-4" />
+                    {tab.label}
+                  </button>
+                );
+              })}
+            </div>
+
+            {/* Sub-Tab 1: GATEWAYS */}
+            {paymentSubTab === 'GATEWAYS' && (
+              <div className="space-y-6">
+                <div className="grid grid-cols-1 gap-6">
+                  {paymentGateways.map((gw) => {
+                    const isLive = gw.mode === 'LIVE';
+                    return (
+                      <div
+                        key={gw.id}
+                        className={`bg-[var(--brand-primary-dark)] border rounded-2xl p-6 transition-all space-y-5 ${
+                          gw.enabled
+                            ? 'border-white/15 shadow-xl'
+                            : 'border-white/5 opacity-60 bg-slate-900/40'
+                        }`}
+                      >
+                        {/* Top Bar: Icon, Name, Enabled Toggle, Mode Switch */}
+                        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-white/10">
+                          <div className="flex items-center gap-3">
+                            <PaymentIcon gatewayId={gw.id} size="lg" />
+                            <div>
+                              <div className="flex items-center gap-2">
+                                <h3 className="font-bold text-base text-slate-100">{gw.name}</h3>
+                                <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-white/5 text-slate-400 border border-white/10">
+                                  {gw.id}
+                                </span>
+                              </div>
+                              <p className="text-xs text-slate-300 mt-0.5">{gw.description}</p>
+                            </div>
+                          </div>
+
+                          <div className="flex flex-wrap items-center gap-3">
+                            {/* Connection Status Badge */}
+                            <span
+                              className={`text-[10px] font-bold px-2.5 py-1 rounded-full uppercase tracking-wider flex items-center gap-1 border ${
+                                gw.connectionStatus === 'CONNECTED'
+                                  ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40'
+                                  : gw.connectionStatus === 'FAILED'
+                                  ? 'bg-red-950/80 text-red-300 border-red-500/40'
+                                  : 'bg-slate-800 text-slate-400 border-white/10'
+                              }`}
+                            >
+                              <span
+                                className={`w-1.5 h-1.5 rounded-full ${
+                                  gw.connectionStatus === 'CONNECTED'
+                                    ? 'bg-emerald-400 animate-pulse'
+                                    : gw.connectionStatus === 'FAILED'
+                                    ? 'bg-red-400'
+                                    : 'bg-slate-500'
+                                }`}
+                              ></span>
+                              {gw.connectionStatus}
+                            </span>
+
+                            {/* Mode Toggle */}
+                            <div className="bg-[var(--brand-primary-deep)] p-1 rounded-xl border border-white/10 flex items-center text-xs font-bold">
+                              <button
+                                onClick={() => updatePaymentGateway(gw.id, { mode: 'TEST' })}
+                                className={`px-2.5 py-1 rounded-lg transition-all ${
+                                  !isLive
+                                    ? 'bg-amber-500/20 text-amber-300 font-extrabold border border-amber-500/30'
+                                    : 'text-slate-400 hover:text-slate-200'
+                                }`}
+                              >
+                                TEST
+                              </button>
+                              <button
+                                onClick={() => updatePaymentGateway(gw.id, { mode: 'LIVE' })}
+                                className={`px-2.5 py-1 rounded-lg transition-all ${
+                                  isLive
+                                    ? 'bg-emerald-500/20 text-emerald-300 font-extrabold border border-emerald-500/30'
+                                    : 'text-slate-400 hover:text-slate-200'
+                                }`}
+                              >
+                                LIVE
+                              </button>
+                            </div>
+
+                            {/* Enable / Disable Switch */}
+                            <label className="relative inline-flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={gw.enabled}
+                                onChange={(e) =>
+                                  updatePaymentGateway(gw.id, { enabled: e.target.checked })
+                                }
+                                className="sr-only peer"
+                              />
+                              <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                            </label>
+                          </div>
+                        </div>
+
+                        {/* Webhook Status & Copy Box */}
+                        {gw.webhookUrl && (
+                          <div className="bg-[var(--brand-primary-deep)] p-3 rounded-xl border border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs">
+                            <div className="flex items-center gap-2 overflow-hidden">
+                              <span className="font-bold text-slate-400 shrink-0">Webhook URL:</span>
+                              <code className="text-slate-200 font-mono truncate select-all">
+                                {gw.webhookUrl}
+                              </code>
+                            </div>
+                            <div className="flex items-center gap-2 shrink-0">
+                              <span
+                                className={`text-[10px] font-bold px-2 py-0.5 rounded border ${
+                                  gw.webhookStatus === 'SYNCED' || gw.webhookStatus === 'ACTIVE'
+                                    ? 'bg-emerald-900/40 text-emerald-300 border-emerald-500/30'
+                                    : 'bg-amber-900/40 text-amber-300 border-amber-500/30'
+                                }`}
+                              >
+                                {gw.webhookStatus}
+                              </span>
+                              <button
+                                onClick={() => {
+                                  navigator.clipboard.writeText(gw.webhookUrl || '');
+                                  showToast(`${gw.name} Webhook URL copied to clipboard!`);
+                                }}
+                                className="px-2.5 py-1 rounded bg-white/10 hover:bg-white/20 text-slate-200 font-bold transition-all text-[11px]"
+                              >
+                                Copy
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Credentials Grid: Test Keys vs Live Keys */}
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                          {/* Test Mode Keys */}
+                          <div
+                            className={`p-4 rounded-xl border space-y-3 ${
+                              !isLive
+                                ? 'bg-amber-950/20 border-amber-500/30 ring-1 ring-amber-500/20'
+                                : 'bg-[var(--brand-primary-deep)] border-white/10'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                              <span className="font-bold text-amber-300 flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-amber-400"></span>
+                                Test Credentials
+                              </span>
+                              {!isLive && (
+                                <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-amber-500/20 text-amber-200 border border-amber-500/40">
+                                  ACTIVE MODE
+                                </span>
+                              )}
+                            </div>
+                            <div>
+                              <label className="block text-slate-300 font-medium mb-1">
+                                Test API Key / Merchant ID
+                              </label>
+                              <input
+                                type="text"
+                                value={gw.testApiKey}
+                                onChange={(e) =>
+                                  updatePaymentGateway(gw.id, { testApiKey: e.target.value })
+                                }
+                                placeholder="rzp_test_..."
+                                className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-lg p-2.5 text-slate-100 font-mono focus:border-[var(--brand-gold)] focus:outline-none"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-slate-300 font-medium mb-1">
+                                Test Secret Key / Salt Key
+                              </label>
+                              <input
+                                type="password"
+                                value={gw.testSecretKey}
+                                onChange={(e) =>
+                                  updatePaymentGateway(gw.id, { testSecretKey: e.target.value })
+                                }
+                                placeholder="••••••••••••••••"
+                                className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-lg p-2.5 text-slate-100 font-mono focus:border-[var(--brand-gold)] focus:outline-none"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Live Mode Keys */}
+                          <div
+                            className={`p-4 rounded-xl border space-y-3 ${
+                              isLive
+                                ? 'bg-emerald-950/20 border-emerald-500/30 ring-1 ring-emerald-500/20'
+                                : 'bg-[var(--brand-primary-deep)] border-white/10'
+                            }`}
+                          >
+                            <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                              <span className="font-bold text-emerald-300 flex items-center gap-1.5">
+                                <span className="w-2 h-2 rounded-full bg-emerald-400"></span>
+                                Live Credentials
+                              </span>
+                              {isLive && (
+                                <span className="text-[10px] font-extrabold px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-200 border border-emerald-500/40">
+                                  ACTIVE MODE
+                                </span>
+                              )}
+                            </div>
+                            <div>
+                              <label className="block text-slate-300 font-medium mb-1">
+                                Live API Key / Merchant ID
+                              </label>
+                              <input
+                                type="text"
+                                value={gw.liveApiKey}
+                                onChange={(e) =>
+                                  updatePaymentGateway(gw.id, { liveApiKey: e.target.value })
+                                }
+                                placeholder="rzp_live_..."
+                                className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-lg p-2.5 text-slate-100 font-mono focus:border-[var(--brand-gold)] focus:outline-none"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-slate-300 font-medium mb-1">
+                                Live Secret Key / Salt Key
+                              </label>
+                              <input
+                                type="password"
+                                value={gw.liveSecretKey}
+                                onChange={(e) =>
+                                  updatePaymentGateway(gw.id, { liveSecretKey: e.target.value })
+                                }
+                                placeholder="••••••••••••••••"
+                                className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-lg p-2.5 text-slate-100 font-mono focus:border-[var(--brand-gold)] focus:outline-none"
+                              />
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Test Connection Footer */}
+                        <div className="pt-2 flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-t border-white/10">
+                          <span className="text-xs text-slate-400">
+                            Last Tested:{' '}
+                            <span className="text-slate-200 font-mono">
+                              {gw.lastTestedAt || 'Never'}
+                            </span>
+                          </span>
+
+                          <button
+                            onClick={async () => {
+                              setTestingGatewayId(gw.id);
+                              const res = await testGatewayConnection(gw.id);
+                              setTestingGatewayId(null);
+                              showToast(res.message);
+                            }}
+                            disabled={testingGatewayId === gw.id}
+                            className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/20 text-slate-100 font-bold text-xs transition-all flex items-center justify-center gap-2 border border-white/15 disabled:opacity-50"
+                          >
+                            {testingGatewayId === gw.id ? (
+                              <>
+                                <RefreshCw className="w-4 h-4 animate-spin text-[var(--brand-gold)]" />
+                                Verifying Handshake...
+                              </>
+                            ) : (
+                              <>
+                                <CheckCircle className="w-4 h-4 text-emerald-400" />
+                                Test Connection & Webhook
+                              </>
+                            )}
+                          </button>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Sub-Tab 2: MARKETS */}
+            {paymentSubTab === 'MARKETS' && (
+              <div className="space-y-6">
+                <div className="bg-[var(--brand-primary-dark)] p-4 rounded-2xl border border-white/10">
+                  <h2 className="font-serif-luxury text-base font-bold text-slate-100 mb-1">
+                    Market-Specific Payment Gateway Matrix
+                  </h2>
+                  <p className="text-xs text-slate-300 mb-4">
+                    Select which payment gateways are accessible to customers during checkout based on their shipping market.
+                  </p>
+
+                  <div className="space-y-4">
+                    {markets.map((m) => {
+                      const marketMapping = marketGateways.find((mg) => mg.marketId === m.id) || {
+                        marketId: m.id,
+                        countryCode: m.countryCode,
+                        marketName: m.name,
+                        currencyCode: m.currencyCode,
+                        gateways: m.paymentGateways as PaymentGatewayId[],
+                      };
+                      const assignedGateways = marketMapping.gateways || [];
+
+                      return (
+                        <div
+                          key={m.id}
+                          className="bg-[var(--brand-primary-deep)] p-5 rounded-2xl border border-white/10 space-y-4"
+                        >
+                          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-white/10">
+                            <div className="flex items-center gap-3">
+                              <span className="text-2xl">{m.flag}</span>
+                              <div>
+                                <div className="flex items-center gap-2">
+                                  <h3 className="font-bold text-sm text-slate-100">{m.name}</h3>
+                                  <span className="text-[10px] font-mono font-bold px-2 py-0.5 rounded bg-emerald-950/80 text-emerald-300 border border-emerald-500/40">
+                                    {m.currencyCode} ({m.currencySymbol})
+                                  </span>
+                                </div>
+                                <p className="text-xs text-slate-400">
+                                  Includes {m.countriesCount} countries ({m.countriesList})
+                                </p>
+                              </div>
+                            </div>
+                            <span className="text-xs font-bold text-[var(--brand-gold)]">
+                              {assignedGateways.length} Gateways Enabled
+                            </span>
+                          </div>
+
+                          {/* Gateway Checkboxes for this market */}
+                          <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-3">
+                            {paymentGateways.map((gw) => {
+                              const isChecked = assignedGateways.includes(gw.id);
+                              return (
+                                <label
+                                  key={gw.id}
+                                  className={`p-3 rounded-xl border flex flex-col items-center justify-center gap-2 cursor-pointer transition-all ${
+                                    isChecked
+                                      ? 'bg-emerald-950/30 border-emerald-500/50 text-white shadow-md'
+                                      : 'bg-[var(--brand-primary-dark)] border-white/10 text-slate-400 hover:border-white/20'
+                                  }`}
+                                >
+                                  <input
+                                    type="checkbox"
+                                    checked={isChecked}
+                                    onChange={(e) => {
+                                      const nextGateways = e.target.checked
+                                        ? [...assignedGateways, gw.id]
+                                        : assignedGateways.filter((g) => g !== gw.id);
+                                      updateMarketGateways(m.id, nextGateways);
+                                      showToast(`Updated payment methods for ${m.name}`);
+                                    }}
+                                    className="sr-only"
+                                  />
+                                  <PaymentIcon gatewayId={gw.id} size="sm" />
+                                  <span className="text-[11px] font-bold text-center">{gw.name}</span>
+                                  <div
+                                    className={`w-4 h-4 rounded border flex items-center justify-center text-[10px] ${
+                                      isChecked
+                                        ? 'bg-emerald-500 border-emerald-400 text-white font-bold'
+                                        : 'border-white/30 bg-white/5'
+                                    }`}
+                                  >
+                                    {isChecked ? '✓' : ''}
+                                  </div>
+                                </label>
+                              );
+                            })}
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Sub-Tab 3: COD */}
+            {paymentSubTab === 'COD' && (
+              <div className="space-y-6">
+                <div className="bg-[var(--brand-primary-dark)] p-6 rounded-2xl border border-white/10 space-y-6">
+                  <div className="flex items-center gap-3 pb-4 border-b border-white/10">
+                    <Banknote className="w-6 h-6 text-[var(--brand-gold)]" />
+                    <div>
+                      <h2 className="font-serif-luxury text-base font-bold text-slate-100">
+                        Cash on Delivery (COD) Rules & Safeguards
+                      </h2>
+                      <p className="text-xs text-slate-300">
+                        Configure strict limits, regional restrictions, and handling fees for COD transactions.
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-xs">
+                    {/* Enable COD Master Toggle */}
+                    <div className="bg-[var(--brand-primary-deep)] p-5 rounded-2xl border border-white/10 space-y-4">
+                      <div className="flex items-center justify-between">
+                        <div>
+                          <label className="font-bold text-sm text-slate-100 block">
+                            Master COD Status
+                          </label>
+                          <p className="text-slate-400 text-[11px]">
+                            Enable or disable Cash on Delivery across the store.
+                          </p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={codRules.enabled}
+                            onChange={(e) => updateCodRules({ enabled: e.target.checked })}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                        </label>
+                      </div>
+
+                      {/* Restrict to India */}
+                      <div className="flex items-center justify-between pt-3 border-t border-white/10">
+                        <div>
+                          <label className="font-bold text-slate-200 block">Restrict COD to India Only</label>
+                          <p className="text-slate-400 text-[11px]">
+                            All international orders default to Prepaid Only.
+                          </p>
+                        </div>
+                        <label className="relative inline-flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={codRules.restrictToIndia}
+                            onChange={(e) => updateCodRules({ restrictToIndia: e.target.checked })}
+                            className="sr-only peer"
+                          />
+                          <div className="w-11 h-6 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-slate-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-emerald-600"></div>
+                        </label>
+                      </div>
+                    </div>
+
+                    {/* Order Amount Thresholds */}
+                    <div className="bg-[var(--brand-primary-deep)] p-5 rounded-2xl border border-white/10 space-y-4">
+                      <h3 className="font-bold text-slate-200 text-sm border-b border-white/10 pb-2">
+                        Order Amount Limits (INR ₹)
+                      </h3>
+
+                      <div>
+                        <label className="block text-slate-300 font-bold mb-1">
+                          Minimum Order Amount for COD (₹)
+                        </label>
+                        <input
+                          type="number"
+                          value={codRules.minOrderAmountINR}
+                          onChange={(e) =>
+                            updateCodRules({ minOrderAmountINR: Number(e.target.value) })
+                          }
+                          className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-xl p-3 text-slate-100 font-mono font-bold"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-300 font-bold mb-1">
+                          Maximum Order Amount for COD (₹)
+                        </label>
+                        <input
+                          type="number"
+                          value={codRules.maxOrderAmountINR}
+                          onChange={(e) =>
+                            updateCodRules({ maxOrderAmountINR: Number(e.target.value) })
+                          }
+                          className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-xl p-3 text-slate-100 font-mono font-bold"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-300 font-bold mb-1">
+                          Optional COD Handling Charge (₹)
+                        </label>
+                        <input
+                          type="number"
+                          value={codRules.codFeeINR}
+                          onChange={(e) => updateCodRules({ codFeeINR: Number(e.target.value) })}
+                          className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-xl p-3 text-slate-100 font-mono font-bold"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Sub-Tab 4: PRIORITY */}
+            {paymentSubTab === 'PRIORITY' && (
+              <div className="space-y-6">
+                <div className="bg-[var(--brand-primary-dark)] p-6 rounded-2xl border border-white/10 space-y-4">
+                  <div>
+                    <h2 className="font-serif-luxury text-base font-bold text-slate-100">
+                      Payment Gateway Display Priority Order
+                    </h2>
+                    <p className="text-xs text-slate-300">
+                      Reorder payment gateways. Gateways near the top will be presented first to customers during checkout.
+                    </p>
+                  </div>
+
+                  <div className="space-y-3">
+                    {paymentGateways.map((gw, idx) => (
+                      <div
+                        key={gw.id}
+                        draggable
+                        onDragStart={() => setDraggedGatewayIdx(idx)}
+                        onDragOver={(e) => e.preventDefault()}
+                        onDrop={() => {
+                          if (draggedGatewayIdx !== null && draggedGatewayIdx !== idx) {
+                            const newList = [...paymentGateways];
+                            const [moved] = newList.splice(draggedGatewayIdx, 1);
+                            newList.splice(idx, 0, moved);
+                            reorderPaymentGateways(newList);
+                            setDraggedGatewayIdx(null);
+                            showToast(`Reordered ${gw.name} priority to position #${idx + 1}`);
+                          }
+                        }}
+                        className={`bg-[var(--brand-primary-deep)] p-4 rounded-xl border flex items-center justify-between gap-4 cursor-move transition-all ${
+                          draggedGatewayIdx === idx
+                            ? 'border-[var(--brand-gold)] bg-[var(--brand-gold)]/10 ring-2 ring-[var(--brand-gold)]/30 scale-[0.99]'
+                            : 'border-white/10 hover:border-white/30'
+                        }`}
+                      >
+                        <div className="flex items-center gap-3">
+                          <span className="w-7 h-7 rounded-lg bg-white/10 text-slate-200 font-mono font-bold text-xs flex items-center justify-center border border-white/10">
+                            #{idx + 1}
+                          </span>
+                          <PaymentIcon gatewayId={gw.id} size="md" />
+                          <div>
+                            <span className="font-bold text-sm text-slate-100 flex items-center gap-2">
+                              <span>{gw.name}</span>
+                              <span className="text-[10px] text-slate-400 font-mono bg-black/30 px-1.5 py-0.5 rounded">
+                                Drag to reorder
+                              </span>
+                            </span>
+                            <span className="text-[11px] text-slate-400">{gw.description}</span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <button
+                            disabled={idx === 0}
+                            onClick={() => {
+                              const newList = [...paymentGateways];
+                              const temp = newList[idx - 1];
+                              newList[idx - 1] = newList[idx];
+                              newList[idx] = temp;
+                              reorderPaymentGateways(newList);
+                              showToast(`Moved ${gw.name} up in priority`);
+                            }}
+                            className="p-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 text-slate-200 transition-all"
+                            title="Move Up"
+                          >
+                            <ArrowUp className="w-4 h-4" />
+                          </button>
+                          <button
+                            disabled={idx === paymentGateways.length - 1}
+                            onClick={() => {
+                              const newList = [...paymentGateways];
+                              const temp = newList[idx + 1];
+                              newList[idx + 1] = newList[idx];
+                              newList[idx] = temp;
+                              reorderPaymentGateways(newList);
+                              showToast(`Moved ${gw.name} down in priority`);
+                            }}
+                            className="p-2 rounded-lg bg-white/10 hover:bg-white/20 disabled:opacity-30 text-slate-200 transition-all"
+                            title="Move Down"
+                          >
+                            <ArrowDown className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Sub-Tab 5: LOGS */}
+            {paymentSubTab === 'LOGS' && (
+              <div className="space-y-6">
+                {/* Stats Summary Grid */}
+                <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+                  <div className="bg-[var(--brand-primary-dark)] p-4 rounded-2xl border border-white/10">
+                    <span className="text-xs text-slate-400 font-bold block">Total Transactions</span>
+                    <span className="text-2xl font-extrabold text-slate-100 font-mono">
+                      {paymentLogs.length}
+                    </span>
+                  </div>
+                  <div className="bg-[var(--brand-primary-dark)] p-4 rounded-2xl border border-white/10">
+                    <span className="text-xs text-slate-400 font-bold block">Successful Paid</span>
+                    <span className="text-2xl font-extrabold text-emerald-400 font-mono">
+                      {paymentLogs.filter((l) => l.status === 'SUCCESSFUL').length}
+                    </span>
+                  </div>
+                  <div className="bg-[var(--brand-primary-dark)] p-4 rounded-2xl border border-white/10">
+                    <span className="text-xs text-slate-400 font-bold block">Pending COD</span>
+                    <span className="text-2xl font-extrabold text-amber-400 font-mono">
+                      {paymentLogs.filter((l) => l.status === 'PENDING').length}
+                    </span>
+                  </div>
+                  <div className="bg-[var(--brand-primary-dark)] p-4 rounded-2xl border border-white/10">
+                    <span className="text-xs text-slate-400 font-bold block">Refunded Volume</span>
+                    <span className="text-2xl font-extrabold text-purple-400 font-mono">
+                      {paymentLogs.filter((l) => l.status === 'REFUNDED').length}
+                    </span>
+                  </div>
+                </div>
+
+                {/* Filter and Search Bar */}
+                <div className="bg-[var(--brand-primary-dark)] p-4 rounded-2xl border border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="relative w-full sm:w-72">
+                    <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400" />
+                    <input
+                      type="text"
+                      placeholder="Search order #, customer, txn ID..."
+                      value={paymentLogSearch}
+                      onChange={(e) => setPaymentLogSearch(e.target.value)}
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 rounded-xl pl-9 pr-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
+                    {['ALL', 'SUCCESSFUL', 'PENDING', 'FAILED', 'REFUNDED'].map((st) => (
+                      <button
+                        key={st}
+                        onClick={() => setPaymentLogStatusFilter(st)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-bold transition-all ${
+                          paymentLogStatusFilter === st
+                            ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-deep)]'
+                            : 'bg-white/5 text-slate-300 hover:bg-white/10'
+                        }`}
+                      >
+                        {st}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Logs Table */}
+                <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl overflow-hidden">
+                  <div className="overflow-x-auto">
+                    <table className="w-full text-left text-xs text-slate-200">
+                      <thead className="bg-[var(--brand-primary-deep)] text-slate-400 uppercase text-[10px] tracking-wider border-b border-white/10">
+                        <tr>
+                          <th className="p-3.5">Txn & Order #</th>
+                          <th className="p-3.5">Customer</th>
+                          <th className="p-3.5">Gateway</th>
+                          <th className="p-3.5">Amount</th>
+                          <th className="p-3.5">Status</th>
+                          <th className="p-3.5">Date & Time</th>
+                          <th className="p-3.5 text-right">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody className="divide-y divide-white/5 font-sans">
+                        {paymentLogs
+                          .filter((l) => {
+                            if (paymentLogStatusFilter !== 'ALL' && l.status !== paymentLogStatusFilter) {
+                              return false;
+                            }
+                            if (paymentLogSearch.trim()) {
+                              const q = paymentLogSearch.toLowerCase();
+                              return (
+                                l.orderNumber.toLowerCase().includes(q) ||
+                                l.customerName.toLowerCase().includes(q) ||
+                                l.customerEmail.toLowerCase().includes(q) ||
+                                l.transactionId.toLowerCase().includes(q)
+                              );
+                            }
+                            return true;
+                          })
+                          .map((log) => (
+                            <tr key={log.id} className="hover:bg-white/5 transition-all">
+                              <td className="p-3.5 font-mono">
+                                <span className="font-bold text-slate-100 block">{log.orderNumber}</span>
+                                <span className="text-[10px] text-slate-400">{log.transactionId}</span>
+                              </td>
+                              <td className="p-3.5">
+                                <span className="font-bold text-slate-200 block">{log.customerName}</span>
+                                <span className="text-[10px] text-slate-400">{log.customerEmail}</span>
+                              </td>
+                              <td className="p-3.5">
+                                <PaymentIcon gatewayId={log.gateway} size="sm" />
+                              </td>
+                              <td className="p-3.5 font-mono">
+                                <span className="font-bold text-emerald-300 block">
+                                  {log.currency} {log.amount.toLocaleString()}
+                                </span>
+                                {log.currency !== 'INR' && (
+                                  <span className="text-[10px] text-slate-400">
+                                    ₹{log.amountINR.toLocaleString()} INR
+                                  </span>
+                                )}
+                              </td>
+                              <td className="p-3.5">
+                                <span
+                                  className={`px-2.5 py-1 rounded-full text-[10px] font-extrabold uppercase border ${
+                                    log.status === 'SUCCESSFUL'
+                                      ? 'bg-emerald-950/80 text-emerald-300 border-emerald-500/40'
+                                      : log.status === 'PENDING'
+                                      ? 'bg-amber-950/80 text-amber-300 border-amber-500/40'
+                                      : log.status === 'REFUNDED'
+                                      ? 'bg-purple-950/80 text-purple-300 border-purple-500/40'
+                                      : 'bg-red-950/80 text-red-300 border-red-500/40'
+                                  }`}
+                                >
+                                  {log.status}
+                                </span>
+                              </td>
+                              <td className="p-3.5 text-slate-300 font-mono text-[11px]">
+                                {log.createdAt}
+                              </td>
+                              <td className="p-3.5 text-right">
+                                {log.status === 'SUCCESSFUL' ? (
+                                  <button
+                                    onClick={() => {
+                                      setRefundingLog(log);
+                                      setRefundAmountInput(log.amountINR);
+                                      setIsRefundModalOpen(true);
+                                    }}
+                                    className="px-3 py-1.5 rounded-lg bg-purple-950/60 hover:bg-purple-900 border border-purple-500/40 text-purple-200 font-bold text-xs transition-all"
+                                  >
+                                    Refund
+                                  </button>
+                                ) : log.status === 'REFUNDED' ? (
+                                  <span className="text-[10px] font-mono text-purple-300 font-bold">
+                                    Refunded (ID: {log.refundId})
+                                  </span>
+                                ) : (
+                                  <span className="text-slate-500 text-xs">—</span>
+                                )}
+                              </td>
+                            </tr>
+                          ))}
+                      </tbody>
+                    </table>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Refund Modal */}
+            {isRefundModalOpen && refundingLog && (
+              <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 animate-in fade-in">
+                <div className="bg-[var(--brand-primary-dark)] border border-purple-500/40 rounded-2xl max-w-md w-full p-6 space-y-5 text-xs text-slate-100 shadow-2xl">
+                  <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                    <h3 className="font-serif-luxury text-base font-bold text-purple-200 flex items-center gap-2">
+                      <RotateCcw className="w-5 h-5 text-purple-400" />
+                      Issue Order Refund
+                    </h3>
+                    <button
+                      onClick={() => setIsRefundModalOpen(false)}
+                      className="text-slate-400 hover:text-white"
+                    >
+                      <X className="w-5 h-5" />
+                    </button>
+                  </div>
+
+                  <div className="bg-[var(--brand-primary-deep)] p-3 rounded-xl border border-white/10 space-y-1 font-mono">
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Order Number:</span>
+                      <span className="font-bold text-slate-100">{refundingLog.orderNumber}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Customer:</span>
+                      <span className="text-slate-200">{refundingLog.customerName}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-slate-400">Paid Amount:</span>
+                      <span className="font-bold text-emerald-400">
+                        {refundingLog.currency} {refundingLog.amount.toLocaleString()} (₹
+                        {refundingLog.amountINR.toLocaleString()} INR)
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-300 font-bold mb-1">
+                      Refund Amount (₹ INR)
+                    </label>
+                    <input
+                      type="number"
+                      value={refundAmountInput}
+                      onChange={(e) => setRefundAmountInput(Number(e.target.value))}
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 rounded-xl p-3 text-slate-100 font-mono font-bold"
+                    />
+                  </div>
+
+                  <div>
+                    <label className="block text-slate-300 font-bold mb-1">
+                      Reason for Refund
+                    </label>
+                    <textarea
+                      value={refundReasonInput}
+                      onChange={(e) => setRefundReasonInput(e.target.value)}
+                      rows={3}
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 rounded-xl p-3 text-slate-100"
+                    />
+                  </div>
+
+                  <div className="flex items-center gap-3 pt-2">
+                    <button
+                      onClick={() => setIsRefundModalOpen(false)}
+                      className="w-1/2 py-2.5 rounded-xl bg-white/10 hover:bg-white/20 font-bold text-slate-300"
+                    >
+                      Cancel
+                    </button>
+                    <button
+                      onClick={() => {
+                        refundPaymentLog(refundingLog.id, refundAmountInput, refundReasonInput);
+                        setIsRefundModalOpen(false);
+                        showToast(
+                          `Refund of ₹${refundAmountInput} for Order ${refundingLog.orderNumber} completed!`
+                        );
+                      }}
+                      className="w-1/2 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 font-bold text-white shadow-lg"
+                    >
+                      Process Refund
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
           </div>
         )}
 

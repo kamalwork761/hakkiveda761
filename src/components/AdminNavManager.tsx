@@ -43,9 +43,16 @@ import {
   Lock,
   RefreshCw,
   FolderTree,
+  Upload,
+  Play,
+  FileText,
+  Move,
+  ArrowRight,
+  Video,
+  Link as LinkIcon,
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
-import { NavLink, MegaMenuColumn, HeaderLayoutSettings } from '../types/store';
+import { NavLink, MegaMenuColumn, HeaderLayoutSettings, GalleryImageItem, TribalHeritagePageContent } from '../types/store';
 import { HakkivedaWordmark } from './HakkivedaWordmark';
 
 interface AdminNavManagerProps {
@@ -155,12 +162,142 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
   const [megaFeaturedProductId, setMegaFeaturedProductId] = useState('');
   const [megaColumns, setMegaColumns] = useState<MegaMenuColumn[]>([]);
 
+  // Page Content Manager State
+  const [contentDesktopHero, setContentDesktopHero] = useState('/images/hero_tribal_elders.jpg');
+  const [contentDesktopHeroFilename, setContentDesktopHeroFilename] = useState('hero_tribal_elders.jpg');
+  const [contentMobileHero, setContentMobileHero] = useState('/images/hero_tribal_elders.jpg');
+  const [contentMobileHeroFilename, setContentMobileHeroFilename] = useState('hero_tribal_elders.jpg');
+
+  const [contentMainHeading, setContentMainHeading] = useState('Where Ancient Tribal Wisdom Meets Modern Hair Science');
+  const [contentSmallHeading, setContentSmallHeading] = useState('The Genesis of HAKKIVEDA');
+
+  const [contentParagraphs, setContentParagraphs] = useState<string[]>([
+    'For centuries, the nomadic Hakki-Pikki tribe traversed the dense forest corridors of the Western Ghats in Karnataka, India. Unbounded by modern industrial cosmetics, they relied on a secret repertoire of 42 wild mountain herbs, tree barks, seeds, and flower juices to keep their hair thick, dark, and resilient well into old age.',
+    'At HAKKIVEDA, we preserve this authentic living heritage. We work directly with tribal harvesters in Hunsur to sustainably gather rare botanicals at sunrise when nutrient concentration is highest.',
+  ]);
+
+  const [contentLists, setContentLists] = useState<string[]>([
+    '42 Wild Herbs: Including Abrus precatorius, Jatamansi, and Bhringraj harvested in untouched forests.',
+    '21-Day Woodfire Brew: Slow-cooked in pure copper cauldrons over woodfire for optimal phytonutrient retention.',
+    'Tribal Empowerment: Fair-trade compensation directly supporting Hakki-Pikki artisan families in Mysore.',
+    'Worldwide Shipping: Exported directly to India, Singapore, Malaysia, Fiji, Mauritius, and Global markets.',
+  ]);
+
+  const [contentQuotes, setContentQuotes] = useState<string[]>([
+    'Every drop is small-batch brewed by Hakki-Pikki tribal elders in Mysore using 42 wild herbs.',
+  ]);
+
+  const [contentHighlightText, setContentHighlightText] = useState('Ancestral Mysore Heritage • Door No. 574, V.P. Bore, Hunsur, Mysore, Karnataka');
+
+  const [contentGallery, setContentGallery] = useState<GalleryImageItem[]>([
+    {
+      id: 'gal-1',
+      url: '/images/hakkiveda_oil_couple_herbs.jpg',
+      filename: 'hakkiveda_oil_couple_herbs.jpg',
+      title: 'Tribal Elders & Herb Gathering',
+      altText: 'Hakki-Pikki tribal elders with wild forest botanicals',
+      sortOrder: 1,
+    },
+    {
+      id: 'gal-2',
+      url: '/images/hakkiveda_108_herbs_infographic.jpg',
+      filename: 'hakkiveda_108_herbs_infographic.jpg',
+      title: '42 Wild Mountain Botanicals',
+      altText: 'Botanical infographic of sacred mountain herbs',
+      sortOrder: 2,
+    },
+    {
+      id: 'gal-3',
+      url: '/images/hakkiveda_108_oil_gold.jpg',
+      filename: 'hakkiveda_108_oil_gold.jpg',
+      title: 'Traditional Copper Cauldron Extraction',
+      altText: 'Pure golden herbal hair oil bottle handcrafted in Mysore',
+      sortOrder: 3,
+    },
+  ]);
+
+  const [contentVideoMp4, setContentVideoMp4] = useState('https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4');
+  const [contentVideoYoutube, setContentVideoYoutube] = useState('https://youtu.be/1jzF9v5PEBY');
+
+  const [contentCtaText, setContentCtaText] = useState('Explore 42-Herb Formulations');
+  const [contentCtaLink, setContentCtaLink] = useState('#products');
+
+  const [contentSeoAltText, setContentSeoAltText] = useState('Hakki-Pikki Forest Canopy and Tribal Elders in Mysore');
+  const [contentSeoImageTitle, setContentSeoImageTitle] = useState('Ancestral Hakki-Pikki Herbal Hair Oil Brewing Tradition');
+
+  const [draggedGalleryIdx, setDraggedGalleryIdx] = useState<number | null>(null);
+
   // Active Tab inside Edit Modal
-  const [modalTab, setModalTab] = useState<'basic' | 'visibility' | 'megamenu'>('basic');
+  const [modalTab, setModalTab] = useState<'basic' | 'visibility' | 'megamenu' | 'pagecontent'>('basic');
 
   // Preview Mode State
   const [previewDevice, setPreviewDevice] = useState<'desktop' | 'tablet' | 'mobile'>('desktop');
   const [previewHoveredNavId, setPreviewHoveredNavId] = useState<string | null>(null);
+
+  // File Upload Handlers
+  const handleDesktopHeroUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      if (evt.target?.result) {
+        setContentDesktopHero(evt.target.result as string);
+        setContentDesktopHeroFilename(file.name);
+        showToast(`Desktop Hero uploaded: ${file.name}`);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleMobileHeroUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      if (evt.target?.result) {
+        setContentMobileHero(evt.target.result as string);
+        setContentMobileHeroFilename(file.name);
+        showToast(`Mobile Hero uploaded: ${file.name}`);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
+  const handleGalleryUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
+    Array.from(files).forEach((file: File, index: number) => {
+      const reader = new FileReader();
+      reader.onload = (evt) => {
+        if (evt.target?.result) {
+          const newItem: GalleryImageItem = {
+            id: `gal-${Date.now()}-${index}-${Math.random().toString(36).substring(2, 6)}`,
+            url: evt.target.result as string,
+            filename: file.name,
+            title: file.name.replace(/\.[^/.]+$/, ''),
+            altText: file.name,
+            sortOrder: contentGallery.length + index + 1,
+          };
+          setContentGallery((prev) => [...prev, newItem]);
+        }
+      };
+      reader.readAsDataURL(file);
+    });
+    showToast(`Added ${files.length} gallery image(s)`);
+  };
+
+  const handleVideoMp4Upload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      if (evt.target?.result) {
+        setContentVideoMp4(evt.target.result as string);
+        showToast(`Uploaded video MP4: ${file.name}`);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
 
   // Open Edit Form
   const openEditModal = (item?: NavLink) => {
@@ -194,6 +331,66 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
       setMegaFeaturedLink(mega?.featuredImageLink || '#products');
       setMegaFeaturedProductId(mega?.featuredProductId || '');
       setMegaColumns(mega?.columns ? JSON.parse(JSON.stringify(mega.columns)) : []);
+
+      const content = item.pageContent;
+      setContentDesktopHero(content?.desktopHeroImage || '/images/hero_tribal_elders.jpg');
+      setContentDesktopHeroFilename(content?.desktopHeroFilename || 'hero_tribal_elders.jpg');
+      setContentMobileHero(content?.mobileHeroImage || '/images/hero_tribal_elders.jpg');
+      setContentMobileHeroFilename(content?.mobileHeroFilename || 'hero_tribal_elders.jpg');
+      setContentMainHeading(content?.mainHeading || 'Where Ancient Tribal Wisdom Meets Modern Hair Science');
+      setContentSmallHeading(content?.smallHeading || 'The Genesis of HAKKIVEDA');
+      setContentParagraphs(content?.richText?.paragraphs || [
+        'For centuries, the nomadic Hakki-Pikki tribe traversed the dense forest corridors of the Western Ghats in Karnataka, India. Unbounded by modern industrial cosmetics, they relied on a secret repertoire of 42 wild mountain herbs, tree barks, seeds, and flower juices to keep their hair thick, dark, and resilient well into old age.',
+        'At HAKKIVEDA, we preserve this authentic living heritage. We work directly with tribal harvesters in Hunsur to sustainably gather rare botanicals at sunrise when nutrient concentration is highest.',
+      ]);
+      setContentLists(content?.richText?.lists || [
+        '42 Wild Herbs: Including Abrus precatorius, Jatamansi, and Bhringraj harvested in untouched forests.',
+        '21-Day Woodfire Brew: Slow-cooked in pure copper cauldrons over woodfire for optimal phytonutrient retention.',
+        'Tribal Empowerment: Fair-trade compensation directly supporting Hakki-Pikki artisan families in Mysore.',
+        'Worldwide Shipping: Exported directly to India, Singapore, Malaysia, Fiji, Mauritius, and Global markets.',
+      ]);
+      setContentQuotes(content?.richText?.quotes || [
+        'Every drop is small-batch brewed by Hakki-Pikki tribal elders in Mysore using 42 wild herbs.',
+      ]);
+      setContentHighlightText(content?.richText?.highlightText || 'Ancestral Mysore Heritage • Door No. 574, V.P. Bore, Hunsur, Mysore, Karnataka');
+      setContentGallery(content?.gallery || [
+        {
+          id: 'gal-1',
+          url: '/images/hakkiveda_oil_couple_herbs.jpg',
+          filename: 'hakkiveda_oil_couple_herbs.jpg',
+          title: 'Tribal Elders & Herb Gathering',
+          altText: 'Hakki-Pikki tribal elders with wild forest botanicals',
+          sortOrder: 1,
+        },
+        {
+          id: 'gal-2',
+          url: '/images/hakkiveda_108_herbs_infographic.jpg',
+          filename: 'hakkiveda_108_herbs_infographic.jpg',
+          title: '42 Wild Mountain Botanicals',
+          altText: 'Botanical infographic of sacred mountain herbs',
+          sortOrder: 2,
+        },
+        {
+          id: 'gal-3',
+          url: '/images/hakkiveda_108_oil_gold.jpg',
+          filename: 'hakkiveda_108_oil_gold.jpg',
+          title: 'Traditional Copper Cauldron Extraction',
+          altText: 'Pure golden herbal hair oil bottle handcrafted in Mysore',
+          sortOrder: 3,
+        },
+      ]);
+      setContentVideoMp4(content?.videoMp4Url || 'https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4');
+      setContentVideoYoutube(content?.videoYoutubeUrl || 'https://youtu.be/1jzF9v5PEBY');
+      setContentCtaText(content?.ctaText || 'Explore 42-Herb Formulations');
+      setContentCtaLink(content?.ctaLink || '#products');
+      setContentSeoAltText(content?.seoAltText || 'Hakki-Pikki Forest Canopy and Tribal Elders in Mysore');
+      setContentSeoImageTitle(content?.seoImageTitle || 'Ancestral Hakki-Pikki Herbal Hair Oil Brewing Tradition');
+
+      if (item.label.toLowerCase().includes('heritage') || item.url === '#brand-story' || item.id === 'nav-2') {
+        setModalTab('pagecontent');
+      } else {
+        setModalTab('basic');
+      }
     } else {
       setEditingItem(null);
       setFormLabel('');
@@ -232,8 +429,8 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
           ],
         },
       ]);
+      setModalTab('basic');
     }
-    setModalTab('basic');
     setIsModalOpen(true);
   };
 
@@ -277,6 +474,28 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
       return;
     }
 
+    const pageContentPayload: TribalHeritagePageContent = {
+      desktopHeroImage: contentDesktopHero,
+      desktopHeroFilename: contentDesktopHeroFilename,
+      mobileHeroImage: contentMobileHero,
+      mobileHeroFilename: contentMobileHeroFilename,
+      mainHeading: contentMainHeading,
+      smallHeading: contentSmallHeading,
+      richText: {
+        paragraphs: contentParagraphs,
+        lists: contentLists,
+        quotes: contentQuotes,
+        highlightText: contentHighlightText,
+      },
+      gallery: contentGallery,
+      videoMp4Url: contentVideoMp4,
+      videoYoutubeUrl: contentVideoYoutube,
+      ctaText: contentCtaText,
+      ctaLink: contentCtaLink,
+      seoAltText: contentSeoAltText,
+      seoImageTitle: contentSeoImageTitle,
+    };
+
     const payload: Omit<NavLink, 'id'> = {
       label: formLabel.trim(),
       url: formUrl || '#',
@@ -308,11 +527,12 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
             columns: megaColumns,
           }
         : { enabled: false, columns: [] },
+      pageContent: pageContentPayload,
     };
 
     if (editingItem) {
       updateNavLink(editingItem.id, payload);
-      showToast(`Updated menu item: "${formLabel}"`);
+      showToast(`Updated menu item: "${formLabel}" and page content`);
     } else {
       addNavLink(payload);
       showToast(`Created new menu item: "${formLabel}"`);
@@ -636,6 +856,22 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                         >
                           {isEnabled ? 'Active' : 'Disabled'}
                         </button>
+
+                        {/* Page Content Manager Quick Button */}
+                        {(item.label.toLowerCase().includes('heritage') || item.pageContent || item.id === 'nav-2') && (
+                          <button
+                            type="button"
+                            onClick={() => {
+                              openEditModal(item);
+                              setModalTab('pagecontent');
+                            }}
+                            className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-[var(--brand-gold)]/20 hover:bg-[var(--brand-gold)] text-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/40 text-xs font-bold transition-all"
+                            title="Manage Page Content (Story, Hero, Gallery, Video, SEO)"
+                          >
+                            <Sparkles className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
+                            <span>Page Content</span>
+                          </button>
+                        )}
 
                         {/* Edit */}
                         <button
@@ -1142,7 +1378,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
       {/* CREATE / EDIT MENU ITEM MODAL */}
       {isModalOpen && (
         <div className="fixed inset-0 z-50 bg-black/80 backdrop-blur-md flex items-center justify-center p-4 animate-in fade-in">
-          <div className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/40 rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-y-auto shadow-2xl space-y-5 p-6">
+          <div className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/40 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto shadow-2xl space-y-5 p-6">
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <h3 className="text-lg font-bold font-serif-luxury text-slate-100 flex items-center gap-2">
                 <FolderTree className="w-5 h-5 text-[var(--brand-gold)]" />
@@ -1157,12 +1393,12 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
             </div>
 
             {/* Modal Internal Tabs */}
-            <div className="flex items-center gap-2 border-b border-white/10 pb-2 text-xs">
+            <div className="flex items-center gap-2 border-b border-white/10 pb-2 text-xs overflow-x-auto">
               <button
                 type="button"
                 onClick={() => setModalTab('basic')}
                 className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
-                  modalTab === 'basic' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]' : 'bg-[var(--brand-primary-deep)] text-slate-300'
+                  modalTab === 'basic' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] shadow' : 'bg-[var(--brand-primary-deep)] text-slate-300 hover:text-white'
                 }`}
               >
                 1. Basic Info & Link
@@ -1171,7 +1407,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                 type="button"
                 onClick={() => setModalTab('visibility')}
                 className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
-                  modalTab === 'visibility' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]' : 'bg-[var(--brand-primary-deep)] text-slate-300'
+                  modalTab === 'visibility' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] shadow' : 'bg-[var(--brand-primary-deep)] text-slate-300 hover:text-white'
                 }`}
               >
                 2. Visibility & Schedule
@@ -1180,10 +1416,20 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                 type="button"
                 onClick={() => setModalTab('megamenu')}
                 className={`px-3 py-1.5 rounded-lg font-bold transition-all ${
-                  modalTab === 'megamenu' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]' : 'bg-[var(--brand-primary-deep)] text-slate-300'
+                  modalTab === 'megamenu' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] shadow' : 'bg-[var(--brand-primary-deep)] text-slate-300 hover:text-white'
                 }`}
               >
                 3. Mega Menu Builder
+              </button>
+              <button
+                type="button"
+                onClick={() => setModalTab('pagecontent')}
+                className={`px-3 py-1.5 rounded-lg font-bold transition-all flex items-center gap-1.5 ${
+                  modalTab === 'pagecontent' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] shadow' : 'bg-[var(--brand-primary-deep)] text-slate-300 hover:text-white border border-[var(--brand-gold)]/30'
+                }`}
+              >
+                <Sparkles className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
+                <span>4. Page Content Manager</span>
               </button>
             </div>
 
@@ -1590,6 +1836,667 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                       </div>
                     </div>
                   )}
+                </div>
+              )}
+
+              {/* MODAL TAB 4: PAGE CONTENT MANAGER */}
+              {modalTab === 'pagecontent' && (
+                <div className="space-y-6 animate-in fade-in">
+                  <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-[var(--brand-gold)]/30">
+                    <div className="flex items-center gap-2">
+                      <Sparkles className="w-5 h-5 text-[var(--brand-gold)]" />
+                      <h4 className="text-sm font-bold text-slate-100 font-serif-luxury">
+                        Page Content Manager — Tribal Heritage Section
+                      </h4>
+                    </div>
+                    <p className="text-xs text-slate-300 mt-1">
+                      Manage live media, story narrative, rich text paragraphs, gallery images, video, CTA, and SEO for the website's Tribal Heritage section. Changes update live on save.
+                    </p>
+                  </div>
+
+                  {/* 1. HERO IMAGE SECTION */}
+                  <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-4">
+                    <h5 className="text-xs font-bold text-[var(--brand-gold)] uppercase tracking-wider flex items-center gap-2">
+                      <ImageIcon className="w-4 h-4 text-[var(--brand-gold)]" />
+                      1. Hero Image Settings (Desktop & Mobile)
+                    </h5>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Desktop Hero Image */}
+                      <div className="bg-[var(--brand-primary-dark)] p-3.5 rounded-xl border border-white/10 space-y-2">
+                        <label className="block text-slate-200 font-bold text-xs">
+                          Desktop Hero Image
+                        </label>
+                        {contentDesktopHero ? (
+                          <div className="space-y-2">
+                            <div className="relative rounded-lg overflow-hidden border border-white/15 h-36 bg-black/40 group">
+                              <img
+                                src={contentDesktopHero}
+                                alt="Desktop Hero Preview"
+                                className="w-full h-full object-cover"
+                              />
+                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                <label className="cursor-pointer bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-2.5 py-1 rounded text-xs font-bold flex items-center gap-1 hover:bg-[#d8b25a]">
+                                  <Upload className="w-3.5 h-3.5" />
+                                  <span>Replace</span>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleDesktopHeroUpload}
+                                    className="hidden"
+                                  />
+                                </label>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setContentDesktopHero('');
+                                    setContentDesktopHeroFilename('');
+                                    showToast('Deleted Desktop Hero image');
+                                  }}
+                                  className="bg-rose-500 text-white px-2.5 py-1 rounded text-xs font-bold flex items-center gap-1 hover:bg-rose-600"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                  <span>Delete</span>
+                                </button>
+                              </div>
+                            </div>
+                            <div className="text-[11px] text-slate-400 font-mono truncate">
+                              File: <span className="text-slate-200">{contentDesktopHeroFilename || 'Desktop Hero'}</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <label className="flex flex-col items-center justify-center border-2 border-dashed border-white/20 hover:border-[var(--brand-gold)]/60 rounded-xl h-36 cursor-pointer bg-black/20 hover:bg-black/40 transition-all p-4 text-center">
+                            <Upload className="w-6 h-6 text-[var(--brand-gold)] mb-1" />
+                            <span className="text-xs font-bold text-slate-200">Upload Desktop Hero</span>
+                            <span className="text-[10px] text-slate-400 mt-0.5">PNG, JPG, WEBP (Preserves original quality)</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleDesktopHeroUpload}
+                              className="hidden"
+                            />
+                          </label>
+                        )}
+                      </div>
+
+                      {/* Mobile Hero Image */}
+                      <div className="bg-[var(--brand-primary-dark)] p-3.5 rounded-xl border border-white/10 space-y-2">
+                        <label className="block text-slate-200 font-bold text-xs">
+                          Mobile Hero Image
+                        </label>
+                        {contentMobileHero ? (
+                          <div className="space-y-2">
+                            <div className="relative rounded-lg overflow-hidden border border-white/15 h-36 bg-black/40 group">
+                              <img
+                                src={contentMobileHero}
+                                alt="Mobile Hero Preview"
+                                className="w-full h-full object-cover"
+                              />
+                              <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                <label className="cursor-pointer bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-2.5 py-1 rounded text-xs font-bold flex items-center gap-1 hover:bg-[#d8b25a]">
+                                  <Upload className="w-3.5 h-3.5" />
+                                  <span>Replace</span>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={handleMobileHeroUpload}
+                                    className="hidden"
+                                  />
+                                </label>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setContentMobileHero('');
+                                    setContentMobileHeroFilename('');
+                                    showToast('Deleted Mobile Hero image');
+                                  }}
+                                  className="bg-rose-500 text-white px-2.5 py-1 rounded text-xs font-bold flex items-center gap-1 hover:bg-rose-600"
+                                >
+                                  <Trash2 className="w-3.5 h-3.5" />
+                                  <span>Delete</span>
+                                </button>
+                              </div>
+                            </div>
+                            <div className="text-[11px] text-slate-400 font-mono truncate">
+                              File: <span className="text-slate-200">{contentMobileHeroFilename || 'Mobile Hero'}</span>
+                            </div>
+                          </div>
+                        ) : (
+                          <label className="flex flex-col items-center justify-center border-2 border-dashed border-white/20 hover:border-[var(--brand-gold)]/60 rounded-xl h-36 cursor-pointer bg-black/20 hover:bg-black/40 transition-all p-4 text-center">
+                            <Smartphone className="w-6 h-6 text-[var(--brand-gold)] mb-1" />
+                            <span className="text-xs font-bold text-slate-200">Upload Mobile Hero</span>
+                            <span className="text-[10px] text-slate-400 mt-0.5">Optimized for vertical smartphone viewports</span>
+                            <input
+                              type="file"
+                              accept="image/*"
+                              onChange={handleMobileHeroUpload}
+                              className="hidden"
+                            />
+                          </label>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 2. STORY CONTENT & RICH TEXT EDITOR */}
+                  <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-4">
+                    <h5 className="text-xs font-bold text-[var(--brand-gold)] uppercase tracking-wider flex items-center gap-2">
+                      <FileText className="w-4 h-4 text-[var(--brand-gold)]" />
+                      2. Story Content & Rich Text Editor
+                    </h5>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-slate-200 font-bold mb-1">Small Sub-Heading / Eyebrow</label>
+                        <input
+                          type="text"
+                          value={contentSmallHeading}
+                          onChange={(e) => setContentSmallHeading(e.target.value)}
+                          className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-lg px-3 py-2 text-slate-100 font-mono focus:border-[var(--brand-gold)]"
+                          placeholder="e.g. The Genesis of HAKKIVEDA"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-200 font-bold mb-1">Main Narrative Title</label>
+                        <input
+                          type="text"
+                          value={contentMainHeading}
+                          onChange={(e) => setContentMainHeading(e.target.value)}
+                          className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-lg px-3 py-2 text-slate-100 font-bold focus:border-[var(--brand-gold)]"
+                          placeholder="e.g. Where Ancient Tribal Wisdom Meets Modern Hair Science"
+                        />
+                      </div>
+                    </div>
+
+                    {/* Paragraphs Editor */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-slate-200 font-bold text-xs">
+                          Story Paragraphs ({contentParagraphs.length})
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setContentParagraphs([...contentParagraphs, 'New story paragraph detailing the Hakki-Pikki lore...'])}
+                          className="text-[11px] bg-[var(--brand-gold)]/20 hover:bg-[var(--brand-gold)] text-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] px-2.5 py-1 rounded font-bold transition-all"
+                        >
+                          + Add Paragraph
+                        </button>
+                      </div>
+                      {contentParagraphs.map((para, idx) => (
+                        <div key={idx} className="flex items-start gap-2">
+                          <span className="text-[10px] text-slate-400 font-mono mt-2">P{idx + 1}</span>
+                          <textarea
+                            rows={2}
+                            value={para}
+                            onChange={(e) => {
+                              const next = [...contentParagraphs];
+                              next[idx] = e.target.value;
+                              setContentParagraphs(next);
+                            }}
+                            className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-lg p-2.5 text-slate-100 text-xs focus:border-[var(--brand-gold)]"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setContentParagraphs(contentParagraphs.filter((_, i) => i !== idx))}
+                            className="p-1.5 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded mt-1"
+                            title="Delete Paragraph"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Key Features Bullet List Editor */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-slate-200 font-bold text-xs">
+                          Botanical & Heritage Bullet Points ({contentLists.length})
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setContentLists([...contentLists, 'New botanical feature highlight...'])}
+                          className="text-[11px] bg-[var(--brand-gold)]/20 hover:bg-[var(--brand-gold)] text-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] px-2.5 py-1 rounded font-bold transition-all"
+                        >
+                          + Add Bullet Point
+                        </button>
+                      </div>
+                      {contentLists.map((bullet, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <span className="text-[var(--brand-gold)] text-xs font-bold">•</span>
+                          <input
+                            type="text"
+                            value={bullet}
+                            onChange={(e) => {
+                              const next = [...contentLists];
+                              next[idx] = e.target.value;
+                              setContentLists(next);
+                            }}
+                            className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-lg px-3 py-1.5 text-slate-100 text-xs focus:border-[var(--brand-gold)]"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setContentLists(contentLists.filter((_, i) => i !== idx))}
+                            className="p-1.5 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded"
+                            title="Delete Bullet"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Tribal Quotes & Lore Block */}
+                    <div className="space-y-2">
+                      <div className="flex items-center justify-between">
+                        <label className="block text-slate-200 font-bold text-xs">
+                          Elder Quotes & Tribal Quotes ({contentQuotes.length})
+                        </label>
+                        <button
+                          type="button"
+                          onClick={() => setContentQuotes([...contentQuotes, 'Wisdom quote from Hakki-Pikki tribal elders...'])}
+                          className="text-[11px] bg-[var(--brand-gold)]/20 hover:bg-[var(--brand-gold)] text-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] px-2.5 py-1 rounded font-bold transition-all"
+                        >
+                          + Add Lore Quote
+                        </button>
+                      </div>
+                      {contentQuotes.map((quote, idx) => (
+                        <div key={idx} className="flex items-center gap-2">
+                          <span className="text-[var(--brand-gold)] text-lg font-serif">“</span>
+                          <input
+                            type="text"
+                            value={quote}
+                            onChange={(e) => {
+                              const next = [...contentQuotes];
+                              next[idx] = e.target.value;
+                              setContentQuotes(next);
+                            }}
+                            className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-lg px-3 py-1.5 text-slate-100 italic text-xs focus:border-[var(--brand-gold)]"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setContentQuotes(contentQuotes.filter((_, i) => i !== idx))}
+                            className="p-1.5 text-rose-400 hover:text-rose-300 hover:bg-rose-500/10 rounded"
+                            title="Delete Quote"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                          </button>
+                        </div>
+                      ))}
+                    </div>
+
+                    {/* Highlight Text Banner */}
+                    <div>
+                      <label className="block text-slate-200 font-bold mb-1">
+                        Highlight Footer Text Banner
+                      </label>
+                      <input
+                        type="text"
+                        value={contentHighlightText}
+                        onChange={(e) => setContentHighlightText(e.target.value)}
+                        className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-lg px-3 py-2 text-slate-100 focus:border-[var(--brand-gold)]"
+                        placeholder="e.g. Ancestral Mysore Heritage • Door No. 574, Hunsur, Mysore"
+                      />
+                    </div>
+                  </div>
+
+                  {/* 3. GALLERY SECTION (MULTIPLE UPLOAD & DRAG/DROP ORDERING) */}
+                  <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+                      <div>
+                        <h5 className="text-xs font-bold text-[var(--brand-gold)] uppercase tracking-wider flex items-center gap-2">
+                          <Grid className="w-4 h-4 text-[var(--brand-gold)]" />
+                          3. Story Gallery Images ({contentGallery.length})
+                        </h5>
+                        <p className="text-[11px] text-slate-300">
+                          Upload multiple photos, drag & drop cards or use arrow buttons to reorder gallery tiles on the website.
+                        </p>
+                      </div>
+
+                      <label className="cursor-pointer bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold px-3 py-1.5 rounded-lg text-xs hover:bg-[#d8b25a] flex items-center gap-1.5 shadow-md">
+                        <Upload className="w-3.5 h-3.5" />
+                        <span>Upload Images</span>
+                        <input
+                          type="file"
+                          multiple
+                          accept="image/*"
+                          onChange={handleGalleryUpload}
+                          className="hidden"
+                        />
+                      </label>
+                    </div>
+
+                    {contentGallery.length === 0 ? (
+                      <div className="text-center py-8 text-slate-400 bg-[var(--brand-primary-dark)] rounded-xl border border-dashed border-white/10">
+                        <ImageIcon className="w-8 h-8 text-slate-500 mx-auto mb-1 opacity-40" />
+                        <p className="text-xs font-bold">No gallery images uploaded yet.</p>
+                        <p className="text-[10px] text-slate-400 mt-0.5">Click "Upload Images" above to add forest photos or brewing stills.</p>
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        {contentGallery.map((imgItem, idx) => (
+                          <div
+                            key={imgItem.id}
+                            draggable
+                            onDragStart={() => setDraggedGalleryIdx(idx)}
+                            onDragOver={(e) => e.preventDefault()}
+                            onDrop={() => {
+                              if (draggedGalleryIdx !== null && draggedGalleryIdx !== idx) {
+                                const next = [...contentGallery];
+                                const [moved] = next.splice(draggedGalleryIdx, 1);
+                                next.splice(idx, 0, moved);
+                                setContentGallery(next);
+                                setDraggedGalleryIdx(null);
+                                showToast('Reordered gallery photo');
+                              }
+                            }}
+                            className="bg-[var(--brand-primary-dark)] p-3 rounded-xl border border-white/10 space-y-2 relative group hover:border-[var(--brand-gold)]/40 transition-all cursor-move"
+                          >
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-1.5 text-slate-300">
+                                <Move className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
+                                <span className="font-bold text-[11px]">Photo #{idx + 1}</span>
+                              </div>
+
+                              <div className="flex items-center gap-1">
+                                <button
+                                  type="button"
+                                  disabled={idx === 0}
+                                  onClick={() => {
+                                    const next = [...contentGallery];
+                                    const temp = next[idx - 1];
+                                    next[idx - 1] = next[idx];
+                                    next[idx] = temp;
+                                    setContentGallery(next);
+                                  }}
+                                  className="p-1 rounded bg-black/40 hover:bg-[var(--brand-gold)]/20 text-slate-200 disabled:opacity-20"
+                                  title="Move Left/Up"
+                                >
+                                  <ArrowUp className="w-3 h-3" />
+                                </button>
+                                <button
+                                  type="button"
+                                  disabled={idx === contentGallery.length - 1}
+                                  onClick={() => {
+                                    const next = [...contentGallery];
+                                    const temp = next[idx + 1];
+                                    next[idx + 1] = next[idx];
+                                    next[idx] = temp;
+                                    setContentGallery(next);
+                                  }}
+                                  className="p-1 rounded bg-black/40 hover:bg-[var(--brand-gold)]/20 text-slate-200 disabled:opacity-20"
+                                  title="Move Right/Down"
+                                >
+                                  <ArrowDown className="w-3 h-3" />
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setContentGallery(contentGallery.filter((_, i) => i !== idx));
+                                    showToast('Deleted photo from gallery');
+                                  }}
+                                  className="p-1 rounded bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-white ml-1"
+                                  title="Delete Image"
+                                >
+                                  <Trash2 className="w-3 h-3" />
+                                </button>
+                              </div>
+                            </div>
+
+                            <div className="flex gap-3 items-center">
+                              <div className="w-20 h-20 rounded-lg overflow-hidden border border-white/10 shrink-0 bg-black/40 relative">
+                                <img src={imgItem.url} alt={imgItem.altText || 'Gallery'} className="w-full h-full object-cover" />
+                                <label className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center cursor-pointer text-[10px] font-bold text-[var(--brand-gold)]">
+                                  Replace
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (!file) return;
+                                      const reader = new FileReader();
+                                      reader.onload = (evt) => {
+                                        if (evt.target?.result) {
+                                          const next = [...contentGallery];
+                                          next[idx].url = evt.target.result as string;
+                                          next[idx].filename = file.name;
+                                          setContentGallery(next);
+                                          showToast(`Replaced photo ${idx + 1}`);
+                                        }
+                                      };
+                                      reader.readAsDataURL(file);
+                                    }}
+                                    className="hidden"
+                                  />
+                                </label>
+                              </div>
+
+                              <div className="space-y-1.5 flex-1 min-w-0">
+                                <input
+                                  type="text"
+                                  placeholder="Photo Title"
+                                  value={imgItem.title}
+                                  onChange={(e) => {
+                                    const next = [...contentGallery];
+                                    next[idx].title = e.target.value;
+                                    setContentGallery(next);
+                                  }}
+                                  className="w-full bg-[var(--brand-primary-deep)] border border-white/15 rounded px-2 py-1 text-[11px] text-slate-100 font-bold"
+                                />
+                                <input
+                                  type="text"
+                                  placeholder="SEO Alt Text"
+                                  value={imgItem.altText}
+                                  onChange={(e) => {
+                                    const next = [...contentGallery];
+                                    next[idx].altText = e.target.value;
+                                    setContentGallery(next);
+                                  }}
+                                  className="w-full bg-[var(--brand-primary-deep)] border border-white/15 rounded px-2 py-1 text-[10px] text-slate-300 font-mono"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    )}
+                  </div>
+
+                  {/* 4. OPTIONAL VIDEO (MP4 & YOUTUBE) */}
+                  <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-4">
+                    <h5 className="text-xs font-bold text-[var(--brand-gold)] uppercase tracking-wider flex items-center gap-2">
+                      <Video className="w-4 h-4 text-[var(--brand-gold)]" />
+                      4. Optional Documentary Video (MP4 Upload / YouTube Link)
+                    </h5>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      {/* Direct MP4 Upload */}
+                      <div className="space-y-2">
+                        <label className="block text-slate-200 font-bold text-xs">
+                          MP4 Video Upload or URL
+                        </label>
+                        <div className="flex gap-2">
+                          <input
+                            type="text"
+                            value={contentVideoMp4}
+                            onChange={(e) => setContentVideoMp4(e.target.value)}
+                            placeholder="https://domain.com/video.mp4"
+                            className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-lg px-3 py-1.5 text-slate-100 text-xs font-mono"
+                          />
+                          <label className="cursor-pointer bg-[var(--brand-gold)]/20 hover:bg-[var(--brand-gold)] text-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] px-3 py-1.5 rounded-lg text-xs font-bold transition-all shrink-0 flex items-center gap-1">
+                            <Upload className="w-3.5 h-3.5" />
+                            <span>Upload MP4</span>
+                            <input
+                              type="file"
+                              accept="video/mp4,video/*"
+                              onChange={handleVideoMp4Upload}
+                              className="hidden"
+                            />
+                          </label>
+                        </div>
+                      </div>
+
+                      {/* YouTube Embed URL */}
+                      <div className="space-y-2">
+                        <label className="block text-slate-200 font-bold text-xs">
+                          YouTube Video Link
+                        </label>
+                        <input
+                          type="text"
+                          value={contentVideoYoutube}
+                          onChange={(e) => setContentVideoYoutube(e.target.value)}
+                          placeholder="https://youtu.be/1jzF9v5PEBY"
+                          className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-lg px-3 py-1.5 text-slate-100 text-xs font-mono"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 5. CALL TO ACTION (CTA) */}
+                  <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-4">
+                    <h5 className="text-xs font-bold text-[var(--brand-gold)] uppercase tracking-wider flex items-center gap-2">
+                      <ArrowRight className="w-4 h-4 text-[var(--brand-gold)]" />
+                      5. Call to Action (CTA Button)
+                    </h5>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-slate-200 font-bold mb-1">CTA Button Text</label>
+                        <input
+                          type="text"
+                          value={contentCtaText}
+                          onChange={(e) => setContentCtaText(e.target.value)}
+                          className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-lg px-3 py-2 text-slate-100 font-bold"
+                          placeholder="e.g. Explore 42-Herb Formulations"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-200 font-bold mb-1">CTA Target Link</label>
+                        <input
+                          type="text"
+                          value={contentCtaLink}
+                          onChange={(e) => setContentCtaLink(e.target.value)}
+                          className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-lg px-3 py-2 text-slate-100 font-mono"
+                          placeholder="e.g. #products"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 6. SEO & METADATA */}
+                  <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-4">
+                    <h5 className="text-xs font-bold text-[var(--brand-gold)] uppercase tracking-wider flex items-center gap-2">
+                      <Globe className="w-4 h-4 text-[var(--brand-gold)]" />
+                      6. SEO & Accessibility Metadata
+                    </h5>
+
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <div>
+                        <label className="block text-slate-200 font-bold mb-1">Primary Hero Alt Text</label>
+                        <input
+                          type="text"
+                          value={contentSeoAltText}
+                          onChange={(e) => setContentSeoAltText(e.target.value)}
+                          className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-lg px-3 py-2 text-slate-100 font-mono text-xs"
+                          placeholder="e.g. Hakki-Pikki Forest Canopy and Tribal Elders in Mysore"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="block text-slate-200 font-bold mb-1">Image Title Tag</label>
+                        <input
+                          type="text"
+                          value={contentSeoImageTitle}
+                          onChange={(e) => setContentSeoImageTitle(e.target.value)}
+                          className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-lg px-3 py-2 text-slate-100 font-mono text-xs"
+                          placeholder="e.g. Ancestral Hakki-Pikki Herbal Hair Oil Brewing Tradition"
+                        />
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* 7. LIVE PREVIEW FRAME */}
+                  <div className="bg-[var(--brand-primary-dark)] p-5 rounded-2xl border border-[var(--brand-gold)]/40 space-y-4 shadow-2xl">
+                    <div className="flex items-center justify-between border-b border-white/10 pb-3">
+                      <div className="flex items-center gap-2">
+                        <Eye className="w-4 h-4 text-[var(--brand-gold)]" />
+                        <h5 className="text-xs font-bold text-[var(--brand-gold)] uppercase tracking-widest">
+                          7. Real-Time Website Story Section Preview
+                        </h5>
+                      </div>
+                      <span className="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 px-2 py-0.5 rounded font-mono font-bold">
+                        Live Render
+                      </span>
+                    </div>
+
+                    <div className="bg-slate-950 rounded-xl p-6 border border-white/10 text-slate-200 space-y-6">
+                      <div className="flex items-center gap-2">
+                        <Sparkles className="w-4 h-4 text-[var(--brand-gold)]" />
+                        <span className="text-xs font-bold uppercase tracking-widest text-[var(--brand-gold)]">
+                          {contentSmallHeading}
+                        </span>
+                      </div>
+
+                      <h3 className="text-xl font-bold font-serif-luxury text-slate-100">
+                        {contentMainHeading}
+                      </h3>
+
+                      {contentDesktopHero && (
+                        <div className="rounded-xl overflow-hidden border border-[var(--brand-gold)]/30 h-48 bg-black/60 relative">
+                          <img src={contentDesktopHero} alt={contentSeoAltText} className="w-full h-full object-cover" />
+                          <div className="absolute bottom-2 right-2 bg-black/70 px-2 py-0.5 rounded text-[10px] font-mono text-slate-300">
+                            Desktop Hero
+                          </div>
+                        </div>
+                      )}
+
+                      <div className="space-y-3 text-xs text-slate-300 leading-relaxed">
+                        {contentParagraphs.map((p, idx) => (
+                          <p key={idx}>{p}</p>
+                        ))}
+                      </div>
+
+                      {contentLists.length > 0 && (
+                        <ul className="space-y-2 text-xs">
+                          {contentLists.map((item, idx) => (
+                            <li key={idx} className="flex items-start gap-2 text-slate-200">
+                              <span className="text-[var(--brand-gold)] font-bold">✓</span>
+                              <span>{item}</span>
+                            </li>
+                          ))}
+                        </ul>
+                      )}
+
+                      {contentQuotes.map((q, idx) => (
+                        <blockquote key={idx} className="border-l-2 border-[var(--brand-gold)] pl-4 italic text-slate-300 text-xs py-1">
+                          "{q}"
+                        </blockquote>
+                      ))}
+
+                      {contentGallery.length > 0 && (
+                        <div className="grid grid-cols-3 gap-2 pt-2">
+                          {contentGallery.map((g) => (
+                            <div key={g.id} className="h-16 rounded-lg overflow-hidden border border-white/10">
+                              <img src={g.url} alt={g.altText} className="w-full h-full object-cover" />
+                            </div>
+                          ))}
+                        </div>
+                      )}
+
+                      <div className="pt-2">
+                        <a
+                          href={contentCtaLink}
+                          onClick={(e) => e.preventDefault()}
+                          className="inline-flex items-center gap-2 bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-4 py-2 rounded-xl text-xs font-bold shadow-lg"
+                        >
+                          <span>{contentCtaText}</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </a>
+                      </div>
+                    </div>
+                  </div>
                 </div>
               )}
 

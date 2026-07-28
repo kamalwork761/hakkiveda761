@@ -1,11 +1,15 @@
+export type SupportedCurrencyCode = 'INR' | 'SGD' | 'MYR' | 'FJD' | 'MUR' | 'AED' | 'SAR' | 'NPR' | 'USD';
+
 export interface CountryItem {
   code: string;
   name: string;
   flag: string;
-  currencyCode: 'INR' | 'SGD' | 'MYR' | 'FJD' | 'MUR' | 'USD';
+  currencyCode: SupportedCurrencyCode;
+  region?: string;
+  marketId?: string;
 }
 
-export function getCurrencyForCountry(code: string, name: string): 'INR' | 'SGD' | 'MYR' | 'FJD' | 'MUR' | 'USD' {
+export function getCurrencyForCountry(code: string, name: string = ''): SupportedCurrencyCode {
   const upperCode = code.toUpperCase();
   const lowerName = name.toLowerCase();
 
@@ -14,8 +18,69 @@ export function getCurrencyForCountry(code: string, name: string): 'INR' | 'SGD'
   if (upperCode === 'MY' || lowerName.includes('malaysia')) return 'MYR';
   if (upperCode === 'FJ' || lowerName.includes('fiji')) return 'FJD';
   if (upperCode === 'MU' || lowerName.includes('mauritius')) return 'MUR';
+  if (upperCode === 'AE' || lowerName.includes('united arab emirates') || lowerName.includes('dubai') || lowerName.includes('uae')) return 'AED';
+  if (upperCode === 'SA' || lowerName.includes('saudi arabia') || lowerName.includes('saudi')) return 'SAR';
+  if (upperCode === 'NP' || lowerName.includes('nepal')) return 'NPR';
 
   return 'USD';
+}
+
+export function getMarketForCountry(code: string): string {
+  const upperCode = code.toUpperCase();
+  switch (upperCode) {
+    case 'IN': return 'mkt-in';
+    case 'SG': return 'mkt-sg';
+    case 'MY': return 'mkt-my';
+    case 'MU': return 'mkt-mu';
+    case 'FJ': return 'mkt-fj';
+    case 'AE': return 'mkt-ae';
+    case 'SA': return 'mkt-sa';
+    case 'NP': return 'mkt-np';
+    default: return 'mkt-int';
+  }
+}
+
+export function getRegionForCountry(code: string): string {
+  const c = code.toUpperCase();
+  
+  if (['AE', 'SA', 'QA', 'KW', 'OM', 'BH'].includes(c)) return 'GCC';
+
+  if ([
+    'IN', 'SG', 'MY', 'NP', 'BD', 'LK', 'PK', 'BT', 'MV', 'TH', 'VN', 'ID', 'PH', 'CN', 'JP', 'KR', 
+    'HK', 'TW', 'MO', 'KH', 'LA', 'MM', 'BN', 'TL', 'AF', 'AZ', 'AM', 'GE', 'KZ', 'KG', 'TJ', 'TM', 
+    'UZ', 'IQ', 'IR', 'IL', 'JO', 'LB', 'SY', 'YE', 'PS'
+  ].includes(c)) return 'Asia';
+
+  if ([
+    'GB', 'DE', 'FR', 'IT', 'ES', 'NL', 'BE', 'CH', 'SE', 'NO', 'FI', 'DK', 'IE', 'PL', 'AT', 'PT', 
+    'GR', 'CZ', 'RO', 'HU', 'SK', 'SI', 'BG', 'HR', 'EE', 'LV', 'LT', 'IS', 'LU', 'MT', 'CY', 'AL', 
+    'AD', 'BY', 'BA', 'LI', 'MD', 'MC', 'ME', 'MK', 'RS', 'SM', 'VA', 'UA', 'RU', 'FO', 'GI', 'AX', 
+    'IM', 'JE', 'GG', 'SJB', 'SJ'
+  ].includes(c)) return 'Europe';
+
+  if ([
+    'MU', 'ZA', 'EG', 'KE', 'NG', 'MA', 'GH', 'TZ', 'UG', 'DZ', 'AO', 'BJ', 'BW', 'BF', 'BI', 'CV', 
+    'CM', 'CF', 'TD', 'KM', 'CG', 'CD', 'CI', 'DJ', 'GQ', 'ER', 'SZ', 'ET', 'GA', 'GM', 'GN', 'GW', 
+    'LS', 'LR', 'LY', 'MG', 'MW', 'ML', 'MR', 'YT', 'MZ', 'NA', 'NE', 'RE', 'RW', 'SH', 'ST', 'SN', 
+    'SC', 'SL', 'SO', 'SS', 'SD', 'TG', 'TN', 'ZM', 'ZW', 'EH'
+  ].includes(c)) return 'Africa';
+
+  if ([
+    'US', 'CA', 'MX', 'PR', 'JM', 'TT', 'BB', 'BS', 'BM', 'BZ', 'CR', 'CU', 'CW', 'DM', 'DO', 'SV', 
+    'GD', 'GP', 'GT', 'HT', 'HN', 'MQ', 'MS', 'NI', 'PA', 'KN', 'LC', 'VC', 'SX', 'TC', 'AG', 'AI', 
+    'AW', 'KY', 'MF', 'PM', 'VG', 'VI'
+  ].includes(c)) return 'North America';
+
+  if ([
+    'BR', 'AR', 'CL', 'CO', 'PE', 'VE', 'EC', 'PY', 'UY', 'BO', 'GY', 'SR', 'GF', 'FK'
+  ].includes(c)) return 'South America';
+
+  if ([
+    'AU', 'NZ', 'FJ', 'PG', 'SB', 'VU', 'WS', 'TO', 'AS', 'CK', 'PF', 'GU', 'KI', 'MH', 'FM', 'NR', 
+    'NC', 'NU', 'NF', 'MP', 'PW', 'PN', 'TK', 'TV', 'UM', 'WF'
+  ].includes(c)) return 'Oceania';
+
+  return 'Asia';
 }
 
 export function codeToFlag(code: string): string {
@@ -283,6 +348,8 @@ export const WORLD_COUNTRIES: CountryItem[] = RAW_COUNTRIES.map((c) => ({
   name: c.name,
   flag: codeToFlag(c.code),
   currencyCode: getCurrencyForCountry(c.code, c.name),
+  region: getRegionForCountry(c.code),
+  marketId: getMarketForCountry(c.code),
 }));
 
 export const DEFAULT_COUNTRY: CountryItem = WORLD_COUNTRIES.find((c) => c.code === 'IN') || {

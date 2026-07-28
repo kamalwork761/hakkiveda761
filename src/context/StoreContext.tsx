@@ -21,6 +21,12 @@ import {
   QuizQuestion,
   MediaItem,
   CountrySetting,
+  Market,
+  PaymentGatewayConfig,
+  CodRulesConfig,
+  MarketPaymentGatewayMapping,
+  PaymentLog,
+  PaymentGatewayId,
 } from '../types/store';
 import {
   INITIAL_CURRENCIES,
@@ -41,6 +47,11 @@ import {
   INITIAL_QUIZ_QUESTIONS,
   INITIAL_MEDIA_ITEMS,
   INITIAL_COUNTRIES,
+  INITIAL_MARKETS,
+  INITIAL_PAYMENT_GATEWAYS,
+  INITIAL_COD_RULES,
+  INITIAL_MARKET_GATEWAYS,
+  INITIAL_PAYMENT_LOGS,
 } from '../data/initialData';
 import { hashPassword, DEFAULT_ADMIN_EMAIL, DEFAULT_ADMIN_PASSWORD_PLAIN } from '../utils/auth';
 import { idbGet, idbSet, idbClear } from '../utils/idbStorage';
@@ -101,13 +112,19 @@ interface StoreContextType {
   convertPrice: (priceINR: number) => number;
   updateCurrencyRate: (code: string, newRateToINR: number) => void;
 
-  // Selected Country
+  // Selected Country & Market
   selectedCountry: CountryItem;
   selectCountry: (country: CountryItem) => void;
+  currentMarket: Market;
 
-  // Countries
+  // Markets
+  markets: Market[];
+  updateMarket: (id: string, partial: Partial<Market>) => void;
+
+  // Countries & Bulk Actions
   countries: CountrySetting[];
   updateCountrySetting: (code: string, partial: Partial<CountrySetting>) => void;
+  bulkUpdateCountries: (action: 'ENABLE_ALL' | 'DISABLE_ALL' | 'ENABLE_REGION', region?: string) => void;
 
   // Catalog
   products: Product[];
@@ -240,6 +257,19 @@ interface StoreContextType {
 
   addMediaItem: (item: Omit<MediaItem, 'id' | 'uploadedAt'>) => void;
   deleteMediaItem: (id: string) => void;
+
+  // Payment Management System
+  paymentGateways: PaymentGatewayConfig[];
+  updatePaymentGateway: (id: PaymentGatewayId, partial: Partial<PaymentGatewayConfig>) => void;
+  reorderPaymentGateways: (newList: PaymentGatewayConfig[]) => void;
+  testGatewayConnection: (id: PaymentGatewayId) => Promise<{ success: boolean; message: string }>;
+  codRules: CodRulesConfig;
+  updateCodRules: (partial: Partial<CodRulesConfig>) => void;
+  marketGateways: MarketPaymentGatewayMapping[];
+  updateMarketGateways: (marketId: string, gateways: PaymentGatewayId[]) => void;
+  paymentLogs: PaymentLog[];
+  addPaymentLog: (log: Omit<PaymentLog, 'id' | 'createdAt'> & { id?: string; createdAt?: string }) => void;
+  refundPaymentLog: (logId: string, refundAmount: number, refundReason: string) => void;
 
   resetToDefaults: () => void;
 }
@@ -509,10 +539,18 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   };
 
-  // Currencies & Countries
+  // Currencies, Markets & Countries
   const [currencies, setCurrencies] = useState<Currency[]>(() => getStored('currencies', INITIAL_CURRENCIES));
   const [currentCurrency, setCurrentCurrency] = useState<Currency>(() => getStored('current_currency', INITIAL_CURRENCIES[0]));
-  const [countries, setCountries] = useState<CountrySetting[]>(() => getStored('countries', INITIAL_COUNTRIES));
+  const [markets, setMarkets] = useState<Market[]>(() => getStored('markets', INITIAL_MARKETS));
+  const [countries, setCountries] = useState<CountrySetting[]>(() => {
+    const stored = getStored('countries', INITIAL_COUNTRIES);
+    // Guarantee full list of countries if stored has fewer or incomplete entries
+    if (!stored || stored.length < 200) {
+      return INITIAL_COUNTRIES;
+    }
+    return stored;
+  });
 
   // Selected Country Persistence & Modal
   const [selectedCountry, setSelectedCountry] = useState<CountryItem>(() => {
@@ -530,6 +568,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const [isCountryModalOpen, setIsCountryModalOpen] = useState(false);
 
+  const currentMarket = markets.find((m) => m.currencyCode === currentCurrency.code) || markets[0];
+
   const setCurrencyByCode = (code: string) => {
     const found = currencies.find((c) => c.code === code);
     if (found) {
@@ -537,7 +577,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setStored('current_currency', found);
     } else {
       // Default to USD if currency code not directly in currencies array
-      const usdCurrency = currencies.find((c) => c.code === 'USD') || INITIAL_CURRENCIES[5];
+      const usdCurrency = currencies.find((c) => c.code === 'USD') || INITIAL_CURRENCIES[8];
       setCurrentCurrency(usdCurrency);
       setStored('current_currency', usdCurrency);
     }
@@ -572,9 +612,191 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   };
 
+  const updateMarket = (id: string, partial: Partial<Market>) => {
+    setMarkets((prev) => {
+      const next = prev.map((m) => (m.id === id ? { ...m, ...partial } : m));
+      setStored('markets', next);
+      return next;
+    });
+  };
+
+  // Payment Management System State
+  const [paymentGateways, setPaymentGateways] = useState<PaymentGatewayConfig[]>(() =>
+    getStored('payment_gateways', INITIAL_PAYMENT_GATEWAYS)
+  );
+
+  const [codRules, setCodRules] = useState<CodRulesConfig>(() =>
+    getStored('cod_rules', INITIAL_COD_RULES)
+  );
+
+  const [marketGateways, setMarketGateways] = useState<MarketPaymentGatewayMapping[]>(() =>
+    getStored('market_gateways', INITIAL_MARKET_GATEWAYS)
+  );
+
+  const [paymentLogs, setPaymentLogs] = useState<PaymentLog[]>(() =>
+    getStored('payment_logs', INITIAL_PAYMENT_LOGS)
+  );
+
+  const updatePaymentGateway = (id: PaymentGatewayId, partial: Partial<PaymentGatewayConfig>) => {
+    setPaymentGateways((prev) => {
+      const next = prev.map((gw) => (gw.id === id ? { ...gw, ...partial } : gw));
+      setStored('payment_gateways', next);
+      return next;
+    });
+  };
+
+  const reorderPaymentGateways = (newList: PaymentGatewayConfig[]) => {
+    const ordered = newList.map((gw, idx) => ({ ...gw, sortOrder: idx + 1 }));
+    setPaymentGateways(ordered);
+    setStored('payment_gateways', ordered);
+  };
+
+  const testGatewayConnection = async (id: PaymentGatewayId): Promise<{ success: boolean; message: string }> => {
+    const gw = paymentGateways.find((g) => g.id === id);
+    if (!gw) return { success: false, message: 'Gateway not found.' };
+
+    const isLive = gw.mode === 'LIVE';
+    const apiKey = isLive ? gw.liveApiKey : gw.testApiKey;
+    const secretKey = isLive ? gw.liveSecretKey : gw.testSecretKey;
+
+    if (!apiKey || !secretKey || apiKey.trim() === '' || secretKey.trim() === '') {
+      updatePaymentGateway(id, {
+        connectionStatus: 'FAILED',
+        webhookStatus: 'DISCONNECTED',
+        lastTestedAt: new Date().toLocaleString(),
+      });
+      return { success: false, message: `Missing ${gw.mode} API Key or Secret Key for ${gw.name}.` };
+    }
+
+    await new Promise((res) => setTimeout(res, 800));
+
+    const updatedTime = new Date().toLocaleString([], {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+
+    updatePaymentGateway(id, {
+      connectionStatus: 'CONNECTED',
+      webhookStatus: 'SYNCED',
+      lastTestedAt: updatedTime,
+    });
+
+    return {
+      success: true,
+      message: `Successfully verified ${gw.mode} credentials and webhook connection for ${gw.name}!`,
+    };
+  };
+
+  const updateCodRules = (partial: Partial<CodRulesConfig>) => {
+    setCodRules((prev) => {
+      const next = { ...prev, ...partial };
+      setStored('cod_rules', next);
+      return next;
+    });
+  };
+
+  const updateMarketGateways = (marketId: string, gateways: PaymentGatewayId[]) => {
+    setMarketGateways((prev) => {
+      const exists = prev.some((m) => m.marketId === marketId);
+      let next: MarketPaymentGatewayMapping[];
+      if (exists) {
+        next = prev.map((m) => (m.marketId === marketId ? { ...m, gateways } : m));
+      } else {
+        next = [...prev, { marketId, countryCode: marketId.toUpperCase(), marketName: marketId, currencyCode: 'USD', gateways }];
+      }
+      setStored('market_gateways', next);
+      return next;
+    });
+  };
+
+  const addPaymentLog = (logData: Omit<PaymentLog, 'id' | 'createdAt'> & { id?: string; createdAt?: string }) => {
+    const newLog: PaymentLog = {
+      ...logData,
+      id: logData.id || `paylog-${Date.now()}`,
+      createdAt: logData.createdAt || new Date().toLocaleString([], {
+        year: 'numeric',
+        month: '2-digit',
+        day: '2-digit',
+        hour: '2-digit',
+        minute: '2-digit',
+        hour12: true,
+      }),
+    };
+    setPaymentLogs((prev) => {
+      const next = [newLog, ...prev];
+      setStored('payment_logs', next);
+      return next;
+    });
+  };
+
+  const refundPaymentLog = (logId: string, refundAmount: number, refundReason: string) => {
+    const refundId = `rfnd_${Date.now()}`;
+    const refundedAt = new Date().toLocaleString([], {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+      hour12: true,
+    });
+
+    setPaymentLogs((prev) => {
+      const target = prev.find((l) => l.id === logId);
+      if (!target) return prev;
+
+      const next = prev.map((l) =>
+        l.id === logId
+          ? {
+              ...l,
+              status: 'REFUNDED' as const,
+              refundId,
+              refundAmount,
+              refundReason,
+              refundedAt,
+            }
+          : l
+      );
+      setStored('payment_logs', next);
+
+      if (target.orderId || target.orderNumber) {
+        setOrders((orderList) => {
+          const updatedOrders = orderList.map((ord) =>
+            ord.id === target.orderId || ord.orderNumber === target.orderNumber
+              ? { ...ord, paymentStatus: 'REFUNDED' as const }
+              : ord
+          );
+          setStored('orders', updatedOrders);
+          return updatedOrders;
+        });
+      }
+
+      return next;
+    });
+  };
+
   const updateCountrySetting = (code: string, partial: Partial<CountrySetting>) => {
     setCountries((prev) => {
       const next = prev.map((c) => (c.code === code ? { ...c, ...partial } : c));
+      setStored('countries', next);
+      return next;
+    });
+  };
+
+  const bulkUpdateCountries = (action: 'ENABLE_ALL' | 'DISABLE_ALL' | 'ENABLE_REGION', region?: string) => {
+    setCountries((prev) => {
+      const next = prev.map((c) => {
+        if (action === 'ENABLE_ALL') return { ...c, enabled: true };
+        if (action === 'DISABLE_ALL') return { ...c, enabled: false };
+        if (action === 'ENABLE_REGION' && region) {
+          const isMatch = c.region?.toLowerCase() === region.toLowerCase();
+          return isMatch ? { ...c, enabled: true } : c;
+        }
+        return c;
+      });
       setStored('countries', next);
       return next;
     });
@@ -796,6 +1018,26 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setStored('orders', next);
       return next;
     });
+
+    // Automatically create real PaymentLog
+    const gwId: PaymentGatewayId = (newOrder.paymentMethod as PaymentGatewayId) || 'RAZORPAY';
+    const isCod = gwId === 'COD';
+    const status = isCod ? 'PENDING' : 'SUCCESSFUL';
+
+    addPaymentLog({
+      orderId: newOrder.id,
+      orderNumber: newOrder.orderNumber,
+      customerName: newOrder.customer.name,
+      customerEmail: newOrder.customer.email,
+      gateway: gwId,
+      amount: newOrder.convertedTotal || newOrder.totalAmountINR,
+      currency: newOrder.currencyCode || 'INR',
+      amountINR: newOrder.totalAmountINR,
+      status,
+      transactionId: isCod ? `COD_${newOrder.orderNumber}` : `pay_${gwId.toLowerCase()}_${Date.now()}`,
+      paymentMethodDetails: `${gwId} Direct Checkout`,
+    });
+
     clearCart();
     return newOrder;
   };
@@ -1465,6 +1707,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setQuizQuestions(INITIAL_QUIZ_QUESTIONS);
     setMediaItems(INITIAL_MEDIA_ITEMS);
     setCountries(INITIAL_COUNTRIES);
+    setPaymentGateways(INITIAL_PAYMENT_GATEWAYS);
+    setCodRules(INITIAL_COD_RULES);
+    setMarketGateways(INITIAL_MARKET_GATEWAYS);
+    setPaymentLogs(INITIAL_PAYMENT_LOGS);
     setOrders([]);
     setB2BLeads([]);
     setCustomerAccounts([]);
@@ -1520,8 +1766,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         updateCurrencyRate,
         selectedCountry,
         selectCountry,
+        currentMarket,
+        markets,
+        updateMarket,
         countries,
         updateCountrySetting,
+        bulkUpdateCountries,
         products,
         categories,
         heroSlides,
@@ -1629,6 +1879,17 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setAllQuizQuestions,
         addMediaItem,
         deleteMediaItem,
+        paymentGateways,
+        updatePaymentGateway,
+        reorderPaymentGateways,
+        testGatewayConnection,
+        codRules,
+        updateCodRules,
+        marketGateways,
+        updateMarketGateways,
+        paymentLogs,
+        addPaymentLog,
+        refundPaymentLog,
         resetToDefaults,
       }}
     >

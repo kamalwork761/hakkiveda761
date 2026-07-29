@@ -235,9 +235,25 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
   const [previewHoveredNavId, setPreviewHoveredNavId] = useState<string | null>(null);
 
   // File Upload Handlers
-  const handleDesktopHeroUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleDesktopHeroUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.url) {
+          setContentDesktopHero(data.url);
+          setContentDesktopHeroFilename(file.name);
+          showToast(`Desktop Hero uploaded: ${file.name}`);
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('[AdminNavManager] Server upload failed, falling back to FileReader:', err);
+    }
     const reader = new FileReader();
     reader.onload = (evt) => {
       if (evt.target?.result) {
@@ -249,9 +265,25 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
     reader.readAsDataURL(file);
   };
 
-  const handleMobileHeroUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleMobileHeroUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.url) {
+          setContentMobileHero(data.url);
+          setContentMobileHeroFilename(file.name);
+          showToast(`Mobile Hero uploaded: ${file.name}`);
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('[AdminNavManager] Server upload failed, falling back to FileReader:', err);
+    }
     const reader = new FileReader();
     reader.onload = (evt) => {
       if (evt.target?.result) {

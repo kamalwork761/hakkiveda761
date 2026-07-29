@@ -117,7 +117,17 @@ export const HeroSlider: React.FC = () => {
       {/* Media Layer: Map through all active hero slides dynamically */}
       {slidesToRender.map((slide, idx) => {
         const isActive = idx === currentSlideIndex;
-        const isVideo = slide.mediaType === 'VIDEO' || Boolean(slide.backgroundVideo);
+        const isVideoUrl = (url?: string) => Boolean(url && /\.(mp4|webm|ogg|mov)($|\?)/i.test(url));
+        
+        const isVideo =
+          slide.mediaType === 'VIDEO'
+            ? true
+            : slide.mediaType === 'IMAGE'
+            ? isVideoUrl(slide.image) || isVideoUrl(slide.backgroundVideo)
+            : Boolean(slide.backgroundVideo) || isVideoUrl(slide.image);
+
+        const videoUrl = slide.backgroundVideo || slide.image;
+        const imageUrl = slide.image || slide.mobileImage || '/images/hero_tribal_elders.jpg';
 
         return (
           <div
@@ -126,9 +136,10 @@ export const HeroSlider: React.FC = () => {
               isActive ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
             }`}
           >
-            {isVideo && (slide.backgroundVideo || slide.image) ? (
+            {isVideo && videoUrl ? (
               <video
-                src={slide.backgroundVideo || slide.image}
+                key={`video-${slide.id}-${videoUrl}`}
+                src={videoUrl}
                 autoPlay
                 muted
                 loop
@@ -141,7 +152,8 @@ export const HeroSlider: React.FC = () => {
                   <source media="(max-width: 640px)" srcSet={slide.mobileImage} />
                 )}
                 <img
-                  src={slide.image || '/images/hero_tribal_elders.jpg'}
+                  key={`img-${slide.id}-${imageUrl}`}
+                  src={imageUrl}
                   alt={slide.altText || slide.title || 'HakkiVeda Hero Banner'}
                   className={`w-full h-full object-cover transform scale-105 ${
                     slide.animation === 'kenburns' ? 'animate-pulse' : ''

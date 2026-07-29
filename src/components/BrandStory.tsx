@@ -98,16 +98,29 @@ export const BrandStory: React.FC = () => {
           {/* Left Visual Hero */}
           <div className="lg:col-span-6 relative">
             <div className="relative rounded-2xl overflow-hidden border border-[var(--brand-gold)]/40 shadow-2xl group">
-              {/* Responsive Hero Picture */}
-              <picture className="w-full">
-                <source media="(max-width: 640px)" srcSet={mobileHero} />
-                <img
+              {/* Responsive Hero Picture or Video */}
+              {/\.(mp4|webm|ogg|mov)($|\?)/i.test(desktopHero) ? (
+                <video
+                  key={desktopHero}
                   src={desktopHero}
-                  alt={seoAlt}
-                  title={seoTitle}
+                  autoPlay
+                  muted
+                  loop
+                  playsInline
                   className="w-full h-[480px] object-cover transition-transform duration-700 group-hover:scale-105"
                 />
-              </picture>
+              ) : (
+                <picture className="w-full">
+                  <source media="(max-width: 640px)" srcSet={mobileHero} />
+                  <img
+                    key={desktopHero}
+                    src={desktopHero}
+                    alt={seoAlt}
+                    title={seoTitle}
+                    className="w-full h-[480px] object-cover transition-transform duration-700 group-hover:scale-105"
+                  />
+                </picture>
+              )}
               <div className="absolute inset-0 bg-gradient-to-t from-[var(--brand-primary-dark)] via-transparent to-black/30"></div>
 
               {/* Floating Lore Quote Badge */}

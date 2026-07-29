@@ -267,27 +267,27 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
     const ext = file.name.split('.').pop()?.toLowerCase() || '';
 
     if (targetType === 'VIDEO') {
-      const validVideoExts = ['mp4', 'webm'];
-      const validVideoTypes = ['video/mp4', 'video/webm'];
+      const validVideoExts = ['mp4', 'webm', 'ogg', 'mov'];
+      const validVideoTypes = ['video/mp4', 'video/webm', 'video/ogg', 'video/quicktime'];
       if (!validVideoTypes.includes(file.type) && !validVideoExts.includes(ext)) {
-        setFileError('Unsupported video format. Please upload MP4 or WEBM.');
+        setFileError('Unsupported video format. Please upload MP4, WEBM, OGG, or MOV.');
         e.target.value = '';
         return;
       }
     } else {
-      const validImageExts = ['jpg', 'jpeg', 'png', 'webp'];
-      const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+      const validImageExts = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'];
+      const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
       if (!validImageTypes.includes(file.type) && !validImageExts.includes(ext)) {
-        setFileError('Unsupported format. Please upload JPG, JPEG, PNG, or WEBP.');
+        setFileError('Unsupported format. Please upload JPG, JPEG, PNG, WEBP, or GIF.');
         e.target.value = '';
         return;
       }
     }
 
-    // 25MB file size limit
-    const maxSizeBytes = 25 * 1024 * 1024;
+    // 100MB file size limit for hero images and videos
+    const maxSizeBytes = 100 * 1024 * 1024;
     if (file.size > maxSizeBytes) {
-      setFileError(`File too large (${(file.size / (1024 * 1024)).toFixed(1)}MB). Maximum allowed size is 25MB.`);
+      setFileError(`File too large (${(file.size / (1024 * 1024)).toFixed(1)}MB). Maximum allowed size is 100MB.`);
       e.target.value = '';
       return;
     }
@@ -493,6 +493,16 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
         finalVideoUrl = await uploadMediaFile(videoFile, (p) => {
           setUploadProgress(70 + Math.round(p * 0.25));
         });
+      }
+
+      // Ensure proper media URL mapping based on mediaType
+      if (mediaType === 'IMAGE') {
+        finalVideoUrl = ''; // Clear video if slide is configured as IMAGE
+      } else if (mediaType === 'VIDEO') {
+        finalVideoUrl = finalVideoUrl || finalImageUrl;
+        if (!finalImageUrl || finalImageUrl === '/images/hero_tribal_elders.jpg') {
+          finalImageUrl = finalVideoUrl;
+        }
       }
 
       setUploadProgress(95);

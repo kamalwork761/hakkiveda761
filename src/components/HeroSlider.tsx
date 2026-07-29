@@ -18,10 +18,11 @@ export const HeroSlider: React.FC = () => {
   const touchStartX = useRef<number | null>(null);
 
   // Filter active and scheduled slides
-  const activeSlides = (heroSlides && heroSlides.length > 0 ? heroSlides : INITIAL_HERO_SLIDES)
+  const activeSlides = (Array.isArray(heroSlides) && heroSlides.length > 0 ? heroSlides : INITIAL_HERO_SLIDES)
     .filter((s) => {
+      if (!s) return false;
       if (s.status === 'DRAFT') return false;
-      if (!s.active && s.status !== 'ACTIVE') return false;
+      if (s.status !== 'ACTIVE' && s.active === false) return false;
       if (s.status === 'SCHEDULED' && s.startDate && s.endDate) {
         const today = new Date().toISOString().split('T')[0];
         if (today < s.startDate || today > s.endDate) return false;
@@ -32,7 +33,14 @@ export const HeroSlider: React.FC = () => {
 
   const slidesToRender = activeSlides.length > 0 ? activeSlides : INITIAL_HERO_SLIDES;
 
-  // Track impression on slide index change
+  // Keep current slide index within valid bounds if slide list changes
+  useEffect(() => {
+    if (currentSlideIndex >= slidesToRender.length) {
+      setCurrentSlideIndex(0);
+    }
+  }, [slidesToRender.length, currentSlideIndex]);
+
+  // Track impression on active slide change
   useEffect(() => {
     if (slidesToRender[currentSlideIndex]) {
       trackSlideImpression(slidesToRender[currentSlideIndex].id);
@@ -60,8 +68,6 @@ export const HeroSlider: React.FC = () => {
 
   if (slidesToRender.length === 0) return null;
 
-  const currentSlide = slidesToRender[currentSlideIndex] || slidesToRender[0];
-
   // Touch Swipe Handlers
   const handleTouchStart = (e: React.TouchEvent) => {
     if (!heroSliderSettings.swipeSupport) return;
@@ -81,11 +87,13 @@ export const HeroSlider: React.FC = () => {
     touchStartX.current = null;
   };
 
-  const handleCtaClick = (link?: string, isPrimary: boolean = true) => {
+  const handleCtaClick = (slideId: string, link?: string) => {
     playSound('cta_click');
-    trackSlideClick(currentSlide.id);
+    if (slideId) {
+      trackSlideClick(slideId);
+    }
 
-    if (link === '#ai-quiz' || link === '#quiz' || currentSlide.ctaType === 'QUIZ') {
+    if (link === '#ai-quiz' || link === '#quiz') {
       setIsQuizOpen(true);
       return;
     }
@@ -106,159 +114,187 @@ export const HeroSlider: React.FC = () => {
       onTouchEnd={handleTouchEnd}
       className="relative w-full h-[520px] sm:h-[580px] lg:h-[620px] flex items-center overflow-hidden bg-[var(--brand-primary-dark)]"
     >
-      {/* Background Media (Video or Image) */}
-      <div className="absolute inset-0 transition-all duration-1000">
-        {currentSlide.mediaType === 'VIDEO' && currentSlide.backgroundVideo ? (
-          <video
-            src={currentSlide.backgroundVideo}
-            autoPlay
-            muted
-            loop
-            playsInline
-            className="w-full h-full object-cover transform scale-105"
-          />
-        ) : (
+      {/* Media Layer: Map through all active hero slides dynamically */}
+      {slidesToRender.map((slide, idx) => {
+        const isActive = idx === currentSlideIndex;
+        const isVideo = slide.mediaType === 'VIDEO' || Boolean(slide.backgroundVideo);
+
+        return (
           <div
-            className={`absolute inset-0 bg-cover bg-center transition-all duration-1000 transform scale-105 ${
-              currentSlide.animation === 'kenburns' ? 'animate-pulse' : ''
+            key={slide.id || `slide-media-${idx}`}
+            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+              isActive ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
             }`}
-            style={{
-              backgroundImage: `url('${
-                currentSlide.image || '/images/hero_tribal_elders.jpg'
-              }')`,
-            }}
-          />
-        )}
+          >
+            {isVideo && (slide.backgroundVideo || slide.image) ? (
+              <video
+                src={slide.backgroundVideo || slide.image}
+                autoPlay
+                muted
+                loop
+                playsInline
+                className="w-full h-full object-cover transform scale-105"
+              />
+            ) : (
+              <picture className="w-full h-full block">
+                {slide.mobileImage && (
+                  <source media="(max-width: 640px)" srcSet={slide.mobileImage} />
+                )}
+                <img
+                  src={slide.image || '/images/hero_tribal_elders.jpg'}
+                  alt={slide.altText || slide.title || 'HakkiVeda Hero Banner'}
+                  className={`w-full h-full object-cover transform scale-105 ${
+                    slide.animation === 'kenburns' ? 'animate-pulse' : ''
+                  }`}
+                  loading={idx === 0 ? 'eager' : 'lazy'}
+                />
+              </picture>
+            )}
 
-        {/* Customizable Overlay Color & Opacity */}
-        <div
-          className="absolute inset-0 transition-opacity duration-700"
-          style={{
-            backgroundColor: currentSlide.overlayColor || 'var(--brand-primary-dark)',
-            opacity: (currentSlide.overlayOpacity ?? 75) / 100,
-          }}
-        />
+            {/* Customizable Overlay Color & Opacity */}
+            <div
+              className="absolute inset-0 transition-opacity duration-700"
+              style={{
+                backgroundColor: slide.overlayColor || 'var(--brand-primary-dark)',
+                opacity: (slide.overlayOpacity ?? 75) / 100,
+              }}
+            />
 
-        {/* Gradient luxury depth vignetting */}
-        <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/40 z-10" />
-        <div className="absolute inset-0 bg-gradient-to-t from-[var(--brand-primary-dark)] via-transparent to-black/30 z-10" />
-      </div>
+            {/* Gradient luxury depth vignetting */}
+            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/40 z-10" />
+            <div className="absolute inset-0 bg-gradient-to-t from-[var(--brand-primary-dark)] via-transparent to-black/30 z-10" />
+          </div>
+        );
+      })}
 
-      {/* Content Container */}
-      <div className="relative z-20 max-w-7xl mx-auto px-6 sm:px-12 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-        <div
-          className={`lg:col-span-7 space-y-5 sm:space-y-6 ${
-            currentSlide.textPosition === 'CENTER'
-              ? 'text-center mx-auto lg:col-span-12'
-              : currentSlide.textPosition === 'RIGHT'
-              ? 'text-right ml-auto lg:col-span-7'
-              : 'text-left'
-          }`}
-        >
-          {/* Eyebrow / Tag Badge */}
-          <span className="inline-flex items-center gap-2 px-3.5 py-1 border border-[var(--brand-gold)] text-[var(--brand-gold)] font-sans text-[10px] sm:text-xs uppercase tracking-[0.28em] rounded-full backdrop-blur-md bg-black/40 font-semibold shadow-lg">
-            <Sparkles className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
-            <span>{currentSlide.tag || 'AUTHENTIC HAKKI-PIKKI SECRET'}</span>
-          </span>
+      {/* Content Layer: Map through all active hero slides dynamically */}
+      {slidesToRender.map((slide, idx) => {
+        const isActive = idx === currentSlideIndex;
 
-          {currentSlide.smallHeading && (
-            <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[var(--brand-gold-light)]">
-              {currentSlide.smallHeading}
-            </p>
-          )}
-
-          <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold font-serif-luxury leading-[1.08] text-white">
-            {currentSlide.title}{' '}
-            {currentSlide.highlightText && (
-              <span className="italic text-[var(--brand-gold)] text-gold-gradient block sm:inline">
-                {currentSlide.highlightText}
+        return (
+          <div
+            key={`slide-content-${slide.id || idx}`}
+            className={`relative z-20 max-w-7xl mx-auto px-6 sm:px-12 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center transition-all duration-700 ease-in-out ${
+              isActive
+                ? 'opacity-100 translate-y-0 z-20 pointer-events-auto block'
+                : 'opacity-0 translate-y-4 z-0 pointer-events-none hidden'
+            }`}
+          >
+            <div
+              className={`lg:col-span-7 space-y-5 sm:space-y-6 ${
+                slide.textPosition === 'CENTER'
+                  ? 'text-center mx-auto lg:col-span-12'
+                  : slide.textPosition === 'RIGHT'
+                  ? 'text-right ml-auto lg:col-span-7'
+                  : 'text-left'
+              }`}
+            >
+              {/* Eyebrow / Tag Badge */}
+              <span className="inline-flex items-center gap-2 px-3.5 py-1 border border-[var(--brand-gold)] text-[var(--brand-gold)] font-sans text-[10px] sm:text-xs uppercase tracking-[0.28em] rounded-full backdrop-blur-md bg-black/40 font-semibold shadow-lg">
+                <Sparkles className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
+                <span>{slide.tag || 'AUTHENTIC HAKKI-PIKKI SECRET'}</span>
               </span>
-            )}
-          </h1>
 
-          <p className="text-sm sm:text-lg opacity-90 font-sans font-light leading-relaxed text-slate-200 max-w-xl">
-            {currentSlide.subtitle}
-          </p>
+              {slide.smallHeading && (
+                <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[var(--brand-gold-light)]">
+                  {slide.smallHeading}
+                </p>
+              )}
 
-          {/* CTA Buttons */}
-          <div className="flex flex-wrap items-center gap-4 pt-2">
-            {currentSlide.ctaText && (
-              <a
-                href={currentSlide.ctaLink || '#products'}
-                onClick={() => handleCtaClick(currentSlide.ctaLink, true)}
-                className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-8 py-3.5 font-sans text-xs font-bold uppercase tracking-[0.2em] hover:bg-white transition-all duration-300 shadow-2xl rounded-sm hover:scale-105 flex items-center gap-2"
-              >
-                <span>{currentSlide.ctaText}</span>
-                <ChevronRight className="w-4 h-4" />
-              </a>
-            )}
+              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold font-serif-luxury leading-[1.08] text-white">
+                {slide.title}{' '}
+                {slide.highlightText && (
+                  <span className="italic text-[var(--brand-gold)] text-gold-gradient block sm:inline">
+                    {slide.highlightText}
+                  </span>
+                )}
+              </h1>
 
-            {currentSlide.secondaryCtaText && (
-              <a
-                href={currentSlide.secondaryCtaLink || '#ai-quiz'}
-                onClick={() => handleCtaClick(currentSlide.secondaryCtaLink, false)}
-                className="border border-[var(--brand-gold)]/60 text-white px-8 py-3.5 font-sans text-xs font-bold uppercase tracking-[0.2em] backdrop-blur-md bg-black/20 hover:bg-[var(--brand-gold)]/20 transition-all rounded-sm flex items-center gap-2"
-              >
-                <Sparkles className="w-4 h-4 text-[var(--brand-gold)]" />
-                <span>{currentSlide.secondaryCtaText}</span>
-              </a>
-            )}
-          </div>
+              <p className="text-sm sm:text-lg opacity-90 font-sans font-light leading-relaxed text-slate-200 max-w-xl">
+                {slide.subtitle}
+              </p>
 
-          {/* Key Guarantee Badges */}
-          <div className="pt-6 grid grid-cols-3 gap-4 border-t border-white/10 max-w-lg font-sans text-[11px] text-slate-300">
-            <div className="flex items-center gap-2">
-              <ShieldCheck className="w-4 h-4 text-[var(--brand-gold)] shrink-0" />
-              <span>42 Rare Herbs</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Flame className="w-4 h-4 text-[var(--brand-gold)] shrink-0" />
-              <span>21-Day Woodfire Brew</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Award className="w-4 h-4 text-[var(--brand-gold)] shrink-0" />
-              <span>100% Organic</span>
-            </div>
-          </div>
-        </div>
+              {/* CTA Buttons */}
+              <div className="flex flex-wrap items-center gap-4 pt-2">
+                {slide.ctaText && (
+                  <a
+                    href={slide.ctaLink || '#products'}
+                    onClick={() => handleCtaClick(slide.id, slide.ctaLink)}
+                    className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-8 py-3.5 font-sans text-xs font-bold uppercase tracking-[0.2em] hover:bg-white transition-all duration-300 shadow-2xl rounded-sm hover:scale-105 flex items-center gap-2"
+                  >
+                    <span>{slide.ctaText}</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </a>
+                )}
 
-        {/* Right Feature Card (AI Hair Analysis Preview) */}
-        {currentSlide.textPosition !== 'CENTER' && (
-          <div className="hidden lg:flex lg:col-span-5 justify-end">
-            <div className="w-[320px] p-6 bg-black/40 backdrop-blur-xl border border-[var(--brand-gold)]/40 rounded-2xl space-y-4 gold-border-glow shadow-2xl transform hover:scale-102 transition-all">
-              <div className="flex items-center justify-between">
-                <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-[var(--brand-gold)] bg-[var(--brand-gold)]/10 px-2.5 py-1 rounded">
-                  AI Trichology Engine
-                </span>
-                <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                {slide.secondaryCtaText && (
+                  <a
+                    href={slide.secondaryCtaLink || '#ai-quiz'}
+                    onClick={() => handleCtaClick(slide.id, slide.secondaryCtaLink)}
+                    className="border border-[var(--brand-gold)]/60 text-white px-8 py-3.5 font-sans text-xs font-bold uppercase tracking-[0.2em] backdrop-blur-md bg-black/20 hover:bg-[var(--brand-gold)]/20 transition-all rounded-sm flex items-center gap-2"
+                  >
+                    <Sparkles className="w-4 h-4 text-[var(--brand-gold)]" />
+                    <span>{slide.secondaryCtaText}</span>
+                  </a>
+                )}
               </div>
 
-              <div className="flex items-center gap-4">
-                <div className="w-16 h-16 rounded-full bg-[var(--brand-primary-dark)] border-2 border-[var(--brand-gold)] flex items-center justify-center shrink-0 shadow-lg">
-                  <Sparkles className="w-8 h-8 text-[var(--brand-gold)]" />
+              {/* Key Guarantee Badges */}
+              <div className="pt-6 grid grid-cols-3 gap-4 border-t border-white/10 max-w-lg font-sans text-[11px] text-slate-300">
+                <div className="flex items-center gap-2">
+                  <ShieldCheck className="w-4 h-4 text-[var(--brand-gold)] shrink-0" />
+                  <span>42 Rare Herbs</span>
                 </div>
-                <div>
-                  <h4 className="text-sm font-bold font-serif-luxury text-slate-100">Personalized Hair Formula</h4>
-                  <p className="text-xs text-slate-300 mt-1 leading-snug">Get custom tribal herbal dosage and scalp diagnostics in 60 seconds.</p>
+                <div className="flex items-center gap-2">
+                  <Flame className="w-4 h-4 text-[var(--brand-gold)] shrink-0" />
+                  <span>21-Day Woodfire Brew</span>
+                </div>
+                <div className="flex items-center gap-2">
+                  <Award className="w-4 h-4 text-[var(--brand-gold)] shrink-0" />
+                  <span>100% Organic</span>
                 </div>
               </div>
-
-              <button
-                onClick={() => {
-                  playSound('cta_click');
-                  setIsQuizOpen(true);
-                }}
-                className="w-full bg-gradient-to-r from-[var(--brand-gold)] to-[var(--brand-gold-light)] text-[var(--brand-primary-dark)] py-2.5 rounded font-sans text-xs font-bold uppercase tracking-wider hover:brightness-110 transition-all shadow-md flex items-center justify-center gap-2"
-              >
-                <span>Analyze My Hair Now</span>
-                <ChevronRight className="w-4 h-4" />
-              </button>
             </div>
-          </div>
-        )}
-      </div>
 
-      {/* Controls & Dots */}
+            {/* Right Feature Card (AI Hair Analysis Preview) */}
+            {slide.textPosition !== 'CENTER' && (
+              <div className="hidden lg:flex lg:col-span-5 justify-end">
+                <div className="w-[320px] p-6 bg-black/40 backdrop-blur-xl border border-[var(--brand-gold)]/40 rounded-2xl space-y-4 gold-border-glow shadow-2xl transform hover:scale-102 transition-all">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-[var(--brand-gold)] bg-[var(--brand-gold)]/10 px-2.5 py-1 rounded">
+                      AI Trichology Engine
+                    </span>
+                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                  </div>
+
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 rounded-full bg-[var(--brand-primary-dark)] border-2 border-[var(--brand-gold)] flex items-center justify-center shrink-0 shadow-lg">
+                      <Sparkles className="w-8 h-8 text-[var(--brand-gold)]" />
+                    </div>
+                    <div>
+                      <h4 className="text-sm font-bold font-serif-luxury text-slate-100">Personalized Hair Formula</h4>
+                      <p className="text-xs text-slate-300 mt-1 leading-snug">Get custom tribal herbal dosage and scalp diagnostics in 60 seconds.</p>
+                    </div>
+                  </div>
+
+                  <button
+                    onClick={() => {
+                      playSound('cta_click');
+                      setIsQuizOpen(true);
+                    }}
+                    className="w-full bg-gradient-to-r from-[var(--brand-gold)] to-[var(--brand-gold-light)] text-[var(--brand-primary-dark)] py-2.5 rounded font-sans text-xs font-bold uppercase tracking-wider hover:brightness-110 transition-all shadow-md flex items-center justify-center gap-2"
+                  >
+                    <span>Analyze My Hair Now</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
+        );
+      })}
+
+      {/* Controls & Dots Navigation */}
       {slidesToRender.length > 1 && (
         <>
           <button

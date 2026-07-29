@@ -1,6 +1,7 @@
-// Password hashing utility compatible with HTTP, HTTPS, Web Workers, and non-secure origins.
-// Web Crypto API's `crypto.subtle` is restricted to secure (HTTPS/localhost) origins by browser security policy.
-// This utility provides a pure JS SHA-256 fallback when `crypto.subtle` is unavailable (e.g., HTTP IP deployment).
+// Pure JavaScript SHA-256 password hashing utility.
+// Standard Web Crypto `crypto.subtle` is restricted to HTTPS/localhost origins in modern browsers.
+// Using this pure JS SHA-256 implementation ensures 100% compatibility across HTTP IP addresses,
+// HTTPS domains, localhost, mobile browsers, and Node.js environments.
 
 function rightRotate(value: number, amount: number): number {
   return (value >>> amount) | (value << (32 - amount));
@@ -98,25 +99,7 @@ export function pureJsSha256(ascii: string): string {
 }
 
 export async function hashPassword(password: string): Promise<string> {
-  // If Web Crypto subtle API is available (HTTPS / localhost), try it first
-  if (
-    typeof window !== 'undefined' &&
-    window.crypto &&
-    window.crypto.subtle &&
-    typeof window.crypto.subtle.digest === 'function'
-  ) {
-    try {
-      const encoder = new TextEncoder();
-      const data = encoder.encode(password);
-      const hashBuffer = await window.crypto.subtle.digest('SHA-256', data);
-      const hashArray = Array.from(new Uint8Array(hashBuffer));
-      return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
-    } catch (e) {
-      console.warn('Web Crypto subtle failed, falling back to pure JS SHA-256:', e);
-    }
-  }
-
-  // Fallback to pure JS SHA-256 (works on HTTP IP origins)
+  // Always use pure JS SHA-256 algorithm to guarantee compatibility on non-secure HTTP IP origins
   return pureJsSha256(password);
 }
 

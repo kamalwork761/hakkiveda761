@@ -317,6 +317,33 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
     e.target.value = '';
   };
 
+  // Helper to upload media file to server endpoint, falling back to data URL if server unreachable
+  const uploadMediaFile = async (
+    file: File,
+    onProgress?: (percent: number) => void
+  ): Promise<string> => {
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.url) {
+          if (onProgress) onProgress(100);
+          return data.url;
+        }
+      }
+    } catch (e) {
+      console.warn('[HeroSliderManager] Server upload endpoint unreachable, using local encoding fallback:', e);
+    }
+    return await readFileAsDataUrl(file, onProgress);
+  };
+
   // Helper to read file bytes with smart canvas compression for images
   const readFileAsDataUrl = (
     file: File,
@@ -445,7 +472,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
       if (desktopFile) {
         console.log('[HeroSliderManager] Processing desktop file:', desktopFile.name);
         setUploadProgress(25);
-        finalImageUrl = await readFileAsDataUrl(desktopFile, (p) => {
+        finalImageUrl = await uploadMediaFile(desktopFile, (p) => {
           setUploadProgress(25 + Math.round(p * 0.35));
         });
       }
@@ -454,7 +481,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
       if (mobileFile) {
         console.log('[HeroSliderManager] Processing mobile file:', mobileFile.name);
         setUploadProgress(60);
-        finalMobileUrl = await readFileAsDataUrl(mobileFile, (p) => {
+        finalMobileUrl = await uploadMediaFile(mobileFile, (p) => {
           setUploadProgress(60 + Math.round(p * 0.25));
         });
       }
@@ -463,7 +490,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
       if (mediaType === 'VIDEO' && videoFile) {
         console.log('[HeroSliderManager] Processing video file:', videoFile.name);
         setUploadProgress(70);
-        finalVideoUrl = await readFileAsDataUrl(videoFile, (p) => {
+        finalVideoUrl = await uploadMediaFile(videoFile, (p) => {
           setUploadProgress(70 + Math.round(p * 0.25));
         });
       }

@@ -28,12 +28,34 @@ const storage = multer.diskStorage({
 
 const upload = multer({
   storage,
-  limits: { fileSize: 10 * 1024 * 1024 }, // 10MB file limit
+  limits: { fileSize: 100 * 1024 * 1024 }, // 100MB file limit for high-resolution images & hero videos
   fileFilter: (_req, file, cb) => {
-    if (file.mimetype.startsWith('image/') || file.mimetype === 'application/pdf') {
+    const allowedMimeTypes = [
+      'image/jpeg',
+      'image/jpg',
+      'image/png',
+      'image/webp',
+      'image/gif',
+      'image/svg+xml',
+      'video/mp4',
+      'video/webm',
+      'video/ogg',
+      'video/quicktime',
+      'application/pdf',
+    ];
+
+    if (
+      file.mimetype.startsWith('image/') ||
+      file.mimetype.startsWith('video/') ||
+      allowedMimeTypes.includes(file.mimetype)
+    ) {
       cb(null, true);
     } else {
-      cb(new Error('Only images and PDF files are allowed.'));
+      cb(
+        new Error(
+          'Unsupported file format. Allowed formats: images (JPG, PNG, WEBP, GIF), videos (MP4, WEBM, OGG, MOV), and PDF.'
+        )
+      );
     }
   },
 });
@@ -42,7 +64,8 @@ async function startServer() {
   const app = express();
   const PORT = process.env.PORT || 3000;
 
-  app.use(express.json({ limit: '10mb' }));
+  app.use(express.json({ limit: '100mb' }));
+  app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
   // Static serving for persistent uploaded media
   app.use('/uploads', express.static(uploadDir));
@@ -57,12 +80,34 @@ async function startServer() {
     });
   });
 
-  // Production-Ready Media Upload Endpoint (easily swappable with S3 / MinIO)
-  app.post('/api/upload', upload.single('file'), (req, res) => {
-    try {
-      if (!req.file) {
-        return res.status(400).json({ success: false, error: 'No file uploaded' });
+  // Production-Ready Media Upload Endpoint supporting high-res images & hero videos
+  app.post('/api/upload', (req, res) => {
+    upload.single('file')(req, res, (err: any) => {
+      if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          return res.status(400).json({
+            success: false,
+            error: 'File size exceeds the maximum 100 MB limit.',
+          });
+        }
+        return res.status(400).json({
+          success: false,
+          error: `Upload error: ${err.message}`,
+        });
+      } else if (err) {
+        return res.status(400).json({
+          success: false,
+          error: err.message || 'Unsupported file type or invalid file upload.',
+        });
       }
+
+      if (!req.file) {
+        return res.status(400).json({
+          success: false,
+          error: 'No file uploaded.',
+        });
+      }
+
       const fileUrl = `/uploads/${req.file.filename}`;
       return res.json({
         success: true,
@@ -71,9 +116,7 @@ async function startServer() {
         mimetype: req.file.mimetype,
         size: req.file.size,
       });
-    } catch (error: any) {
-      return res.status(500).json({ success: false, error: error.message || 'Upload failed' });
-    }
+    });
   });
 
   // Server-side Gemini AI Client

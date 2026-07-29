@@ -16,6 +16,7 @@ services:
       - APP_URL=${APP_URL:-https://yourdomain.com}
       - UPLOAD_DIR=/app/uploads
     volumes:
+      - ./uploads:/app/uploads
       - uploads_data:/app/uploads
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:3000/api/health"]

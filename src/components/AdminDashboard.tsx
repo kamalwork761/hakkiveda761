@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { uploadFileToServer } from '../utils/upload';
 import { AdminProductImageManager } from './AdminProductImageManager';
 import { AdminCategoryManager } from './AdminCategoryManager';
 import { AdminHeroSliderManager } from './AdminHeroSliderManager';
@@ -217,18 +218,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
     setTimeout(() => setToastMsg(''), 3000);
   };
 
-  // Image File Upload Helper (Preserves 100% original pixels, no AI alteration)
-  const handleImageFileUpload = (e: React.ChangeEvent<HTMLInputElement>, callback: (url: string) => void) => {
+  // Image File Upload Helper (Uploads file permanently to server /app/uploads folder)
+  const handleImageFileUpload = async (e: React.ChangeEvent<HTMLInputElement>, callback: (url: string) => void) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        callback(event.target.result as string);
-        showToast('Original product image uploaded (100% pixels preserved)');
-      }
-    };
-    reader.readAsDataURL(file);
+    try {
+      const url = await uploadFileToServer(file);
+      callback(url);
+      showToast('Image uploaded permanently to server uploads');
+    } catch (err) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          callback(event.target.result as string);
+          showToast('Image loaded');
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   // Forms states
@@ -1672,22 +1679,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                   type="file"
                   accept="image/*"
                   multiple
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const files = Array.from(e.target.files || []) as File[];
-                    files.forEach((file: File) => {
-                      const reader = new FileReader();
-                      reader.onload = (ev) => {
-                        if (ev.target?.result) {
-                          addMediaItem({
-                            title: file.name.replace(/\.[^/.]+$/, ''),
-                            url: ev.target.result as string,
-                            type: 'image',
-                          });
-                        }
-                      };
-                      reader.readAsDataURL(file);
-                    });
-                    showToast('Media files uploaded (Original pixels preserved)');
+                    for (const file of files) {
+                      try {
+                        const url = await uploadFileToServer(file);
+                        addMediaItem({
+                          title: file.name.replace(/\.[^/.]+$/, ''),
+                          url,
+                          type: 'image',
+                        });
+                      } catch (err) {
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                          if (ev.target?.result) {
+                            addMediaItem({
+                              title: file.name.replace(/\.[^/.]+$/, ''),
+                              url: ev.target.result as string,
+                              type: 'image',
+                            });
+                          }
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }
+                    showToast('Media files uploaded permanently to server');
                   }}
                   className="hidden"
                 />
@@ -1709,22 +1725,31 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                   type="file"
                   accept="image/*"
                   multiple
-                  onChange={(e) => {
+                  onChange={async (e) => {
                     const files = Array.from(e.target.files || []) as File[];
-                    files.forEach((file: File) => {
-                      const reader = new FileReader();
-                      reader.onload = (ev) => {
-                        if (ev.target?.result) {
-                          addMediaItem({
-                            title: file.name.replace(/\.[^/.]+$/, ''),
-                            url: ev.target.result as string,
-                            type: 'image',
-                          });
-                        }
-                      };
-                      reader.readAsDataURL(file);
-                    });
-                    showToast('Media uploaded');
+                    for (const file of files) {
+                      try {
+                        const url = await uploadFileToServer(file);
+                        addMediaItem({
+                          title: file.name.replace(/\.[^/.]+$/, ''),
+                          url,
+                          type: 'image',
+                        });
+                      } catch (err) {
+                        const reader = new FileReader();
+                        reader.onload = (ev) => {
+                          if (ev.target?.result) {
+                            addMediaItem({
+                              title: file.name.replace(/\.[^/.]+$/, ''),
+                              url: ev.target.result as string,
+                              type: 'image',
+                            });
+                          }
+                        };
+                        reader.readAsDataURL(file);
+                      }
+                    }
+                    showToast('Media uploaded permanently to server');
                   }}
                   className="hidden"
                 />

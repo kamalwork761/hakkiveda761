@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { uploadFileToServer } from '../utils/upload';
 import {
   Upload,
   Image as ImageIcon,
@@ -81,7 +82,7 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
     });
   };
 
-  const handleFileUpload = (
+  const handleFileUpload = async (
     field: keyof BrandIdentityConfig,
     e: React.ChangeEvent<HTMLInputElement>,
     filenameField?: keyof BrandIdentityConfig
@@ -89,22 +90,36 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
     const file = e.target.files?.[0];
     if (!file) return;
 
-    const reader = new FileReader();
-    reader.onload = (event) => {
-      if (event.target?.result) {
-        setFormData((prev) => {
-          const next = {
-            ...prev,
-            [field]: event.target?.result as string,
-            ...(filenameField ? { [filenameField]: file.name } : {}),
-          };
-          applyBrandStyles(next);
-          return next;
-        });
-        showToast(`Uploaded file for ${String(field)}`);
-      }
-    };
-    reader.readAsDataURL(file);
+    try {
+      const url = await uploadFileToServer(file);
+      setFormData((prev) => {
+        const next = {
+          ...prev,
+          [field]: url,
+          ...(filenameField ? { [filenameField]: file.name } : {}),
+        };
+        applyBrandStyles(next);
+        return next;
+      });
+      showToast(`Uploaded file for ${String(field)} to server`);
+    } catch (err) {
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        if (event.target?.result) {
+          setFormData((prev) => {
+            const next = {
+              ...prev,
+              [field]: event.target?.result as string,
+              ...(filenameField ? { [filenameField]: file.name } : {}),
+            };
+            applyBrandStyles(next);
+            return next;
+          });
+          showToast(`Uploaded file for ${String(field)}`);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleClearField = (field: keyof BrandIdentityConfig, filenameField?: keyof BrandIdentityConfig) => {

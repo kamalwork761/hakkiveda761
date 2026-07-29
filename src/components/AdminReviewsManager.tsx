@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { uploadFileToServer } from '../utils/upload';
 import {
   Star,
   Search,
@@ -150,19 +151,24 @@ export const AdminReviewsManager: React.FC<AdminReviewsManagerProps> = ({ showTo
   };
 
   // Image Upload Handler
-  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
-    (Array.from(files) as File[]).forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        if (event.target?.result) {
-          setImages((prev) => [...prev, event.target!.result as string]);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+    for (const file of Array.from(files) as File[]) {
+      try {
+        const url = await uploadFileToServer(file);
+        setImages((prev) => [...prev, url]);
+      } catch (err) {
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          if (event.target?.result) {
+            setImages((prev) => [...prev, event.target!.result as string]);
+          }
+        };
+        reader.readAsDataURL(file);
+      }
+    }
     e.target.value = '';
   };
 

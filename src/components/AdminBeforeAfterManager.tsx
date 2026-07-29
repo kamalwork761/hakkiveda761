@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { uploadFileToServer } from '../utils/upload';
 import {
   Plus,
   Edit2,
@@ -89,14 +90,19 @@ export const AdminBeforeAfterManager: React.FC<AdminBeforeAfterManagerProps> = (
     setIsModalOpen(true);
   };
 
-  const handleImageRead = (file: File, callback: (url: string) => void) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (e.target?.result) {
-        callback(e.target.result as string);
-      }
-    };
-    reader.readAsDataURL(file);
+  const handleImageRead = async (file: File, callback: (url: string) => void) => {
+    try {
+      const url = await uploadFileToServer(file);
+      callback(url);
+    } catch (err) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          callback(e.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {

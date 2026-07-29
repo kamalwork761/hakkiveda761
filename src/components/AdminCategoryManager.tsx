@@ -1,4 +1,5 @@
 import React, { useState, useMemo, useRef } from 'react';
+import { uploadFileToServer } from '../utils/upload';
 import {
   FolderTree,
   Plus,
@@ -348,7 +349,7 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
   };
 
   // Handle Image Upload for thumbnail / desktopBanner / mobileBanner
-  const handleImageUpload = (
+  const handleImageUpload = async (
     e: React.ChangeEvent<HTMLInputElement>,
     fieldKey: 'image' | 'desktopBanner' | 'mobileBanner',
     filenameKey: 'imageFilename' | 'desktopBannerFilename' | 'mobileBannerFilename'
@@ -361,18 +362,28 @@ export const AdminCategoryManager: React.FC<AdminCategoryManagerProps> = ({
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      if (ev.target?.result) {
-        setFormData((prev) => ({
-          ...prev,
-          [fieldKey]: ev.target!.result as string,
-          [filenameKey]: file.name,
-        }));
-        showToast(`Loaded ${file.name} (100% original quality)`);
-      }
-    };
-    reader.readAsDataURL(file);
+    try {
+      const url = await uploadFileToServer(file);
+      setFormData((prev) => ({
+        ...prev,
+        [fieldKey]: url,
+        [filenameKey]: file.name,
+      }));
+      showToast(`Uploaded ${file.name} to server`);
+    } catch (err: any) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        if (ev.target?.result) {
+          setFormData((prev) => ({
+            ...prev,
+            [fieldKey]: ev.target!.result as string,
+            [filenameKey]: file.name,
+          }));
+          showToast(`Loaded ${file.name}`);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
     e.target.value = '';
   };
 

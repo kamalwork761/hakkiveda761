@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { uploadFileToServer } from '../utils/upload';
 import {
   BookOpen,
   Plus,
@@ -142,14 +143,19 @@ export const AdminBlogManager: React.FC<AdminBlogManagerProps> = ({ showToast })
   };
 
   // Image Upload helper
-  const handleImageRead = (file: File, callback: (res: string) => void) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (e.target?.result) {
-        callback(e.target.result as string);
-      }
-    };
-    reader.readAsDataURL(file);
+  const handleImageRead = async (file: File, callback: (res: string) => void) => {
+    try {
+      const url = await uploadFileToServer(file);
+      callback(url);
+    } catch (err) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          callback(e.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   // Add Tag

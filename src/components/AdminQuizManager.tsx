@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { uploadFileToServer } from '../utils/upload';
 import {
   HelpCircle,
   Plus,
@@ -109,14 +110,19 @@ export const AdminQuizManager: React.FC<AdminQuizManagerProps> = ({ showToast })
     setOptions(options.filter((_, i) => i !== index));
   };
 
-  const handleOptionImageRead = (index: number, file: File) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (e.target?.result) {
-        handleUpdateOption(index, { image: e.target.result as string });
-      }
-    };
-    reader.readAsDataURL(file);
+  const handleOptionImageRead = async (index: number, file: File) => {
+    try {
+      const url = await uploadFileToServer(file);
+      handleUpdateOption(index, { image: url });
+    } catch (err) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          handleUpdateOption(index, { image: e.target.result as string });
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {

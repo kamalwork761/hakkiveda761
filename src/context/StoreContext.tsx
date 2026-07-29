@@ -282,13 +282,18 @@ interface StoreContextType {
   addPaymentLog: (log: Omit<PaymentLog, 'id' | 'createdAt'> & { id?: string; createdAt?: string }) => void;
   refundPaymentLog: (logId: string, refundAmount: number, refundReason: string) => void;
 
+  dbSyncStatus: 'loading' | 'synced' | 'saving' | 'error';
+  serverSaveError: string | null;
   resetToDefaults: () => void;
 }
 
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
-  // Local storage helper
+  const [dbSyncStatus, setDbSyncStatus] = useState<'loading' | 'synced' | 'saving' | 'error'>('loading');
+  const [serverSaveError, setServerSaveError] = useState<string | null>(null);
+
+  // Local storage helper (used ONLY for temporary user preferences like cart, selected country)
   const getStored = <T,>(key: string, fallback: T): T => {
     try {
       const item = localStorage.getItem(`hakkiveda_${key}`);
@@ -298,21 +303,28 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
+  // Server persistence helper (Saves all admin content to SQLite DB at /app/data/hakkiveda.db on VPS)
   const setStored = <T,>(key: string, value: T) => {
-    const fullKey = `hakkiveda_${key}`;
-    // Always persist to IndexedDB asynchronously (handles large assets & base64 images without quota limits)
-    idbSet(fullKey, value).catch(() => {});
+    setDbSyncStatus('saving');
+    setServerSaveError(null);
 
-    try {
-      localStorage.setItem(fullKey, JSON.stringify(value));
-    } catch (e) {
-      // If localStorage quota is exceeded (common for large base64 hero slides or media items),
-      // IndexedDB has already saved the complete data safely.
-      // Remove any partial or stale item from localStorage so other small keys continue working smoothly.
-      try {
-        localStorage.removeItem(fullKey);
-      } catch (_) {}
-    }
+    fetch(`/api/store/${key}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ data: value }),
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          const errData = await res.json().catch(() => ({}));
+          throw new Error(errData.error || `Server HTTP ${res.status}`);
+        }
+        setDbSyncStatus('synced');
+      })
+      .catch((err) => {
+        console.error(`[StoreContext] Error saving '${key}' to SQLite DB:`, err);
+        setDbSyncStatus('error');
+        setServerSaveError(`Server database save failed for '${key}': ${err.message || 'Network issue'}`);
+      });
   };
 
   // Sound System State & Handlers
@@ -1044,30 +1056,62 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [wishlist, setWishlist] = useState<Product[]>(() => getStored('wishlist', []));
   const [currentUser, setCurrentUser] = useState<User | null>(() => getStored('current_user', null));
 
-  // Asynchronously hydrate state from IndexedDB if available (for large payloads like base64 images that exceed localStorage quota)
+  // Hydrate state directly from SQLite Server Database (/app/data/hakkiveda.db)
   useEffect(() => {
-    const keysToHydrate: Array<{ key: string; setter: (val: any) => void }> = [
-      { key: 'hero_slides', setter: setHeroSlides },
-      { key: 'media_items', setter: setMediaItems },
-      { key: 'products', setter: setProducts },
-      { key: 'blogs', setter: setBlogs },
-      { key: 'site_settings', setter: setSiteSettings },
-      { key: 'nav_links', setter: setNavLinks },
-      { key: 'reviews', setter: setReviews },
-      { key: 'before_after', setter: setBeforeAfterItems },
-      { key: 'quiz_questions', setter: setQuizQuestions },
-      { key: 'testimonial_videos', setter: setTestimonialVideos },
-      { key: 'orders', setter: setOrders },
-      { key: 'b2b_leads', setter: setB2BLeads },
-    ];
+    let isMounted = true;
+    setDbSyncStatus('loading');
 
-    keysToHydrate.forEach(({ key, setter }) => {
-      idbGet(`hakkiveda_${key}`).then((storedVal) => {
-        if (storedVal !== null && storedVal !== undefined) {
-          setter(storedVal);
+    fetch('/api/store')
+      .then((res) => {
+        if (!res.ok) throw new Error(`Server returned HTTP ${res.status}`);
+        return res.json();
+      })
+      .then((json) => {
+        if (!isMounted) return;
+        if (json.success && json.data) {
+          const d = json.data;
+          if (Array.isArray(d.products)) setProducts(d.products);
+          if (Array.isArray(d.categories)) setCategories(d.categories);
+          if (Array.isArray(d.hero_slides)) setHeroSlides(d.hero_slides);
+          if (d.hero_slider_settings) setHeroSliderSettings(d.hero_slider_settings);
+          if (Array.isArray(d.before_after)) setBeforeAfterItems(d.before_after);
+          if (Array.isArray(d.reviews)) setReviews(d.reviews);
+          if (Array.isArray(d.blogs)) setBlogs(d.blogs);
+          if (Array.isArray(d.coupons)) setCoupons(d.coupons);
+          if (Array.isArray(d.testimonial_videos)) setTestimonialVideos(d.testimonial_videos);
+          if (Array.isArray(d.quiz_questions)) setQuizQuestions(d.quiz_questions);
+          if (Array.isArray(d.media_items)) setMediaItems(d.media_items);
+          if (Array.isArray(d.orders)) setOrders(d.orders);
+          if (Array.isArray(d.b2b_leads)) setB2BLeads(d.b2b_leads);
+          if (Array.isArray(d.customer_accounts)) setCustomerAccounts(d.customer_accounts);
+          if (d.site_settings) setSiteSettings(d.site_settings);
+          if (d.brand_identity) {
+            setBrandIdentity(d.brand_identity);
+            applyBrandStyles(d.brand_identity);
+          }
+          if (d.brand_identity_draft) setDraftBrandIdentity(d.brand_identity_draft);
+          if (d.header_layout_settings) setHeaderLayoutSettings(d.header_layout_settings);
+          if (Array.isArray(d.nav_links)) setNavLinks(d.nav_links);
+          if (Array.isArray(d.currencies)) setCurrencies(d.currencies);
+          if (d.current_currency) setCurrentCurrency(d.current_currency);
+          if (Array.isArray(d.markets)) setMarkets(d.markets);
+          if (Array.isArray(d.countries)) setCountries(d.countries);
+          if (Array.isArray(d.payment_gateways)) setPaymentGateways(d.payment_gateways);
+          if (d.cod_rules) setCodRules(d.cod_rules);
+          if (Array.isArray(d.market_gateways)) setMarketGateways(d.market_gateways);
+          if (Array.isArray(d.payment_logs)) setPaymentLogs(d.payment_logs);
+
+          setDbSyncStatus('synced');
         }
-      }).catch(() => {});
-    });
+      })
+      .catch((err) => {
+        console.warn('[StoreContext] Could not load from server SQLite DB:', err);
+        if (isMounted) setDbSyncStatus('error');
+      });
+
+    return () => {
+      isMounted = false;
+    };
   }, []);
 
   // Modals
@@ -2085,6 +2129,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         paymentLogs,
         addPaymentLog,
         refundPaymentLog,
+        dbSyncStatus,
+        serverSaveError,
         resetToDefaults,
       }}
     >

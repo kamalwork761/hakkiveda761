@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { uploadFileToServer } from '../utils/upload';
 import {
   Video,
   Plus,
@@ -106,14 +107,19 @@ export const AdminVideoTestimonialsManager: React.FC<AdminVideoTestimonialsManag
     setIsModalOpen(true);
   };
 
-  const handleFileUpload = (file: File, callback: (res: string) => void) => {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      if (e.target?.result) {
-        callback(e.target.result as string);
-      }
-    };
-    reader.readAsDataURL(file);
+  const handleFileUpload = async (file: File, callback: (res: string) => void) => {
+    try {
+      const url = await uploadFileToServer(file);
+      callback(url);
+    } catch (err) {
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        if (e.target?.result) {
+          callback(e.target.result as string);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {

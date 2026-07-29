@@ -1,5 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { Upload, Trash2, Star, ArrowLeft, ArrowRight, RefreshCw, Plus, Image as ImageIcon, CheckCircle, AlertCircle, Link as LinkIcon, GripVertical } from 'lucide-react';
+import { uploadFileToServer } from '../utils/upload';
 
 interface AdminProductImageManagerProps {
   images: string[]; // Array of image URLs/dataURIs. Index 0 is Primary.
@@ -29,8 +30,8 @@ export const AdminProductImageManager: React.FC<AdminProductImageManagerProps> =
   // Ensure we always have an array
   const currentImages = images && images.length > 0 ? images : [];
 
-  // Helper to handle multiple file upload preserving exact original pixels
-  const processFiles = (filesList: FileList | File[]) => {
+  // Helper to handle multiple file upload saving permanently to server uploads folder
+  const processFiles = async (filesList: FileList | File[]) => {
     const files = Array.from(filesList).filter((f) => f.type.startsWith('image/'));
     if (files.length === 0) {
       notify('Please select valid image files.');
@@ -48,24 +49,28 @@ export const AdminProductImageManager: React.FC<AdminProductImageManagerProps> =
       notify(`Only the first ${availableSlots} images were uploaded to respect the ${maxImages} image limit.`);
     }
 
-    let loadedCount = 0;
-    const newImageUrls: string[] = [];
+    try {
+      const uploadedUrls = await Promise.all(
+        filesToUpload.map(async (file) => {
+          try {
+            return await uploadFileToServer(file);
+          } catch (e) {
+            return new Promise<string>((resolve) => {
+              const reader = new FileReader();
+              reader.onload = (ev) => resolve((ev.target?.result as string) || '');
+              reader.readAsDataURL(file);
+            });
+          }
+        })
+      );
 
-    filesToUpload.forEach((file) => {
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        if (e.target?.result) {
-          newImageUrls.push(e.target.result as string);
-        }
-        loadedCount++;
-        if (loadedCount === filesToUpload.length) {
-          const updated = [...currentImages, ...newImageUrls];
-          onChange(updated);
-          notify(`Added ${newImageUrls.length} image(s) successfully!`);
-        }
-      };
-      reader.readAsDataURL(file);
-    });
+      const validUrls = uploadedUrls.filter(Boolean);
+      const updated = [...currentImages, ...validUrls];
+      onChange(updated);
+      notify(`Added ${validUrls.length} image(s) successfully!`);
+    } catch (err: any) {
+      notify(`Upload failed: ${err.message || 'Error processing files'}`);
+    }
   };
 
   // Handle Drag & Drop Dropzone
@@ -150,7 +155,7 @@ export const AdminProductImageManager: React.FC<AdminProductImageManagerProps> =
   };
 
   // Replace Individual Image
-  const handleReplaceFile = (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleReplaceFile = async (index: number, e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
 
@@ -159,16 +164,24 @@ export const AdminProductImageManager: React.FC<AdminProductImageManagerProps> =
       return;
     }
 
-    const reader = new FileReader();
-    reader.onload = (ev) => {
-      if (ev.target?.result) {
-        const updated = [...currentImages];
-        updated[index] = ev.target.result as string;
-        onChange(updated);
-        notify(`Replaced image #${index + 1}`);
-      }
-    };
-    reader.readAsDataURL(file);
+    try {
+      const url = await uploadFileToServer(file);
+      const updated = [...currentImages];
+      updated[index] = url;
+      onChange(updated);
+      notify(`Replaced image #${index + 1}`);
+    } catch (err) {
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        if (ev.target?.result) {
+          const updated = [...currentImages];
+          updated[index] = ev.target.result as string;
+          onChange(updated);
+          notify(`Replaced image #${index + 1}`);
+        }
+      };
+      reader.readAsDataURL(file);
+    }
     e.target.value = '';
   };
 

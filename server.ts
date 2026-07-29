@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import multer from 'multer';
 import { GoogleGenAI } from '@google/genai';
 import { createServer as createViteServer } from 'vite';
+import { getDb, getStoreValue, setStoreValue, getAllStoreData } from './src/server/db';
 
 dotenv.config();
 
@@ -64,20 +65,192 @@ async function startServer() {
   const app = express();
   const PORT = process.env.PORT || 3000;
 
+  // Initialize SQLite Database at startup
+  await getDb();
+
   app.use(express.json({ limit: '100mb' }));
   app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
   // Static serving for persistent uploaded media
   app.use('/uploads', express.static(uploadDir));
 
-  // Health Check Endpoint for Nginx / Docker / Hostinger VPS monitoring
+  // Health Check Endpoint
   app.get('/api/health', (_req, res) => {
-    res.json({
-      status: 'ok',
-      uptime: process.uptime(),
-      timestamp: new Date().toISOString(),
-      environment: process.env.NODE_ENV || 'development',
-    });
+    res.json({ status: 'ok' });
+  });
+
+  // Store Persistence API Routes (SQLite Server Storage)
+  app.get('/api/store', async (_req, res) => {
+    try {
+      const data = await getAllStoreData();
+      res.json({ success: true, data });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message || 'Failed to fetch store data' });
+    }
+  });
+
+  app.get('/api/store/:key', async (req, res) => {
+    try {
+      const key = req.params.key;
+      const data = await getStoreValue(key);
+      res.json({ success: true, key, data });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  app.post('/api/store/:key', async (req, res) => {
+    try {
+      const key = req.params.key;
+      const value = req.body.data !== undefined ? req.body.data : req.body;
+      await setStoreValue(key, value);
+      res.json({ success: true, message: `Key '${key}' saved to SQLite server DB.` });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  app.post('/api/store-bulk', async (req, res) => {
+    try {
+      const payload = req.body.data || req.body;
+      if (typeof payload === 'object' && payload !== null) {
+        for (const [k, v] of Object.entries(payload)) {
+          await setStoreValue(k, v);
+        }
+      }
+      res.json({ success: true, message: 'Bulk store data saved to SQLite DB.' });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Explicit REST API Routes requested for Admin entities
+  app.get('/api/products', async (_req, res) => {
+    const products = (await getStoreValue('products')) || [];
+    res.json({ success: true, data: products });
+  });
+  app.post('/api/products', async (req, res) => {
+    const products = req.body.data !== undefined ? req.body.data : req.body;
+    await setStoreValue('products', products);
+    res.json({ success: true, message: 'Products saved successfully.' });
+  });
+
+  app.get('/api/categories', async (_req, res) => {
+    const categories = (await getStoreValue('categories')) || [];
+    res.json({ success: true, data: categories });
+  });
+  app.post('/api/categories', async (req, res) => {
+    const categories = req.body.data !== undefined ? req.body.data : req.body;
+    await setStoreValue('categories', categories);
+    res.json({ success: true, message: 'Categories saved successfully.' });
+  });
+
+  app.get('/api/hero-slides', async (_req, res) => {
+    const slides = (await getStoreValue('hero_slides')) || [];
+    res.json({ success: true, data: slides });
+  });
+  app.post('/api/hero-slides', async (req, res) => {
+    const slides = req.body.data !== undefined ? req.body.data : req.body;
+    await setStoreValue('hero_slides', slides);
+    res.json({ success: true, message: 'Hero slides saved successfully.' });
+  });
+
+  app.get('/api/announcements', async (_req, res) => {
+    const settings = (await getStoreValue('site_settings')) || {};
+    res.json({ success: true, data: settings.announcementText || '' });
+  });
+  app.post('/api/announcements', async (req, res) => {
+    const text = req.body.announcementText || req.body.data;
+    const settings = (await getStoreValue('site_settings')) || {};
+    settings.announcementText = text;
+    await setStoreValue('site_settings', settings);
+    res.json({ success: true, message: 'Announcement saved successfully.' });
+  });
+
+  app.get('/api/navigation-menu', async (_req, res) => {
+    const navLinks = (await getStoreValue('nav_links')) || [];
+    res.json({ success: true, data: navLinks });
+  });
+  app.post('/api/navigation-menu', async (req, res) => {
+    const navLinks = req.body.data !== undefined ? req.body.data : req.body;
+    await setStoreValue('nav_links', navLinks);
+    res.json({ success: true, message: 'Navigation menu saved successfully.' });
+  });
+
+  app.get('/api/reviews', async (_req, res) => {
+    const reviews = (await getStoreValue('reviews')) || [];
+    res.json({ success: true, data: reviews });
+  });
+  app.post('/api/reviews', async (req, res) => {
+    const reviews = req.body.data !== undefined ? req.body.data : req.body;
+    await setStoreValue('reviews', reviews);
+    res.json({ success: true, message: 'Reviews saved successfully.' });
+  });
+
+  app.get('/api/blogs', async (_req, res) => {
+    const blogs = (await getStoreValue('blogs')) || [];
+    res.json({ success: true, data: blogs });
+  });
+  app.post('/api/blogs', async (req, res) => {
+    const blogs = req.body.data !== undefined ? req.body.data : req.body;
+    await setStoreValue('blogs', blogs);
+    res.json({ success: true, message: 'Blogs saved successfully.' });
+  });
+
+  app.get('/api/video-testimonials', async (_req, res) => {
+    const vids = (await getStoreValue('testimonial_videos')) || [];
+    res.json({ success: true, data: vids });
+  });
+  app.post('/api/video-testimonials', async (req, res) => {
+    const vids = req.body.data !== undefined ? req.body.data : req.body;
+    await setStoreValue('testimonial_videos', vids);
+    res.json({ success: true, message: 'Video testimonials saved successfully.' });
+  });
+
+  app.get('/api/media-gallery', async (_req, res) => {
+    const media = (await getStoreValue('media_items')) || [];
+    res.json({ success: true, data: media });
+  });
+  app.post('/api/media-gallery', async (req, res) => {
+    const media = req.body.data !== undefined ? req.body.data : req.body;
+    await setStoreValue('media_items', media);
+    res.json({ success: true, message: 'Media gallery saved successfully.' });
+  });
+
+  app.get('/api/quiz-questions', async (_req, res) => {
+    const quiz = (await getStoreValue('quiz_questions')) || [];
+    res.json({ success: true, data: quiz });
+  });
+  app.post('/api/quiz-questions', async (req, res) => {
+    const quiz = req.body.data !== undefined ? req.body.data : req.body;
+    await setStoreValue('quiz_questions', quiz);
+    res.json({ success: true, message: 'Quiz questions saved successfully.' });
+  });
+
+  app.get('/api/inventory', async (_req, res) => {
+    const products = (await getStoreValue('products')) || [];
+    const inventory = products.map((p: any) => ({
+      id: p.id,
+      name: p.name,
+      sku: p.sku || p.id,
+      inStock: p.inStock,
+      stockQuantity: p.stockQuantity ?? 100,
+    }));
+    res.json({ success: true, data: inventory });
+  });
+
+  app.get('/api/settings', async (_req, res) => {
+    const siteSettings = (await getStoreValue('site_settings')) || {};
+    const brandIdentity = (await getStoreValue('brand_identity')) || {};
+    const headerLayoutSettings = (await getStoreValue('header_layout_settings')) || {};
+    res.json({ success: true, data: { siteSettings, brandIdentity, headerLayoutSettings } });
+  });
+  app.post('/api/settings', async (req, res) => {
+    const { siteSettings, brandIdentity, headerLayoutSettings } = req.body;
+    if (siteSettings) await setStoreValue('site_settings', siteSettings);
+    if (brandIdentity) await setStoreValue('brand_identity', brandIdentity);
+    if (headerLayoutSettings) await setStoreValue('header_layout_settings', headerLayoutSettings);
+    res.json({ success: true, message: 'Website settings saved successfully.' });
   });
 
   // Production-Ready Media Upload Endpoint supporting high-res images & hero videos

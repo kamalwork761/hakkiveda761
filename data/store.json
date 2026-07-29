@@ -1,0 +1,4557 @@
+{
+  "products": [
+    {
+      "id": "prod-1",
+      "name": "HAKKIVEDA Natural Adivasi 108 Herbal Hair Oil (Tribal Gold)",
+      "category": "Hair Oils & Elixirs",
+      "subtitle": "Authentic 108 Mountain Herbs Slow-Brewed Formula",
+      "priceINR": 2499,
+      "originalPriceINR": 2999,
+      "rating": 4.95,
+      "reviewsCount": 1420,
+      "image": "/images/hakkiveda_108_oil_gold.jpg",
+      "additionalImages": [
+        "/images/hakkiveda_oil_couple_herbs.jpg",
+        "/images/hakkiveda_108_oil_back_label.jpg",
+        "/images/hakkiveda_108_oil_yellow_cap.jpg",
+        "/images/hakkiveda_108_herbs_infographic.jpg"
+      ],
+      "description": "The crown jewel of Hakki-Pikki tribal wisdom. Handcrafted in small artisanal batches in Mysore using 108 rare wild-harvested herbs, root extracts, and virgin sesame & coconut oils slow-cooked in traditional copper cauldrons over woodfire for 21 solar cycles.",
+      "benefits": [
+        "Reactivates dormant hair follicles within 45-60 days",
+        "Stops severe hair fall and root breakage",
+        "Promotes natural dark melanin retention & long hair growth",
+        "Relieves dry scalp, itchiness, and flaky buildup",
+        "Deeply conditions coarse & dry hair strands"
+      ],
+      "ingredients": [
+        "Wild Amla (Phyllanthus emblica)",
+        "Bhringraj (Eclipta alba)",
+        "Gunja Seed Elixir (Abrus precatorius)",
+        "Shikakai (Senegalia rugata)",
+        "Devadaru Resin (Cedrus deodara)",
+        "Jatamansi (Nardostachys jatamansi)",
+        "Cold-pressed Sesame & Coconut Oil base"
+      ],
+      "volume": "200 ml / 6.7 fl oz",
+      "usageRitual": "Warm 10-15ml oil in your palms. Apply gently onto dry scalp using fingertips in circular movements. Leave overnight or for at least 2 hours before washing with 42 Mountain Herbs Shampoo.",
+      "stock": 250,
+      "sku": "HV-TGHO-200",
+      "isBestseller": true,
+      "isNew": false,
+      "inStock": true
+    },
+    {
+      "id": "prod-2",
+      "name": "HAKKIVEDA 42 Mountain Herbs Clarifying Shampoo",
+      "category": "Herbal Cleansers",
+      "subtitle": "Sulfate-Free Soapnut & Shikakai Scalp Cleanser",
+      "priceINR": 1299,
+      "originalPriceINR": 1599,
+      "rating": 4.88,
+      "reviewsCount": 840,
+      "image": "/images/hakkiveda_108_oil_yellow_cap.jpg",
+      "additionalImages": [
+        "/images/hakkiveda_108_herbs_infographic.jpg"
+      ],
+      "description": "A gentle, low-foaming botanical cleanser enriched with Reetha (soapnut), Hibiscus flowers, and Shikakai infusion. Gently lifts oil and environmental impurities without stripping natural scalp lipids.",
+      "benefits": [
+        "Sulfate, Paraben and Silicone free",
+        "Maintains healthy 5.5 scalp pH",
+        "Prevents post-wash dryness and frizz",
+        "Safe for color-treated and chemically straightened hair"
+      ],
+      "ingredients": [
+        "Reetha Fruit Extract",
+        "Shikakai Decoction",
+        "Fresh Hibiscus Petal Juice",
+        "Aloe Vera Leaf Extract",
+        "Vetiver Essential Oil"
+      ],
+      "volume": "250 ml / 8.4 fl oz",
+      "usageRitual": "Take a coin-sized amount, dilute with water, apply to damp scalp, massage gently for 2 minutes and rinse thoroughly with cool water.",
+      "stock": 180,
+      "sku": "HV-MHCS-250",
+      "isBestseller": true,
+      "isNew": false,
+      "inStock": true
+    },
+    {
+      "id": "prod-3",
+      "name": "HAKKIVEDA Root Density Follicle Serum",
+      "category": "Follicle Serums",
+      "subtitle": "Concentrated Botanical Scalp Drops",
+      "priceINR": 1899,
+      "originalPriceINR": 2199,
+      "rating": 4.92,
+      "reviewsCount": 512,
+      "image": "/images/hakkiveda_108_oil_back_label.jpg",
+      "additionalImages": [
+        "/images/hakkiveda_108_oil_gold.jpg"
+      ],
+      "description": "An advanced non-greasy aqueous serum formulated with fermented Indian Gooseberry and Gotu Kola. Designed to be left on the scalp daily to stimulate microcirculation and strengthen the dermal papilla.",
+      "benefits": [
+        "Non-sticky leave-in daily formula",
+        "Increases hair strand diameter and elasticity",
+        "Shields roots from DHT follicle miniaturization",
+        "Dermatologically tested & non-comedogenic"
+      ],
+      "ingredients": [
+        "Fermented Amla Nectar",
+        "Gotu Kola (Centella asiatica)",
+        "Red Onion Extract",
+        "Brahmi Leaf Juice",
+        "Rosemary Essential Oil"
+      ],
+      "volume": "50 ml / 1.7 fl oz",
+      "usageRitual": "Apply 1 full dropper onto dry or towel-dried scalp sections daily. Massage gently. Do not rinse.",
+      "stock": 120,
+      "sku": "HV-RDFS-050",
+      "isBestseller": false,
+      "isNew": true,
+      "inStock": true
+    },
+    {
+      "id": "prod-4",
+      "name": "HAKKIVEDA Natural Adivasi Baldness Powder & Lepa",
+      "category": "Tribal Masks & Lepas",
+      "subtitle": "Follicle Reactivating & Bald Spot Scalp Treatment Powder",
+      "priceINR": 1499,
+      "originalPriceINR": 1799,
+      "rating": 4.91,
+      "reviewsCount": 680,
+      "image": "/images/hakkiveda_baldness_powder.jpg",
+      "additionalImages": [
+        "/images/hakkiveda_baldness_powder_ingredients.jpg"
+      ],
+      "description": "Specialized Hakki-Pikki tribal herbal powder formula for advanced baldness, receding temple lines, and dormant hair root patches. Mix with water or oil to form a active herbal paste (Lepa).",
+      "benefits": [
+        "Targeted root reactivation on visible bald patches & thinning spots",
+        "Eradicates severe dandruff flakes and clears clogged scalp pores",
+        "Stimulates micro-blood circulation to dormant hair roots"
+      ],
+      "ingredients": [
+        "Wild Neem Leaf Powder",
+        "Gunja Seed Ash Powder",
+        "Purified Camphor (Bhimseni Kapoor)",
+        "Multani Mitti & Devadaru Bark",
+        "Fenugreek & Tulsi Extract"
+      ],
+      "volume": "150 g / 5.3 oz",
+      "usageRitual": "Mix 2 tablespoons with warm water or Herbal Hair Oil to form a paste. Apply on bald spots & scalp. Leave for 20 minutes, then wash with HAKKIVEDA Clarifying Shampoo.",
+      "stock": 195,
+      "sku": "HV-HBCP-150",
+      "isBestseller": true,
+      "isNew": false,
+      "inStock": true
+    },
+    {
+      "id": "prod-5",
+      "name": "HAKKIVEDA Complete Baldness & Hair Density Care Kit",
+      "category": "Wellness Combos",
+      "subtitle": "Herbal Hair Oil + Baldness Care Powder + 42 Herbs Shampoo",
+      "priceINR": 4999,
+      "originalPriceINR": 5697,
+      "rating": 4.98,
+      "reviewsCount": 2100,
+      "image": "/images/hakkiveda_oil_couple_herbs.jpg",
+      "additionalImages": [
+        "/images/hakkiveda_108_oil_gold.jpg",
+        "/images/hakkiveda_baldness_powder.jpg",
+        "/images/hakkiveda_108_herbs_infographic.jpg"
+      ],
+      "description": "The ultimate 3-step baldness care & hair regrowth system. Includes 1x HAKKIVEDA Herbal Hair Oil (200ml), 1x HAKKIVEDA Herbal Baldness Care Powder (150g), and 1x HAKKIVEDA 42 Herbs Shampoo (250ml). Includes free brass head massager tool!",
+      "benefits": [
+        "Save 15% compared to purchasing individually",
+        "Complete 3-step solution for baldness, severe thinning & hair fall",
+        "Includes complimentary brass Kansa head massager",
+        "Free express worldwide shipping"
+      ],
+      "ingredients": [
+        "Combines all 108 Hakki-Pikki mountain herbs across the 3-step ritual"
+      ],
+      "volume": "Bundle (200ml Oil + 150g Baldness Powder + 250ml Shampoo)",
+      "usageRitual": "Step 1: Apply Herbal Hair Oil 3x weekly. Step 2: Apply Baldness Care Powder paste 2x weekly. Step 3: Wash thoroughly with 42 Herbs Shampoo.",
+      "stock": 150,
+      "sku": "HV-CHDR-COMBO",
+      "isBestseller": true,
+      "isNew": false,
+      "inStock": true
+    },
+    {
+      "id": "prod-6",
+      "name": "Botanical Bhringraj & Amla Vitalizing Tonic",
+      "category": "Hair Oils & Elixirs",
+      "subtitle": "Lightweight Daily Hair Shine & Darkening Spray",
+      "priceINR": 1199,
+      "originalPriceINR": 1399,
+      "rating": 4.82,
+      "reviewsCount": 230,
+      "image": "/images/hakkiveda_108_herbs_infographic.jpg",
+      "additionalImages": [],
+      "description": "A light, fragrant hair elixir spray that shields strands from UV damage, prevents split ends, and enhances natural gloss.",
+      "benefits": [
+        "Tames flyaways and reduces split ends",
+        "Adds natural silky shine without grease",
+        "Heat-protection shield for daily styling"
+      ],
+      "ingredients": [
+        "Cold-pressed Bhringraj Juice",
+        "Fresh Amla Water",
+        "Vetiver Root Hydrosol"
+      ],
+      "volume": "100 ml / 3.4 fl oz",
+      "usageRitual": "Mist lightly over damp or dry hair lengths. Comb through.",
+      "stock": 80,
+      "sku": "HV-BAVT-100",
+      "isBestseller": false,
+      "isNew": true,
+      "inStock": true
+    }
+  ],
+  "categories": [
+    {
+      "id": "cat-1",
+      "name": "Hair Oils & Elixirs",
+      "slug": "hair-oils",
+      "image": "/images/hakkiveda_108_oil_gold.jpg",
+      "imageFilename": "hakkiveda_108_oil_gold.jpg",
+      "desktopBanner": "/images/hakkiveda_108_oil_gold.jpg",
+      "desktopBannerFilename": "hakkiveda_108_oil_gold.jpg",
+      "mobileBanner": "/images/hakkiveda_108_oil_gold.jpg",
+      "mobileBannerFilename": "hakkiveda_108_oil_gold.jpg",
+      "description": "Slow-brewed in copper cauldrons with 42 rare mountain herbs for deep scalp penetration.",
+      "fullDescription": "Experience the 100% authentic Hakki-Pikki tribal hair oil formulation. Handcrafted in Mysore over 21 solar cycles using 108 wild forest herbs and virgin sesame oil.",
+      "itemCount": 4,
+      "status": "ACTIVE",
+      "showInNav": true,
+      "showOnHomepage": true,
+      "isFeatured": true,
+      "parentId": null,
+      "sortOrder": 1,
+      "seoTitle": "Adivasi Hair Oils & Natural Elixirs - HakkiVeda",
+      "seoMetaDescription": "Pure tribal adivasi 108 herbal hair oils handcrafted for root regrowth, stopping hair fall, and deep scalp nourishment.",
+      "seoKeywords": "adivasi hair oil, 108 herbs oil, natural hair elixir, hakkiveda hair oil"
+    },
+    {
+      "id": "cat-2",
+      "name": "Herbal Cleansers",
+      "slug": "herbal-cleansers",
+      "image": "/images/hakkiveda_108_oil_yellow_cap.jpg",
+      "imageFilename": "hakkiveda_108_oil_yellow_cap.jpg",
+      "description": "Sulfate-free shampoos and natural soapnut clarifying cleansers.",
+      "fullDescription": "Gentle, natural scalp cleansers enriched with Shikakai, Reetha, and wild Hibiscus flowers that preserve essential oils while clarifying product buildup.",
+      "itemCount": 3,
+      "status": "ACTIVE",
+      "showInNav": true,
+      "showOnHomepage": true,
+      "isFeatured": true,
+      "parentId": null,
+      "sortOrder": 2,
+      "seoTitle": "Herbal Cleansers & Sulfate-Free Shampoos - HakkiVeda",
+      "seoMetaDescription": "Shop natural soapnut and shikakai scalp cleansers for smooth, residue-free hair growth.",
+      "seoKeywords": "herbal cleanser, adivasi shampoo, shikakai hair wash"
+    },
+    {
+      "id": "cat-3",
+      "name": "Follicle Serums",
+      "slug": "follicle-serums",
+      "image": "/images/hakkiveda_108_oil_back_label.jpg",
+      "imageFilename": "hakkiveda_108_oil_back_label.jpg",
+      "description": "Targeted scalp drops to reactivate dormant hair roots and improve shaft density.",
+      "fullDescription": "Potent tribal drop concentrate formulated with wild Bhringraj and Gunja seeds to stimulate blood micro-circulation in thinning scalp zones.",
+      "itemCount": 2,
+      "status": "ACTIVE",
+      "showInNav": true,
+      "showOnHomepage": true,
+      "isFeatured": false,
+      "parentId": "cat-1",
+      "sortOrder": 3,
+      "seoTitle": "Follicle Reactivation Serums - HakkiVeda",
+      "seoMetaDescription": "Concentrated adivasi scalp drops designed to boost root density and awaken dormant follicles.",
+      "seoKeywords": "follicle serum, hair growth drops, root booster"
+    },
+    {
+      "id": "cat-4",
+      "name": "Tribal Masks & Lepas",
+      "slug": "masks-lepas",
+      "image": "/images/hakkiveda_baldness_powder.jpg",
+      "imageFilename": "hakkiveda_baldness_powder.jpg",
+      "description": "Traditional forest herbal muds and restorative scalp detox pastes.",
+      "fullDescription": "Ancient herbal mud packs infused with wild Brahmi, Neem, and volcanic red clay to cool inflamed hair roots and clear scalp toxins.",
+      "itemCount": 2,
+      "status": "ACTIVE",
+      "showInNav": true,
+      "showOnHomepage": true,
+      "isFeatured": false,
+      "parentId": null,
+      "sortOrder": 4,
+      "seoTitle": "Adivasi Tribal Scalp Masks & Herbal Lepas - HakkiVeda",
+      "seoMetaDescription": "Detoxifying herbal hair masks and scalp mud packs formulated with forest botanical roots.",
+      "seoKeywords": "hair mask, herbal lepa, scalp mud pack"
+    },
+    {
+      "id": "cat-5",
+      "name": "Wellness Combos",
+      "slug": "wellness-combos",
+      "image": "/images/hakkiveda_oil_couple_herbs.jpg",
+      "imageFilename": "hakkiveda_oil_couple_herbs.jpg",
+      "description": "Complete 90-day hair regrowth and scalp rehabilitation bundles.",
+      "fullDescription": "Curated herbal therapy kits combining 108 oil, herbal cleanser, and scalp lepas for holistic 90-day hair restoration cycles.",
+      "itemCount": 3,
+      "status": "ACTIVE",
+      "showInNav": true,
+      "showOnHomepage": true,
+      "isFeatured": true,
+      "parentId": null,
+      "sortOrder": 5,
+      "seoTitle": "90-Day Hair Regrowth & Wellness Combos - HakkiVeda",
+      "seoMetaDescription": "Save big on complete adivasi hair care regimen kits and 90-day hair growth combo packs.",
+      "seoKeywords": "hair growth combo, adivasi hair care kit, regrowth bundle"
+    }
+  ],
+  "hero_slides": [
+    {
+      "id": "slide-1",
+      "tag": "Authentic Hakki-Pikki Secret",
+      "title": "Ancient Rituals",
+      "highlightText": "Modern Care",
+      "subtitle": "Harness the power of 42 rare mountain herbs, formulated by the Hakki-Pikki tribe for extraordinary hair density & scalp vitality.",
+      "image": "/images/hero_tribal_elders.jpg",
+      "ctaText": "Shop Tribal Elixir",
+      "ctaLink": "#products",
+      "active": true
+    },
+    {
+      "id": "slide-2",
+      "tag": "Hand-Crafted in Mysore",
+      "title": "21-Day Copper",
+      "highlightText": "Cauldron Brew",
+      "subtitle": "Slow-cooked over traditional woodfire with wild-harvested herbs from the pristine Western Ghats forest canopy.",
+      "image": "https://images.unsplash.com/photo-1512290900676-26c2a48f4134?auto=format&fit=crop&q=80&w=1600",
+      "ctaText": "Discover Our Story",
+      "ctaLink": "#brand-story",
+      "active": true
+    },
+    {
+      "id": "slide-3",
+      "tag": "AI Trichology Diagnostic",
+      "title": "Personalized Tribal",
+      "highlightText": "Hair Analysis",
+      "subtitle": "Take our 60-second AI Hair Quiz to unlock your tailor-made Ayurvedic scalp routine & herb selection.",
+      "image": "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=1600",
+      "ctaText": "Start AI Hair Quiz",
+      "ctaLink": "#ai-quiz",
+      "active": true
+    }
+  ],
+  "hero_slider_settings": {
+    "autoPlay": true,
+    "autoPlayDelay": 6,
+    "transitionSpeed": 700,
+    "pauseOnHover": true,
+    "infiniteLoop": true,
+    "swipeSupport": true
+  },
+  "before_after": [
+    {
+      "id": "ba-1",
+      "title": "90 Days Crown Density Transformation",
+      "days": 90,
+      "concern": "Severe Crown Baldness & Top Scalp Thinning",
+      "beforeImage": "/images/before_male_top.jpg",
+      "afterImage": "/images/after_male_top.jpg",
+      "testimonial": "My crown was completely sparse and balding. After using HAKKIVEDA Tribal Gold Oil 3x a week for 90 days, my crown density returned remarkably with new dark growth!",
+      "author": "Rajesh K.",
+      "location": "Delhi, India"
+    },
+    {
+      "id": "ba-2",
+      "title": "60 Days Crown Bald Patch Regrowth",
+      "days": 60,
+      "concern": "Crown Bald Patch & Severe Breakage",
+      "beforeImage": "/images/before_male_back.jpg",
+      "afterImage": "/images/after_male_back.jpg",
+      "testimonial": "The round bald patch at the back of my head was embarrassing. By week 8 of applying HAKKIVEDA oil, it is now completely covered in thick healthy hair!",
+      "author": "Arjun V.",
+      "location": "Singapore"
+    },
+    {
+      "id": "ba-3",
+      "title": "120 Days Scalp Parting Reversal",
+      "days": 120,
+      "concern": "Widening Scalp Parting & Sparse Hairline",
+      "beforeImage": "/images/before_female_parting.jpg",
+      "afterImage": "/images/after_female_parting.jpg",
+      "testimonial": "My hair parting gap was widening and showing white scalp. The 42-herb infusion brought back thick density and closed the scalp gap completely.",
+      "author": "Priya S.",
+      "location": "Bengaluru, India"
+    }
+  ],
+  "reviews": [
+    {
+      "id": "rev-1",
+      "productId": "prod-1",
+      "customerName": "Meera Deshmukh",
+      "rating": 5,
+      "title": "True Tribal Magic in a Bottle!",
+      "comment": "The scent is earthly and deep. After 4 weeks, my scalp feels so calm and my hair roots are visibly stronger. Worth every single rupee!",
+      "date": "2026-07-15",
+      "verifiedPurchase": true,
+      "location": "Bengaluru, India"
+    },
+    {
+      "id": "rev-2",
+      "productId": "prod-1",
+      "customerName": "David Tan",
+      "rating": 5,
+      "title": "Fast Shipping to Singapore & Top Quality",
+      "comment": "Arrived in Singapore in just 3 days. My wife and I both use HAKKIVEDA oil now. Outstanding density improvements.",
+      "date": "2026-07-10",
+      "verifiedPurchase": true,
+      "location": "Singapore"
+    },
+    {
+      "id": "rev-3",
+      "productId": "prod-2",
+      "customerName": "Kavitha Pillay",
+      "rating": 5,
+      "title": "Gentle on Sensitive Scalp",
+      "comment": "Most commercial shampoos trigger itching for me. This soapnut formula cleans thoroughly without any harsh chemicals.",
+      "date": "2026-06-28",
+      "verifiedPurchase": true,
+      "location": "Penang, Malaysia"
+    }
+  ],
+  "blogs": [
+    {
+      "id": "blog-1",
+      "title": "Secrets of the Hakki-Pikki Tribe: 42 Forest Herbs Unveiled",
+      "slug": "hakki-pikki-42-herbs-secrets",
+      "excerpt": "Explore how nomadic elders of Karnataka preserve ancient botanical knowledge, wildcrafting rare roots and flowers in harmony with forest moon cycles.",
+      "content": "For generations, the nomadic Hakki-Pikki tribe of Southern India lived in deep communion with the dense forest reserves of the Western Ghats. Their extraordinary hair thickness and youthful longevity have long intrigued modern herbal researchers.\n\nAt the core of their formula lies a sacred balance of 42 botanicals, including Gunja seeds, wild Bhringraj, Devadaru tree resin, and Jatamansi roots. Each herb is harvested at dawn during specific planetary alignments when active phytonutrients reach peak potency.\n\nUnlike mass-manufactured beauty products, HAKKIVEDA continues this sacred heritage in Hunsur, Mysore, employing tribal elders to supervise the 21-day copper cauldron brewing process over natural woodfires.",
+      "author": "Elder Somanna & Dr. A. V. Shastri (Chief Vaidya)",
+      "date": "2026-07-01",
+      "readTime": "5 min read",
+      "image": "https://images.unsplash.com/photo-1542273917363-3b1817f69a2d?auto=format&fit=crop&q=80&w=800",
+      "category": "Tribal Lore & History"
+    },
+    {
+      "id": "blog-2",
+      "title": "Why Copper Cauldron Slow-Brewing Matters for Hair Oils",
+      "slug": "copper-cauldron-slow-brewing-benefits",
+      "excerpt": "Discover why heating botanical oils in pure copper cauldrons for 21 days enhances bioavailability and scalp absorption.",
+      "content": "In classical Ayurvedic alchemy (Rasa Shastra), copper is considered a sacred element capable of ionizing botanical extracts. When 42 wild mountain herbs are submerged in cold-pressed sesame and coconut oils inside copper vessels for 21 days:\n\n1. Copper micro-ions fuse with lipid molecules, acting as natural bioavailability boosters.\n2. Low, steady woodfire heat prevents thermal destruction of heat-sensitive antioxidants like Vitamin E and polyphenols.\n3. Moisture slowly evaporates, leaving an undiluted, golden potion that deeply penetrates all three layers of the hair follicle.",
+      "author": "Dr. Archana Rao, Senior Ayurvedic Botanist",
+      "date": "2026-06-18",
+      "readTime": "4 min read",
+      "image": "https://images.unsplash.com/photo-1512290900676-26c2a48f4134?auto=format&fit=crop&q=80&w=800",
+      "category": "Ayurvedic Science"
+    }
+  ],
+  "coupons": [],
+  "testimonial_videos": [
+    {
+      "id": "vid-1",
+      "customerName": "Shalini Patel",
+      "location": "London, UK",
+      "rating": 5,
+      "videoUrl": "https://youtu.be/1jzF9v5PEBY?si=AWftq4EOQ5cOXjt4",
+      "thumbnail": "https://img.youtube.com/vi/1jzF9v5PEBY/hqdefault.jpg",
+      "reviewText": "My hair fall stopped within 3 weeks of using HAKKIVEDA oil!"
+    },
+    {
+      "id": "vid-2",
+      "customerName": "Arjun Verma",
+      "location": "Singapore",
+      "rating": 5,
+      "videoUrl": "https://youtube.com/shorts/XV-Y5vXaKqU?si=FTdChnp0Ei3dnLlS",
+      "thumbnail": "https://img.youtube.com/vi/XV-Y5vXaKqU/hqdefault.jpg",
+      "reviewText": "Massive growth in density at my temples. Highly recommended!"
+    },
+    {
+      "id": "vid-3",
+      "customerName": "Priya Sundaram",
+      "location": "Bengaluru, India",
+      "rating": 5,
+      "videoUrl": "https://youtube.com/shorts/5Q9IpbVpgZM?si=5MBNXibq_8n0mLZB",
+      "thumbnail": "https://img.youtube.com/vi/5Q9IpbVpgZM/hqdefault.jpg",
+      "reviewText": "The 42-herb formulation cured my severe scalp itching & hair fall."
+    }
+  ],
+  "quiz_questions": [
+    {
+      "id": "qq-1",
+      "question": "What is your primary hair & scalp concern?",
+      "options": [
+        {
+          "text": "Severe Hair Fall & Thinning Roots",
+          "dosha": "VATA"
+        },
+        {
+          "text": "Flaky Dandruff & Scalp Itchiness",
+          "dosha": "PITTA"
+        },
+        {
+          "text": "Oily Roots & Slow Growth Rate",
+          "dosha": "KAPHA"
+        },
+        {
+          "text": "Premature Graying & Dry Texture",
+          "dosha": "TRIDOSHA"
+        }
+      ]
+    },
+    {
+      "id": "qq-2",
+      "question": "How often do you wash your scalp each week?",
+      "options": [
+        {
+          "text": "Daily or every 2 days",
+          "dosha": "PITTA"
+        },
+        {
+          "text": "2 to 3 times a week",
+          "dosha": "VATA"
+        },
+        {
+          "text": "Once a week or less",
+          "dosha": "KAPHA"
+        }
+      ]
+    }
+  ],
+  "media_items": [
+    {
+      "id": "med-1",
+      "title": "Hakkiveda 108 Herbal Hair Oil (Gold)",
+      "type": "IMAGE",
+      "url": "/images/hakkiveda_108_oil_gold.jpg",
+      "uploadedAt": "2026-07-27"
+    },
+    {
+      "id": "med-2",
+      "title": "Hakkiveda 108 Oil Yellow Cap Bottle",
+      "type": "IMAGE",
+      "url": "/images/hakkiveda_108_oil_yellow_cap.jpg",
+      "uploadedAt": "2026-07-27"
+    },
+    {
+      "id": "med-3",
+      "title": "Hakkiveda 108 Oil Back Label",
+      "type": "IMAGE",
+      "url": "/images/hakkiveda_108_oil_back_label.jpg",
+      "uploadedAt": "2026-07-27"
+    },
+    {
+      "id": "med-4",
+      "title": "Hakkiveda Adivasi Baldness Powder",
+      "type": "IMAGE",
+      "url": "/images/hakkiveda_baldness_powder.jpg",
+      "uploadedAt": "2026-07-27"
+    },
+    {
+      "id": "med-5",
+      "title": "Hakkiveda Baldness Powder Ingredients",
+      "type": "IMAGE",
+      "url": "/images/hakkiveda_baldness_powder_ingredients.jpg",
+      "uploadedAt": "2026-07-27"
+    },
+    {
+      "id": "med-6",
+      "title": "Hakkiveda Tribal Couple Photo",
+      "type": "IMAGE",
+      "url": "/images/hakkiveda_oil_couple_herbs.jpg",
+      "uploadedAt": "2026-07-27"
+    },
+    {
+      "id": "med-7",
+      "title": "108 Herbs Infographic",
+      "type": "IMAGE",
+      "url": "/images/hakkiveda_108_herbs_infographic.jpg",
+      "uploadedAt": "2026-07-27"
+    }
+  ],
+  "orders": [
+    {
+      "id": "ord-1001",
+      "orderNumber": "HV-894201",
+      "date": "2026-07-25",
+      "items": [
+        {
+          "product": {
+            "id": "prod-1",
+            "name": "HAKKIVEDA Natural Adivasi 108 Herbal Hair Oil (Tribal Gold)",
+            "category": "Hair Oils & Elixirs",
+            "subtitle": "Authentic 108 Mountain Herbs Slow-Brewed Formula",
+            "priceINR": 2499,
+            "originalPriceINR": 2999,
+            "rating": 4.95,
+            "reviewsCount": 1420,
+            "image": "/images/hakkiveda_108_oil_gold.jpg",
+            "additionalImages": [
+              "/images/hakkiveda_oil_couple_herbs.jpg",
+              "/images/hakkiveda_108_oil_back_label.jpg",
+              "/images/hakkiveda_108_oil_yellow_cap.jpg",
+              "/images/hakkiveda_108_herbs_infographic.jpg"
+            ],
+            "description": "The crown jewel of Hakki-Pikki tribal wisdom. Handcrafted in small artisanal batches in Mysore using 108 rare wild-harvested herbs, root extracts, and virgin sesame & coconut oils slow-cooked in traditional copper cauldrons over woodfire for 21 solar cycles.",
+            "benefits": [
+              "Reactivates dormant hair follicles within 45-60 days",
+              "Stops severe hair fall and root breakage",
+              "Promotes natural dark melanin retention & long hair growth",
+              "Relieves dry scalp, itchiness, and flaky buildup",
+              "Deeply conditions coarse & dry hair strands"
+            ],
+            "ingredients": [
+              "Wild Amla (Phyllanthus emblica)",
+              "Bhringraj (Eclipta alba)",
+              "Gunja Seed Elixir (Abrus precatorius)",
+              "Shikakai (Senegalia rugata)",
+              "Devadaru Resin (Cedrus deodara)",
+              "Jatamansi (Nardostachys jatamansi)",
+              "Cold-pressed Sesame & Coconut Oil base"
+            ],
+            "volume": "200 ml / 6.7 fl oz",
+            "usageRitual": "Warm 10-15ml oil in your palms. Apply gently onto dry scalp using fingertips in circular movements. Leave overnight or for at least 2 hours before washing with 42 Mountain Herbs Shampoo.",
+            "stock": 250,
+            "sku": "HV-TGHO-200",
+            "isBestseller": true,
+            "isNew": false,
+            "inStock": true
+          },
+          "quantity": 2
+        }
+      ],
+      "totalAmountINR": 4998,
+      "currencyCode": "INR",
+      "convertedTotal": 4998,
+      "customer": {
+        "name": "Rajesh Sharma",
+        "email": "rajesh.sharma@gmail.com",
+        "phone": "+91 98450 12345",
+        "address": "108 Sacred Banyan Enclave, Jayalakshmipuram",
+        "city": "Mysore",
+        "state": "Karnataka",
+        "country": "India",
+        "pincode": "570012"
+      },
+      "paymentMethod": "RAZORPAY",
+      "paymentStatus": "PAID",
+      "trackingStatus": "IN_TRANSIT",
+      "trackingNumber": "BD-EXP-994812",
+      "courierName": "BlueDart Air Express",
+      "estimatedDeliveryDate": "2026-07-28"
+    },
+    {
+      "id": "ord-1002",
+      "orderNumber": "HV-712390",
+      "date": "2026-07-20",
+      "items": [
+        {
+          "product": {
+            "id": "prod-1",
+            "name": "HAKKIVEDA Natural Adivasi 108 Herbal Hair Oil (Tribal Gold)",
+            "category": "Hair Oils & Elixirs",
+            "subtitle": "Authentic 108 Mountain Herbs Slow-Brewed Formula",
+            "priceINR": 2499,
+            "originalPriceINR": 2999,
+            "rating": 4.95,
+            "reviewsCount": 1420,
+            "image": "/images/hakkiveda_108_oil_gold.jpg",
+            "additionalImages": [
+              "/images/hakkiveda_oil_couple_herbs.jpg",
+              "/images/hakkiveda_108_oil_back_label.jpg",
+              "/images/hakkiveda_108_oil_yellow_cap.jpg",
+              "/images/hakkiveda_108_herbs_infographic.jpg"
+            ],
+            "description": "The crown jewel of Hakki-Pikki tribal wisdom. Handcrafted in small artisanal batches in Mysore using 108 rare wild-harvested herbs, root extracts, and virgin sesame & coconut oils slow-cooked in traditional copper cauldrons over woodfire for 21 solar cycles.",
+            "benefits": [
+              "Reactivates dormant hair follicles within 45-60 days",
+              "Stops severe hair fall and root breakage",
+              "Promotes natural dark melanin retention & long hair growth",
+              "Relieves dry scalp, itchiness, and flaky buildup",
+              "Deeply conditions coarse & dry hair strands"
+            ],
+            "ingredients": [
+              "Wild Amla (Phyllanthus emblica)",
+              "Bhringraj (Eclipta alba)",
+              "Gunja Seed Elixir (Abrus precatorius)",
+              "Shikakai (Senegalia rugata)",
+              "Devadaru Resin (Cedrus deodara)",
+              "Jatamansi (Nardostachys jatamansi)",
+              "Cold-pressed Sesame & Coconut Oil base"
+            ],
+            "volume": "200 ml / 6.7 fl oz",
+            "usageRitual": "Warm 10-15ml oil in your palms. Apply gently onto dry scalp using fingertips in circular movements. Leave overnight or for at least 2 hours before washing with 42 Mountain Herbs Shampoo.",
+            "stock": 250,
+            "sku": "HV-TGHO-200",
+            "isBestseller": true,
+            "isNew": false,
+            "inStock": true
+          },
+          "quantity": 1
+        }
+      ],
+      "totalAmountINR": 2499,
+      "currencyCode": "SGD",
+      "convertedTotal": 40,
+      "customer": {
+        "name": "Priya Nair",
+        "email": "priya.nair@singapore.com",
+        "phone": "+65 8123 4567",
+        "address": "12 Marina Boulevard, Tower 2 #18-04",
+        "city": "Singapore",
+        "state": "Central Region",
+        "country": "Singapore",
+        "pincode": "018982"
+      },
+      "paymentMethod": "INTERNATIONAL_PREPAID",
+      "paymentStatus": "PAID",
+      "trackingStatus": "DELIVERED",
+      "trackingNumber": "DHL-SG-55102",
+      "courierName": "DHL Express Global",
+      "estimatedDeliveryDate": "2026-07-24"
+    }
+  ],
+  "b2b_leads": [],
+  "customer_accounts": [
+    {
+      "id": "usr-cust-1",
+      "name": "Rajesh Sharma",
+      "email": "rajesh.sharma@gmail.com",
+      "phone": "+91 98450 12345",
+      "avatar": "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&q=80&w=200",
+      "isAdmin": false,
+      "status": "ACTIVE",
+      "createdAt": "2026-02-14",
+      "lastLogin": "2026-07-27 10:45 IST",
+      "loyaltyPoints": 450,
+      "referralCode": "HAKKI-RAJESH-89",
+      "addresses": [
+        {
+          "id": "addr-1",
+          "title": "Home",
+          "name": "Rajesh Sharma",
+          "phone": "+91 98450 12345",
+          "line1": "108 Sacred Banyan Enclave, Jayalakshmipuram",
+          "city": "Mysore",
+          "state": "Karnataka",
+          "country": "India",
+          "pincode": "570012",
+          "isDefault": true
+        },
+        {
+          "id": "addr-2",
+          "title": "Office",
+          "name": "Rajesh Sharma (Tech Lead)",
+          "phone": "+91 98450 12345",
+          "line1": "Suite 402, Embassy TechVillage, Outer Ring Rd",
+          "city": "Bengaluru",
+          "state": "Karnataka",
+          "country": "India",
+          "pincode": "560103",
+          "isDefault": false
+        }
+      ],
+      "savedPayments": [
+        {
+          "id": "pay-1",
+          "provider": "RAZORPAY",
+          "title": "Razorpay UPI",
+          "details": "rajesh.sharma@okicici",
+          "isDefault": true
+        },
+        {
+          "id": "pay-2",
+          "provider": "STRIPE",
+          "title": "HDFC Bank Visa Card",
+          "details": "•••• 4242",
+          "isDefault": false
+        }
+      ],
+      "loginHistory": [
+        {
+          "id": "log-1",
+          "timestamp": "2026-07-27 10:45:12 IST",
+          "ipLocation": "Mysore, Karnataka, India (IPv4)",
+          "device": "Chrome on macOS (MacBook Pro)"
+        },
+        {
+          "id": "log-2",
+          "timestamp": "2026-07-24 18:30:00 IST",
+          "ipLocation": "Bengaluru, Karnataka, India",
+          "device": "Safari on iPhone 15 Pro"
+        }
+      ],
+      "preferences": {
+        "country": "India",
+        "currency": "INR",
+        "language": "English",
+        "emailOrders": true,
+        "whatsappUpdates": true,
+        "promotional": true
+      }
+    },
+    {
+      "id": "usr-cust-2",
+      "name": "Priya Nair",
+      "email": "priya.nair@singapore.com",
+      "phone": "+65 8123 4567",
+      "avatar": "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=200",
+      "isAdmin": false,
+      "status": "ACTIVE",
+      "createdAt": "2026-03-22",
+      "lastLogin": "2026-07-26 15:20 SGT",
+      "loyaltyPoints": 820,
+      "referralCode": "HAKKI-PRIYA-22",
+      "addresses": [
+        {
+          "id": "addr-3",
+          "title": "Home",
+          "name": "Priya Nair",
+          "phone": "+65 8123 4567",
+          "line1": "12 Marina Boulevard, Tower 2 #18-04",
+          "city": "Singapore",
+          "state": "Central Region",
+          "country": "Singapore",
+          "pincode": "018982",
+          "isDefault": true
+        }
+      ],
+      "savedPayments": [
+        {
+          "id": "pay-3",
+          "provider": "STRIPE",
+          "title": "DBS Altitude Visa",
+          "details": "•••• 8888",
+          "isDefault": true
+        },
+        {
+          "id": "pay-4",
+          "provider": "PAYPAL",
+          "title": "PayPal Account",
+          "details": "priya.nair@singapore.com",
+          "isDefault": false
+        }
+      ],
+      "loginHistory": [
+        {
+          "id": "log-3",
+          "timestamp": "2026-07-26 15:20:00 SGT",
+          "ipLocation": "Marina Bay, Singapore",
+          "device": "Chrome on Mac M2"
+        }
+      ],
+      "preferences": {
+        "country": "Singapore",
+        "currency": "SGD",
+        "language": "English",
+        "emailOrders": true,
+        "whatsappUpdates": true,
+        "promotional": false
+      }
+    },
+    {
+      "id": "usr-cust-3",
+      "name": "Ananya Gupta",
+      "email": "ananya.g@gmail.com",
+      "phone": "+91 99001 55432",
+      "avatar": "https://images.unsplash.com/photo-1517841905240-472988babdf9?auto=format&fit=crop&q=80&w=200",
+      "isAdmin": false,
+      "status": "ACTIVE",
+      "createdAt": "2026-05-10",
+      "lastLogin": "2026-07-20 20:10 IST",
+      "loyaltyPoints": 150,
+      "referralCode": "HAKKI-ANANYA-55",
+      "addresses": [
+        {
+          "id": "addr-4",
+          "title": "Home",
+          "name": "Ananya Gupta",
+          "phone": "+91 99001 55432",
+          "line1": "B-402 Palm Beach Heights, Worli",
+          "city": "Mumbai",
+          "state": "Maharashtra",
+          "country": "India",
+          "pincode": "400018",
+          "isDefault": true
+        }
+      ],
+      "savedPayments": [
+        {
+          "id": "pay-5",
+          "provider": "COD",
+          "title": "Cash on Delivery (Domestic)",
+          "details": "Pay on Handshake Delivery",
+          "isDefault": true
+        }
+      ],
+      "loginHistory": [
+        {
+          "id": "log-4",
+          "timestamp": "2026-07-20 20:10:00 IST",
+          "ipLocation": "Mumbai, Maharashtra, India",
+          "device": "Firefox on Windows 11"
+        }
+      ],
+      "preferences": {
+        "country": "India",
+        "currency": "INR",
+        "language": "English",
+        "emailOrders": true,
+        "whatsappUpdates": false,
+        "promotional": true
+      }
+    }
+  ],
+  "site_settings": {
+    "announcementText": "Worldwide Express Shipping • 100% Authentic 42 Mountain Herbs Formula",
+    "announcementActive": true,
+    "announcementBgColor": "#D4AF37",
+    "announcementTextColor": "#1C550E",
+    "logoText": "HAKKIVEDA",
+    "logoSubtext": "Hakki-Pikki Tribe & Ayurveda",
+    "logoInitials": "HV",
+    "companyName": "HAKKIVEDA Herbal Enterprises",
+    "address": "Door No. 574, V.P. Bore, Hunsur, Mysore, Karnataka, India - 571105",
+    "phone": "+91 76195 36831",
+    "whatsappNumber": "917619536831",
+    "email": "hakkiveda@gmail.com",
+    "heroCtaText": "Shop Tribal Elixir",
+    "heroCtaLink": "#products",
+    "footerAbout": "Blend of Hakki-Pikki Tribe & Ayurveda. Handcrafted in small batches with 42 wild mountain herbs slow-cooked over woodfire in copper cauldrons for 21 days.",
+    "footerCopyright": "© 2026 HAKKIVEDA Herbal Enterprises. All Rights Reserved. Door No. 574, V.P. Bore, Hunsur, Mysore.",
+    "seoTitle": "HAKKIVEDA | 42 Mountain Herbs Tribal Hair Oil & Ayurveda",
+    "seoDescription": "Handcrafted in Mysore with 42 wild mountain herbs by the Hakki-Pikki tribe.",
+    "seoKeywords": "hair oil, ayurveda, tribal hair oil, hair growth, hakkiveda, mysore",
+    "maintenanceMode": false,
+    "freeShippingThresholdINR": 1500,
+    "codEnabled": true,
+    "razorpayKeyId": "rzp_live_hakkiveda_key",
+    "expressCourierPartner": "DHL / BlueDart Express",
+    "quizHeadline": "AI Ayurvedic Scalp & Hair Density Diagnostic",
+    "quizSubtitle": "Unlock your personalized 42-herb formulation in 60 seconds."
+  },
+  "brand_identity": {
+    "mainLogoLight": "",
+    "mainLogoDark": "",
+    "mobileLogo": "",
+    "footerLogo": "",
+    "adminLogo": "",
+    "emailLogo": "",
+    "favicon": "",
+    "appleTouchIcon": "",
+    "svgLogo": "",
+    "transparentLogo": "",
+    "brandName": "HAKKIVEDA",
+    "brandSubtitle": "Ancestral Hakki-Pikki Herbal Secret",
+    "brandInitials": "HV",
+    "brandDescription": "Authentic 42-herb tribal hair care formulations brewed with traditional Mysore forest wisdom and zero synthetic additives.",
+    "companyMotto": "Pure Botanical Science • Zero Synthetic Harm",
+    "primaryColor": "#3AA91F",
+    "secondaryGold": "#D4AF37",
+    "backgroundColor": "#0B1D13",
+    "textColor": "#F8FAFC",
+    "accentColor": "#10B981",
+    "buttonColor": "#D4AF37",
+    "hoverColor": "#B8962E",
+    "borderColor": "rgba(212, 175, 55, 0.3)",
+    "headingFont": "Cinzel, Playfair Display, serif",
+    "bodyFont": "Plus Jakarta Sans, sans-serif",
+    "buttonFont": "Plus Jakarta Sans, sans-serif",
+    "fontSize": "md",
+    "fontWeight": "bold",
+    "themeMode": "dark",
+    "enableLoadingAnimation": true,
+    "animationType": "gold_glow",
+    "animationDuration": 1.5,
+    "introSoundEnabled": true,
+    "socialFacebook": "https://facebook.com/hakkiveda",
+    "socialInstagram": "https://instagram.com/hakkiveda",
+    "socialYoutube": "https://youtube.com/@hakkiveda",
+    "socialWhatsapp": "https://wa.me/917619536831",
+    "socialLinkedin": "https://linkedin.com/company/hakkiveda",
+    "socialTwitter": "https://x.com/hakkiveda",
+    "browserTitle": "HAKKIVEDA | Ancestral Hakki-Pikki Tribal Hair Care",
+    "themeColor": "#0B1D13",
+    "pwaIcon192": "",
+    "pwaIcon512": "",
+    "emailHeaderLogo": "",
+    "emailFooterLogo": "",
+    "emailAccentColor": "#D4AF37",
+    "emailSignature": "HAKKIVEDA Botanical Care Team\nHunsur, Mysore, Karnataka 571105",
+    "brandGuidelinesPdf": "",
+    "brandGuidelinesFilename": "",
+    "watermarkLogo": "",
+    "whiteLogo": "",
+    "blackLogo": ""
+  },
+  "brand_identity_draft": {
+    "mainLogoLight": "",
+    "mainLogoDark": "",
+    "mobileLogo": "",
+    "footerLogo": "",
+    "adminLogo": "",
+    "emailLogo": "",
+    "favicon": "",
+    "appleTouchIcon": "",
+    "svgLogo": "",
+    "transparentLogo": "",
+    "brandName": "HAKKIVEDA",
+    "brandSubtitle": "Ancestral Hakki-Pikki Herbal Secret",
+    "brandInitials": "HV",
+    "brandDescription": "Authentic 42-herb tribal hair care formulations brewed with traditional Mysore forest wisdom and zero synthetic additives.",
+    "companyMotto": "Pure Botanical Science • Zero Synthetic Harm",
+    "primaryColor": "#3AA91F",
+    "secondaryGold": "#D4AF37",
+    "backgroundColor": "#0B1D13",
+    "textColor": "#F8FAFC",
+    "accentColor": "#10B981",
+    "buttonColor": "#D4AF37",
+    "hoverColor": "#B8962E",
+    "borderColor": "rgba(212, 175, 55, 0.3)",
+    "headingFont": "Cinzel, Playfair Display, serif",
+    "bodyFont": "Plus Jakarta Sans, sans-serif",
+    "buttonFont": "Plus Jakarta Sans, sans-serif",
+    "fontSize": "md",
+    "fontWeight": "bold",
+    "themeMode": "dark",
+    "enableLoadingAnimation": true,
+    "animationType": "gold_glow",
+    "animationDuration": 1.5,
+    "introSoundEnabled": true,
+    "socialFacebook": "https://facebook.com/hakkiveda",
+    "socialInstagram": "https://instagram.com/hakkiveda",
+    "socialYoutube": "https://youtube.com/@hakkiveda",
+    "socialWhatsapp": "https://wa.me/917619536831",
+    "socialLinkedin": "https://linkedin.com/company/hakkiveda",
+    "socialTwitter": "https://x.com/hakkiveda",
+    "browserTitle": "HAKKIVEDA | Ancestral Hakki-Pikki Tribal Hair Care",
+    "themeColor": "#0B1D13",
+    "pwaIcon192": "",
+    "pwaIcon512": "",
+    "emailHeaderLogo": "",
+    "emailFooterLogo": "",
+    "emailAccentColor": "#D4AF37",
+    "emailSignature": "HAKKIVEDA Botanical Care Team\nHunsur, Mysore, Karnataka 571105",
+    "brandGuidelinesPdf": "",
+    "brandGuidelinesFilename": "",
+    "watermarkLogo": "",
+    "whiteLogo": "",
+    "blackLogo": ""
+  },
+  "header_layout_settings": {
+    "showLogo": true,
+    "showSearch": true,
+    "showCountrySelector": true,
+    "showWishlist": true,
+    "showAccount": true,
+    "showCart": true,
+    "showMenu": true,
+    "hoverStyle": "gold_line",
+    "headerLayout": "standard"
+  },
+  "nav_links": [
+    {
+      "id": "nav-1",
+      "label": "Collections",
+      "url": "#products",
+      "linkType": "COLLECTION",
+      "visible": true,
+      "showOnDesktop": true,
+      "showOnTablet": true,
+      "showOnMobile": true,
+      "userVisibility": "EVERYONE",
+      "allowedCountries": [],
+      "status": "ACTIVE",
+      "sortOrder": 1,
+      "icon": "Leaf",
+      "badge": "HOT",
+      "clicks": 342,
+      "impressions": 1850,
+      "megaMenu": {
+        "enabled": true,
+        "featuredImageUrl": "https://images.unsplash.com/photo-1526947425960-945c6e72858f?auto=format&fit=crop&q=80&w=600",
+        "featuredImageTitle": "Royal Hakki-Pikki Hair Oil",
+        "featuredImageSubtitle": "42 Herbs • 100% Herbal Extraction",
+        "featuredImageLink": "#products",
+        "columns": [
+          {
+            "id": "col-1",
+            "title": "By Concern",
+            "links": [
+              {
+                "label": "Hair Fall Control",
+                "url": "#products",
+                "badge": "HOT"
+              },
+              {
+                "label": "Scalp Nourishment & Dandruff",
+                "url": "#products"
+              },
+              {
+                "label": "Premature Greying Repair",
+                "url": "#products"
+              },
+              {
+                "label": "Growth Boost Elixir",
+                "url": "#products",
+                "badge": "NEW"
+              }
+            ]
+          },
+          {
+            "id": "col-2",
+            "title": "Tribe Specialities",
+            "links": [
+              {
+                "label": "42 Mountain Herbs Oil",
+                "url": "#products",
+                "badge": "SALE"
+              },
+              {
+                "label": "Amla & Bhringraj Scalp Pack",
+                "url": "#products"
+              },
+              {
+                "label": "Forest Honey & Neem Cleanser",
+                "url": "#products"
+              },
+              {
+                "label": "Export Wholesale Packs",
+                "url": "#b2b",
+                "badge": "B2B"
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "id": "nav-2",
+      "label": "Tribal Heritage",
+      "url": "#brand-story",
+      "linkType": "HOMEPAGE",
+      "visible": true,
+      "showOnDesktop": true,
+      "showOnTablet": true,
+      "showOnMobile": true,
+      "userVisibility": "EVERYONE",
+      "allowedCountries": [],
+      "status": "ACTIVE",
+      "sortOrder": 2,
+      "icon": "Shield",
+      "clicks": 128,
+      "impressions": 1420,
+      "pageContent": {
+        "desktopHeroImage": "/images/hero_tribal_elders.jpg",
+        "desktopHeroFilename": "hero_tribal_elders.jpg",
+        "mobileHeroImage": "/images/hero_tribal_elders.jpg",
+        "mobileHeroFilename": "hero_tribal_elders.jpg",
+        "mainHeading": "Where Ancient Tribal Wisdom Meets Modern Hair Science",
+        "smallHeading": "The Genesis of HAKKIVEDA",
+        "richText": {
+          "paragraphs": [
+            "For centuries, the nomadic Hakki-Pikki tribe traversed the dense forest corridors of the Western Ghats in Karnataka, India. Unbounded by modern industrial cosmetics, they relied on a secret repertoire of 42 wild mountain herbs, tree barks, seeds, and flower juices to keep their hair thick, dark, and resilient well into old age.",
+            "At HAKKIVEDA, we preserve this authentic living heritage. We work directly with tribal harvesters in Hunsur to sustainably gather rare botanicals at sunrise when nutrient concentration is highest."
+          ],
+          "lists": [
+            "42 Wild Herbs: Including Abrus precatorius, Jatamansi, and Bhringraj harvested in untouched forests.",
+            "21-Day Woodfire Brew: Slow-cooked in pure copper cauldrons over woodfire for optimal phytonutrient retention.",
+            "Tribal Empowerment: Fair-trade compensation directly supporting Hakki-Pikki artisan families in Mysore.",
+            "Worldwide Shipping: Exported directly to India, Singapore, Malaysia, Fiji, Mauritius, and Global markets."
+          ],
+          "quotes": [
+            "Every drop is small-batch brewed by Hakki-Pikki tribal elders in Mysore using 42 wild herbs."
+          ],
+          "highlightText": "Ancestral Mysore Heritage • Door No. 574, V.P. Bore, Hunsur, Mysore, Karnataka"
+        },
+        "gallery": [
+          {
+            "id": "gal-1",
+            "url": "/images/hakkiveda_oil_couple_herbs.jpg",
+            "filename": "hakkiveda_oil_couple_herbs.jpg",
+            "title": "Tribal Elders & Herb Gathering",
+            "altText": "Hakki-Pikki tribal elders with wild forest botanicals",
+            "sortOrder": 1
+          },
+          {
+            "id": "gal-2",
+            "url": "/images/hakkiveda_108_herbs_infographic.jpg",
+            "filename": "hakkiveda_108_herbs_infographic.jpg",
+            "title": "42 Wild Mountain Botanicals",
+            "altText": "Botanical infographic of sacred mountain herbs",
+            "sortOrder": 2
+          },
+          {
+            "id": "gal-3",
+            "url": "/images/hakkiveda_108_oil_gold.jpg",
+            "filename": "hakkiveda_108_oil_gold.jpg",
+            "title": "Traditional Copper Cauldron Extraction",
+            "altText": "Pure golden herbal hair oil bottle handcrafted in Mysore",
+            "sortOrder": 3
+          }
+        ],
+        "videoMp4Url": "https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4",
+        "videoYoutubeUrl": "https://youtu.be/1jzF9v5PEBY",
+        "ctaText": "Explore 42-Herb Formulations",
+        "ctaLink": "#products",
+        "seoAltText": "Hakki-Pikki Forest Canopy and Tribal Elders in Mysore",
+        "seoImageTitle": "Ancestral Hakki-Pikki Herbal Hair Oil Brewing Tradition"
+      }
+    },
+    {
+      "id": "nav-3",
+      "label": "AI Hair Quiz",
+      "url": "#ai-quiz",
+      "linkType": "QUIZ",
+      "isModal": true,
+      "modalType": "QUIZ",
+      "visible": true,
+      "showOnDesktop": true,
+      "showOnTablet": true,
+      "showOnMobile": true,
+      "userVisibility": "EVERYONE",
+      "allowedCountries": [],
+      "status": "ACTIVE",
+      "sortOrder": 3,
+      "icon": "Sparkles",
+      "badge": "NEW",
+      "clicks": 520,
+      "impressions": 2100
+    },
+    {
+      "id": "nav-4",
+      "label": "Results & Proof",
+      "url": "#before-after",
+      "linkType": "HOMEPAGE",
+      "visible": true,
+      "showOnDesktop": true,
+      "showOnTablet": true,
+      "showOnMobile": true,
+      "userVisibility": "EVERYONE",
+      "allowedCountries": [],
+      "status": "ACTIVE",
+      "sortOrder": 4,
+      "icon": "Flame",
+      "clicks": 215,
+      "impressions": 1600
+    },
+    {
+      "id": "nav-5",
+      "label": "B2B / Export",
+      "url": "#b2b",
+      "linkType": "B2B",
+      "isModal": true,
+      "modalType": "B2B",
+      "visible": true,
+      "showOnDesktop": true,
+      "showOnTablet": true,
+      "showOnMobile": true,
+      "userVisibility": "EVERYONE",
+      "allowedCountries": [],
+      "status": "ACTIVE",
+      "sortOrder": 5,
+      "icon": "Briefcase",
+      "badge": "B2B",
+      "clicks": 88,
+      "impressions": 980
+    },
+    {
+      "id": "nav-6",
+      "label": "Journal & Guides",
+      "url": "#blogs",
+      "linkType": "JOURNAL",
+      "visible": true,
+      "showOnDesktop": true,
+      "showOnTablet": true,
+      "showOnMobile": true,
+      "userVisibility": "EVERYONE",
+      "allowedCountries": [],
+      "status": "ACTIVE",
+      "sortOrder": 6,
+      "icon": "MessageSquare",
+      "clicks": 94,
+      "impressions": 1120
+    }
+  ],
+  "currencies": [
+    {
+      "code": "INR",
+      "symbol": "₹",
+      "name": "Indian Rupee",
+      "rateToINR": 1,
+      "country": "India",
+      "flag": "🇮🇳"
+    },
+    {
+      "code": "SGD",
+      "symbol": "S$",
+      "name": "Singapore Dollar",
+      "rateToINR": 62.5,
+      "country": "Singapore",
+      "flag": "🇸🇬"
+    },
+    {
+      "code": "MYR",
+      "symbol": "RM",
+      "name": "Malaysian Ringgit",
+      "rateToINR": 18.8,
+      "country": "Malaysia",
+      "flag": "🇲🇾"
+    },
+    {
+      "code": "MUR",
+      "symbol": "Rs",
+      "name": "Mauritian Rupee",
+      "rateToINR": 1.8,
+      "country": "Mauritius",
+      "flag": "🇲🇺"
+    },
+    {
+      "code": "FJD",
+      "symbol": "FJ$",
+      "name": "Fijian Dollar",
+      "rateToINR": 37.2,
+      "country": "Fiji",
+      "flag": "🇫🇯"
+    },
+    {
+      "code": "AED",
+      "symbol": "د.إ",
+      "name": "UAE Dirham",
+      "rateToINR": 22.8,
+      "country": "United Arab Emirates",
+      "flag": "🇦🇪"
+    },
+    {
+      "code": "SAR",
+      "symbol": "﷼",
+      "name": "Saudi Riyal",
+      "rateToINR": 22.2,
+      "country": "Saudi Arabia",
+      "flag": "🇸🇦"
+    },
+    {
+      "code": "NPR",
+      "symbol": "रु",
+      "name": "Nepalese Rupee",
+      "rateToINR": 0.625,
+      "country": "Nepal",
+      "flag": "🇳🇵"
+    },
+    {
+      "code": "USD",
+      "symbol": "$",
+      "name": "US Dollar (Worldwide)",
+      "rateToINR": 83.5,
+      "country": "United States & Global",
+      "flag": "🌐"
+    }
+  ],
+  "current_currency": {
+    "code": "INR",
+    "symbol": "₹",
+    "name": "Indian Rupee",
+    "rateToINR": 1,
+    "country": "India",
+    "flag": "🇮🇳"
+  },
+  "markets": [
+    {
+      "id": "mkt-in",
+      "name": "India Market",
+      "code": "IN",
+      "currencyCode": "INR",
+      "shippingRule": "COD_AND_PREPAID",
+      "paymentGateways": [
+        "RAZORPAY",
+        "COD",
+        "STRIPE"
+      ],
+      "freeShippingThreshold": 1999,
+      "enabled": true
+    },
+    {
+      "id": "mkt-sg",
+      "name": "Singapore Market",
+      "code": "SG",
+      "currencyCode": "SGD",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentGateways": [
+        "RAZORPAY",
+        "STRIPE",
+        "PAYPAL"
+      ],
+      "freeShippingThreshold": 99,
+      "enabled": true
+    },
+    {
+      "id": "mkt-my",
+      "name": "Malaysia Market",
+      "code": "MY",
+      "currencyCode": "MYR",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentGateways": [
+        "RAZORPAY",
+        "STRIPE",
+        "PAYPAL"
+      ],
+      "freeShippingThreshold": 350,
+      "enabled": true
+    },
+    {
+      "id": "mkt-mu",
+      "name": "Mauritius Market",
+      "code": "MU",
+      "currencyCode": "MUR",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentGateways": [
+        "RAZORPAY",
+        "STRIPE",
+        "PAYPAL"
+      ],
+      "freeShippingThreshold": 3500,
+      "enabled": true
+    },
+    {
+      "id": "mkt-fj",
+      "name": "Fiji Market",
+      "code": "FJ",
+      "currencyCode": "FJD",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentGateways": [
+        "RAZORPAY",
+        "STRIPE",
+        "PAYPAL"
+      ],
+      "freeShippingThreshold": 180,
+      "enabled": true
+    },
+    {
+      "id": "mkt-ae",
+      "name": "UAE Market",
+      "code": "AE",
+      "currencyCode": "AED",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentGateways": [
+        "RAZORPAY",
+        "STRIPE",
+        "PAYPAL"
+      ],
+      "freeShippingThreshold": 300,
+      "enabled": true
+    },
+    {
+      "id": "mkt-sa",
+      "name": "Saudi Arabia Market",
+      "code": "SA",
+      "currencyCode": "SAR",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentGateways": [
+        "RAZORPAY",
+        "STRIPE",
+        "PAYPAL"
+      ],
+      "freeShippingThreshold": 300,
+      "enabled": true
+    },
+    {
+      "id": "mkt-np",
+      "name": "Nepal Market",
+      "code": "NP",
+      "currencyCode": "NPR",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentGateways": [
+        "RAZORPAY",
+        "STRIPE",
+        "PAYPAL"
+      ],
+      "freeShippingThreshold": 3000,
+      "enabled": true
+    },
+    {
+      "id": "mkt-int",
+      "name": "International Market (USD)",
+      "code": "INT",
+      "currencyCode": "USD",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentGateways": [
+        "RAZORPAY",
+        "STRIPE",
+        "PAYPAL"
+      ],
+      "freeShippingThreshold": 99,
+      "enabled": true
+    }
+  ],
+  "countries": [
+    {
+      "code": "AF",
+      "name": "Afghanistan",
+      "flag": "🇦🇫",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "AX",
+      "name": "Åland Islands",
+      "flag": "🇦🇽",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "AL",
+      "name": "Albania",
+      "flag": "🇦🇱",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "DZ",
+      "name": "Algeria",
+      "flag": "🇩🇿",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "AS",
+      "name": "American Samoa",
+      "flag": "🇦🇸",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "AD",
+      "name": "Andorra",
+      "flag": "🇦🇩",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "AO",
+      "name": "Angola",
+      "flag": "🇦🇴",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "AI",
+      "name": "Anguilla",
+      "flag": "🇦🇮",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "AQ",
+      "name": "Antarctica",
+      "flag": "🇦🇶",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "AG",
+      "name": "Antigua & Barbuda",
+      "flag": "🇦🇬",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "AR",
+      "name": "Argentina",
+      "flag": "🇦🇷",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "South America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "AM",
+      "name": "Armenia",
+      "flag": "🇦🇲",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "AW",
+      "name": "Aruba",
+      "flag": "🇦🇼",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "AU",
+      "name": "Australia",
+      "flag": "🇦🇺",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "AT",
+      "name": "Austria",
+      "flag": "🇦🇹",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "AZ",
+      "name": "Azerbaijan",
+      "flag": "🇦🇿",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "BS",
+      "name": "Bahamas",
+      "flag": "🇧🇸",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "BH",
+      "name": "Bahrain",
+      "flag": "🇧🇭",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "GCC",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "BD",
+      "name": "Bangladesh",
+      "flag": "🇧🇩",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "BB",
+      "name": "Barbados",
+      "flag": "🇧🇧",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "BY",
+      "name": "Belarus",
+      "flag": "🇧🇾",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "BE",
+      "name": "Belgium",
+      "flag": "🇧🇪",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "BZ",
+      "name": "Belize",
+      "flag": "🇧🇿",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "BJ",
+      "name": "Benin",
+      "flag": "🇧🇯",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "BM",
+      "name": "Bermuda",
+      "flag": "🇧🇲",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "BT",
+      "name": "Bhutan",
+      "flag": "🇧🇹",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "BO",
+      "name": "Bolivia",
+      "flag": "🇧🇴",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "South America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "BA",
+      "name": "Bosnia & Herzegovina",
+      "flag": "🇧🇦",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "BW",
+      "name": "Botswana",
+      "flag": "🇧🇼",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "BV",
+      "name": "Bouvet Island",
+      "flag": "🇧🇻",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "BR",
+      "name": "Brazil",
+      "flag": "🇧🇷",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "South America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "IO",
+      "name": "British Indian Ocean Territory",
+      "flag": "🇮🇴",
+      "currencyCode": "INR",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "BN",
+      "name": "Brunei",
+      "flag": "🇧🇳",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "BG",
+      "name": "Bulgaria",
+      "flag": "🇧🇬",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "BF",
+      "name": "Burkina Faso",
+      "flag": "🇧🇫",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "BI",
+      "name": "Burundi",
+      "flag": "🇧🇮",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "KH",
+      "name": "Cambodia",
+      "flag": "🇰🇭",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "CM",
+      "name": "Cameroon",
+      "flag": "🇨🇲",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "CA",
+      "name": "Canada",
+      "flag": "🇨🇦",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "CV",
+      "name": "Cape Verde",
+      "flag": "🇨🇻",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "KY",
+      "name": "Cayman Islands",
+      "flag": "🇰🇾",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "CF",
+      "name": "Central African Republic",
+      "flag": "🇨🇫",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "TD",
+      "name": "Chad",
+      "flag": "🇹🇩",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "CL",
+      "name": "Chile",
+      "flag": "🇨🇱",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "South America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "CN",
+      "name": "China",
+      "flag": "🇨🇳",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "CX",
+      "name": "Christmas Island",
+      "flag": "🇨🇽",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "CC",
+      "name": "Cocos (Keeling) Islands",
+      "flag": "🇨🇨",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "CO",
+      "name": "Colombia",
+      "flag": "🇨🇴",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "South America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "KM",
+      "name": "Comoros",
+      "flag": "🇰🇲",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "CG",
+      "name": "Congo - Brazzaville",
+      "flag": "🇨🇬",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "CD",
+      "name": "Congo - Kinshasa",
+      "flag": "🇨🇩",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "CK",
+      "name": "Cook Islands",
+      "flag": "🇨🇰",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "CR",
+      "name": "Costa Rica",
+      "flag": "🇨🇷",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "CI",
+      "name": "Côte d’Ivoire",
+      "flag": "🇨🇮",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "HR",
+      "name": "Croatia",
+      "flag": "🇭🇷",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "CU",
+      "name": "Cuba",
+      "flag": "🇨🇺",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "CW",
+      "name": "Curaçao",
+      "flag": "🇨🇼",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "CY",
+      "name": "Cyprus",
+      "flag": "🇨🇾",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "CZ",
+      "name": "Czechia",
+      "flag": "🇨🇿",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "DK",
+      "name": "Denmark",
+      "flag": "🇩🇰",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "DJ",
+      "name": "Djibouti",
+      "flag": "🇩🇯",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "DM",
+      "name": "Dominica",
+      "flag": "🇩🇲",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "DO",
+      "name": "Dominican Republic",
+      "flag": "🇩🇴",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "EC",
+      "name": "Ecuador",
+      "flag": "🇪🇨",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "South America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "EG",
+      "name": "Egypt",
+      "flag": "🇪🇬",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "SV",
+      "name": "El Salvador",
+      "flag": "🇸🇻",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "GQ",
+      "name": "Equatorial Guinea",
+      "flag": "🇬🇶",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "ER",
+      "name": "Eritrea",
+      "flag": "🇪🇷",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "EE",
+      "name": "Estonia",
+      "flag": "🇪🇪",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "SZ",
+      "name": "Eswatini",
+      "flag": "🇸🇿",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "ET",
+      "name": "Ethiopia",
+      "flag": "🇪🇹",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "FK",
+      "name": "Falkland Islands",
+      "flag": "🇫🇰",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "South America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "FO",
+      "name": "Faroe Islands",
+      "flag": "🇫🇴",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "FJ",
+      "name": "Fiji",
+      "flag": "🇫🇯",
+      "currencyCode": "FJD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-fj",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "FI",
+      "name": "Finland",
+      "flag": "🇫🇮",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "FR",
+      "name": "France",
+      "flag": "🇫🇷",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "GF",
+      "name": "French Guiana",
+      "flag": "🇬🇫",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "South America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "PF",
+      "name": "French Polynesia",
+      "flag": "🇵🇫",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "TF",
+      "name": "French Southern Territories",
+      "flag": "🇹🇫",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "GA",
+      "name": "Gabon",
+      "flag": "🇬🇦",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "GM",
+      "name": "Gambia",
+      "flag": "🇬🇲",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "GE",
+      "name": "Georgia",
+      "flag": "🇬🇪",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "DE",
+      "name": "Germany",
+      "flag": "🇩🇪",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "GH",
+      "name": "Ghana",
+      "flag": "🇬🇭",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "GI",
+      "name": "Gibraltar",
+      "flag": "🇬🇮",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "GR",
+      "name": "Greece",
+      "flag": "🇬🇷",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "GL",
+      "name": "Greenland",
+      "flag": "🇬🇱",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "GD",
+      "name": "Grenada",
+      "flag": "🇬🇩",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "GP",
+      "name": "Guadeloupe",
+      "flag": "🇬🇵",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "GU",
+      "name": "Guam",
+      "flag": "🇬🇺",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "GT",
+      "name": "Guatemala",
+      "flag": "🇬🇹",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "GG",
+      "name": "Guernsey",
+      "flag": "🇬🇬",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "GN",
+      "name": "Guinea",
+      "flag": "🇬🇳",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "GW",
+      "name": "Guinea-Bissau",
+      "flag": "🇬🇼",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "GY",
+      "name": "Guyana",
+      "flag": "🇬🇾",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "South America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "HT",
+      "name": "Haiti",
+      "flag": "🇭🇹",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "HM",
+      "name": "Heard & McDonald Islands",
+      "flag": "🇭🇲",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "VA",
+      "name": "Vatican City",
+      "flag": "🇻🇦",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "HN",
+      "name": "Honduras",
+      "flag": "🇭🇳",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "HK",
+      "name": "Hong Kong SAR China",
+      "flag": "🇭🇰",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "HU",
+      "name": "Hungary",
+      "flag": "🇭🇺",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "IS",
+      "name": "Iceland",
+      "flag": "🇮🇸",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "IN",
+      "name": "India",
+      "flag": "🇮🇳",
+      "currencyCode": "INR",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-in",
+      "shippingRule": "COD_AND_PREPAID",
+      "paymentRule": "COD_AND_PREPAID"
+    },
+    {
+      "code": "ID",
+      "name": "Indonesia",
+      "flag": "🇮🇩",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "IR",
+      "name": "Iran",
+      "flag": "🇮🇷",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "IQ",
+      "name": "Iraq",
+      "flag": "🇮🇶",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "IE",
+      "name": "Ireland",
+      "flag": "🇮🇪",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "IM",
+      "name": "Isle of Man",
+      "flag": "🇮🇲",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "IL",
+      "name": "Israel",
+      "flag": "🇮🇱",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "IT",
+      "name": "Italy",
+      "flag": "🇮🇹",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "JM",
+      "name": "Jamaica",
+      "flag": "🇯🇲",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "JP",
+      "name": "Japan",
+      "flag": "🇯🇵",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "JE",
+      "name": "Jersey",
+      "flag": "🇯🇪",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "JO",
+      "name": "Jordan",
+      "flag": "🇯🇴",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "KZ",
+      "name": "Kazakhstan",
+      "flag": "🇰🇿",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "KE",
+      "name": "Kenya",
+      "flag": "🇰🇪",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "KI",
+      "name": "Kiribati",
+      "flag": "🇰🇮",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "KP",
+      "name": "North Korea",
+      "flag": "🇰🇵",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "KR",
+      "name": "South Korea",
+      "flag": "🇰🇷",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "KW",
+      "name": "Kuwait",
+      "flag": "🇰🇼",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "GCC",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "KG",
+      "name": "Kyrgyzstan",
+      "flag": "🇰🇬",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "LA",
+      "name": "Laos",
+      "flag": "🇱🇦",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "LV",
+      "name": "Latvia",
+      "flag": "🇱🇻",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "LB",
+      "name": "Lebanon",
+      "flag": "🇱🇧",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "LS",
+      "name": "Lesotho",
+      "flag": "🇱🇸",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "LR",
+      "name": "Liberia",
+      "flag": "🇱🇷",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "LY",
+      "name": "Libya",
+      "flag": "🇱🇾",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "LI",
+      "name": "Liechtenstein",
+      "flag": "🇱🇮",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "LT",
+      "name": "Lithuania",
+      "flag": "🇱🇹",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "LU",
+      "name": "Luxembourg",
+      "flag": "🇱🇺",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "MO",
+      "name": "Macao SAR China",
+      "flag": "🇲🇴",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "MG",
+      "name": "Madagascar",
+      "flag": "🇲🇬",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "MW",
+      "name": "Malawi",
+      "flag": "🇲🇼",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "MY",
+      "name": "Malaysia",
+      "flag": "🇲🇾",
+      "currencyCode": "MYR",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-my",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "MV",
+      "name": "Maldives",
+      "flag": "🇲🇻",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "ML",
+      "name": "Mali",
+      "flag": "🇲🇱",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "MT",
+      "name": "Malta",
+      "flag": "🇲🇹",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "MH",
+      "name": "Marshall Islands",
+      "flag": "🇲🇭",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "MQ",
+      "name": "Martinique",
+      "flag": "🇲🇶",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "MR",
+      "name": "Mauritania",
+      "flag": "🇲🇷",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "MU",
+      "name": "Mauritius",
+      "flag": "🇲🇺",
+      "currencyCode": "MUR",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-mu",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "YT",
+      "name": "Mayotte",
+      "flag": "🇾🇹",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "MX",
+      "name": "Mexico",
+      "flag": "🇲🇽",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "FM",
+      "name": "Micronesia",
+      "flag": "🇫🇲",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "MD",
+      "name": "Moldova",
+      "flag": "🇲🇩",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "MC",
+      "name": "Monaco",
+      "flag": "🇲🇨",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "MN",
+      "name": "Mongolia",
+      "flag": "🇲🇳",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "ME",
+      "name": "Montenegro",
+      "flag": "🇲🇪",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "MS",
+      "name": "Montserrat",
+      "flag": "🇲🇸",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "MA",
+      "name": "Morocco",
+      "flag": "🇲🇦",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "MZ",
+      "name": "Mozambique",
+      "flag": "🇲🇿",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "MM",
+      "name": "Myanmar (Burma)",
+      "flag": "🇲🇲",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "NA",
+      "name": "Namibia",
+      "flag": "🇳🇦",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "NR",
+      "name": "Nauru",
+      "flag": "🇳🇷",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "NP",
+      "name": "Nepal",
+      "flag": "🇳🇵",
+      "currencyCode": "NPR",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-np",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "NL",
+      "name": "Netherlands",
+      "flag": "🇳🇱",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "NC",
+      "name": "New Caledonia",
+      "flag": "🇳🇨",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "NZ",
+      "name": "New Zealand",
+      "flag": "🇳🇿",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "NI",
+      "name": "Nicaragua",
+      "flag": "🇳🇮",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "NE",
+      "name": "Niger",
+      "flag": "🇳🇪",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "NG",
+      "name": "Nigeria",
+      "flag": "🇳🇬",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "NU",
+      "name": "Niue",
+      "flag": "🇳🇺",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "NF",
+      "name": "Norfolk Island",
+      "flag": "🇳🇫",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "MK",
+      "name": "North Macedonia",
+      "flag": "🇲🇰",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "MP",
+      "name": "Northern Mariana Islands",
+      "flag": "🇲🇵",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "NO",
+      "name": "Norway",
+      "flag": "🇳🇴",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "OM",
+      "name": "Oman",
+      "flag": "🇴🇲",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "GCC",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "PK",
+      "name": "Pakistan",
+      "flag": "🇵🇰",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "PW",
+      "name": "Palau",
+      "flag": "🇵🇼",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "PS",
+      "name": "Palestinian Territories",
+      "flag": "🇵🇸",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "PA",
+      "name": "Panama",
+      "flag": "🇵🇦",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "PG",
+      "name": "Papua New Guinea",
+      "flag": "🇵🇬",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "PY",
+      "name": "Paraguay",
+      "flag": "🇵🇾",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "South America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "PE",
+      "name": "Peru",
+      "flag": "🇵🇪",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "South America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "PH",
+      "name": "Philippines",
+      "flag": "🇵🇭",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "PN",
+      "name": "Pitcairn Islands",
+      "flag": "🇵🇳",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "PL",
+      "name": "Poland",
+      "flag": "🇵🇱",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "PT",
+      "name": "Portugal",
+      "flag": "🇵🇹",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "PR",
+      "name": "Puerto Rico",
+      "flag": "🇵🇷",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "QA",
+      "name": "Qatar",
+      "flag": "🇶🇦",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "GCC",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "RE",
+      "name": "Réunion",
+      "flag": "🇷🇪",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "RO",
+      "name": "Romania",
+      "flag": "🇷🇴",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "RU",
+      "name": "Russia",
+      "flag": "🇷🇺",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "RW",
+      "name": "Rwanda",
+      "flag": "🇷🇼",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "BL",
+      "name": "St. Barthélemy",
+      "flag": "🇧🇱",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "SH",
+      "name": "St. Helena",
+      "flag": "🇸🇭",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "KN",
+      "name": "St. Kitts & Nevis",
+      "flag": "🇰🇳",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "LC",
+      "name": "St. Lucia",
+      "flag": "🇱🇨",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "MF",
+      "name": "St. Martin",
+      "flag": "🇲🇫",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "PM",
+      "name": "St. Pierre & Miquelon",
+      "flag": "🇵🇲",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "VC",
+      "name": "St. Vincent & Grenadines",
+      "flag": "🇻🇨",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "WS",
+      "name": "Samoa",
+      "flag": "🇼🇸",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "SM",
+      "name": "San Marino",
+      "flag": "🇸🇲",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "ST",
+      "name": "São Tomé & Príncipe",
+      "flag": "🇸🇹",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "SA",
+      "name": "Saudi Arabia",
+      "flag": "🇸🇦",
+      "currencyCode": "SAR",
+      "enabled": true,
+      "region": "GCC",
+      "marketId": "mkt-sa",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "SN",
+      "name": "Senegal",
+      "flag": "🇸🇳",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "RS",
+      "name": "Serbia",
+      "flag": "🇷🇸",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "SC",
+      "name": "Seychelles",
+      "flag": "🇸🇨",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "SL",
+      "name": "Sierra Leone",
+      "flag": "🇸🇱",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "SG",
+      "name": "Singapore",
+      "flag": "🇸🇬",
+      "currencyCode": "SGD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-sg",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "SX",
+      "name": "Sint Maarten",
+      "flag": "🇸🇽",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "SK",
+      "name": "Slovakia",
+      "flag": "🇸🇰",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "SI",
+      "name": "Slovenia",
+      "flag": "🇸🇮",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "SB",
+      "name": "Solomon Islands",
+      "flag": "🇸🇧",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "SO",
+      "name": "Somalia",
+      "flag": "🇸🇴",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "ZA",
+      "name": "South Africa",
+      "flag": "🇿🇦",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "GS",
+      "name": "South Georgia & South Sandwich Islands",
+      "flag": "🇬🇸",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "SS",
+      "name": "South Sudan",
+      "flag": "🇸🇸",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "ES",
+      "name": "Spain",
+      "flag": "🇪🇸",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "LK",
+      "name": "Sri Lanka",
+      "flag": "🇱🇰",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "SD",
+      "name": "Sudan",
+      "flag": "🇸🇩",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "SR",
+      "name": "Suriname",
+      "flag": "🇸🇷",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "South America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "SJ",
+      "name": "Svalbard & Jan Mayen",
+      "flag": "🇸🇯",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "SE",
+      "name": "Sweden",
+      "flag": "🇸🇪",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "CH",
+      "name": "Switzerland",
+      "flag": "🇨🇭",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "SY",
+      "name": "Syria",
+      "flag": "🇸🇾",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "TW",
+      "name": "Taiwan",
+      "flag": "🇹🇼",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "TJ",
+      "name": "Tajikistan",
+      "flag": "🇹🇯",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "TZ",
+      "name": "Tanzania",
+      "flag": "🇹🇿",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "TH",
+      "name": "Thailand",
+      "flag": "🇹🇭",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "TL",
+      "name": "Timor-Leste",
+      "flag": "🇹🇱",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "TG",
+      "name": "Togo",
+      "flag": "🇹🇬",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "TK",
+      "name": "Tokelau",
+      "flag": "🇹🇰",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "TO",
+      "name": "Tonga",
+      "flag": "🇹🇴",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "TT",
+      "name": "Trinidad & Tobago",
+      "flag": "🇹🇹",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "TN",
+      "name": "Tunisia",
+      "flag": "🇹🇳",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "TR",
+      "name": "Turkey",
+      "flag": "🇹🇷",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "TM",
+      "name": "Turkmenistan",
+      "flag": "🇹🇲",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "TC",
+      "name": "Turks & Caicos Islands",
+      "flag": "🇹🇨",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "TV",
+      "name": "Tuvalu",
+      "flag": "🇹🇻",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "UG",
+      "name": "Uganda",
+      "flag": "🇺🇬",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "UA",
+      "name": "Ukraine",
+      "flag": "🇺🇦",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "AE",
+      "name": "United Arab Emirates",
+      "flag": "🇦🇪",
+      "currencyCode": "AED",
+      "enabled": true,
+      "region": "GCC",
+      "marketId": "mkt-ae",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "GB",
+      "name": "United Kingdom",
+      "flag": "🇬🇧",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Europe",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "US",
+      "name": "United States",
+      "flag": "🇺🇸",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "UM",
+      "name": "U.S. Outlying Islands",
+      "flag": "🇺🇲",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "UY",
+      "name": "Uruguay",
+      "flag": "🇺🇾",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "South America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "UZ",
+      "name": "Uzbekistan",
+      "flag": "🇺🇿",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "VU",
+      "name": "Vanuatu",
+      "flag": "🇻🇺",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "VE",
+      "name": "Venezuela",
+      "flag": "🇻🇪",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "South America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "VN",
+      "name": "Vietnam",
+      "flag": "🇻🇳",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "VG",
+      "name": "British Virgin Islands",
+      "flag": "🇻🇬",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "VI",
+      "name": "U.S. Virgin Islands",
+      "flag": "🇻🇮",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "North America",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "WF",
+      "name": "Wallis & Futuna",
+      "flag": "🇼🇫",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Oceania",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "EH",
+      "name": "Western Sahara",
+      "flag": "🇪🇭",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "YE",
+      "name": "Yemen",
+      "flag": "🇾🇪",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Asia",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "ZM",
+      "name": "Zambia",
+      "flag": "🇿🇲",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    },
+    {
+      "code": "ZW",
+      "name": "Zimbabwe",
+      "flag": "🇿🇼",
+      "currencyCode": "USD",
+      "enabled": true,
+      "region": "Africa",
+      "marketId": "mkt-int",
+      "shippingRule": "PREPAID_ONLY",
+      "paymentRule": "PREPAID_ONLY"
+    }
+  ],
+  "payment_gateways": [
+    {
+      "id": "RAZORPAY",
+      "name": "Razorpay Payment Gateway",
+      "enabled": true,
+      "mode": "LIVE",
+      "liveApiKey": "rzp_live_HAKKIVEDA_882910",
+      "liveSecretKey": "sec_live_9921839102834",
+      "testApiKey": "rzp_test_HAKKIVEDA_DEMO",
+      "testSecretKey": "sec_test_1102938102938",
+      "webhookStatus": "SYNCED",
+      "webhookUrl": "https://api.hakkiveda.com/api/webhooks/razorpay",
+      "lastTestedAt": "2026-07-28 09:30 AM",
+      "connectionStatus": "CONNECTED",
+      "supportedCurrencies": [
+        "INR",
+        "USD",
+        "AED",
+        "SGD",
+        "MYR",
+        "EUR",
+        "GBP"
+      ],
+      "sortOrder": 1,
+      "description": "UPI, Credit/Debit Cards, NetBanking, Wallets & International Cards",
+      "badgeText": "RECOMMENDED FOR INDIA"
+    },
+    {
+      "id": "STRIPE",
+      "name": "Stripe Global Checkout",
+      "enabled": true,
+      "mode": "LIVE",
+      "liveApiKey": "pk_live_51P_HAKKIVEDA_GLOBAL_99120",
+      "liveSecretKey": "sk_live_51P_SECRET_KEY_881923",
+      "testApiKey": "pk_test_51P_DEMO_KEY_10293",
+      "testSecretKey": "sk_test_51P_DEMO_SECRET_00912",
+      "webhookStatus": "ACTIVE",
+      "webhookUrl": "https://api.hakkiveda.com/api/webhooks/stripe",
+      "lastTestedAt": "2026-07-28 09:15 AM",
+      "connectionStatus": "CONNECTED",
+      "supportedCurrencies": [
+        "USD",
+        "SGD",
+        "MYR",
+        "MUR",
+        "FJD",
+        "AED",
+        "SAR",
+        "NPR",
+        "EUR",
+        "GBP"
+      ],
+      "sortOrder": 2,
+      "description": "International Cards, Apple Pay, Google Pay & Klarna",
+      "badgeText": "GLOBAL DEFAULT"
+    },
+    {
+      "id": "PAYPAL",
+      "name": "PayPal Express Checkout",
+      "enabled": true,
+      "mode": "LIVE",
+      "liveApiKey": "client_id_live_paypal_hakki_881",
+      "liveSecretKey": "secret_live_paypal_hakki_991",
+      "testApiKey": "client_id_test_paypal_demo",
+      "testSecretKey": "secret_test_paypal_demo",
+      "webhookStatus": "ACTIVE",
+      "webhookUrl": "https://api.hakkiveda.com/api/webhooks/paypal",
+      "lastTestedAt": "2026-07-28 08:45 AM",
+      "connectionStatus": "CONNECTED",
+      "supportedCurrencies": [
+        "USD",
+        "SGD",
+        "MYR",
+        "EUR",
+        "GBP",
+        "AUD",
+        "CAD"
+      ],
+      "sortOrder": 3,
+      "description": "PayPal Wallet & Pay in 4 installment payments worldwide",
+      "badgeText": "GLOBAL WALLET"
+    },
+    {
+      "id": "PHONEPE",
+      "name": "PhonePe Direct Gateway",
+      "enabled": true,
+      "mode": "LIVE",
+      "liveApiKey": "PG_MERCHANT_HAKKIVEDA_LIVE",
+      "liveSecretKey": "SALT_KEY_INDEX_1_LIVE_SECRET",
+      "testApiKey": "PG_MERCHANT_TEST_DEMO",
+      "testSecretKey": "SALT_KEY_INDEX_1_TEST_SECRET",
+      "webhookStatus": "SYNCED",
+      "webhookUrl": "https://api.hakkiveda.com/api/webhooks/phonepe",
+      "lastTestedAt": "2026-07-28 09:00 AM",
+      "connectionStatus": "CONNECTED",
+      "supportedCurrencies": [
+        "INR"
+      ],
+      "sortOrder": 4,
+      "description": "Direct PhonePe app payments & QR code checkout for India",
+      "badgeText": "INDIA FAVORITE"
+    },
+    {
+      "id": "UPI",
+      "name": "UPI Instant QR & Apps",
+      "enabled": true,
+      "mode": "LIVE",
+      "liveApiKey": "hakkiveda@ybl",
+      "liveSecretKey": "vpa_merchant_secret_key_2026",
+      "testApiKey": "demo@upi",
+      "testSecretKey": "demo_upi_secret_key",
+      "webhookStatus": "ACTIVE",
+      "webhookUrl": "https://api.hakkiveda.com/api/webhooks/upi",
+      "lastTestedAt": "2026-07-28 09:10 AM",
+      "connectionStatus": "CONNECTED",
+      "supportedCurrencies": [
+        "INR"
+      ],
+      "sortOrder": 5,
+      "description": "Google Pay, PhonePe, Paytm, BHIM & Cred UPI payments",
+      "badgeText": "INSTANT ZERO FEE"
+    },
+    {
+      "id": "COD",
+      "name": "Cash On Delivery (COD)",
+      "enabled": true,
+      "mode": "LIVE",
+      "liveApiKey": "N/A",
+      "liveSecretKey": "N/A",
+      "testApiKey": "N/A",
+      "testSecretKey": "N/A",
+      "webhookStatus": "ACTIVE",
+      "webhookUrl": "N/A",
+      "lastTestedAt": "2026-07-28 10:00 AM",
+      "connectionStatus": "CONNECTED",
+      "supportedCurrencies": [
+        "INR"
+      ],
+      "sortOrder": 6,
+      "description": "Doorstep cash collection upon package delivery in India",
+      "badgeText": "DOMESTIC ONLY"
+    }
+  ],
+  "cod_rules": {
+    "enabled": true,
+    "indiaOnly": true,
+    "minOrderINR": 499,
+    "maxOrderINR": 15000,
+    "codFeeINR": 50
+  },
+  "market_gateways": [
+    {
+      "marketId": "mkt-in",
+      "countryCode": "IN",
+      "marketName": "India Market",
+      "currencyCode": "INR",
+      "gateways": [
+        "RAZORPAY",
+        "UPI",
+        "PHONEPE",
+        "COD"
+      ]
+    },
+    {
+      "marketId": "mkt-sg",
+      "countryCode": "SG",
+      "marketName": "Singapore Market",
+      "currencyCode": "SGD",
+      "gateways": [
+        "STRIPE",
+        "PAYPAL"
+      ]
+    },
+    {
+      "marketId": "mkt-my",
+      "countryCode": "MY",
+      "marketName": "Malaysia Market",
+      "currencyCode": "MYR",
+      "gateways": [
+        "STRIPE",
+        "PAYPAL"
+      ]
+    },
+    {
+      "marketId": "mkt-mu",
+      "countryCode": "MU",
+      "marketName": "Mauritius Market",
+      "currencyCode": "MUR",
+      "gateways": [
+        "STRIPE",
+        "PAYPAL"
+      ]
+    },
+    {
+      "marketId": "mkt-fj",
+      "countryCode": "FJ",
+      "marketName": "Fiji Market",
+      "currencyCode": "FJD",
+      "gateways": [
+        "STRIPE",
+        "PAYPAL"
+      ]
+    },
+    {
+      "marketId": "mkt-ae",
+      "countryCode": "AE",
+      "marketName": "UAE Market",
+      "currencyCode": "AED",
+      "gateways": [
+        "STRIPE",
+        "PAYPAL"
+      ]
+    },
+    {
+      "marketId": "mkt-sa",
+      "countryCode": "SA",
+      "marketName": "Saudi Arabia Market",
+      "currencyCode": "SAR",
+      "gateways": [
+        "STRIPE",
+        "PAYPAL"
+      ]
+    },
+    {
+      "marketId": "mkt-np",
+      "countryCode": "NP",
+      "marketName": "Nepal Market",
+      "currencyCode": "NPR",
+      "gateways": [
+        "STRIPE",
+        "PAYPAL"
+      ]
+    },
+    {
+      "marketId": "mkt-int",
+      "countryCode": "INT",
+      "marketName": "International Market (Rest of World)",
+      "currencyCode": "USD",
+      "gateways": [
+        "STRIPE",
+        "PAYPAL"
+      ]
+    }
+  ],
+  "payment_logs": [
+    {
+      "id": "paylog-1001",
+      "orderId": "ord-1001",
+      "orderNumber": "HV-892102",
+      "customerName": "Rajesh Sharma",
+      "customerEmail": "rajesh.sharma@gmail.com",
+      "gateway": "RAZORPAY",
+      "amount": 2499,
+      "currency": "INR",
+      "amountINR": 2499,
+      "status": "SUCCESSFUL",
+      "transactionId": "pay_Rzp9821938102",
+      "paymentMethodDetails": "HDFC Credit Card (**** 9812)",
+      "createdAt": "2026-07-28 08:30 AM"
+    },
+    {
+      "id": "paylog-1002",
+      "orderId": "ord-1002",
+      "orderNumber": "HV-712390",
+      "customerName": "Priya Nair",
+      "customerEmail": "priya.nair@singapore.com",
+      "gateway": "STRIPE",
+      "amount": 40,
+      "currency": "SGD",
+      "amountINR": 2499,
+      "status": "SUCCESSFUL",
+      "transactionId": "ch_3M012938192831",
+      "paymentMethodDetails": "DBS Visa Card (**** 4242)",
+      "createdAt": "2026-07-27 04:15 PM"
+    },
+    {
+      "id": "paylog-1003",
+      "orderId": "ord-1003",
+      "orderNumber": "HV-901823",
+      "customerName": "Aarav Gupta",
+      "customerEmail": "aarav.gupta@outlook.com",
+      "gateway": "UPI",
+      "amount": 1899,
+      "currency": "INR",
+      "amountINR": 1899,
+      "status": "SUCCESSFUL",
+      "transactionId": "upi_gpay_99182371928",
+      "paymentMethodDetails": "Google Pay VPA (aarav@okaxis)",
+      "createdAt": "2026-07-27 11:20 AM"
+    },
+    {
+      "id": "paylog-1004",
+      "orderId": "ord-1004",
+      "orderNumber": "HV-661298",
+      "customerName": "Sarah Al-Maktoum",
+      "customerEmail": "sarah.al@dubai.ae",
+      "gateway": "PAYPAL",
+      "amount": 350,
+      "currency": "AED",
+      "amountINR": 7980,
+      "status": "SUCCESSFUL",
+      "transactionId": "PP-PAY-881923719",
+      "paymentMethodDetails": "PayPal Express Wallet (sarah@dubai.ae)",
+      "createdAt": "2026-07-26 07:40 PM"
+    },
+    {
+      "id": "paylog-1005",
+      "orderId": "ord-1005",
+      "orderNumber": "HV-551029",
+      "customerName": "Vikram Joshi",
+      "customerEmail": "vjoshi@gmail.com",
+      "gateway": "PHONEPE",
+      "amount": 999,
+      "currency": "INR",
+      "amountINR": 999,
+      "status": "FAILED",
+      "transactionId": "TXN_PHONEPE_FAIL_991",
+      "paymentMethodDetails": "PhonePe App UPI Intent",
+      "errorMessage": "User cancelled transaction in PhonePe app before passcode entry.",
+      "createdAt": "2026-07-26 02:10 PM"
+    },
+    {
+      "id": "paylog-1006",
+      "orderId": "ord-1006",
+      "orderNumber": "HV-330192",
+      "customerName": "Ananya Verma",
+      "customerEmail": "ananya.v@yahoo.co.in",
+      "gateway": "COD",
+      "amount": 3200,
+      "currency": "INR",
+      "amountINR": 3200,
+      "status": "PENDING",
+      "transactionId": "COD_HV_330192",
+      "paymentMethodDetails": "Cash on Delivery (Pending Courier Verification)",
+      "createdAt": "2026-07-25 01:00 PM"
+    }
+  ],
+  "seeded": true
+}

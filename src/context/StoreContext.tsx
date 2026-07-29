@@ -377,20 +377,41 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setAmbientPresetState(preset);
   };
   const [adminAccount, setAdminAccount] = useState<{ email: string; passwordHash: string }>(() => {
-    const stored = localStorage.getItem('hakkiveda_admin_credentials');
-    if (stored) {
-      try { return JSON.parse(stored); } catch (e) {}
+    if (typeof window !== 'undefined') {
+      const stored = localStorage.getItem('hakkiveda_admin_credentials');
+      if (stored) {
+        try {
+          const parsed = JSON.parse(stored);
+          if (
+            parsed &&
+            typeof parsed === 'object' &&
+            typeof parsed.email === 'string' &&
+            typeof parsed.passwordHash === 'string' &&
+            parsed.passwordHash.length === 64
+          ) {
+            return parsed;
+          }
+        } catch (e) {
+          console.warn('Incompatible admin credentials found, clearing:', e);
+        }
+        try {
+          localStorage.removeItem('hakkiveda_admin_credentials');
+        } catch (_) {}
+      }
     }
     return { email: DEFAULT_ADMIN_EMAIL, passwordHash: '' };
   });
 
   const [adminAuthenticated, setAdminAuthenticated] = useState<boolean>(() => {
-    return sessionStorage.getItem('hakkiveda_admin_auth') === 'true';
+    if (typeof window !== 'undefined') {
+      return sessionStorage.getItem('hakkiveda_admin_auth') === 'true';
+    }
+    return false;
   });
 
-  // Seed admin account password hash if missing
+  // Seed admin account password hash if missing or invalid
   useEffect(() => {
-    if (!adminAccount.passwordHash) {
+    if (!adminAccount.passwordHash || adminAccount.passwordHash.length !== 64) {
       hashPassword(DEFAULT_ADMIN_PASSWORD_PLAIN).then((hash) => {
         const initAccount = { email: DEFAULT_ADMIN_EMAIL, passwordHash: hash };
         setAdminAccount(initAccount);
@@ -402,33 +423,56 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   }, [adminAccount.passwordHash]);
 
   const authenticateAdmin = async (email: string, password: string): Promise<{ success: boolean; message: string }> => {
-    if (email.trim().toLowerCase() !== adminAccount.email.toLowerCase()) {
+    const targetEmail = adminAccount.email || DEFAULT_ADMIN_EMAIL;
+    if (email.trim().toLowerCase() !== targetEmail.toLowerCase()) {
       return { success: false, message: 'Invalid admin email address.' };
     }
+
     const inputHash = await hashPassword(password);
-    if (inputHash !== adminAccount.passwordHash) {
+    let targetHash = adminAccount.passwordHash;
+
+    if (!targetHash || targetHash.length !== 64) {
+      targetHash = await hashPassword(DEFAULT_ADMIN_PASSWORD_PLAIN);
+      const seeded = { email: DEFAULT_ADMIN_EMAIL, passwordHash: targetHash };
+      setAdminAccount(seeded);
+      try {
+        localStorage.setItem('hakkiveda_admin_credentials', JSON.stringify(seeded));
+      } catch (_) {}
+    }
+
+    if (inputHash !== targetHash) {
       return { success: false, message: 'Invalid admin password.' };
     }
+
     setAdminAuthenticated(true);
-    sessionStorage.setItem('hakkiveda_admin_auth', 'true');
+    try {
+      sessionStorage.setItem('hakkiveda_admin_auth', 'true');
+    } catch (_) {}
     return { success: true, message: 'Admin authentication successful.' };
   };
 
   const logoutAdmin = () => {
     setAdminAuthenticated(false);
-    sessionStorage.removeItem('hakkiveda_admin_auth');
+    try {
+      sessionStorage.removeItem('hakkiveda_admin_auth');
+    } catch (_) {}
   };
 
   const updateAdminPassword = async (oldPassword: string, newPassword: string): Promise<{ success: boolean; message: string }> => {
+    let currentHash = adminAccount.passwordHash;
+    if (!currentHash || currentHash.length !== 64) {
+      currentHash = await hashPassword(DEFAULT_ADMIN_PASSWORD_PLAIN);
+    }
+
     const oldHash = await hashPassword(oldPassword);
-    if (oldHash !== adminAccount.passwordHash) {
+    if (oldHash !== currentHash) {
       return { success: false, message: 'Current password does not match.' };
     }
     if (!newPassword || newPassword.length < 6) {
       return { success: false, message: 'New password must be at least 6 characters long.' };
     }
     const newHash = await hashPassword(newPassword);
-    const updated = { ...adminAccount, passwordHash: newHash };
+    const updated = { email: adminAccount.email || DEFAULT_ADMIN_EMAIL, passwordHash: newHash };
     setAdminAccount(updated);
     try {
       localStorage.setItem('hakkiveda_admin_credentials', JSON.stringify(updated));

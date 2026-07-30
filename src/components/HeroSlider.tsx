@@ -1,12 +1,21 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Sparkles, ChevronRight, ChevronLeft, ShieldCheck, Flame, Award } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
-import { INITIAL_HERO_SLIDES } from '../data/initialData';
+
+const normalizeMediaUrl = (url?: string): string => {
+  if (!url) return '';
+  const trimmed = url.trim();
+  if (trimmed.startsWith('uploads/')) {
+    return '/' + trimmed;
+  }
+  return trimmed;
+};
 
 export const HeroSlider: React.FC = () => {
   const {
     heroSlides,
     heroSliderSettings,
+    dbSyncStatus,
     setIsQuizOpen,
     playSound,
     trackSlideImpression,
@@ -17,21 +26,21 @@ export const HeroSlider: React.FC = () => {
   const [isHovered, setIsHovered] = useState(false);
   const touchStartX = useRef<number | null>(null);
 
-  // Filter active and scheduled slides
-  const activeSlides = (Array.isArray(heroSlides) && heroSlides.length > 0 ? heroSlides : INITIAL_HERO_SLIDES)
+  // Filter active and scheduled slides from server store
+  const activeSlides = (Array.isArray(heroSlides) ? heroSlides : [])
     .filter((s) => {
       if (!s) return false;
       if (s.status === 'DRAFT') return false;
-      if (s.status !== 'ACTIVE' && s.active === false) return false;
       if (s.status === 'SCHEDULED' && s.startDate && s.endDate) {
         const today = new Date().toISOString().split('T')[0];
         if (today < s.startDate || today > s.endDate) return false;
       }
+      if (s.active === false && s.status !== 'ACTIVE') return false;
       return true;
     })
     .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
 
-  const slidesToRender = activeSlides.length > 0 ? activeSlides : INITIAL_HERO_SLIDES;
+  const slidesToRender = activeSlides;
 
   // Keep current slide index within valid bounds if slide list changes
   useEffect(() => {
@@ -42,46 +51,65 @@ export const HeroSlider: React.FC = () => {
 
   // Track impression on active slide change
   useEffect(() => {
-    if (slidesToRender[currentSlideIndex]) {
-      trackSlideImpression(slidesToRender[currentSlideIndex].id);
+    if (dbSyncStatus !== 'loading' && slidesToRender[currentSlideIndex]) {
+      try {
+        trackSlideImpression(slidesToRender[currentSlideIndex].id);
+      } catch (err) {
+        console.error('[HeroSlider] Failed to track slide impression:', err);
+      }
     }
-  }, [currentSlideIndex, slidesToRender.length]);
+  }, [currentSlideIndex, slidesToRender.length, dbSyncStatus]);
 
   // Autoplay Timer
   useEffect(() => {
+    if (dbSyncStatus === 'loading') return;
     if (slidesToRender.length <= 1) return;
-    if (!heroSliderSettings.autoPlay) return;
-    if (isHovered && heroSliderSettings.pauseOnHover) return;
+    if (!heroSliderSettings?.autoPlay) return;
+    if (isHovered && heroSliderSettings?.pauseOnHover) return;
 
-    const delayMs = (heroSliderSettings.autoPlayDelay || 6) * 1000;
+    const delayMs = (heroSliderSettings?.autoPlayDelay || 6) * 1000;
     const interval = setInterval(() => {
       setCurrentSlideIndex((prev) => {
         if (prev >= slidesToRender.length - 1) {
-          return heroSliderSettings.infiniteLoop ? 0 : prev;
+          return heroSliderSettings?.infiniteLoop ? 0 : prev;
         }
         return prev + 1;
       });
     }, delayMs);
 
     return () => clearInterval(interval);
-  }, [slidesToRender.length, heroSliderSettings, isHovered]);
+  }, [slidesToRender.length, heroSliderSettings, isHovered, dbSyncStatus]);
 
+  // Render a clean hero loading state while store data is hydrating from server
+  if (dbSyncStatus === 'loading') {
+    return (
+      <section className="relative w-full h-[520px] sm:h-[580px] lg:h-[620px] flex items-center justify-center bg-[var(--brand-primary-dark)] overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/80 animate-pulse" />
+        <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 w-full space-y-6">
+          <div className="h-6 w-48 bg-white/10 rounded-full animate-pulse" />
+          <div className="h-16 w-3/4 max-w-2xl bg-white/10 rounded-lg animate-pulse" />
+          <div className="h-10 w-1/2 max-w-lg bg-white/10 rounded-lg animate-pulse" />
+          <div className="h-12 w-40 bg-[var(--brand-gold)]/20 rounded-md animate-pulse" />
+        </div>
+      </section>
+    );
+  }
+
+  // If saved hero slides list is empty after hydration, gracefully hide the section
   if (slidesToRender.length === 0) return null;
 
   // Touch Swipe Handlers
   const handleTouchStart = (e: React.TouchEvent) => {
-    if (!heroSliderSettings.swipeSupport) return;
+    if (!heroSliderSettings?.swipeSupport) return;
     touchStartX.current = e.touches[0].clientX;
   };
 
   const handleTouchEnd = (e: React.TouchEvent) => {
-    if (!heroSliderSettings.swipeSupport || touchStartX.current === null) return;
+    if (!heroSliderSettings?.swipeSupport || touchStartX.current === null) return;
     const deltaX = e.changedTouches[0].clientX - touchStartX.current;
     if (deltaX > 50) {
-      // Swipe Right -> Prev
       setCurrentSlideIndex((prev) => (prev - 1 + slidesToRender.length) % slidesToRender.length);
     } else if (deltaX < -50) {
-      // Swipe Left -> Next
       setCurrentSlideIndex((prev) => (prev + 1) % slidesToRender.length);
     }
     touchStartX.current = null;
@@ -90,7 +118,11 @@ export const HeroSlider: React.FC = () => {
   const handleCtaClick = (slideId: string, link?: string) => {
     playSound('cta_click');
     if (slideId) {
-      trackSlideClick(slideId);
+      try {
+        trackSlideClick(slideId);
+      } catch (err) {
+        console.error('[HeroSlider] Failed to track slide click:', err);
+      }
     }
 
     if (link === '#ai-quiz' || link === '#quiz') {
@@ -117,17 +149,27 @@ export const HeroSlider: React.FC = () => {
       {/* Media Layer: Map through all active hero slides dynamically */}
       {slidesToRender.map((slide, idx) => {
         const isActive = idx === currentSlideIndex;
-        const isVideoUrl = (url?: string) => Boolean(url && /\.(mp4|webm|ogg|mov)($|\?)/i.test(url));
-        
+        const isVideoUrl = (url?: string) =>
+          Boolean(
+            url &&
+              (/\.(mp4|webm|ogg|mov)($|\?)/i.test(url) ||
+                url.startsWith('data:video/') ||
+                url.includes('/uploads/video'))
+          );
+
         const isVideo =
           slide.mediaType === 'VIDEO'
             ? true
             : slide.mediaType === 'IMAGE'
-            ? isVideoUrl(slide.image) || isVideoUrl(slide.backgroundVideo)
-            : Boolean(slide.backgroundVideo) || isVideoUrl(slide.image);
+            ? false
+            : isVideoUrl(slide.backgroundVideo) || isVideoUrl(slide.image);
 
-        const videoUrl = slide.backgroundVideo || slide.image;
-        const imageUrl = slide.image || slide.mobileImage || '/images/hero_tribal_elders.jpg';
+        const rawVideoUrl = slide.backgroundVideo || (isVideoUrl(slide.image) ? slide.image : '');
+        const rawImageUrl = slide.image || slide.mobileImage || '/images/hero_tribal_elders.jpg';
+
+        const videoUrl = normalizeMediaUrl(rawVideoUrl);
+        const imageUrl = normalizeMediaUrl(rawImageUrl);
+        const mobileImageUrl = normalizeMediaUrl(slide.mobileImage);
 
         return (
           <div
@@ -144,17 +186,26 @@ export const HeroSlider: React.FC = () => {
                 muted
                 loop
                 playsInline
+                onError={(e) => {
+                  e.currentTarget.style.display = 'none';
+                }}
                 className="w-full h-full object-cover transform scale-105"
               />
             ) : (
               <picture className="w-full h-full block">
-                {slide.mobileImage && (
-                  <source media="(max-width: 640px)" srcSet={slide.mobileImage} />
+                {mobileImageUrl && (
+                  <source media="(max-width: 640px)" srcSet={mobileImageUrl} />
                 )}
                 <img
                   key={`img-${slide.id}-${imageUrl}`}
                   src={imageUrl}
                   alt={slide.altText || slide.title || 'HakkiVeda Hero Banner'}
+                  onError={(e) => {
+                    const fallback = '/images/hakkiveda_108_oil_gold.jpg';
+                    if (e.currentTarget.src !== window.location.origin + fallback) {
+                      e.currentTarget.src = fallback;
+                    }
+                  }}
                   className={`w-full h-full object-cover transform scale-105 ${
                     slide.animation === 'kenburns' ? 'animate-pulse' : ''
                   }`}
@@ -343,3 +394,4 @@ export const HeroSlider: React.FC = () => {
     </section>
   );
 };
+

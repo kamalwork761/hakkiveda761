@@ -34,6 +34,15 @@ import {
 import { useStore } from '../context/StoreContext';
 import { HeroSlide, HeroSliderSettings } from '../types/store';
 
+const normalizeMediaUrl = (url?: string): string => {
+  if (!url) return '';
+  const trimmed = url.trim();
+  if (trimmed.startsWith('uploads/')) {
+    return '/' + trimmed;
+  }
+  return trimmed;
+};
+
 interface AdminHeroSliderManagerProps {
   showToast: (message: string) => void;
 }
@@ -1345,9 +1354,9 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                         {/* Media Thumbnail */}
                         <div className="relative w-28 h-18 rounded-lg overflow-hidden border border-white/10 shrink-0 bg-black">
                           {s.mediaType === 'VIDEO' && s.backgroundVideo ? (
-                            <video src={s.backgroundVideo} className="w-full h-full object-cover" autoPlay muted loop />
+                            <video src={normalizeMediaUrl(s.backgroundVideo)} className="w-full h-full object-cover" autoPlay muted loop />
                           ) : (
-                            <img src={s.image} alt={s.title} className="w-full h-full object-cover" />
+                            <img src={normalizeMediaUrl(s.image)} alt={s.title} className="w-full h-full object-cover" />
                           )}
                           <span className="absolute top-1 left-1 bg-black/60 backdrop-blur text-[9px] text-[var(--brand-gold)] px-1.5 py-0.5 rounded font-bold uppercase">
                             {s.mediaType === 'VIDEO' ? 'VIDEO' : 'IMG'}
@@ -1711,16 +1720,16 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
             >
               {/* Media Background */}
               {previewSlide.mediaType === 'VIDEO' && previewSlide.backgroundVideo ? (
-                <video src={previewSlide.backgroundVideo} className="absolute inset-0 w-full h-full object-cover" autoPlay muted loop />
+                <video src={normalizeMediaUrl(previewSlide.backgroundVideo)} className="absolute inset-0 w-full h-full object-cover" autoPlay muted loop />
               ) : (
                 <div
                   className="absolute inset-0 bg-cover bg-center"
                   style={{
-                    backgroundImage: `url('${
+                    backgroundImage: `url('${normalizeMediaUrl(
                       previewViewport === 'mobile' && previewSlide.mobileImage
                         ? previewSlide.mobileImage
                         : previewSlide.image
-                    }')`,
+                    )}')`,
                   }}
                 />
               )}

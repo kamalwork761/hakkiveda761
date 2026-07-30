@@ -320,7 +320,8 @@
       "image": "/images/hero_tribal_elders.jpg",
       "ctaText": "Shop Tribal Elixir",
       "ctaLink": "#products",
-      "active": true
+      "active": true,
+      "impressions": 8087
     },
     {
       "id": "slide-2",
@@ -331,7 +332,8 @@
       "image": "https://images.unsplash.com/photo-1512290900676-26c2a48f4134?auto=format&fit=crop&q=80&w=1600",
       "ctaText": "Discover Our Story",
       "ctaLink": "#brand-story",
-      "active": true
+      "active": true,
+      "impressions": 354
     },
     {
       "id": "slide-3",
@@ -342,7 +344,8 @@
       "image": "https://images.unsplash.com/photo-1522337360788-8b13dee7a37e?auto=format&fit=crop&q=80&w=1600",
       "ctaText": "Start AI Hair Quiz",
       "ctaLink": "#ai-quiz",
-      "active": true
+      "active": true,
+      "impressions": 352
     }
   ],
   "hero_slider_settings": {
@@ -1351,12 +1354,12 @@
     }
   ],
   "current_currency": {
-    "code": "INR",
-    "symbol": "₹",
-    "name": "Indian Rupee",
-    "rateToINR": 1,
-    "country": "India",
-    "flag": "🇮🇳"
+    "code": "FJD",
+    "symbol": "FJ$",
+    "name": "Fijian Dollar",
+    "rateToINR": 37.2,
+    "country": "Fiji",
+    "flag": "🇫🇯"
   },
   "markets": [
     {

@@ -1081,7 +1081,7 @@ function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'
     swipeSupport: true,
   };
 
-  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(() => getStored('hero_slides', INITIAL_HERO_SLIDES));
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>([]);
   const [heroSliderSettings, setHeroSliderSettings] = useState<HeroSliderSettings>(() => getStored('hero_slider_settings', DEFAULT_HERO_SLIDER_SETTINGS));
   const [beforeAfterItems, setBeforeAfterItems] = useState<BeforeAfterItem[]>(() => getStored('before_after', INITIAL_BEFORE_AFTER));
   const [reviews, setReviews] = useState<Review[]>(() => getStored('reviews', INITIAL_REVIEWS));

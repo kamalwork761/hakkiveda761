@@ -301,7 +301,7 @@ export const AdminVideoTestimonialsManager: React.FC<AdminVideoTestimonialsManag
                 className="bg-[var(--brand-primary-deep)] border border-white/10 rounded-xl overflow-hidden flex flex-col justify-between hover:border-[var(--brand-gold)]/40 transition-all shadow-lg group"
               >
                 {/* Video Thumbnail Box */}
-                <div className="relative h-52 bg-black/60 overflow-hidden">
+                <div className="relative h-52 bg-slate-900 overflow-hidden">
                   <img
                     src={
                       v.thumbnail ||
@@ -311,10 +311,10 @@ export const AdminVideoTestimonialsManager: React.FC<AdminVideoTestimonialsManag
                     className="w-full h-full object-cover group-hover:scale-105 transition-all duration-300"
                   />
 
-                  <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
+                  <div className="absolute inset-0 flex items-center justify-center">
                     <button
                       onClick={() => setPlayingVideo(v)}
-                      className="w-12 h-12 rounded-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] flex items-center justify-center shadow-xl hover:scale-110 transition-all cursor-pointer"
+                      className="w-12 h-12 rounded-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] flex items-center justify-center shadow-2xl ring-4 ring-black/40 hover:scale-110 hover:bg-amber-300 transition-all cursor-pointer"
                       title="Play Video"
                     >
                       <Play className="w-5 h-5 fill-current ml-0.5" />

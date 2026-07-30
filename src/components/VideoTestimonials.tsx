@@ -121,9 +121,9 @@ export const VideoTestimonials: React.FC = () => {
             return (
               <div
                 key={item.id}
-                className="group bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl overflow-hidden hover:border-[var(--brand-gold)]/60 transition-all shadow-xl flex flex-col"
+                className="group bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl overflow-hidden hover:border-[var(--brand-gold)]/80 transition-all duration-300 shadow-xl flex flex-col"
               >
-                <div className="relative h-64 overflow-hidden bg-black/80">
+                <div className="relative h-60 sm:h-72 overflow-hidden bg-slate-900">
                   {isPlayingInline ? (
                     <div className="relative w-full h-full">
                       <button
@@ -131,7 +131,7 @@ export const VideoTestimonials: React.FC = () => {
                           e.stopPropagation();
                           setPlayingInlineId(null);
                         }}
-                        className="absolute top-2 right-2 z-20 bg-black/80 text-white hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] p-1.5 rounded-full transition-colors shadow-lg"
+                        className="absolute top-3 right-3 z-20 bg-black/80 text-white hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] p-2 rounded-full transition-colors shadow-lg cursor-pointer"
                         title="Close Video"
                       >
                         <X className="w-4 h-4" />
@@ -147,23 +147,32 @@ export const VideoTestimonials: React.FC = () => {
                   ) : (
                     <div
                       onClick={() => setPlayingInlineId(item.id)}
-                      className="relative w-full h-full cursor-pointer group"
+                      className="relative w-full h-full cursor-pointer group overflow-hidden"
                     >
+                      {/* Fully visible video thumbnail with natural colors */}
                       <img
                         src={item.thumbnail}
                         alt={item.name}
-                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 opacity-80"
+                        className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-[var(--brand-primary-dark)] via-transparent to-black/30"></div>
 
-                      {/* Play Button Overlay */}
-                      <div className="absolute inset-0 flex items-center justify-center">
-                        <div className="w-14 h-14 rounded-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] flex items-center justify-center shadow-2xl group-hover:scale-110 transition-all">
-                          <Play className="w-6 h-6 fill-current translate-x-0.5" />
+                      {/* Small badge top-left */}
+                      <div className="absolute top-3 left-3 z-10">
+                        <span className="bg-black/75 backdrop-blur-md border border-white/15 text-[var(--brand-gold)] text-[10px] font-sans font-bold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1.5">
+                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
+                          <span>Verified Customer</span>
+                        </span>
+                      </div>
+
+                      {/* Centered Play Button */}
+                      <div className="absolute inset-0 flex items-center justify-center z-10">
+                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:bg-amber-300 transition-all duration-300 ring-4 ring-black/40">
+                          <Play className="w-6 h-6 sm:w-7 sm:h-7 fill-current translate-x-0.5" />
                         </div>
                       </div>
 
-                      <span className="absolute bottom-3 right-3 bg-black/80 text-white text-[10px] font-sans font-bold px-2.5 py-1 rounded-full">
+                      {/* Small duration pill bottom-right */}
+                      <span className="absolute bottom-3 right-3 z-10 bg-black/80 backdrop-blur-md text-slate-100 text-[10px] font-mono font-bold px-2.5 py-1 rounded-md border border-white/15 shadow-md">
                         {item.duration}
                       </span>
                     </div>

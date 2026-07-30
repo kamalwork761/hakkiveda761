@@ -216,8 +216,8 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
     },
   ]);
 
-  const [contentVideoMp4, setContentVideoMp4] = useState('https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4');
-  const [contentVideoYoutube, setContentVideoYoutube] = useState('https://youtu.be/1jzF9v5PEBY');
+  const [contentVideoMp4, setContentVideoMp4] = useState('');
+  const [contentVideoYoutube, setContentVideoYoutube] = useState('');
 
   const [contentCtaText, setContentCtaText] = useState('Explore 42-Herb Formulations');
   const [contentCtaLink, setContentCtaLink] = useState('#products');
@@ -411,8 +411,8 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
           sortOrder: 3,
         },
       ]);
-      setContentVideoMp4(content?.videoMp4Url || 'https://assets.mixkit.co/videos/preview/mixkit-forest-stream-in-the-sunlight-529-large.mp4');
-      setContentVideoYoutube(content?.videoYoutubeUrl || 'https://youtu.be/1jzF9v5PEBY');
+      setContentVideoMp4(content?.videoMp4Url || '');
+      setContentVideoYoutube(content?.videoYoutubeUrl || '');
       setContentCtaText(content?.ctaText || 'Explore 42-Herb Formulations');
       setContentCtaLink(content?.ctaLink || '#products');
       setContentSeoAltText(content?.seoAltText || 'Hakki-Pikki Forest Canopy and Tribal Elders in Mysore');

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Leaf, Flame, HeartHandshake, Compass, Play, ExternalLink, Image as ImageIcon, Quote, ArrowRight, X } from 'lucide-react';
+import { Leaf, Flame, HeartHandshake, Compass, Quote, ArrowRight, X } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
 export const BrandStory: React.FC = () => {
@@ -64,29 +64,10 @@ export const BrandStory: React.FC = () => {
         },
       ];
 
-  const videoMp4 = content?.videoMp4Url;
-  const videoYoutube = content?.videoYoutubeUrl;
   const ctaText = content?.ctaText || 'Explore 42-Herb Formulations';
   const ctaLink = content?.ctaLink || '#products';
   const seoAlt = content?.seoAltText || 'Hakki-Pikki Forest Canopy and Tribal Elders';
   const seoTitle = content?.seoImageTitle || 'Ancestral Hakki-Pikki Herbal Hair Oil Brewing Tradition';
-
-  // Extract YouTube Embed URL helper
-  const getYoutubeEmbed = (urlStr?: string) => {
-    if (!urlStr) return null;
-    let videoId = '';
-    if (urlStr.includes('youtu.be/')) {
-      videoId = urlStr.split('youtu.be/')[1]?.split('?')[0];
-    } else if (urlStr.includes('youtube.com/watch')) {
-      const urlParams = new URLSearchParams(urlStr.split('?')[1]);
-      videoId = urlParams.get('v') || '';
-    } else if (urlStr.includes('youtube.com/embed/')) {
-      videoId = urlStr.split('youtube.com/embed/')[1]?.split('?')[0];
-    }
-    return videoId ? `https://www.youtube.com/embed/${videoId}` : null;
-  };
-
-  const youtubeEmbedUrl = getYoutubeEmbed(videoYoutube);
 
   return (
     <section id="brand-story" className="py-24 bg-[var(--brand-primary-dark)] relative overflow-hidden">
@@ -196,48 +177,6 @@ export const BrandStory: React.FC = () => {
             )}
           </div>
         </div>
-
-        {/* Optional Video Section */}
-        {(videoMp4 || youtubeEmbedUrl) && (
-          <div className="bg-[var(--brand-primary-deep)] rounded-2xl border border-[var(--brand-gold)]/30 p-6 sm:p-8 space-y-4 shadow-2xl">
-            <div className="flex items-center gap-2 text-[var(--brand-gold)]">
-              <Play className="w-5 h-5" />
-              <h3 className="text-lg font-serif-luxury font-bold text-slate-100">
-                Heritage Documentary & Brew Process
-              </h3>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              {videoMp4 && (
-                <div className="space-y-2">
-                  <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider block">
-                    Native Forest Brew Video (MP4)
-                  </span>
-                  <video
-                    controls
-                    className="w-full h-64 rounded-xl border border-white/10 object-cover bg-black"
-                    src={videoMp4}
-                  />
-                </div>
-              )}
-
-              {youtubeEmbedUrl && (
-                <div className="space-y-2">
-                  <span className="text-[11px] text-slate-400 font-bold uppercase tracking-wider block">
-                    YouTube Lore Documentary
-                  </span>
-                  <iframe
-                    className="w-full h-64 rounded-xl border border-white/10 bg-black"
-                    src={youtubeEmbedUrl}
-                    title="HAKKIVEDA Lore Video"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                  />
-                </div>
-              )}
-            </div>
-          </div>
-        )}
 
         {/* Gallery Section */}
         {gallery.length > 0 && (

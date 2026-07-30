@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import {
   Product,
   Category,
@@ -1085,6 +1085,8 @@ function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'
   };
 
   // Catalog State
+  const hasUserMutatedHeroSlidesRef = useRef(false);
+
   const [products, setProducts] = useState<Product[]>(() => {
     const stored = getStored('products', INITIAL_PRODUCTS);
     if (!stored || stored.length === 0 || stored[0]?.image?.includes('unsplash')) {
@@ -1108,9 +1110,13 @@ function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'
     swipeSupport: true,
   };
 
-  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(() =>
-    getStored('hero_slides', INITIAL_HERO_SLIDES.map(normalizeSlide))
-  );
+  const [heroSlides, setHeroSlides] = useState<HeroSlide[]>(() => {
+    const stored = getStored<HeroSlide[] | null>('hero_slides', null);
+    if (Array.isArray(stored)) {
+      return stored.map(normalizeSlide);
+    }
+    return INITIAL_HERO_SLIDES.map(normalizeSlide);
+  });
   const [heroSliderSettings, setHeroSliderSettings] = useState<HeroSliderSettings>(() => getStored('hero_slider_settings', DEFAULT_HERO_SLIDER_SETTINGS));
   const [beforeAfterItems, setBeforeAfterItems] = useState<BeforeAfterItem[]>(() => getStored('before_after', INITIAL_BEFORE_AFTER));
   const [reviews, setReviews] = useState<Review[]>(() => getStored('reviews', INITIAL_REVIEWS));
@@ -1148,22 +1154,26 @@ function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'
           if (Array.isArray(d.products)) setProducts(d.products);
           if (Array.isArray(d.categories)) setCategories(d.categories);
           if (Array.isArray(d.hero_slides)) {
-            console.log('Loaded hero slides from backend', d.hero_slides);
-            const normalized = d.hero_slides.map(normalizeSlide);
-            setHeroSlides(normalized);
-            try {
-              localStorage.setItem('hakkiveda_hero_slides', JSON.stringify(normalized));
-            } catch (e) {}
+            if (!hasUserMutatedHeroSlidesRef.current) {
+              console.log('Loaded hero slides from backend', d.hero_slides);
+              const normalized = d.hero_slides.map(normalizeSlide);
+              setHeroSlides(normalized);
+              try {
+                localStorage.setItem('hakkiveda_hero_slides', JSON.stringify(normalized));
+              } catch (e) {}
+            }
           } else if (d.hero_slides === undefined || d.hero_slides === null) {
-            console.log('hero_slides key missing on backend, checking local cache');
-            const cached = getStored<HeroSlide[] | null>('hero_slides', null);
-            if (cached && Array.isArray(cached) && cached.length > 0) {
-              setHeroSlides(cached.map(normalizeSlide));
-              setStored('hero_slides', cached);
-            } else {
-              const initial = INITIAL_HERO_SLIDES.map(normalizeSlide);
-              setHeroSlides(initial);
-              setStored('hero_slides', INITIAL_HERO_SLIDES);
+            if (!hasUserMutatedHeroSlidesRef.current) {
+              console.log('hero_slides key missing on backend, checking local cache');
+              const cached = getStored<HeroSlide[] | null>('hero_slides', null);
+              if (cached && Array.isArray(cached)) {
+                setHeroSlides(cached.map(normalizeSlide));
+                setStored('hero_slides', cached);
+              } else {
+                const initial = INITIAL_HERO_SLIDES.map(normalizeSlide);
+                setHeroSlides(initial);
+                setStored('hero_slides', INITIAL_HERO_SLIDES);
+              }
             }
           }
           if (d.hero_slider_settings) setHeroSliderSettings(d.hero_slider_settings);
@@ -1733,6 +1743,7 @@ function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'
 
   const saveHeroSlides = async (slides: HeroSlide[]): Promise<boolean> => {
     console.log('Save hero slides function called:', slides);
+    hasUserMutatedHeroSlidesRef.current = true;
     const normalized = slides.map(normalizeSlide);
     setHeroSlides(normalized);
     try {
@@ -1754,14 +1765,27 @@ function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'
         throw new Error(errJson.error || `Server HTTP ${res.status}`);
       }
 
+      const resData = await res.json().catch(() => null);
+      const savedSlides = Array.isArray(resData?.data)
+        ? resData.data
+        : Array.isArray(resData?.value)
+        ? resData.value
+        : normalized;
+      const finalSlides = savedSlides.map(normalizeSlide);
+
+      setHeroSlides(finalSlides);
+      try {
+        localStorage.setItem('hakkiveda_hero_slides', JSON.stringify(finalSlides));
+      } catch (e) {}
+
       await fetch('/api/hero-slides', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ value: normalized, data: normalized }),
+        body: JSON.stringify({ value: finalSlides, data: finalSlides }),
       }).catch(() => {});
 
       setDbSyncStatus('synced');
-      console.log('Save successful and persisted hero slides:', normalized);
+      console.log('Save successful and persisted hero slides:', finalSlides);
       return true;
     } catch (err: any) {
       console.error('[StoreContext] Save hero slides error:', err);
@@ -1772,89 +1796,82 @@ function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'
   };
 
   const addHeroSlide = async (s: Omit<HeroSlide, 'id'>) => {
-    let nextSlides: HeroSlide[] = [];
-    setHeroSlides((prev) => {
-      const newSlide = normalizeSlide({
-        ...s,
-        id: `slide-${Date.now()}`,
-        sortOrder: (prev.length || 0) + 1,
-        impressions: s.impressions || 0,
-        clicks: s.clicks || 0,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-      });
-      nextSlides = [...prev, newSlide].map(normalizeSlide);
-      try {
-        localStorage.setItem('hakkiveda_hero_slides', JSON.stringify(nextSlides));
-      } catch (e) {}
-      return nextSlides;
+    hasUserMutatedHeroSlidesRef.current = true;
+    const newSlide = normalizeSlide({
+      ...s,
+      id: `slide-${Date.now()}`,
+      sortOrder: (heroSlides.length || 0) + 1,
+      impressions: s.impressions || 0,
+      clicks: s.clicks || 0,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
     });
+    const nextSlides = [...heroSlides, newSlide].map(normalizeSlide);
+    setHeroSlides(nextSlides);
+    try {
+      localStorage.setItem('hakkiveda_hero_slides', JSON.stringify(nextSlides));
+    } catch (e) {}
     await saveHeroSlides(nextSlides);
   };
 
   const updateHeroSlide = async (id: string, partial: Partial<HeroSlide>) => {
-    let nextSlides: HeroSlide[] = [];
-    setHeroSlides((prev) => {
-      nextSlides = prev.map((s) =>
-        s.id === id ? normalizeSlide({ ...s, ...partial, updatedAt: new Date().toISOString() }) : normalizeSlide(s)
-      );
-      try {
-        localStorage.setItem('hakkiveda_hero_slides', JSON.stringify(nextSlides));
-      } catch (e) {}
-      return nextSlides;
-    });
+    hasUserMutatedHeroSlidesRef.current = true;
+    const nextSlides = heroSlides.map((s) =>
+      s.id === id ? normalizeSlide({ ...s, ...partial, updatedAt: new Date().toISOString() }) : normalizeSlide(s)
+    );
+    setHeroSlides(nextSlides);
+    try {
+      localStorage.setItem('hakkiveda_hero_slides', JSON.stringify(nextSlides));
+    } catch (e) {}
     await saveHeroSlides(nextSlides);
   };
 
   const deleteHeroSlide = async (id: string) => {
     console.log('Delete slide clicked with id', id);
-    let nextSlides: HeroSlide[] = [];
-    setHeroSlides((prev) => {
-      nextSlides = prev.filter((s) => s.id !== id).map(normalizeSlide);
-      console.log('Slides after deletion', nextSlides);
-      try {
-        localStorage.setItem('hakkiveda_hero_slides', JSON.stringify(nextSlides));
-      } catch (e) {}
-      return nextSlides;
-    });
+    hasUserMutatedHeroSlidesRef.current = true;
+    const nextSlides = heroSlides.filter((s) => s.id !== id).map(normalizeSlide);
+    console.log('Slides after deletion', nextSlides);
+    setHeroSlides(nextSlides);
+    try {
+      localStorage.setItem('hakkiveda_hero_slides', JSON.stringify(nextSlides));
+    } catch (e) {}
     await saveHeroSlides(nextSlides);
   };
 
   const reorderHeroSlides = async (newSlides: HeroSlide[]) => {
-    const next = newSlides.map((slide, idx) =>
+    hasUserMutatedHeroSlidesRef.current = true;
+    const nextSlides = newSlides.map((slide, idx) =>
       normalizeSlide({
         ...slide,
         sortOrder: idx + 1,
       })
     );
-    setHeroSlides(next);
+    setHeroSlides(nextSlides);
     try {
-      localStorage.setItem('hakkiveda_hero_slides', JSON.stringify(next));
+      localStorage.setItem('hakkiveda_hero_slides', JSON.stringify(nextSlides));
     } catch (e) {}
-    await saveHeroSlides(next);
+    await saveHeroSlides(nextSlides);
   };
 
   const duplicateHeroSlide = async (id: string) => {
-    let nextSlides: HeroSlide[] = [];
-    setHeroSlides((prev) => {
-      const target = prev.find((s) => s.id === id);
-      if (!target) return prev;
-      const copy = normalizeSlide({
-        ...target,
-        id: `slide-${Date.now()}`,
-        title: `${target.title} (Copy)`,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        impressions: 0,
-        clicks: 0,
-        sortOrder: prev.length + 1,
-      });
-      nextSlides = [...prev, copy].map(normalizeSlide);
-      try {
-        localStorage.setItem('hakkiveda_hero_slides', JSON.stringify(nextSlides));
-      } catch (e) {}
-      return nextSlides;
+    hasUserMutatedHeroSlidesRef.current = true;
+    const target = heroSlides.find((s) => s.id === id);
+    if (!target) return;
+    const copy = normalizeSlide({
+      ...target,
+      id: `slide-${Date.now()}`,
+      title: `${target.title} (Copy)`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      impressions: 0,
+      clicks: 0,
+      sortOrder: heroSlides.length + 1,
     });
+    const nextSlides = [...heroSlides, copy].map(normalizeSlide);
+    setHeroSlides(nextSlides);
+    try {
+      localStorage.setItem('hakkiveda_hero_slides', JSON.stringify(nextSlides));
+    } catch (e) {}
     await saveHeroSlides(nextSlides);
   };
 

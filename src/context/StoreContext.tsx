@@ -28,6 +28,7 @@ import {
   MarketPaymentGatewayMapping,
   PaymentLog,
   PaymentGatewayId,
+  FooterConfig,
 } from '../types/store';
 import {
   INITIAL_CURRENCIES,
@@ -54,6 +55,7 @@ import {
   INITIAL_COD_RULES,
   INITIAL_MARKET_GATEWAYS,
   INITIAL_PAYMENT_LOGS,
+  INITIAL_FOOTER_CONFIG,
 } from '../data/initialData';
 import { hashPassword, DEFAULT_ADMIN_EMAIL, DEFAULT_ADMIN_PASSWORD_PLAIN } from '../utils/auth';
 import { idbGet, idbSet, idbClear } from '../utils/idbStorage';
@@ -101,6 +103,11 @@ interface StoreContextType {
   applyBrandStyles: (brand: BrandIdentityConfig) => void;
   isPreviewingWebsiteTheme: boolean;
   setIsPreviewingWebsiteTheme: (val: boolean) => void;
+
+  // Footer Configuration
+  footerConfig: FooterConfig;
+  updateFooterConfig: (updater: Partial<FooterConfig> | ((prev: FooterConfig) => FooterConfig)) => Promise<boolean>;
+  resetFooterConfig: () => Promise<boolean>;
 
   // Nav Links & Header Layout
   navLinks: NavLink[];
@@ -583,6 +590,35 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   );
 
   const [isPreviewingWebsiteTheme, setIsPreviewingWebsiteTheme] = useState<boolean>(false);
+
+  // Footer Configuration State & Functions
+  const [footerConfig, setFooterConfig] = useState<FooterConfig>(() =>
+    getStored('footer_config', INITIAL_FOOTER_CONFIG)
+  );
+
+  const updateFooterConfig = async (
+    updater: Partial<FooterConfig> | ((prev: FooterConfig) => FooterConfig)
+  ): Promise<boolean> => {
+    let next: FooterConfig;
+    if (typeof updater === 'function') {
+      next = updater(footerConfig);
+    } else {
+      next = { ...footerConfig, ...updater };
+    }
+    setFooterConfig(next);
+    try {
+      localStorage.setItem('hakkiveda_footer_config', JSON.stringify(next));
+    } catch (_) {}
+    return await setStored('footer_config', next);
+  };
+
+  const resetFooterConfig = async (): Promise<boolean> => {
+    setFooterConfig(INITIAL_FOOTER_CONFIG);
+    try {
+      localStorage.setItem('hakkiveda_footer_config', JSON.stringify(INITIAL_FOOTER_CONFIG));
+    } catch (_) {}
+    return await setStored('footer_config', INITIAL_FOOTER_CONFIG);
+  };
 
   const applyBrandStyles = (brand: BrandIdentityConfig) => {
     if (typeof document === 'undefined') return;
@@ -1260,6 +1296,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           }
           if (d.brand_identity_draft) setDraftBrandIdentity(d.brand_identity_draft);
           if (d.header_layout_settings) setHeaderLayoutSettings(d.header_layout_settings);
+          if (d.footer_config) setFooterConfig(d.footer_config);
           if (Array.isArray(d.nav_links)) setNavLinks(d.nav_links);
           if (Array.isArray(d.currencies)) setCurrencies(d.currencies);
           if (d.current_currency) setCurrentCurrency(d.current_currency);
@@ -2219,6 +2256,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         applyBrandStyles,
         isPreviewingWebsiteTheme,
         setIsPreviewingWebsiteTheme,
+        footerConfig,
+        updateFooterConfig,
+        resetFooterConfig,
         navLinks,
         addNavLink,
         updateNavLink,

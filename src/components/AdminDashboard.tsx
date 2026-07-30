@@ -10,6 +10,7 @@ import { AdminVideoTestimonialsManager } from './AdminVideoTestimonialsManager';
 import { AdminBlogManager } from './AdminBlogManager';
 import { AdminQuizManager } from './AdminQuizManager';
 import { AdminBrandManager } from './AdminBrandManager';
+import { AdminFooterManager } from './AdminFooterManager';
 import {
   Lock,
   LayoutDashboard,
@@ -3278,6 +3279,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             </div>
           </div>
         )}
+
+        {/* Tab: Footer Configuration */}
+        {activeTab === 'footer' && <AdminFooterManager showToast={showToast} />}
 
         {/* Tab 16: SEO Settings */}
         {activeTab === 'seo' && (

@@ -21,6 +21,7 @@ import {
   CodRulesConfig,
   MarketPaymentGatewayMapping,
   PaymentLog,
+  FooterConfig,
 } from '../types/store';
 import {
   WORLD_COUNTRIES,
@@ -1558,5 +1559,91 @@ export const INITIAL_BRAND_IDENTITY: BrandIdentityConfig = {
   watermarkLogo: '',
   whiteLogo: '',
   blackLogo: '',
+};
+
+export const INITIAL_FOOTER_CONFIG: FooterConfig = {
+  showBrandColumn: true,
+  brandLogo: '',
+  brandLogoText: 'HAKKIVEDA',
+  brandDescription: 'Blend of Hakki-Pikki Tribe & Ayurveda. Handcrafted in small batches with 42 wild mountain herbs slow-cooked over woodfire in copper cauldrons for 21 days.',
+  address: 'Door No. 574, V.P. Bore, Hunsur, Mysore, Karnataka, India - 571105',
+  phone: '+91 76195 36831',
+  whatsappNumber: '917619536831',
+  email: 'hakkiveda@gmail.com',
+
+  columns: [
+    {
+      id: 'botanical_catalog',
+      title: 'Botanical Catalog',
+      enabled: true,
+      links: [
+        { id: '1', label: 'Tribal Gold Oil', url: '#products' },
+        { id: '2', label: 'Density Serums', url: '#products' },
+        { id: '3', label: 'Soapnut Shampoos', url: '#products' },
+        { id: '4', label: 'Hair Masks & Lepas', url: '#products' },
+        { id: '5', label: 'AI Hair Quiz', url: 'quiz', isBadge: true, badgeText: 'AI Powered' },
+      ],
+    },
+    {
+      id: 'customer_care',
+      title: 'Customer Care',
+      enabled: true,
+      links: [
+        { id: 'c1', label: 'Order Tracking', url: '#orders' },
+        { id: 'c2', label: 'Authenticity Guarantee', url: '#about' },
+        { id: 'c3', label: 'FAQs & Herb Guide', url: '#faq' },
+        { id: 'c4', label: 'Contact Support', url: '#contact' },
+      ],
+    },
+  ],
+
+  showShippingColumn: true,
+  shippingTitle: 'WORLDWIDE SHIPPING',
+  shippingItems: [
+    { id: 's1', text: 'Ships Worldwide' },
+    { id: 's2', text: 'Express International Delivery' },
+    { id: 's3', text: 'Secure Packaging' },
+    { id: 's4', text: 'Real-Time Order Tracking' },
+    { id: 's5', text: 'Customs Assistance' },
+    { id: 's6', text: 'Delivery in 3–12 Business Days*' },
+  ],
+  shippingPolicyButtonText: 'View Shipping Policy',
+  shippingPolicyModalContent: 'Shipping Policy:\n• Orders dispatched within 24-48 business hours.\n• Tracked shipping via DHL/FedEx/SpeedPost.\n• Free Express Shipping on orders over ₹1,999 (India) or $99 (Global).',
+  wholesaleLinkText: 'Wholesale & Export Enquiries →',
+
+  showNewsletterColumn: true,
+  newsletterHeading: 'Tribal Secrets Newsletter',
+  newsletterSubtext: 'Subscribe to receive ancestral scalp care tips, lunar harvesting calendars, and 10% off your first order.',
+  newsletterPlaceholder: 'Enter email address',
+  newsletterButtonText: 'Subscribe',
+  newsletterSuccessMessage: '✓ Welcome! Check your inbox for code WELCOME10.',
+
+  showSocialLinks: true,
+  socialLinks: [
+    { id: 'soc1', platform: 'instagram', url: 'https://instagram.com/hakkiveda', enabled: true },
+    { id: 'soc2', platform: 'facebook', url: 'https://facebook.com/hakkiveda', enabled: true },
+    { id: 'soc3', platform: 'youtube', url: 'https://youtube.com/@hakkiveda', enabled: true },
+    { id: 'soc4', platform: 'whatsapp', url: 'https://wa.me/917619536831', enabled: true },
+  ],
+
+  showPaymentBadges: true,
+  paymentBadgesTitle: '100% SECURE CHECKOUT & GUARANTEED PAYMENTS',
+  paymentMethods: {
+    upi: true,
+    visa: true,
+    mastercard: true,
+    rupay: true,
+    netbanking: true,
+    cod: true,
+    paypal: true,
+  },
+
+  copyrightText: '© 2026 HAKKIVEDA Herbal Enterprises. All Rights Reserved. Door No. 574, V.P. Bore, Hunsur, Mysore.',
+  showSoundToggle: true,
+  showBottomLinks: true,
+  bottomLinks: [
+    { id: 'b1', label: 'Tribal Lore', url: '#brand-story' },
+    { id: 'b2', label: '100% Organic Guarantee', url: '#products' },
+  ],
 };
 

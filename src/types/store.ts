@@ -654,3 +654,81 @@ export interface SiteSettings {
   quizSubtitle: string;
 }
 
+export interface FooterNavLink {
+  id: string;
+  label: string;
+  url: string;
+  isExternal?: boolean;
+  isBadge?: boolean;
+  badgeText?: string;
+}
+
+export interface FooterColumn {
+  id: string;
+  title: string;
+  enabled: boolean;
+  links: FooterNavLink[];
+}
+
+export interface FooterShippingItem {
+  id: string;
+  text: string;
+  icon?: string;
+}
+
+export interface FooterSocialLink {
+  id: string;
+  platform: 'facebook' | 'instagram' | 'youtube' | 'whatsapp' | 'twitter' | 'linkedin';
+  url: string;
+  enabled: boolean;
+}
+
+export interface FooterPaymentMethods {
+  upi: boolean;
+  visa: boolean;
+  mastercard: boolean;
+  rupay: boolean;
+  netbanking: boolean;
+  cod: boolean;
+  paypal: boolean;
+}
+
+export interface FooterConfig {
+  showBrandColumn: boolean;
+  brandLogo: string;
+  brandLogoText: string;
+  brandDescription: string;
+  address: string;
+  phone: string;
+  whatsappNumber: string;
+  email: string;
+
+  columns: FooterColumn[];
+
+  showShippingColumn: boolean;
+  shippingTitle: string;
+  shippingItems: FooterShippingItem[];
+  shippingPolicyButtonText: string;
+  shippingPolicyModalContent: string;
+  wholesaleLinkText: string;
+
+  showNewsletterColumn: boolean;
+  newsletterHeading: string;
+  newsletterSubtext: string;
+  newsletterPlaceholder: string;
+  newsletterButtonText: string;
+  newsletterSuccessMessage: string;
+
+  showSocialLinks: boolean;
+  socialLinks: FooterSocialLink[];
+
+  showPaymentBadges: boolean;
+  paymentBadgesTitle: string;
+  paymentMethods: FooterPaymentMethods;
+
+  copyrightText: string;
+  showSoundToggle: boolean;
+  showBottomLinks: boolean;
+  bottomLinks: FooterNavLink[];
+}
+

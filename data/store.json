@@ -312,37 +312,7 @@
   ],
   "hero_slides": [
     {
-      "id": "slide-1",
-      "tag": "Authentic Hakki-Pikki Secret",
-      "title": "Ancient Rituals",
-      "highlightText": "Modern Care",
-      "subtitle": "Harness the power of 42 rare mountain herbs, formulated by the Hakki-Pikki tribe for extraordinary hair density & scalp vitality.",
-      "image": "/images/hero_tribal_elders.jpg",
-      "ctaText": "Shop Tribal Elixir",
-      "ctaLink": "#products",
-      "active": true
-    },
-    {
-      "id": "slide-2",
-      "tag": "Hand-Crafted in Mysore",
-      "title": "21-Day Copper",
-      "highlightText": "Cauldron Brew",
-      "subtitle": "Slow-cooked over traditional woodfire with wild-harvested herbs from the pristine Western Ghats forest canopy.",
-      "image": "/images/hakkiveda_oil_couple_herbs.jpg",
-      "ctaText": "Discover Our Story",
-      "ctaLink": "#brand-story",
-      "active": true
-    },
-    {
-      "id": "slide-3",
-      "tag": "AI Trichology Diagnostic",
-      "title": "Personalized Tribal",
-      "highlightText": "Hair Analysis",
-      "subtitle": "Take our 60-second AI Hair Quiz to unlock your tailor-made Ayurvedic scalp routine & herb selection.",
-      "image": "/images/hakkiveda_108_oil_gold.jpg",
-      "ctaText": "Start AI Hair Quiz",
-      "ctaLink": "#ai-quiz",
-      "active": true
+      "id": "test2"
     }
   ],
   "hero_slider_settings": {

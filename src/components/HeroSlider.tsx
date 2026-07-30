@@ -170,10 +170,11 @@ export const HeroSlider: React.FC = () => {
         const videoUrl = normalizeMediaUrl(rawVideoUrl);
         const imageUrl = normalizeMediaUrl(rawImageUrl);
         const mobileImageUrl = normalizeMediaUrl(slide.mobileImage);
+        console.log('Hero preview image URL', imageUrl);
 
         return (
           <div
-            key={slide.id || `slide-media-${idx}`}
+            key={slide.id}
             className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
               isActive ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
             }`}

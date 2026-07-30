@@ -6,6 +6,7 @@ import multer from 'multer';
 import { GoogleGenAI } from '@google/genai';
 import { createServer as createViteServer } from 'vite';
 import { getDb, getStoreValue, setStoreValue, getAllStoreData } from './src/server/db';
+import { INITIAL_HERO_SLIDES } from './src/data/initialData';
 
 dotenv.config();
 
@@ -155,8 +156,13 @@ async function startServer() {
   });
 
   app.get('/api/hero-slides', async (_req, res) => {
-    const slides = (await getStoreValue('hero_slides')) || [];
-    res.json({ success: true, data: slides, value: slides });
+    const slides = await getStoreValue('hero_slides');
+    if (slides === null || slides === undefined) {
+      await setStoreValue('hero_slides', INITIAL_HERO_SLIDES);
+      res.json({ success: true, data: INITIAL_HERO_SLIDES, value: INITIAL_HERO_SLIDES });
+    } else {
+      res.json({ success: true, data: slides, value: slides });
+    }
   });
   const handleHeroSlidesSave = async (req: express.Request, res: express.Response) => {
     try {

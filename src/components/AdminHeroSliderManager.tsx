@@ -1355,11 +1355,15 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
 
                         {/* Media Thumbnail */}
                         <div className="relative w-28 h-18 rounded-lg overflow-hidden border border-white/10 shrink-0 bg-black">
-                          {s.mediaType === 'VIDEO' && s.backgroundVideo ? (
-                            <video src={normalizeMediaUrl(s.backgroundVideo)} className="w-full h-full object-cover" autoPlay muted loop />
-                          ) : (
-                            <img src={normalizeMediaUrl(s.image)} alt={s.title} className="w-full h-full object-cover" />
-                          )}
+                          {(() => {
+                            const imageUrl = normalizeMediaUrl(s.image);
+                            console.log('Hero preview image URL', imageUrl);
+                            return s.mediaType === 'VIDEO' && s.backgroundVideo ? (
+                              <video src={normalizeMediaUrl(s.backgroundVideo)} className="w-full h-full object-cover" autoPlay muted loop />
+                            ) : (
+                              <img src={imageUrl} alt={s.title} className="w-full h-full object-cover" />
+                            );
+                          })()}
                           <span className="absolute top-1 left-1 bg-black/60 backdrop-blur text-[9px] text-[var(--brand-gold)] px-1.5 py-0.5 rounded font-bold uppercase">
                             {s.mediaType === 'VIDEO' ? 'VIDEO' : 'IMG'}
                           </span>
@@ -1721,20 +1725,24 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
               }`}
             >
               {/* Media Background */}
-              {previewSlide.mediaType === 'VIDEO' && previewSlide.backgroundVideo ? (
-                <video src={normalizeMediaUrl(previewSlide.backgroundVideo)} className="absolute inset-0 w-full h-full object-cover" autoPlay muted loop />
-              ) : (
-                <div
-                  className="absolute inset-0 bg-cover bg-center"
-                  style={{
-                    backgroundImage: `url('${normalizeMediaUrl(
-                      previewViewport === 'mobile' && previewSlide.mobileImage
-                        ? previewSlide.mobileImage
-                        : previewSlide.image
-                    )}')`,
-                  }}
-                />
-              )}
+              {(() => {
+                const previewImgUrl = normalizeMediaUrl(
+                  previewViewport === 'mobile' && previewSlide.mobileImage
+                    ? previewSlide.mobileImage
+                    : previewSlide.image
+                );
+                console.log('Hero preview image URL', previewImgUrl);
+                return previewSlide.mediaType === 'VIDEO' && previewSlide.backgroundVideo ? (
+                  <video src={normalizeMediaUrl(previewSlide.backgroundVideo)} className="absolute inset-0 w-full h-full object-cover" autoPlay muted loop />
+                ) : (
+                  <div
+                    className="absolute inset-0 bg-cover bg-center"
+                    style={{
+                      backgroundImage: `url('${previewImgUrl}')`,
+                    }}
+                  />
+                );
+              })()}
 
               {/* Dynamic Overlay Color & Opacity */}
               <div

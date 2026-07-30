@@ -59,16 +59,34 @@ function loadMemoryFromDisk(): StoreMemory {
   return storeMemoryCache!;
 }
 
-// Atomic file write to avoid partial write corruption
+// Atomic file write to avoid partial write corruption & race conditions
+let isFlushing = false;
+let needsFlush = false;
+
 async function flushToDisk(): Promise<void> {
   if (!storeMemoryCache) return;
-  const tempPath = `${dbPath}.tmp`;
-  const dataString = JSON.stringify(storeMemoryCache, null, 2);
+  if (isFlushing) {
+    needsFlush = true;
+    return;
+  }
+  isFlushing = true;
+
   try {
+    if (!fs.existsSync(dbDir)) {
+      await fs.promises.mkdir(dbDir, { recursive: true });
+    }
+    const tempPath = `${dbPath}.tmp`;
+    const dataString = JSON.stringify(storeMemoryCache, null, 2);
     await fs.promises.writeFile(tempPath, dataString, 'utf-8');
     await fs.promises.rename(tempPath, dbPath);
   } catch (err) {
     console.error('[File DB] Error writing store.json:', err);
+  } finally {
+    isFlushing = false;
+    if (needsFlush) {
+      needsFlush = false;
+      await flushToDisk();
+    }
   }
 }
 
@@ -142,7 +160,8 @@ export async function getStoreValue<T = any>(key: string): Promise<T | null> {
 export async function setStoreValue(key: string, value: any): Promise<boolean> {
   const store = loadMemoryFromDisk();
   store[key] = value;
-  queueDiskSave();
+  await flushToDisk();
+  console.log(`[File DB] setStoreValue updated '${key}'`);
   return true;
 }
 

@@ -1121,7 +1121,15 @@ function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'
           const d = json.data;
           if (Array.isArray(d.products)) setProducts(d.products);
           if (Array.isArray(d.categories)) setCategories(d.categories);
-          if (Array.isArray(d.hero_slides)) setHeroSlides(d.hero_slides);
+          if (d.hero_slides === undefined || d.hero_slides === null) {
+            console.log('hero_slides key missing on backend, seeding defaults');
+            const initial = INITIAL_HERO_SLIDES.map(normalizeSlide);
+            setHeroSlides(initial);
+            setStored('hero_slides', INITIAL_HERO_SLIDES);
+          } else if (Array.isArray(d.hero_slides)) {
+            console.log('Loaded hero slides from backend', d.hero_slides);
+            setHeroSlides(d.hero_slides.map(normalizeSlide));
+          }
           if (d.hero_slider_settings) setHeroSliderSettings(d.hero_slider_settings);
           if (Array.isArray(d.before_after)) setBeforeAfterItems(d.before_after);
           if (Array.isArray(d.reviews)) setReviews(d.reviews);
@@ -1739,14 +1747,16 @@ function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'
       const reloadRes = await fetch('/api/store/hero_slides');
       if (reloadRes.ok) {
         const reloadJson = await reloadRes.json();
-        const loadedSlides = reloadJson.data || reloadJson.value;
+        const loadedSlides = reloadJson.data !== undefined ? reloadJson.data : reloadJson.value;
         if (Array.isArray(loadedSlides)) {
+          console.log('Loaded hero slides from backend', loadedSlides);
           setHeroSlides(loadedSlides.map(normalizeSlide));
         }
       }
 
       setDbSyncStatus('synced');
       console.log('Save successful');
+      console.log('Persisted hero slides', normalized);
       return true;
     } catch (err: any) {
       console.error('[StoreContext] Save hero slides error:', err);
@@ -1778,7 +1788,9 @@ function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'
   };
 
   const deleteHeroSlide = async (id: string) => {
+    console.log('Delete slide clicked with id', id);
     const next = heroSlides.filter((s) => s.id !== id).map(normalizeSlide);
+    console.log('Slides after deletion', next);
     await saveHeroSlides(next);
   };
 
@@ -1810,23 +1822,15 @@ function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'
   };
 
   const trackSlideImpression = (id: string) => {
-    setHeroSlides((prev) => {
-      const next = prev.map((s) =>
-        s.id === id ? { ...s, impressions: (s.impressions || 0) + 1 } : s
-      );
-      setStored('hero_slides', next);
-      return next;
-    });
+    setHeroSlides((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, impressions: (s.impressions || 0) + 1 } : s))
+    );
   };
 
   const trackSlideClick = (id: string) => {
-    setHeroSlides((prev) => {
-      const next = prev.map((s) =>
-        s.id === id ? { ...s, clicks: (s.clicks || 0) + 1 } : s
-      );
-      setStored('hero_slides', next);
-      return next;
-    });
+    setHeroSlides((prev) =>
+      prev.map((s) => (s.id === id ? { ...s, clicks: (s.clicks || 0) + 1 } : s))
+    );
   };
 
   // CRUD Blog

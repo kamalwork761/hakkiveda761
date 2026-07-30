@@ -24,6 +24,7 @@ import {
   INITIAL_COD_RULES,
   INITIAL_MARKET_GATEWAYS,
   INITIAL_PAYMENT_LOGS,
+  INITIAL_B2B_SECTION_CONFIG,
 } from '../data/initialData';
 
 const dbDir = process.env.DB_DIR || path.join(process.cwd(), 'data');
@@ -138,6 +139,7 @@ export async function getDb() {
       cod_rules: INITIAL_COD_RULES,
       market_gateways: INITIAL_MARKET_GATEWAYS,
       payment_logs: INITIAL_PAYMENT_LOGS,
+      b2b_section_config: INITIAL_B2B_SECTION_CONFIG,
       seeded: true,
     };
 

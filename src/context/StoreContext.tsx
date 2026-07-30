@@ -29,6 +29,7 @@ import {
   PaymentLog,
   PaymentGatewayId,
   FooterConfig,
+  B2BSectionConfig,
 } from '../types/store';
 import {
   INITIAL_CURRENCIES,
@@ -56,6 +57,7 @@ import {
   INITIAL_MARKET_GATEWAYS,
   INITIAL_PAYMENT_LOGS,
   INITIAL_FOOTER_CONFIG,
+  INITIAL_B2B_SECTION_CONFIG,
 } from '../data/initialData';
 import { hashPassword, DEFAULT_ADMIN_EMAIL, DEFAULT_ADMIN_PASSWORD_PLAIN } from '../utils/auth';
 import { idbGet, idbSet, idbClear } from '../utils/idbStorage';
@@ -108,6 +110,10 @@ interface StoreContextType {
   footerConfig: FooterConfig;
   updateFooterConfig: (updater: Partial<FooterConfig> | ((prev: FooterConfig) => FooterConfig)) => Promise<boolean>;
   resetFooterConfig: () => Promise<boolean>;
+
+  // B2B Homepage Section Manager Configuration
+  b2bSectionConfig: B2BSectionConfig;
+  updateB2BSectionConfig: (updater: Partial<B2BSectionConfig> | ((prev: B2BSectionConfig) => B2BSectionConfig)) => Promise<boolean>;
 
   // Nav Links & Header Layout
   navLinks: NavLink[];
@@ -618,6 +624,27 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       localStorage.setItem('hakkiveda_footer_config', JSON.stringify(INITIAL_FOOTER_CONFIG));
     } catch (_) {}
     return await setStored('footer_config', INITIAL_FOOTER_CONFIG);
+  };
+
+  // B2B Section Manager State & Functions
+  const [b2bSectionConfig, setB2BSectionConfig] = useState<B2BSectionConfig>(() =>
+    getStored('b2b_section_config', INITIAL_B2B_SECTION_CONFIG)
+  );
+
+  const updateB2BSectionConfig = async (
+    updater: Partial<B2BSectionConfig> | ((prev: B2BSectionConfig) => B2BSectionConfig)
+  ): Promise<boolean> => {
+    let next: B2BSectionConfig;
+    if (typeof updater === 'function') {
+      next = updater(b2bSectionConfig);
+    } else {
+      next = { ...b2bSectionConfig, ...updater };
+    }
+    setB2BSectionConfig(next);
+    try {
+      localStorage.setItem('hakkiveda_b2b_section_config', JSON.stringify(next));
+    } catch (_) {}
+    return await setStored('b2b_section_config', next);
   };
 
   const applyBrandStyles = (brand: BrandIdentityConfig) => {
@@ -1297,6 +1324,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           if (d.brand_identity_draft) setDraftBrandIdentity(d.brand_identity_draft);
           if (d.header_layout_settings) setHeaderLayoutSettings(d.header_layout_settings);
           if (d.footer_config) setFooterConfig(d.footer_config);
+          if (d.b2b_section_config) setB2BSectionConfig(d.b2b_section_config);
           if (Array.isArray(d.nav_links)) setNavLinks(d.nav_links);
           if (Array.isArray(d.currencies)) setCurrencies(d.currencies);
           if (d.current_currency) setCurrentCurrency(d.current_currency);
@@ -2351,6 +2379,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         addB2BLead,
         updateB2BLeadStatus,
         deleteB2BLead,
+        b2bSectionConfig,
+        updateB2BSectionConfig,
         addProduct,
         updateProduct,
         deleteProduct,

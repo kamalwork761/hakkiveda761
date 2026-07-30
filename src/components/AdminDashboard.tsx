@@ -11,6 +11,7 @@ import { AdminBlogManager } from './AdminBlogManager';
 import { AdminQuizManager } from './AdminQuizManager';
 import { AdminBrandManager } from './AdminBrandManager';
 import { AdminFooterManager } from './AdminFooterManager';
+import { AdminB2BSectionManager } from './AdminB2BSectionManager';
 import {
   Lock,
   LayoutDashboard,
@@ -191,6 +192,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
     | 'nav'
     | 'orders'
     | 'b2b'
+    | 'b2b_section'
     | 'customers'
     | 'coupons'
     | 'reviews'
@@ -567,6 +569,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             >
               <Building2 className="w-4 h-4" />
               <span>B2B Wholesale Enquiries ({b2bLeads.length})</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('b2b_section')}
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
+                activeTab === 'b2b_section' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
+              }`}
+            >
+              <Package className="w-4 h-4" />
+              <span>📦 B2B Section Manager</span>
             </button>
             <button
               onClick={() => setActiveTab('customers')}
@@ -1369,6 +1380,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             )}
           </div>
         )}
+
+        {/* Tab 9b: B2B Section Manager (Homepage Content) */}
+        {activeTab === 'b2b_section' && <AdminB2BSectionManager />}
 
         {/* Tab: Customer Accounts Management */}
         {activeTab === 'customers' && (

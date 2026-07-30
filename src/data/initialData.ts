@@ -22,6 +22,7 @@ import {
   MarketPaymentGatewayMapping,
   PaymentLog,
   FooterConfig,
+  B2BSectionConfig,
 } from '../types/store';
 import {
   WORLD_COUNTRIES,
@@ -1645,5 +1646,85 @@ export const INITIAL_FOOTER_CONFIG: FooterConfig = {
     { id: 'b1', label: 'Tribal Lore', url: '#brand-story' },
     { id: 'b2', label: '100% Organic Guarantee', url: '#products' },
   ],
+};
+
+export const INITIAL_B2B_SECTION_CONFIG: B2BSectionConfig = {
+  enabled: true,
+  bannerImage: 'https://images.unsplash.com/photo-1608248597289-53e30f146a7d?auto=format&fit=crop&w=1200&q=80',
+  backgroundImage: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1600&q=80',
+  badgeText: 'WHOLESALE & EXPORT PARTNERSHIPS',
+  heading: 'Partner with HAKKIVEDA for Bulk Distribution & Spa Supply',
+  subheading: 'Direct Factory Supply & Custom Private Label Formulation',
+  description: 'We export authentic 42-herb Ayurvedic hair care formulations to luxury wellness spas, salon chains, and herbal distributors across India, Singapore, Malaysia, Fiji, Mauritius, UAE, North America, United Kingdom, and Europe.',
+  ctaText: 'Submit Export Enquiry',
+  ctaUrl: '#b2b',
+  features: [
+    {
+      id: 'feat-1',
+      icon: 'Package',
+      title: 'Custom OEM / Bulk Drums',
+      description: 'High-capacity drums (25L - 200L) available for custom formulation & white-label packaging.',
+      sortOrder: 1,
+    },
+    {
+      id: 'feat-2',
+      icon: 'FileCheck',
+      title: 'Customs & Phytosanitary Documents',
+      description: 'Full export compliance documentation, Certificate of Analysis (COA), MSDS, and phytosanitary clearance.',
+      sortOrder: 2,
+    },
+    {
+      id: 'feat-3',
+      icon: 'Tag',
+      title: 'Tiered Wholesale Pricing',
+      description: 'Direct factory-gate pricing with progressive volume discount tiers for bulk buyers and distributors.',
+      sortOrder: 3,
+    },
+    {
+      id: 'feat-4',
+      icon: 'Truck',
+      title: 'Worldwide Express Shipping',
+      description: 'Air and sea freight door-to-door delivery with duty clearance support and expedited dispatch.',
+      sortOrder: 4,
+    },
+    {
+      id: 'feat-5',
+      icon: 'ShieldCheck',
+      title: 'Secure Export Packaging',
+      description: 'Leak-proof, spill-resistant international export packaging engineered for extreme climates.',
+      sortOrder: 5,
+    },
+    {
+      id: 'feat-6',
+      icon: 'Headphones',
+      title: 'Dedicated Account Manager',
+      description: 'Assigned export director for quick turnaround, custom formulation consultations, and order tracking.',
+      sortOrder: 6,
+    },
+  ],
+  selectedProductIds: ['prod-1', 'prod-2', 'prod-3'],
+  showcaseTitle: 'Featured Wholesale & Export Packs',
+  showcaseSubtitle: 'Ready for global bulk shipment, spa supply, and white-label distribution',
+  supportedCountries: [
+    'India',
+    'Singapore',
+    'Malaysia',
+    'Fiji',
+    'Mauritius',
+    'UAE',
+    'USA',
+    'United Kingdom',
+    'Germany',
+    'Australia',
+    'Canada',
+    'Japan',
+  ],
+  theme: {
+    backgroundColor: '#0d1a10',
+    overlayColor: '#000000',
+    overlayOpacity: 35,
+    textColor: '#f8fafc',
+    buttonColor: '#d4af37',
+  },
 };
 

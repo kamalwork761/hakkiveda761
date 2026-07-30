@@ -732,3 +732,37 @@ export interface FooterConfig {
   bottomLinks: FooterNavLink[];
 }
 
+export interface B2BFeature {
+  id: string;
+  icon: string;
+  title: string;
+  description: string;
+  sortOrder: number;
+}
+
+export interface B2BSectionTheme {
+  backgroundColor: string;
+  overlayColor: string;
+  overlayOpacity: number;
+  textColor: string;
+  buttonColor: string;
+}
+
+export interface B2BSectionConfig {
+  enabled: boolean;
+  bannerImage: string;
+  backgroundImage: string;
+  badgeText: string;
+  heading: string;
+  subheading: string;
+  description: string;
+  ctaText: string;
+  ctaUrl: string;
+  features: B2BFeature[];
+  selectedProductIds: string[];
+  showcaseTitle: string;
+  showcaseSubtitle: string;
+  supportedCountries: string[];
+  theme: B2BSectionTheme;
+}
+

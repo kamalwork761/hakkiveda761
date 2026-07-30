@@ -59,11 +59,12 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
     swipeSupport: true,
   };
   const updateHeroSliderSettings = store?.updateHeroSliderSettings || (() => {});
-  const addHeroSlide = store?.addHeroSlide || (() => {});
-  const updateHeroSlide = store?.updateHeroSlide || (() => {});
-  const deleteHeroSlide = store?.deleteHeroSlide || (() => {});
-  const reorderHeroSlides = store?.reorderHeroSlides || (() => {});
-  const duplicateHeroSlide = store?.duplicateHeroSlide || (() => {});
+  const addHeroSlide = store?.addHeroSlide || (async () => {});
+  const updateHeroSlide = store?.updateHeroSlide || (async () => {});
+  const deleteHeroSlide = store?.deleteHeroSlide || (async () => {});
+  const reorderHeroSlides = store?.reorderHeroSlides || (async () => {});
+  const duplicateHeroSlide = store?.duplicateHeroSlide || (async () => {});
+  const saveHeroSlides = store?.saveHeroSlides || (async () => false);
   const products = Array.isArray(store?.products) ? store.products : [];
   const categories = Array.isArray(store?.categories) ? store.categories : [];
   const blogs = Array.isArray(store?.blogs) ? store.blogs : [];
@@ -466,6 +467,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
   // Form Submit
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log('Publish button clicked');
     if (!validateForm()) return;
 
     setIsUploading(true);
@@ -550,10 +552,10 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
       };
 
       if (isEditing && editingSlideId) {
-        updateHeroSlide(editingSlideId, slideData);
+        await updateHeroSlide(editingSlideId, slideData);
         showToast('Hero banner slide updated successfully!');
       } else {
-        addHeroSlide(slideData);
+        await addHeroSlide(slideData);
         showToast('New hero banner slide created!');
       }
 

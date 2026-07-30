@@ -230,11 +230,11 @@ interface StoreContextType {
   deleteCategory: (id: string) => void;
   reorderCategories: (newCategories: Category[]) => void;
 
-  addHeroSlide: (slide: Omit<HeroSlide, 'id'>) => void;
-  updateHeroSlide: (id: string, slide: Partial<HeroSlide>) => void;
-  deleteHeroSlide: (id: string) => void;
-  reorderHeroSlides: (newSlides: HeroSlide[]) => void;
-  duplicateHeroSlide: (id: string) => void;
+  addHeroSlide: (slide: Omit<HeroSlide, 'id'>) => Promise<void>;
+  updateHeroSlide: (id: string, slide: Partial<HeroSlide>) => Promise<void>;
+  deleteHeroSlide: (id: string) => Promise<void>;
+  reorderHeroSlides: (newSlides: HeroSlide[]) => Promise<void>;
+  duplicateHeroSlide: (id: string) => Promise<void>;
   saveHeroSlides: (slides: HeroSlide[]) => Promise<boolean>;
   trackSlideImpression: (id: string) => void;
   trackSlideClick: (id: string) => void;
@@ -1712,12 +1712,51 @@ function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'
   };
 
   const saveHeroSlides = async (slides: HeroSlide[]): Promise<boolean> => {
+    console.log('Save function called');
     const normalized = slides.map(normalizeSlide);
     setHeroSlides(normalized);
-    return await setStored('hero_slides', normalized);
+
+    console.log('API request started');
+    setDbSyncStatus('saving');
+    setServerSaveError(null);
+
+    try {
+      const res = await fetch('/api/store/hero_slides', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: normalized, data: normalized }),
+      });
+
+      if (!res.ok) {
+        const errJson = await res.json().catch(() => ({ error: `HTTP ${res.status}` }));
+        throw new Error(errJson.error || `Server HTTP ${res.status}`);
+      }
+
+      const resData = await res.json();
+      console.log('API response received', resData);
+
+      // Reload data from backend to verify and sync
+      const reloadRes = await fetch('/api/store/hero_slides');
+      if (reloadRes.ok) {
+        const reloadJson = await reloadRes.json();
+        const loadedSlides = reloadJson.data || reloadJson.value;
+        if (Array.isArray(loadedSlides)) {
+          setHeroSlides(loadedSlides.map(normalizeSlide));
+        }
+      }
+
+      setDbSyncStatus('synced');
+      console.log('Save successful');
+      return true;
+    } catch (err: any) {
+      console.error('[StoreContext] Save hero slides error:', err);
+      setDbSyncStatus('error');
+      setServerSaveError(`Server database save failed for hero_slides: ${err.message || 'Network issue'}`);
+      throw err;
+    }
   };
 
-  const addHeroSlide = (s: Omit<HeroSlide, 'id'>) => {
+  const addHeroSlide = async (s: Omit<HeroSlide, 'id'>) => {
     const newSlide = normalizeSlide({
       ...s,
       id: `slide-${Date.now()}`,
@@ -1727,60 +1766,47 @@ function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     });
-    setHeroSlides((prev) => {
-      const next = [...prev, newSlide].map(normalizeSlide);
-      setStored('hero_slides', next);
-      return next;
-    });
+    const next = [...heroSlides, newSlide].map(normalizeSlide);
+    await saveHeroSlides(next);
   };
 
-  const updateHeroSlide = (id: string, partial: Partial<HeroSlide>) => {
-    setHeroSlides((prev) => {
-      const next = prev.map((s) =>
-        s.id === id ? normalizeSlide({ ...s, ...partial, updatedAt: new Date().toISOString() }) : normalizeSlide(s)
-      );
-      setStored('hero_slides', next);
-      return next;
-    });
+  const updateHeroSlide = async (id: string, partial: Partial<HeroSlide>) => {
+    const next = heroSlides.map((s) =>
+      s.id === id ? normalizeSlide({ ...s, ...partial, updatedAt: new Date().toISOString() }) : normalizeSlide(s)
+    );
+    await saveHeroSlides(next);
   };
 
-  const deleteHeroSlide = (id: string) => {
-    setHeroSlides((prev) => {
-      const next = prev.filter((s) => s.id !== id).map(normalizeSlide);
-      setStored('hero_slides', next);
-      return next;
-    });
+  const deleteHeroSlide = async (id: string) => {
+    const next = heroSlides.filter((s) => s.id !== id).map(normalizeSlide);
+    await saveHeroSlides(next);
   };
 
-  const reorderHeroSlides = (newSlides: HeroSlide[]) => {
+  const reorderHeroSlides = async (newSlides: HeroSlide[]) => {
     const next = newSlides.map((slide, idx) =>
       normalizeSlide({
         ...slide,
         sortOrder: idx + 1,
       })
     );
-    setHeroSlides(next);
-    setStored('hero_slides', next);
+    await saveHeroSlides(next);
   };
 
-  const duplicateHeroSlide = (id: string) => {
-    setHeroSlides((prev) => {
-      const target = prev.find((s) => s.id === id);
-      if (!target) return prev;
-      const copy = normalizeSlide({
-        ...target,
-        id: `slide-${Date.now()}`,
-        title: `${target.title} (Copy)`,
-        createdAt: new Date().toISOString(),
-        updatedAt: new Date().toISOString(),
-        impressions: 0,
-        clicks: 0,
-        sortOrder: prev.length + 1,
-      });
-      const next = [...prev, copy].map(normalizeSlide);
-      setStored('hero_slides', next);
-      return next;
+  const duplicateHeroSlide = async (id: string) => {
+    const target = heroSlides.find((s) => s.id === id);
+    if (!target) return;
+    const copy = normalizeSlide({
+      ...target,
+      id: `slide-${Date.now()}`,
+      title: `${target.title} (Copy)`,
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+      impressions: 0,
+      clicks: 0,
+      sortOrder: heroSlides.length + 1,
     });
+    const next = [...heroSlides, copy].map(normalizeSlide);
+    await saveHeroSlides(next);
   };
 
   const trackSlideImpression = (id: string) => {

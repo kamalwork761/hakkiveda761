@@ -244,7 +244,8 @@ export interface HeroSlide {
   mobileImageFilename?: string;
   backgroundVideo?: string; // Optional Background Video (MP4/WebM)
   backgroundVideoFilename?: string;
-  mediaType?: 'IMAGE' | 'VIDEO';
+  mediaType?: 'IMAGE' | 'VIDEO' | 'image' | 'video';
+  mediaUrl?: string;
   ctaText: string; // Primary CTA Text
   ctaLink: string; // Primary CTA Link
   ctaType?: 'PRODUCT' | 'CATEGORY' | 'COLLECTION' | 'QUIZ' | 'JOURNAL' | 'EXTERNAL' | 'B2B' | 'CONTACT';
@@ -252,6 +253,7 @@ export interface HeroSlide {
   secondaryCtaLink?: string; // Secondary CTA Link
   secondaryCtaType?: 'PRODUCT' | 'CATEGORY' | 'COLLECTION' | 'QUIZ' | 'JOURNAL' | 'EXTERNAL' | 'B2B' | 'CONTACT';
   active: boolean; // Enable/Disable status
+  enabled?: boolean;
   status?: 'ACTIVE' | 'DRAFT' | 'SCHEDULED';
   startDate?: string;
   endDate?: string;

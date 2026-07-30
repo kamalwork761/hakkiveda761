@@ -235,6 +235,7 @@ interface StoreContextType {
   deleteHeroSlide: (id: string) => void;
   reorderHeroSlides: (newSlides: HeroSlide[]) => void;
   duplicateHeroSlide: (id: string) => void;
+  saveHeroSlides: (slides: HeroSlide[]) => Promise<boolean>;
   trackSlideImpression: (id: string) => void;
   trackSlideClick: (id: string) => void;
 
@@ -303,15 +304,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  // Server persistence helper (Saves all admin content to SQLite DB at /app/data/hakkiveda.db on VPS)
-  const setStored = <T,>(key: string, value: T) => {
+  // Server persistence helper (Saves all admin content to backend server DB)
+  const setStored = <T,>(key: string, value: T): Promise<boolean> => {
     setDbSyncStatus('saving');
     setServerSaveError(null);
 
-    fetch(`/api/store/${key}`, {
-      method: 'POST',
+    return fetch(`/api/store/${key}`, {
+      method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ data: value }),
+      body: JSON.stringify({ value: value, data: value }),
     })
       .then(async (res) => {
         if (!res.ok) {
@@ -319,11 +320,13 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           throw new Error(errData.error || `Server HTTP ${res.status}`);
         }
         setDbSyncStatus('synced');
+        return true;
       })
       .catch((err) => {
-        console.error(`[StoreContext] Error saving '${key}' to SQLite DB:`, err);
+        console.error(`[StoreContext] Error saving '${key}' to server DB:`, err);
         setDbSyncStatus('error');
         setServerSaveError(`Server database save failed for '${key}': ${err.message || 'Network issue'}`);
+        throw err;
       });
   };
 
@@ -1676,6 +1679,30 @@ function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'
   };
 
   // Hero Slider Settings & Operations
+  const normalizeSlide = (s: Partial<HeroSlide>): HeroSlide => {
+    const activeVal = s.active ?? s.enabled ?? true;
+    const enabledVal = activeVal;
+    const mediaTypeVal = s.mediaType || (s.backgroundVideo ? 'VIDEO' : 'IMAGE');
+    const imageVal = s.image || s.mediaUrl || '';
+    const mediaUrlVal = s.backgroundVideo || imageVal || s.mediaUrl || '';
+
+    return {
+      ...s,
+      id: s.id || `slide-${Date.now()}`,
+      title: s.title || '',
+      subtitle: s.subtitle || '',
+      tag: s.tag || '',
+      highlightText: s.highlightText || '',
+      image: imageVal,
+      mediaUrl: mediaUrlVal,
+      mediaType: mediaTypeVal,
+      active: activeVal,
+      enabled: enabledVal,
+      ctaText: s.ctaText || '',
+      ctaLink: s.ctaLink || '',
+    } as HeroSlide;
+  };
+
   const updateHeroSliderSettings = (partial: Partial<HeroSliderSettings>) => {
     setHeroSliderSettings((prev) => {
       const next = { ...prev, ...partial };
@@ -1684,8 +1711,14 @@ function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'
     });
   };
 
+  const saveHeroSlides = async (slides: HeroSlide[]): Promise<boolean> => {
+    const normalized = slides.map(normalizeSlide);
+    setHeroSlides(normalized);
+    return await setStored('hero_slides', normalized);
+  };
+
   const addHeroSlide = (s: Omit<HeroSlide, 'id'>) => {
-    const newSlide: HeroSlide = {
+    const newSlide = normalizeSlide({
       ...s,
       id: `slide-${Date.now()}`,
       sortOrder: (heroSlides.length || 0) + 1,
@@ -1693,9 +1726,9 @@ function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'
       clicks: s.clicks || 0,
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
-    };
+    });
     setHeroSlides((prev) => {
-      const next = [...prev, newSlide];
+      const next = [...prev, newSlide].map(normalizeSlide);
       setStored('hero_slides', next);
       return next;
     });
@@ -1703,7 +1736,9 @@ function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'
 
   const updateHeroSlide = (id: string, partial: Partial<HeroSlide>) => {
     setHeroSlides((prev) => {
-      const next = prev.map((s) => (s.id === id ? { ...s, ...partial, updatedAt: new Date().toISOString() } : s));
+      const next = prev.map((s) =>
+        s.id === id ? normalizeSlide({ ...s, ...partial, updatedAt: new Date().toISOString() }) : normalizeSlide(s)
+      );
       setStored('hero_slides', next);
       return next;
     });
@@ -1711,17 +1746,19 @@ function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'
 
   const deleteHeroSlide = (id: string) => {
     setHeroSlides((prev) => {
-      const next = prev.filter((s) => s.id !== id);
+      const next = prev.filter((s) => s.id !== id).map(normalizeSlide);
       setStored('hero_slides', next);
       return next;
     });
   };
 
   const reorderHeroSlides = (newSlides: HeroSlide[]) => {
-    const next = newSlides.map((slide, idx) => ({
-      ...slide,
-      sortOrder: idx + 1,
-    }));
+    const next = newSlides.map((slide, idx) =>
+      normalizeSlide({
+        ...slide,
+        sortOrder: idx + 1,
+      })
+    );
     setHeroSlides(next);
     setStored('hero_slides', next);
   };
@@ -1730,7 +1767,7 @@ function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'
     setHeroSlides((prev) => {
       const target = prev.find((s) => s.id === id);
       if (!target) return prev;
-      const copy: HeroSlide = {
+      const copy = normalizeSlide({
         ...target,
         id: `slide-${Date.now()}`,
         title: `${target.title} (Copy)`,
@@ -1739,8 +1776,8 @@ function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'
         impressions: 0,
         clicks: 0,
         sortOrder: prev.length + 1,
-      };
-      const next = [...prev, copy];
+      });
+      const next = [...prev, copy].map(normalizeSlide);
       setStored('hero_slides', next);
       return next;
     });
@@ -2138,6 +2175,7 @@ function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'
         deleteHeroSlide,
         reorderHeroSlides,
         duplicateHeroSlide,
+        saveHeroSlides,
         trackSlideImpression,
         trackSlideClick,
         addBlog,

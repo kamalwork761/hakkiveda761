@@ -93,32 +93,41 @@ async function startServer() {
     try {
       const key = req.params.key;
       const data = await getStoreValue(key);
-      res.json({ success: true, key, data });
+      res.json({ success: true, key, data, value: data });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
     }
   });
 
-  app.post('/api/store/:key', async (req, res) => {
+  const handleStoreKeySave = async (req: express.Request, res: express.Response) => {
     try {
       const key = req.params.key;
-      const value = req.body.data !== undefined ? req.body.data : req.body;
+      const value = req.body.value !== undefined ? req.body.value : (req.body.data !== undefined ? req.body.data : req.body);
       await setStoreValue(key, value);
-      res.json({ success: true, message: `Key '${key}' saved to SQLite server DB.` });
+      res.json({
+        success: true,
+        message: `Key '${key}' saved successfully.`,
+        key,
+        data: value,
+        value: value,
+      });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
     }
-  });
+  };
+
+  app.put('/api/store/:key', handleStoreKeySave);
+  app.post('/api/store/:key', handleStoreKeySave);
 
   app.post('/api/store-bulk', async (req, res) => {
     try {
-      const payload = req.body.data || req.body;
+      const payload = req.body.value !== undefined ? req.body.value : (req.body.data !== undefined ? req.body.data : req.body);
       if (typeof payload === 'object' && payload !== null) {
         for (const [k, v] of Object.entries(payload)) {
           await setStoreValue(k, v);
         }
       }
-      res.json({ success: true, message: 'Bulk store data saved to SQLite DB.' });
+      res.json({ success: true, message: 'Bulk store data saved.' });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
     }
@@ -127,33 +136,39 @@ async function startServer() {
   // Explicit REST API Routes requested for Admin entities
   app.get('/api/products', async (_req, res) => {
     const products = (await getStoreValue('products')) || [];
-    res.json({ success: true, data: products });
+    res.json({ success: true, data: products, value: products });
   });
   app.post('/api/products', async (req, res) => {
-    const products = req.body.data !== undefined ? req.body.data : req.body;
+    const products = req.body.value !== undefined ? req.body.value : (req.body.data !== undefined ? req.body.data : req.body);
     await setStoreValue('products', products);
-    res.json({ success: true, message: 'Products saved successfully.' });
+    res.json({ success: true, message: 'Products saved successfully.', data: products, value: products });
   });
 
   app.get('/api/categories', async (_req, res) => {
     const categories = (await getStoreValue('categories')) || [];
-    res.json({ success: true, data: categories });
+    res.json({ success: true, data: categories, value: categories });
   });
   app.post('/api/categories', async (req, res) => {
-    const categories = req.body.data !== undefined ? req.body.data : req.body;
+    const categories = req.body.value !== undefined ? req.body.value : (req.body.data !== undefined ? req.body.data : req.body);
     await setStoreValue('categories', categories);
-    res.json({ success: true, message: 'Categories saved successfully.' });
+    res.json({ success: true, message: 'Categories saved successfully.', data: categories, value: categories });
   });
 
   app.get('/api/hero-slides', async (_req, res) => {
     const slides = (await getStoreValue('hero_slides')) || [];
-    res.json({ success: true, data: slides });
+    res.json({ success: true, data: slides, value: slides });
   });
-  app.post('/api/hero-slides', async (req, res) => {
-    const slides = req.body.data !== undefined ? req.body.data : req.body;
-    await setStoreValue('hero_slides', slides);
-    res.json({ success: true, message: 'Hero slides saved successfully.' });
-  });
+  const handleHeroSlidesSave = async (req: express.Request, res: express.Response) => {
+    try {
+      const slides = req.body.value !== undefined ? req.body.value : (req.body.data !== undefined ? req.body.data : req.body);
+      await setStoreValue('hero_slides', slides);
+      res.json({ success: true, message: 'Hero slides saved successfully.', data: slides, value: slides });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  };
+  app.put('/api/hero-slides', handleHeroSlidesSave);
+  app.post('/api/hero-slides', handleHeroSlidesSave);
 
   app.get('/api/announcements', async (_req, res) => {
     const settings = (await getStoreValue('site_settings')) || {};

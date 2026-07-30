@@ -312,6 +312,51 @@ const normalizeSlide = (s: Partial<HeroSlide>): HeroSlide => {
   } as HeroSlide;
 };
 
+export function isLightThemeBg(hexColor?: string, modeOverride?: string): boolean {
+  if (modeOverride === 'light') return true;
+  if (modeOverride === 'dark') return false;
+  if (!hexColor || typeof hexColor !== 'string') return true;
+
+  const cleanHex = hexColor.replace('#', '').trim();
+  let r = 248, g = 245, b = 238;
+  if (cleanHex.length === 6) {
+    r = parseInt(cleanHex.substring(0, 2), 16) || 248;
+    g = parseInt(cleanHex.substring(2, 4), 16) || 245;
+    b = parseInt(cleanHex.substring(4, 6), 16) || 238;
+  } else if (cleanHex.length === 3) {
+    r = parseInt(cleanHex[0] + cleanHex[0], 16) || 248;
+    g = parseInt(cleanHex[1] + cleanHex[1], 16) || 245;
+    b = parseInt(cleanHex[2] + cleanHex[2], 16) || 238;
+  }
+  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+  return yiq >= 140;
+}
+
+export function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'): string {
+  if (!hexColor) return defaultColor;
+  let hex = hexColor.trim().replace('#', '');
+  if (hex.startsWith('rgba') || hex.startsWith('rgb')) {
+    const match = hex.match(/\d+/g);
+    if (match && match.length >= 3) {
+      const r = parseInt(match[0], 10);
+      const g = parseInt(match[1], 10);
+      const b = parseInt(match[2], 10);
+      const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+      return yiq >= 150 ? '#173A25' : '#FFFFFF';
+    }
+  }
+  if (hex.length === 3) {
+    hex = hex.split('').map((c) => c + c).join('');
+  }
+  if (hex.length !== 6) return defaultColor;
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  if (isNaN(r) || isNaN(g) || isNaN(b)) return defaultColor;
+  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+  return yiq >= 150 ? '#173A25' : '#FFFFFF';
+}
+
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -539,83 +584,104 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const [isPreviewingWebsiteTheme, setIsPreviewingWebsiteTheme] = useState<boolean>(false);
 
-function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'): string {
-  if (!hexColor) return defaultColor;
-  let hex = hexColor.trim().replace('#', '');
-  if (hex.startsWith('rgba') || hex.startsWith('rgb')) {
-    const match = hex.match(/\d+/g);
-    if (match && match.length >= 3) {
-      const r = parseInt(match[0], 10);
-      const g = parseInt(match[1], 10);
-      const b = parseInt(match[2], 10);
-      const yiq = (r * 299 + g * 587 + b * 114) / 1000;
-      return yiq >= 150 ? '#1F2A1F' : '#FFFFFF';
-    }
-  }
-  if (hex.length === 3) {
-    hex = hex.split('').map((c) => c + c).join('');
-  }
-  if (hex.length !== 6) return defaultColor;
-  const r = parseInt(hex.substring(0, 2), 16);
-  const g = parseInt(hex.substring(2, 4), 16);
-  const b = parseInt(hex.substring(4, 6), 16);
-  if (isNaN(r) || isNaN(g) || isNaN(b)) return defaultColor;
-  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
-  return yiq >= 150 ? '#1F2A1F' : '#FFFFFF';
-}
-
   const applyBrandStyles = (brand: BrandIdentityConfig) => {
     if (typeof document === 'undefined') return;
     const root = document.documentElement;
 
-    const primary = brand.primaryColor || '#0A4F1F';
-    const gold = brand.secondaryGold || '#D4AF37';
     const bg = brand.backgroundColor || '#F8F5EE';
-    const text = brand.textColor || '#1F2A1F';
-    const accent = brand.accentColor || '#176B3A';
-    const button = brand.buttonColor || '#0A5A2A';
-    const hover = brand.hoverColor || '#083F1E';
-    const border = brand.borderColor || '#D8CDAF';
+    const isLight = isLightThemeBg(bg, brand.themeMode);
+
+    // Set data-theme attribute on <html> element for CSS selectors
+    root.setAttribute('data-theme', isLight ? 'light' : 'dark');
+
+    const primary = brand.primaryColor || (isLight ? '#0A4F1F' : '#0B1D13');
+    const gold = brand.secondaryGold || '#D4AF37';
+    const accent = brand.accentColor || (isLight ? '#176B3A' : '#3AA91F');
     const fontHeading = brand.headingFont || 'Cinzel, Playfair Display, serif';
     const fontBody = brand.bodyFont || 'Plus Jakarta Sans, sans-serif';
     const fontButton = brand.buttonFont || 'Plus Jakarta Sans, sans-serif';
 
-    const buttonText = getContrastTextColor(button, '#FFFFFF');
-    const buttonHoverText = getContrastTextColor(hover, '#FFFFFF');
-    const isLightBg = getContrastTextColor(bg, '#FFFFFF') === '#1F2A1F';
-    const cardBg = isLightBg ? '#FFFFFF' : 'rgba(255, 255, 255, 0.05)';
-    const mutedText = isLightBg ? 'rgba(31, 42, 31, 0.75)' : 'rgba(248, 250, 252, 0.75)';
+    // Strict Light vs Dark theme specifications according to design system
+    let cardBg = '#FFFFFF';
+    let primaryText = '#173A25';
+    let secondaryText = '#375243';
+    let mutedText = 'rgba(23, 58, 37, 0.70)';
+    let buttonBg = brand.buttonColor && brand.buttonColor !== '#0A5A2A' ? brand.buttonColor : '#D4AF37';
+    let buttonText = '#173A25';
+    let buttonHoverBg = brand.hoverColor && brand.hoverColor !== '#083F1E' ? brand.hoverColor : '#B8962E';
+    let buttonHoverText = '#173A25';
+    let inputBg = '#FFFFFF';
+    let inputText = '#173A25';
+    let inputBorder = brand.borderColor || '#D8CDAF';
+    let border = brand.borderColor || '#D8CDAF';
+    let iconColor = '#173A25';
+    let linkColor = brand.accentColor || '#176B3A';
+    let linkHoverColor = '#0A4F1F';
+    let deepBg = '#FFFFFF';
+    let deeperBg = '#F0EBE1';
 
-    // Global --color-* CSS Variables (Requirement 6)
+    if (!isLight) {
+      // DARK THEME SPECIFICATIONS
+      cardBg = '#122B1E';
+      primaryText = '#FFFFFF';
+      secondaryText = '#CBD5E1';
+      mutedText = 'rgba(248, 250, 252, 0.70)';
+      buttonBg = brand.buttonColor || '#D4AF37';
+      buttonText = '#0B1D13';
+      buttonHoverBg = brand.hoverColor || '#E8D279';
+      buttonHoverText = '#0B1D13';
+      inputBg = '#122B1E';
+      inputText = '#FFFFFF';
+      inputBorder = brand.borderColor || 'rgba(212, 175, 55, 0.3)';
+      border = brand.borderColor || 'rgba(212, 175, 55, 0.3)';
+      iconColor = brand.secondaryGold || '#D4AF37';
+      linkColor = '#3AA91F';
+      linkHoverColor = '#E8D279';
+      deepBg = '#122B1E';
+      deeperBg = '#05120B';
+    }
+
+    // Global --color-* CSS Variables
     root.style.setProperty('--color-primary', primary);
-    root.style.setProperty('--color-primary-dark', primary);
+    root.style.setProperty('--color-primary-dark', bg);
     root.style.setProperty('--color-gold', gold);
     root.style.setProperty('--color-background', bg);
-    root.style.setProperty('--color-text', text);
-    root.style.setProperty('--color-accent', accent);
-    root.style.setProperty('--color-button', button);
-    root.style.setProperty('--color-button-hover', hover);
-    root.style.setProperty('--color-border', border);
     root.style.setProperty('--color-card-background', cardBg);
+    root.style.setProperty('--color-text', primaryText);
+    root.style.setProperty('--color-secondary-text', secondaryText);
     root.style.setProperty('--color-muted-text', mutedText);
+    root.style.setProperty('--color-accent', accent);
+    root.style.setProperty('--color-button', buttonBg);
+    root.style.setProperty('--color-button-hover', buttonHoverBg);
     root.style.setProperty('--color-button-text', buttonText);
     root.style.setProperty('--color-button-hover-text', buttonHoverText);
+    root.style.setProperty('--color-input-background', inputBg);
+    root.style.setProperty('--color-input-text', inputText);
+    root.style.setProperty('--color-input-border', inputBorder);
+    root.style.setProperty('--color-border', border);
+    root.style.setProperty('--color-icon', iconColor);
+    root.style.setProperty('--color-link', linkColor);
+    root.style.setProperty('--color-link-hover', linkHoverColor);
 
-    // Core Theme CSS Variables used across website, components, header, footer, quiz, etc.
+    // Core Brand Identity Aliases
     root.style.setProperty('--brand-primary', primary);
     root.style.setProperty('--brand-primary-green', primary);
     root.style.setProperty('--brand-gold', gold);
     root.style.setProperty('--brand-accent', accent);
-    root.style.setProperty('--button-primary', button);
-    root.style.setProperty('--brand-btn-color', button);
-    root.style.setProperty('--button-hover', hover);
-    root.style.setProperty('--brand-btn-hover', hover);
+    root.style.setProperty('--button-primary', buttonBg);
+    root.style.setProperty('--brand-btn-color', buttonBg);
+    root.style.setProperty('--button-hover', buttonHoverBg);
+    root.style.setProperty('--brand-btn-hover', buttonHoverBg);
+    root.style.setProperty('--button-text', buttonText);
+    root.style.setProperty('--brand-btn-text', buttonText);
     root.style.setProperty('--background', bg);
     root.style.setProperty('--brand-bg', bg);
     root.style.setProperty('--brand-primary-dark', bg);
-    root.style.setProperty('--brand-primary-deep', bg);
-    root.style.setProperty('--text-primary', text);
-    root.style.setProperty('--brand-text-color', text);
+    root.style.setProperty('--brand-primary-deep', deepBg);
+    root.style.setProperty('--brand-primary-deeper', deeperBg);
+    root.style.setProperty('--text-primary', primaryText);
+    root.style.setProperty('--brand-text-color', primaryText);
+    root.style.setProperty('--text-secondary', secondaryText);
     root.style.setProperty('--brand-border', border);
     root.style.setProperty('--brand-border-color', border);
 

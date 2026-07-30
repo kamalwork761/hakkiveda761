@@ -72,11 +72,69 @@
     background-color: var(--color-background);
     color: var(--color-text);
     overflow-x: hidden;
+    transition: background-color 0.3s ease, color 0.3s ease;
   }
 
   /* Headings inherit global text color by default */
   h1, h2, h3, h4, h5, h6 {
     font-family: var(--font-heading, 'Cinzel', 'Cormorant Garamond', Georgia, serif);
+  }
+
+  /* LIGHT THEME ENGINE OVERRIDES */
+  [data-theme="light"] {
+    color-scheme: light;
+  }
+
+  [data-theme="light"] body {
+    background-color: var(--color-background) !important;
+    color: var(--color-text) !important;
+  }
+
+  /* Light Theme Text Contrast */
+  [data-theme="light"] .text-slate-100,
+  [data-theme="light"] .text-slate-200,
+  [data-theme="light"] .text-slate-300 {
+    color: var(--color-text) !important;
+  }
+
+  [data-theme="light"] .text-slate-400,
+  [data-theme="light"] .text-slate-500 {
+    color: var(--color-secondary-text) !important;
+  }
+
+  /* Light Theme Card & Section Backgrounds */
+  [data-theme="light"] .bg-\[var\(--brand-primary-dark\)\] {
+    background-color: var(--color-background) !important;
+  }
+
+  [data-theme="light"] .bg-\[var\(--brand-primary-deep\)\] {
+    background-color: var(--color-card-background) !important;
+  }
+
+  [data-theme="light"] .bg-\[var\(--brand-primary-deeper\)\] {
+    background-color: #F0EBE1 !important;
+  }
+
+  /* Light Theme Input Fields */
+  [data-theme="light"] input[type="text"],
+  [data-theme="light"] input[type="email"],
+  [data-theme="light"] input[type="tel"],
+  [data-theme="light"] input[type="password"],
+  [data-theme="light"] textarea,
+  [data-theme="light"] select {
+    background-color: var(--color-input-background) !important;
+    color: var(--color-input-text) !important;
+    border-color: var(--color-input-border) !important;
+  }
+
+  /* DARK THEME ENGINE OVERRIDES */
+  [data-theme="dark"] {
+    color-scheme: dark;
+  }
+
+  [data-theme="dark"] body {
+    background-color: var(--color-background) !important;
+    color: var(--color-text) !important;
   }
 
   /* Global Select & Dropdown Option Styling */

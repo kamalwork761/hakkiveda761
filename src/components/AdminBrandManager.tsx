@@ -589,13 +589,17 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
 
               {/* Quick Preset Color Swatches */}
               <div className="bg-black/30 p-4 rounded-xl border border-white/10 space-y-3">
-                <span className="font-bold text-slate-300 block text-xs">Quick Brand Color Presets</span>
-                <div className="flex flex-wrap gap-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-300 block text-xs">Official Brand Presets (Light & Dark Themes)</span>
+                  <span className="text-[10px] font-mono text-[var(--brand-gold)] font-bold">Auto Theme-Engine Active</span>
+                </div>
+                <div className="flex flex-wrap gap-2.5">
                   {[
-                    { name: 'HAKKIVEDA Default', primary: '#0A4F1F', gold: '#D4AF37', bg: '#F8F5EE', text: '#1F2A1F', accent: '#176B3A', button: '#0A5A2A', hover: '#083F1E', border: '#D8CDAF' },
-                    { name: 'Ayurvedic Deep Forest', primary: '#0B1D13', gold: '#D4AF37', bg: '#0B1D13', text: '#F8FAFC', accent: '#3AA91F', button: '#D4AF37', hover: '#B8962E', border: 'rgba(212, 175, 55, 0.3)' },
-                    { name: 'Emerald Royalty', primary: '#059669', gold: '#F59E0B', bg: '#F0FDF4', text: '#064E3B', accent: '#10B981', button: '#059669', hover: '#047857', border: '#A7F3D0' },
-                    { name: 'Imperial Botanical', primary: '#15803D', gold: '#CA8A04', bg: '#FDFBF7', text: '#14532D', accent: '#16A34A', button: '#15803D', hover: '#166534', border: '#E2E8F0' },
+                    { name: 'HAKKIVEDA Default', primary: '#0A4F1F', gold: '#D4AF37', bg: '#F8F5EE', text: '#173A25', accent: '#176B3A', button: '#D4AF37', hover: '#B8962E', border: '#D8CDAF', themeMode: 'light' },
+                    { name: 'Forest Mist', primary: '#1B4332', gold: '#D4AF37', bg: '#F4F7F4', text: '#173A25', accent: '#2D6A4F', button: '#D4AF37', hover: '#B8962E', border: '#D0DCD5', themeMode: 'light' },
+                    { name: 'Herbal Ivory', primary: '#2D3B2D', gold: '#C5A059', bg: '#FAF8F5', text: '#1A251A', accent: '#384B38', button: '#C5A059', hover: '#A88440', border: '#E5DFD5', themeMode: 'light' },
+                    { name: 'Ayurvedic Deep Forest', primary: '#0B1D13', gold: '#D4AF37', bg: '#0B1D13', text: '#FFFFFF', accent: '#3AA91F', button: '#D4AF37', hover: '#E8D279', border: 'rgba(212, 175, 55, 0.3)', themeMode: 'dark' },
+                    { name: 'Royal Emerald', primary: '#022C22', gold: '#F59E0B', bg: '#022C22', text: '#F0FDF4', accent: '#10B981', button: '#F59E0B', hover: '#FBBF24', border: 'rgba(245, 158, 11, 0.3)', themeMode: 'dark' },
                   ].map((swatch, idx) => (
                     <button
                       key={idx}
@@ -611,16 +615,22 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
                           buttonColor: swatch.button,
                           hoverColor: swatch.hover,
                           borderColor: swatch.border,
+                          themeMode: swatch.themeMode as any,
                         };
                         setFormData(next);
                         applyBrandStyles(next);
-                        showToast(`Applied ${swatch.name} color palette`);
+                        showToast(`Applied ${swatch.name} (${swatch.themeMode.toUpperCase()} Theme)`);
                       }}
-                      className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-slate-200 flex items-center gap-2 transition-all cursor-pointer"
+                      className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-slate-200 flex items-center gap-2 transition-all cursor-pointer group"
                     >
-                      <span className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: swatch.primary }}></span>
-                      <span className="w-3.5 h-3.5 rounded-full" style={{ backgroundColor: swatch.gold }}></span>
+                      <span className="w-3.5 h-3.5 rounded-full border border-white/20 shrink-0" style={{ backgroundColor: swatch.bg }}></span>
+                      <span className="w-3.5 h-3.5 rounded-full shrink-0" style={{ backgroundColor: swatch.gold }}></span>
                       <span>{swatch.name}</span>
+                      <span className={`text-[9px] font-mono uppercase px-1.5 py-0.5 rounded font-extrabold ${
+                        swatch.themeMode === 'light' ? 'bg-amber-100 text-amber-900' : 'bg-emerald-950 text-emerald-300 border border-emerald-500/30'
+                      }`}>
+                        {swatch.themeMode}
+                      </span>
                     </button>
                   ))}
                 </div>

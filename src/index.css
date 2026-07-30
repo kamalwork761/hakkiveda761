@@ -21,60 +21,89 @@
 
 @layer base {
   :root {
-    --brand-primary: #3AA91F;
-    --brand-primary-dark: #1C550E;
-    --brand-primary-deeper: #103308;
-    --brand-primary-light: #53C938;
-    --brand-primary-subtle: rgba(58, 169, 31, 0.15);
+    /* Brand Colours & Palette Engine Global Variables */
+    --color-primary: #0A4F1F;
+    --color-primary-dark: #0A4F1F;
+    --color-gold: #D4AF37;
+    --color-background: #F8F5EE;
+    --color-text: #1F2A1F;
+    --color-accent: #176B3A;
+    --color-button: #0A5A2A;
+    --color-button-hover: #083F1E;
+    --color-border: #D8CDAF;
+    --color-card-background: #FFFFFF;
+    --color-muted-text: rgba(31, 42, 31, 0.75);
+    --color-button-text: #FFFFFF;
+    --color-button-hover-text: #FFFFFF;
 
-    --brand-gold: #D4AF37;
+    /* Brand identity aliases and legacy tokens */
+    --brand-primary: var(--color-primary);
+    --brand-primary-dark: var(--color-background);
+    --brand-primary-deep: var(--color-background);
+    --brand-primary-deeper: var(--color-primary);
+    --brand-primary-light: var(--color-accent);
+    --brand-primary-subtle: rgba(10, 79, 31, 0.15);
+
+    --brand-gold: var(--color-gold);
     --brand-gold-light: #E8D279;
     --brand-gold-dark: #A68725;
     --brand-gold-shimmer: #FFF0B2;
     --brand-gold-subtle: rgba(212, 175, 55, 0.15);
-    --brand-gold-border: rgba(212, 175, 55, 0.35);
+    --brand-gold-border: var(--color-border);
 
-    /* Legacy mapping tokens for component variable compatibility */
-    --color-forest: var(--brand-primary-dark);
-    --color-forest-dark: var(--brand-primary-deeper);
-    --color-forest-deeper: #0A2005;
-    --color-gold: var(--brand-gold);
-    --color-gold-light: var(--brand-gold-light);
-    --color-gold-dark: var(--brand-gold-dark);
+    --button-primary: var(--color-button);
+    --brand-btn-color: var(--color-button);
+    --button-hover: var(--color-button-hover);
+    --brand-btn-hover: var(--color-button-hover);
+    --background: var(--color-background);
+    --brand-bg: var(--color-background);
+    --text-primary: var(--color-text);
+    --brand-text-color: var(--color-text);
+    --brand-border: var(--color-border);
+    --brand-border-color: var(--color-border);
+
+    --font-heading: 'Cinzel', 'Cormorant Garamond', Georgia, serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
+    --font-button: 'Plus Jakarta Sans', sans-serif;
   }
 
   body {
-    font-family: 'Plus Jakarta Sans', sans-serif;
-    background-color: var(--brand-primary-dark);
-    color: #F8FAFC;
+    font-family: var(--font-body, 'Plus Jakarta Sans', sans-serif);
+    background-color: var(--color-background);
+    color: var(--color-text);
     overflow-x: hidden;
   }
 
-  /* Global Select & Dropdown Option Styling for Dark / Light mode accessibility */
+  /* Headings inherit global text color by default */
+  h1, h2, h3, h4, h5, h6 {
+    font-family: var(--font-heading, 'Cinzel', 'Cormorant Garamond', Georgia, serif);
+  }
+
+  /* Global Select & Dropdown Option Styling */
   select {
     color-scheme: dark;
-    color: #F8FAFC;
+    color: var(--color-text);
   }
 
   select option {
-    background-color: #0B1D13 !important;
-    color: #F8FAFC !important;
+    background-color: var(--color-background) !important;
+    color: var(--color-text) !important;
     padding: 8px 12px;
   }
 
   select option:checked,
   select option:hover,
   select option:focus {
-    background-color: #D4AF37 !important;
-    color: #0B1D13 !important;
+    background-color: var(--color-gold) !important;
+    color: var(--color-primary) !important;
   }
 
-  h1, h2, h3, .font-serif-luxury {
-    font-family: 'Cormorant Garamond', Georgia, serif;
+  .font-serif-luxury {
+    font-family: var(--font-heading, 'Cormorant Garamond', Georgia, serif);
   }
 
   .font-brand {
-    font-family: 'Cinzel', serif;
+    font-family: var(--font-heading, 'Cinzel', serif);
   }
 }
 

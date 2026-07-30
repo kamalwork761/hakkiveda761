@@ -1507,14 +1507,14 @@ export const INITIAL_BRAND_IDENTITY: BrandIdentityConfig = {
   companyMotto: 'Pure Botanical Science • Zero Synthetic Harm',
 
   // 3. Brand Colours
-  primaryColor: '#3AA91F',
+  primaryColor: '#0A4F1F',
   secondaryGold: '#D4AF37',
-  backgroundColor: '#0B1D13',
-  textColor: '#F8FAFC',
-  accentColor: '#10B981',
-  buttonColor: '#D4AF37',
-  hoverColor: '#B8962E',
-  borderColor: 'rgba(212, 175, 55, 0.3)',
+  backgroundColor: '#F8F5EE',
+  textColor: '#1F2A1F',
+  accentColor: '#176B3A',
+  buttonColor: '#0A5A2A',
+  hoverColor: '#083F1E',
+  borderColor: '#D8CDAF',
 
   // 4. Typography
   headingFont: 'Cinzel, Playfair Display, serif',

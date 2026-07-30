@@ -20,9 +20,8 @@ export const HakkivedaWordmark: React.FC<HakkivedaWordmarkProps> = ({
     lg: 'h-8 sm:h-10 w-48 sm:w-72',
   }[size];
 
-  // Colors based on theme
-  const strokeColor = '#D4AF37';
-  const fillColor = theme === 'dark-header' ? '#3AA91F' : '#246F13';
+  // Colors derived from global theme CSS variables
+  const strokeColor = 'var(--color-gold, var(--brand-gold, #D4AF37))';
 
   return (
     <div className={`relative inline-flex items-center select-none ${className}`}>
@@ -49,9 +48,9 @@ export const HakkivedaWordmark: React.FC<HakkivedaWordmarkProps> = ({
 
           {/* Luxury Brand Green Fill Gradient */}
           <linearGradient id="forest-green-luxury" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#3AA91F" />
-            <stop offset="50%" stopColor="#246F13" />
-            <stop offset="100%" stopColor="#113308" />
+            <stop offset="0%" stopColor="var(--color-primary, var(--brand-primary, #0A4F1F))" />
+            <stop offset="50%" stopColor="var(--color-accent, var(--brand-accent, #176B3A))" />
+            <stop offset="100%" stopColor="var(--color-button, var(--button-primary, #0A5A2A))" />
           </linearGradient>
         </defs>
 

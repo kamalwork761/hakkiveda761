@@ -512,21 +512,67 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const [isPreviewingWebsiteTheme, setIsPreviewingWebsiteTheme] = useState<boolean>(false);
 
+function getContrastTextColor(hexColor: string, defaultColor: string = '#FFFFFF'): string {
+  if (!hexColor) return defaultColor;
+  let hex = hexColor.trim().replace('#', '');
+  if (hex.startsWith('rgba') || hex.startsWith('rgb')) {
+    const match = hex.match(/\d+/g);
+    if (match && match.length >= 3) {
+      const r = parseInt(match[0], 10);
+      const g = parseInt(match[1], 10);
+      const b = parseInt(match[2], 10);
+      const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+      return yiq >= 150 ? '#1F2A1F' : '#FFFFFF';
+    }
+  }
+  if (hex.length === 3) {
+    hex = hex.split('').map((c) => c + c).join('');
+  }
+  if (hex.length !== 6) return defaultColor;
+  const r = parseInt(hex.substring(0, 2), 16);
+  const g = parseInt(hex.substring(2, 4), 16);
+  const b = parseInt(hex.substring(4, 6), 16);
+  if (isNaN(r) || isNaN(g) || isNaN(b)) return defaultColor;
+  const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+  return yiq >= 150 ? '#1F2A1F' : '#FFFFFF';
+}
+
   const applyBrandStyles = (brand: BrandIdentityConfig) => {
     if (typeof document === 'undefined') return;
     const root = document.documentElement;
 
-    const primary = brand.primaryColor || '#3AA91F';
+    const primary = brand.primaryColor || '#0A4F1F';
     const gold = brand.secondaryGold || '#D4AF37';
-    const bg = brand.backgroundColor || '#0B1D13';
-    const text = brand.textColor || '#F8FAFC';
-    const accent = brand.accentColor || '#10B981';
-    const button = brand.buttonColor || '#D4AF37';
-    const hover = brand.hoverColor || '#B8962E';
-    const border = brand.borderColor || 'rgba(212, 175, 55, 0.3)';
+    const bg = brand.backgroundColor || '#F8F5EE';
+    const text = brand.textColor || '#1F2A1F';
+    const accent = brand.accentColor || '#176B3A';
+    const button = brand.buttonColor || '#0A5A2A';
+    const hover = brand.hoverColor || '#083F1E';
+    const border = brand.borderColor || '#D8CDAF';
     const fontHeading = brand.headingFont || 'Cinzel, Playfair Display, serif';
     const fontBody = brand.bodyFont || 'Plus Jakarta Sans, sans-serif';
     const fontButton = brand.buttonFont || 'Plus Jakarta Sans, sans-serif';
+
+    const buttonText = getContrastTextColor(button, '#FFFFFF');
+    const buttonHoverText = getContrastTextColor(hover, '#FFFFFF');
+    const isLightBg = getContrastTextColor(bg, '#FFFFFF') === '#1F2A1F';
+    const cardBg = isLightBg ? '#FFFFFF' : 'rgba(255, 255, 255, 0.05)';
+    const mutedText = isLightBg ? 'rgba(31, 42, 31, 0.75)' : 'rgba(248, 250, 252, 0.75)';
+
+    // Global --color-* CSS Variables (Requirement 6)
+    root.style.setProperty('--color-primary', primary);
+    root.style.setProperty('--color-primary-dark', primary);
+    root.style.setProperty('--color-gold', gold);
+    root.style.setProperty('--color-background', bg);
+    root.style.setProperty('--color-text', text);
+    root.style.setProperty('--color-accent', accent);
+    root.style.setProperty('--color-button', button);
+    root.style.setProperty('--color-button-hover', hover);
+    root.style.setProperty('--color-border', border);
+    root.style.setProperty('--color-card-background', cardBg);
+    root.style.setProperty('--color-muted-text', mutedText);
+    root.style.setProperty('--color-button-text', buttonText);
+    root.style.setProperty('--color-button-hover-text', buttonHoverText);
 
     // Core Theme CSS Variables used across website, components, header, footer, quiz, etc.
     root.style.setProperty('--brand-primary', primary);

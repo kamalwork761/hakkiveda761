@@ -178,20 +178,20 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
       brandInitials: 'HV',
       brandDescription: 'Authentic 42-herb tribal hair care formulations brewed with traditional Mysore forest wisdom and zero synthetic additives.',
       companyMotto: 'Pure Botanical Science • Zero Synthetic Harm',
-      primaryColor: '#3AA91F',
+      primaryColor: '#0A4F1F',
       secondaryGold: '#D4AF37',
-      backgroundColor: '#0B1D13',
-      textColor: '#F8FAFC',
-      accentColor: '#10B981',
-      buttonColor: '#D4AF37',
-      hoverColor: '#B8962E',
-      borderColor: 'rgba(212, 175, 55, 0.3)',
+      backgroundColor: '#F8F5EE',
+      textColor: '#1F2A1F',
+      accentColor: '#176B3A',
+      buttonColor: '#0A5A2A',
+      hoverColor: '#083F1E',
+      borderColor: '#D8CDAF',
       headingFont: 'Cinzel, Playfair Display, serif',
       bodyFont: 'Plus Jakarta Sans, sans-serif',
       buttonFont: 'Plus Jakarta Sans, sans-serif',
       fontSize: 'md',
       fontWeight: 'bold',
-      themeMode: 'dark',
+      themeMode: 'light',
       enableLoadingAnimation: true,
       animationType: 'gold_glow',
       animationDuration: 1.5,
@@ -203,7 +203,7 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
       socialLinkedin: 'https://linkedin.com/company/hakkiveda',
       socialTwitter: 'https://x.com/hakkiveda',
       browserTitle: 'HAKKIVEDA | Ancestral Hakki-Pikki Tribal Hair Care',
-      themeColor: '#0B1D13',
+      themeColor: '#0A4F1F',
       pwaIcon192: '',
       pwaIcon512: '',
       emailHeaderLogo: '',
@@ -218,7 +218,22 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
     };
     setFormData(defaults);
     publishBrandTheme(defaults);
-    showToast('Reset Brand Identity to factory defaults (#3AA91F Green & #D4AF37 Gold)');
+    showToast('Reset Brand Identity to factory defaults (#0A4F1F Green & #D4AF37 Gold)');
+  };
+
+  const getContrastTextColor = (hexColor?: string, defaultColor: string = '#FFFFFF'): string => {
+    if (!hexColor) return defaultColor;
+    let hex = hexColor.trim().replace('#', '');
+    if (hex.length === 3) {
+      hex = hex.split('').map((c) => c + c).join('');
+    }
+    if (hex.length !== 6) return defaultColor;
+    const r = parseInt(hex.substring(0, 2), 16);
+    const g = parseInt(hex.substring(2, 4), 16);
+    const b = parseInt(hex.substring(4, 6), 16);
+    if (isNaN(r) || isNaN(g) || isNaN(b)) return defaultColor;
+    const yiq = (r * 299 + g * 587 + b * 114) / 1000;
+    return yiq >= 150 ? '#1F2A1F' : '#FFFFFF';
   };
 
   const validPickerHex = (val: string) => {
@@ -482,26 +497,46 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
           {/* Section 3: Brand Colours */}
           {activeSection === 'COLOURS' && (
             <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-6 rounded-2xl space-y-6 text-xs">
-              <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
+              <div className="flex flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-3">
                 <h3 className="text-sm font-bold text-[var(--brand-gold)] uppercase tracking-wider flex items-center gap-2">
                   <Palette className="w-4 h-4" />
                   <span>3. Brand Colours & Palette Engine</span>
                 </h3>
-                <span className="text-[10px] text-emerald-400 font-mono bg-emerald-950/80 px-2.5 py-1 rounded border border-emerald-500/30">
-                  Default Green: #3AA91F • Gold: #D4AF37
-                </span>
+                <button
+                  type="button"
+                  onClick={() => {
+                    const next = {
+                      ...formData,
+                      primaryColor: '#0A4F1F',
+                      secondaryGold: '#D4AF37',
+                      backgroundColor: '#F8F5EE',
+                      textColor: '#1F2A1F',
+                      accentColor: '#176B3A',
+                      buttonColor: '#0A5A2A',
+                      hoverColor: '#083F1E',
+                      borderColor: '#D8CDAF',
+                    };
+                    setFormData(next);
+                    applyBrandStyles(next);
+                    showToast('Reset to HAKKIVEDA Default Palette');
+                  }}
+                  className="px-3.5 py-1.5 rounded-xl bg-[var(--brand-gold)] hover:bg-[#b8962e] text-slate-950 font-bold text-xs flex items-center gap-1.5 transition-all shadow-md cursor-pointer"
+                >
+                  <RefreshCw className="w-3.5 h-3.5" />
+                  <span>Reset to HAKKIVEDA Default Palette</span>
+                </button>
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
-                  { key: 'primaryColor', label: 'Primary Brand Colour', default: '#3AA91F' },
+                  { key: 'primaryColor', label: 'Primary Brand Colour', default: '#0A4F1F' },
                   { key: 'secondaryGold', label: 'Secondary Metallic Gold', default: '#D4AF37' },
-                  { key: 'backgroundColor', label: 'Background Colour', default: '#0B1D13' },
-                  { key: 'textColor', label: 'Text Colour', default: '#F8FAFC' },
-                  { key: 'accentColor', label: 'Accent Colour', default: '#10B981' },
-                  { key: 'buttonColor', label: 'Button Colour', default: '#D4AF37' },
-                  { key: 'hoverColor', label: 'Hover Colour', default: '#B8962E' },
-                  { key: 'borderColor', label: 'Border Colour', default: 'rgba(212, 175, 55, 0.3)' },
+                  { key: 'backgroundColor', label: 'Background Colour', default: '#F8F5EE' },
+                  { key: 'textColor', label: 'Text Colour', default: '#1F2A1F' },
+                  { key: 'accentColor', label: 'Accent Colour', default: '#176B3A' },
+                  { key: 'buttonColor', label: 'Button Colour', default: '#0A5A2A' },
+                  { key: 'hoverColor', label: 'Hover Colour', default: '#083F1E' },
+                  { key: 'borderColor', label: 'Border Colour', default: '#D8CDAF' },
                 ].map((col) => {
                   const fieldKey = col.key as keyof BrandIdentityConfig;
                   const hexVal = (formData[fieldKey] as string) || col.default;
@@ -542,7 +577,7 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
                             type="text"
                             value={hexVal}
                             onChange={(e) => handleTextChange(fieldKey, e.target.value)}
-                            placeholder="#3AA91F or HEX"
+                            placeholder="#0A4F1F or HEX"
                             className="w-full bg-black/40 border border-white/20 p-2.5 rounded-xl text-slate-100 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-[var(--brand-gold)] font-bold tracking-wide"
                           />
                         </div>
@@ -557,23 +592,28 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
                 <span className="font-bold text-slate-300 block text-xs">Quick Brand Color Presets</span>
                 <div className="flex flex-wrap gap-2">
                   {[
-                    { name: 'Ayurvedic Forest (Default)', primary: '#3AA91F', gold: '#D4AF37', bg: '#0B1D13', text: '#F8FAFC' },
-                    { name: 'Emerald Royalty', primary: '#059669', gold: '#F59E0B', bg: '#022C22', text: '#F8FAFC' },
-                    { name: 'Midnight Sandalwood', primary: '#166534', gold: '#EAB308', bg: '#091E12', text: '#F8FAFC' },
-                    { name: 'Imperial Botanical', primary: '#15803D', gold: '#CA8A04', bg: '#0B2317', text: '#F8FAFC' },
+                    { name: 'HAKKIVEDA Default', primary: '#0A4F1F', gold: '#D4AF37', bg: '#F8F5EE', text: '#1F2A1F', accent: '#176B3A', button: '#0A5A2A', hover: '#083F1E', border: '#D8CDAF' },
+                    { name: 'Ayurvedic Deep Forest', primary: '#0B1D13', gold: '#D4AF37', bg: '#0B1D13', text: '#F8FAFC', accent: '#3AA91F', button: '#D4AF37', hover: '#B8962E', border: 'rgba(212, 175, 55, 0.3)' },
+                    { name: 'Emerald Royalty', primary: '#059669', gold: '#F59E0B', bg: '#F0FDF4', text: '#064E3B', accent: '#10B981', button: '#059669', hover: '#047857', border: '#A7F3D0' },
+                    { name: 'Imperial Botanical', primary: '#15803D', gold: '#CA8A04', bg: '#FDFBF7', text: '#14532D', accent: '#16A34A', button: '#15803D', hover: '#166534', border: '#E2E8F0' },
                   ].map((swatch, idx) => (
                     <button
                       key={idx}
+                      type="button"
                       onClick={() => {
-                        setFormData((prev) => ({
-                          ...prev,
+                        const next = {
+                          ...formData,
                           primaryColor: swatch.primary,
                           secondaryGold: swatch.gold,
                           backgroundColor: swatch.bg,
                           textColor: swatch.text,
-                          buttonColor: swatch.gold,
-                          hoverColor: swatch.gold,
-                        }));
+                          accentColor: swatch.accent,
+                          buttonColor: swatch.button,
+                          hoverColor: swatch.hover,
+                          borderColor: swatch.border,
+                        };
+                        setFormData(next);
+                        applyBrandStyles(next);
                         showToast(`Applied ${swatch.name} color palette`);
                       }}
                       className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-slate-200 flex items-center gap-2 transition-all cursor-pointer"
@@ -1088,9 +1128,9 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
 
             {/* Live Rendered Canvas Frame */}
             <div
-              className={`mx-auto rounded-2xl border transition-all overflow-hidden ${
+              className={`mx-auto rounded-2xl border transition-all overflow-hidden shadow-xl ${
                 previewDevice === 'DESKTOP'
-                  ? 'w-full min-h-[420px]'
+                  ? 'w-full min-h-[440px]'
                   : previewDevice === 'TABLET'
                   ? 'max-w-[340px] min-h-[400px]'
                   : previewDevice === 'MOBILE'
@@ -1098,24 +1138,38 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
                   : 'w-full min-h-[380px]'
               }`}
               style={{
-                backgroundColor: formData.backgroundColor || '#0B1D13',
-                color: formData.textColor || '#F8FAFC',
-                borderColor: formData.borderColor || 'rgba(212, 175, 55, 0.3)',
+                backgroundColor: formData.backgroundColor || '#F8F5EE',
+                color: formData.textColor || '#1F2A1F',
+                borderColor: formData.borderColor || '#D8CDAF',
               }}
             >
               {/* Device Header Bar */}
-              <div className="px-4 py-2.5 border-b border-white/10 flex items-center justify-between text-[11px] bg-black/40">
+              <div
+                className="px-4 py-2 border-b flex items-center justify-between text-[11px]"
+                style={{
+                  borderColor: formData.borderColor || '#D8CDAF',
+                  backgroundColor: 'rgba(0, 0, 0, 0.05)',
+                  color: formData.textColor || '#1F2A1F',
+                }}
+              >
                 <div className="flex items-center gap-2">
                   <div className="flex items-center gap-1">
                     <span className="w-2.5 h-2.5 rounded-full bg-rose-500"></span>
                     <span className="w-2.5 h-2.5 rounded-full bg-amber-500"></span>
                     <span className="w-2.5 h-2.5 rounded-full bg-emerald-500"></span>
                   </div>
-                  <span className="font-mono text-[10px] text-slate-400 ml-2">
+                  <span className="font-mono text-[10px] opacity-75 ml-2" style={{ color: formData.textColor }}>
                     {formData.browserTitle || 'HAKKIVEDA'}
                   </span>
                 </div>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-white/10 text-slate-300 uppercase">
+                <span
+                  className="text-[10px] font-mono px-2 py-0.5 rounded font-bold border"
+                  style={{
+                    backgroundColor: formData.primaryColor || '#0A4F1F',
+                    color: getContrastTextColor(formData.primaryColor || '#0A4F1F'),
+                    borderColor: formData.borderColor || '#D8CDAF',
+                  }}
+                >
                   {previewDevice}
                 </span>
               </div>
@@ -1123,7 +1177,7 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
               {/* Rendered Live Website / Admin Preview Body */}
               <div className="p-4 space-y-4">
                 {/* Brand Header */}
-                <div className="flex items-center justify-between pb-3 border-b border-white/10">
+                <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: formData.borderColor || '#D8CDAF' }}>
                   <div className="flex items-center gap-2">
                     {formData.mainLogoLight ? (
                       <img src={formData.mainLogoLight} alt="Logo" className="h-6 object-contain" />
@@ -1132,9 +1186,9 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
                         <span
                           className="w-7 h-7 rounded-lg font-bold text-xs flex items-center justify-center font-mono border"
                           style={{
-                            backgroundColor: formData.primaryColor,
-                            color: formData.textColor,
-                            borderColor: formData.secondaryGold,
+                            backgroundColor: formData.primaryColor || '#0A4F1F',
+                            color: getContrastTextColor(formData.primaryColor || '#0A4F1F'),
+                            borderColor: formData.secondaryGold || '#D4AF37',
                           }}
                         >
                           {formData.brandInitials || 'HV'}
@@ -1142,11 +1196,11 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
                         <div>
                           <span
                             className="font-bold text-sm block leading-tight font-serif-luxury"
-                            style={{ color: formData.secondaryGold }}
+                            style={{ color: formData.secondaryGold || '#D4AF37' }}
                           >
                             {formData.brandName || 'HAKKIVEDA'}
                           </span>
-                          <span className="text-[9px] opacity-70 block">
+                          <span className="text-[9px] opacity-75 block" style={{ color: formData.textColor }}>
                             {formData.brandSubtitle || 'Botanical Secret'}
                           </span>
                         </div>
@@ -1156,10 +1210,10 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
 
                   <div className="flex items-center gap-2">
                     <button
-                      className="px-2.5 py-1 rounded-md text-[10px] font-bold"
+                      className="px-2.5 py-1 rounded-md text-[10px] font-bold shadow-sm"
                       style={{
-                        backgroundColor: formData.buttonColor,
-                        color: formData.backgroundColor,
+                        backgroundColor: formData.buttonColor || '#0A5A2A',
+                        color: getContrastTextColor(formData.buttonColor || '#0A5A2A'),
                       }}
                     >
                       Shop
@@ -1167,73 +1221,128 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
                   </div>
                 </div>
 
-                {/* Hero Card Preview */}
+                {/* Hero / Product Card Preview */}
                 <div
-                  className="p-4 rounded-xl border space-y-2 relative overflow-hidden"
+                  className="p-4 rounded-xl border space-y-2 relative overflow-hidden shadow-sm"
                   style={{
-                    borderColor: formData.borderColor,
-                    backgroundColor: 'rgba(255,255,255,0.03)',
+                    borderColor: formData.borderColor || '#D8CDAF',
+                    backgroundColor: 'rgba(255, 255, 255, 0.5)',
                   }}
                 >
-                  <div
-                    className="inline-block px-2 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider"
-                    style={{
-                      backgroundColor: formData.primaryColor,
-                      color: formData.textColor,
-                    }}
-                  >
-                    {formData.companyMotto || 'Ancestral Formula'}
+                  <div className="flex items-center justify-between">
+                    <div
+                      className="inline-block px-2 py-0.5 rounded text-[9px] font-extrabold uppercase tracking-wider"
+                      style={{
+                        backgroundColor: formData.accentColor || '#176B3A',
+                        color: getContrastTextColor(formData.accentColor || '#176B3A'),
+                      }}
+                    >
+                      {formData.companyMotto || 'Ancestral Formula'}
+                    </div>
+                    <span
+                      className="text-[10px] font-bold uppercase tracking-wider"
+                      style={{ color: formData.accentColor || '#176B3A' }}
+                    >
+                      ★ 42 Herb Infusion
+                    </span>
                   </div>
+
                   <h4
                     className="text-base font-bold"
                     style={{
-                      fontFamily: formData.headingFont,
-                      color: formData.secondaryGold,
+                      fontFamily: formData.headingFont || 'Cinzel, serif',
+                      color: formData.textColor || '#1F2A1F',
                     }}
                   >
-                    {formData.brandName}: 42 Herb Botanical Oil
+                    {formData.brandName || 'HAKKIVEDA'}: Ancestral Hair Care Oil
                   </h4>
-                  <p className="text-[11px] opacity-80 line-clamp-2">{formData.brandDescription}</p>
+                  <p
+                    className="text-[11px] leading-relaxed opacity-90 line-clamp-2"
+                    style={{ color: formData.textColor || '#1F2A1F' }}
+                  >
+                    {formData.brandDescription || 'Authentic 42-herb tribal hair care formulation brewed with traditional Mysore forest wisdom.'}
+                  </p>
 
-                  <div className="pt-2 flex items-center gap-2">
+                  {/* Form Label & Field Example */}
+                  <div className="pt-1 space-y-1">
+                    <label className="text-[10px] font-bold block" style={{ color: formData.textColor || '#1F2A1F' }}>
+                      Pincode Verification (Form Label)
+                    </label>
+                    <div className="flex items-center gap-2">
+                      <input
+                        type="text"
+                        readOnly
+                        value="571105 (Mysore, KA)"
+                        className="w-full text-[10px] px-2.5 py-1 rounded border font-mono"
+                        style={{
+                          backgroundColor: 'rgba(0,0,0,0.03)',
+                          borderColor: formData.borderColor || '#D8CDAF',
+                          color: formData.textColor || '#1F2A1F',
+                        }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Buttons (Primary & Hover State Preview) */}
+                  <div className="pt-2 flex flex-wrap items-center gap-2">
                     <button
-                      className="px-3 py-1.5 rounded-lg text-xs font-extrabold shadow-md"
+                      className="px-3 py-1.5 rounded-lg text-xs font-extrabold shadow-md flex items-center gap-1"
                       style={{
-                        backgroundColor: formData.buttonColor,
-                        color: '#000000',
+                        backgroundColor: formData.buttonColor || '#0A5A2A',
+                        color: getContrastTextColor(formData.buttonColor || '#0A5A2A'),
                       }}
                     >
-                      Buy Now
+                      Buy Now ₹899
                     </button>
                     <button
-                      className="px-3 py-1.5 rounded-lg text-xs font-bold border"
+                      className="px-3 py-1.5 rounded-lg text-xs font-bold border flex items-center gap-1"
                       style={{
-                        borderColor: formData.secondaryGold,
-                        color: formData.secondaryGold,
+                        backgroundColor: formData.hoverColor || '#083F1E',
+                        color: getContrastTextColor(formData.hoverColor || '#083F1E'),
+                        borderColor: formData.hoverColor || '#083F1E',
                       }}
+                      title="Hover State Preview"
                     >
-                      Learn Wisdom
+                      Hover State
                     </button>
                   </div>
                 </div>
 
                 {/* Color Swatch Indicators */}
-                <div className="bg-black/40 p-3 rounded-xl border border-white/10 space-y-1.5">
-                  <span className="text-[10px] font-mono text-slate-400 block uppercase">
-                    Active Theme Spectrum
+                <div
+                  className="p-3 rounded-xl border space-y-1.5"
+                  style={{
+                    backgroundColor: 'rgba(0,0,0,0.03)',
+                    borderColor: formData.borderColor || '#D8CDAF',
+                  }}
+                >
+                  <span className="text-[10px] font-mono block uppercase font-bold" style={{ color: formData.textColor || '#1F2A1F' }}>
+                    Active Brand Palette Spectrum
                   </span>
-                  <div className="grid grid-cols-4 gap-1.5 text-[9px] font-mono">
-                    <div className="p-1 rounded text-center font-bold" style={{ backgroundColor: formData.primaryColor, color: '#fff' }}>
+                  <div className="grid grid-cols-4 gap-1 text-[8px] font-mono">
+                    <div className="p-1 rounded text-center font-bold" style={{ backgroundColor: formData.primaryColor, color: getContrastTextColor(formData.primaryColor) }}>
                       Primary
                     </div>
-                    <div className="p-1 rounded text-center font-bold" style={{ backgroundColor: formData.secondaryGold, color: '#000' }}>
+                    <div className="p-1 rounded text-center font-bold" style={{ backgroundColor: formData.secondaryGold, color: getContrastTextColor(formData.secondaryGold) }}>
                       Gold
                     </div>
-                    <div className="p-1 rounded text-center font-bold" style={{ backgroundColor: formData.accentColor, color: '#fff' }}>
+                    <div className="p-1 rounded text-center font-bold" style={{ backgroundColor: formData.accentColor, color: getContrastTextColor(formData.accentColor) }}>
                       Accent
                     </div>
-                    <div className="p-1 rounded text-center font-bold" style={{ backgroundColor: formData.backgroundColor, color: formData.textColor, border: '1px solid rgba(255,255,255,0.2)' }}>
+                    <div className="p-1 rounded text-center font-bold border" style={{ backgroundColor: formData.backgroundColor, color: formData.textColor, borderColor: formData.borderColor }}>
                       Canvas
+                    </div>
+                    <div className="p-1 rounded text-center font-bold" style={{ backgroundColor: formData.buttonColor, color: getContrastTextColor(formData.buttonColor) }}>
+                      Button
+                    </div>
+                    <div className="p-1 rounded text-center font-bold" style={{ backgroundColor: formData.hoverColor, color: getContrastTextColor(formData.hoverColor) }}>
+                      Hover
+                    </div>
+                    <div className="p-1 rounded text-center font-bold border" style={{ backgroundColor: formData.borderColor, color: getContrastTextColor(formData.borderColor) }}>
+                      Border
+                    </div>
+                    <div className="p-1 rounded text-center font-bold" style={{ backgroundColor: formData.textColor, color: getContrastTextColor(formData.textColor) }}>
+                      Text
                     </div>
                   </div>
                 </div>

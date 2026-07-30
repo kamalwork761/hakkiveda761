@@ -59,9 +59,8 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ selectedCatego
                   <img
                     src={cat.image}
                     alt={cat.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-80 group-hover:opacity-100"
+                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-100"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[var(--brand-primary-dark)] via-[var(--brand-primary-dark)]/40 to-transparent"></div>
                   <span className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-[var(--brand-gold)] text-[10px] font-bold font-sans px-2.5 py-0.5 rounded-full border border-[var(--brand-gold)]/30">
                     {cat.itemCount} Items
                   </span>

@@ -217,16 +217,12 @@ export const HeroSlider: React.FC = () => {
 
             {/* Customizable Overlay Color & Opacity */}
             <div
-              className="absolute inset-0 transition-opacity duration-700"
+              className="absolute inset-0 transition-opacity duration-700 pointer-events-none"
               style={{
                 backgroundColor: slide.overlayColor || 'var(--brand-primary-dark)',
                 opacity: (slide.overlayOpacity ?? 75) / 100,
               }}
             />
-
-            {/* Gradient luxury depth vignetting */}
-            <div className="absolute inset-0 bg-gradient-to-r from-black/60 via-transparent to-black/40 z-10" />
-            <div className="absolute inset-0 bg-gradient-to-t from-[var(--brand-primary-dark)] via-transparent to-black/30 z-10" />
           </div>
         );
       })}

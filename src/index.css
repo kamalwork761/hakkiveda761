@@ -285,3 +285,39 @@
     display: none !important;
   }
 }
+
+/* Product Detail Modal Mobile/Tablet Optimization */
+.product-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 99990;
+  background-color: rgba(0, 0, 0, 0.85);
+  backdrop-filter: blur(8px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+  display: flex;
+  align-items: flex-start;
+  justify-content: center;
+  padding: 12px;
+  padding-top: calc(env(safe-area-inset-top, 0px) + 16px);
+  padding-bottom: calc(env(safe-area-inset-bottom, 0px) + 96px);
+}
+
+.product-modal-content {
+  max-height: calc(100dvh - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px) - 32px);
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+.product-modal-close {
+  position: fixed;
+  top: calc(env(safe-area-inset-top, 0px) + 12px);
+  right: 12px;
+  z-index: 99999;
+}
+
+.product-main-image {
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+}

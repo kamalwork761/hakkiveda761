@@ -144,9 +144,9 @@ export const HeroSlider: React.FC = () => {
       onMouseLeave={() => setIsHovered(false)}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      className="relative w-full h-[520px] sm:h-[580px] lg:h-[620px] flex items-center overflow-hidden bg-[var(--brand-primary-dark)]"
+      className="relative w-full h-[540px] sm:h-[580px] lg:h-[620px] flex items-center overflow-hidden bg-[var(--brand-primary-dark)]"
     >
-      {/* Media Layer: Map through all active hero slides dynamically */}
+      {/* Media & Overlay Layer (z-index 0 and z-index 1) */}
       {slidesToRender.map((slide, idx) => {
         const isActive = idx === currentSlideIndex;
         const isVideoUrl = (url?: string) =>
@@ -170,14 +170,14 @@ export const HeroSlider: React.FC = () => {
         const videoUrl = normalizeMediaUrl(rawVideoUrl);
         const imageUrl = normalizeMediaUrl(rawImageUrl);
         const mobileImageUrl = normalizeMediaUrl(slide.mobileImage);
-        console.log('Hero preview image URL', imageUrl);
 
         return (
           <div
-            key={slide.id}
+            key={`slide-media-${slide.id || idx}`}
             className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
-              isActive ? 'opacity-100 z-10 pointer-events-auto' : 'opacity-0 z-0 pointer-events-none'
+              isActive ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
             }`}
+            style={{ zIndex: 0 }}
           >
             {isVideo && videoUrl ? (
               <video
@@ -215,10 +215,14 @@ export const HeroSlider: React.FC = () => {
               </picture>
             )}
 
-            {/* Customizable Overlay Color & Opacity */}
+            {/* Hero Overlay (z-index 1) */}
             <div
-              className="absolute inset-0 transition-opacity duration-700 pointer-events-none"
+              className="hero-overlay absolute inset-0 transition-opacity duration-700 pointer-events-none"
               style={{
+                position: 'absolute',
+                inset: 0,
+                zIndex: 1,
+                pointerEvents: 'none',
                 backgroundColor: slide.overlayColor || 'var(--brand-primary-dark)',
                 opacity: (slide.overlayOpacity ?? 75) / 100,
               }}
@@ -227,160 +231,181 @@ export const HeroSlider: React.FC = () => {
         );
       })}
 
-      {/* Content Layer: Map through all active hero slides dynamically */}
+      {/* Hero Content Layer (z-index 3) */}
       {slidesToRender.map((slide, idx) => {
         const isActive = idx === currentSlideIndex;
 
         return (
           <div
             key={`slide-content-${slide.id || idx}`}
-            className={`relative z-20 max-w-7xl mx-auto px-6 sm:px-12 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center transition-all duration-700 ease-in-out banner-content overlay-content ${
+            className={`hero-content absolute inset-0 max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 w-full flex items-center transition-all duration-700 ease-in-out ${
               isActive
-                ? 'opacity-100 translate-y-0 z-20 pointer-events-auto block'
-                : 'opacity-0 translate-y-4 z-0 pointer-events-none hidden'
+                ? 'opacity-100 translate-y-0 pointer-events-auto visible'
+                : 'opacity-0 translate-y-4 pointer-events-none invisible hidden'
             }`}
+            style={{
+              position: 'absolute',
+              inset: 0,
+              zIndex: 3,
+              opacity: isActive ? 1 : 0,
+              visibility: isActive ? 'visible' : 'hidden',
+              pointerEvents: isActive ? 'auto' : 'none',
+            }}
           >
-            <div
-              className={`lg:col-span-7 space-y-5 sm:space-y-6 ${
-                slide.textPosition === 'CENTER'
-                  ? 'text-center mx-auto lg:col-span-12'
-                  : slide.textPosition === 'RIGHT'
-                  ? 'text-right ml-auto lg:col-span-7'
-                  : 'text-left'
-              }`}
-            >
-              {/* Eyebrow / Tag Badge */}
-              <span className="inline-flex items-center gap-2 px-3.5 py-1 border border-[var(--brand-gold)] text-[var(--brand-gold)] font-sans text-[10px] sm:text-xs uppercase tracking-[0.28em] rounded-full backdrop-blur-md bg-black/40 font-semibold shadow-lg">
-                <Sparkles className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
-                <span>{slide.tag || 'AUTHENTIC HAKKI-PIKKI SECRET'}</span>
-              </span>
+            <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+              <div
+                className={`lg:col-span-7 space-y-4 sm:space-y-6 ${
+                  slide.textPosition === 'CENTER'
+                    ? 'text-center mx-auto lg:col-span-12'
+                    : slide.textPosition === 'RIGHT'
+                    ? 'text-right ml-auto lg:col-span-7'
+                    : 'text-left'
+                }`}
+                style={{
+                  color: slide.textColor || undefined,
+                }}
+              >
+                {/* Eyebrow / Tag Badge */}
+                <span className="inline-flex items-center gap-2 px-3.5 py-1 border border-[var(--brand-gold)] text-[var(--brand-gold)] font-sans text-[10px] sm:text-xs uppercase tracking-[0.28em] rounded-full backdrop-blur-md bg-black/50 font-semibold shadow-lg">
+                  <Sparkles className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
+                  <span>{slide.tag || 'AUTHENTIC HAKKI-PIKKI SECRET'}</span>
+                </span>
 
-              {slide.smallHeading && (
-                <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[var(--brand-gold-light)]">
-                  {slide.smallHeading}
-                </p>
-              )}
-
-              <h1 className="text-4xl sm:text-6xl lg:text-7xl font-bold font-serif-luxury leading-[1.08] text-white">
-                {slide.title}{' '}
-                {slide.highlightText && (
-                  <span className="italic text-[var(--brand-gold)] text-gold-gradient block sm:inline">
-                    {slide.highlightText}
-                  </span>
-                )}
-              </h1>
-
-              <p className="text-sm sm:text-lg opacity-90 font-sans font-light leading-relaxed text-slate-200 max-w-xl">
-                {slide.subtitle}
-              </p>
-
-              {/* CTA Buttons */}
-              <div className="flex flex-wrap items-center gap-4 pt-2">
-                {slide.ctaText && (
-                  <a
-                    href={slide.ctaLink || '#products'}
-                    onClick={() => handleCtaClick(slide.id, slide.ctaLink)}
-                    className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-8 py-3.5 font-sans text-xs font-bold uppercase tracking-[0.2em] hover:bg-white transition-all duration-300 shadow-2xl rounded-sm hover:scale-105 flex items-center gap-2"
-                  >
-                    <span>{slide.ctaText}</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </a>
+                {slide.smallHeading && (
+                  <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[var(--brand-gold-light)]">
+                    {slide.smallHeading}
+                  </p>
                 )}
 
-                {slide.secondaryCtaText && (
-                  <a
-                    href={slide.secondaryCtaLink || '#ai-quiz'}
-                    onClick={() => handleCtaClick(slide.id, slide.secondaryCtaLink)}
-                    className="border border-[var(--brand-gold)]/60 text-white px-8 py-3.5 font-sans text-xs font-bold uppercase tracking-[0.2em] backdrop-blur-md bg-black/20 hover:bg-[var(--brand-gold)]/20 transition-all rounded-sm flex items-center gap-2"
-                  >
-                    <Sparkles className="w-4 h-4 text-[var(--brand-gold)]" />
-                    <span>{slide.secondaryCtaText}</span>
-                  </a>
-                )}
-              </div>
-
-              {/* Key Guarantee Badges */}
-              <div className="pt-6 grid grid-cols-3 gap-4 border-t border-white/10 max-w-lg font-sans text-[11px] text-slate-300">
-                <div className="flex items-center gap-2">
-                  <ShieldCheck className="w-4 h-4 text-[var(--brand-gold)] shrink-0" />
-                  <span>42 Rare Herbs</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Flame className="w-4 h-4 text-[var(--brand-gold)] shrink-0" />
-                  <span>21-Day Woodfire Brew</span>
-                </div>
-                <div className="flex items-center gap-2">
-                  <Award className="w-4 h-4 text-[var(--brand-gold)] shrink-0" />
-                  <span>100% Organic</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Feature Card (AI Hair Analysis Preview) */}
-            {slide.textPosition !== 'CENTER' && (
-              <div className="hidden lg:flex lg:col-span-5 justify-end">
-                <div className="w-[320px] p-6 bg-black/50 backdrop-blur-xl border border-[var(--brand-gold)]/50 rounded-2xl space-y-4 gold-border-glow shadow-2xl transform hover:scale-102 transition-all overlay-card">
-                  <div className="flex items-center justify-between">
-                    <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-[var(--brand-gold)] bg-[var(--brand-gold)]/10 px-2.5 py-1 rounded">
-                      AI Trichology Engine
+                <h1
+                  className="text-3xl sm:text-5xl lg:text-6xl font-bold font-serif-luxury leading-[1.08]"
+                  style={{ color: slide.textColor || '#FFFFFF' }}
+                >
+                  {slide.title}{' '}
+                  {slide.highlightText && (
+                    <span className="italic text-[var(--brand-gold)] text-gold-gradient block sm:inline">
+                      {slide.highlightText}
                     </span>
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                  </div>
+                  )}
+                </h1>
 
-                  <div className="flex items-center gap-4">
-                    <div className="w-16 h-16 rounded-full bg-[var(--brand-primary-dark)] border-2 border-[var(--brand-gold)] flex items-center justify-center shrink-0 shadow-lg">
-                      <Sparkles className="w-8 h-8 text-[var(--brand-gold)]" />
-                    </div>
-                    <div>
-                      <h4 className="text-sm font-bold font-serif-luxury text-slate-100">Personalized Hair Formula</h4>
-                      <p className="text-xs text-slate-300 mt-1 leading-snug">Get custom tribal herbal dosage and scalp diagnostics in 60 seconds.</p>
-                    </div>
-                  </div>
+                <p className="text-xs sm:text-base opacity-90 font-sans font-light leading-relaxed text-slate-200 max-w-xl">
+                  {slide.subtitle}
+                </p>
 
-                  <button
-                    onClick={() => {
-                      playSound('cta_click');
-                      setIsQuizOpen(true);
-                    }}
-                    className="w-full bg-gradient-to-r from-[var(--brand-gold)] to-[var(--brand-gold-light)] text-[var(--brand-primary-dark)] py-2.5 rounded font-sans text-xs font-bold uppercase tracking-wider hover:brightness-110 transition-all shadow-md flex items-center justify-center gap-2"
-                  >
-                    <span>Analyze My Hair Now</span>
-                    <ChevronRight className="w-4 h-4" />
-                  </button>
+                {/* CTA Buttons */}
+                <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-1 sm:pt-2">
+                  {slide.ctaText && (
+                    <a
+                      href={slide.ctaLink || '#products'}
+                      onClick={() => handleCtaClick(slide.id, slide.ctaLink)}
+                      className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-6 sm:px-8 py-3 sm:py-3.5 font-sans text-xs font-bold uppercase tracking-[0.2em] hover:bg-white transition-all duration-300 shadow-2xl rounded-sm hover:scale-105 flex items-center gap-2"
+                    >
+                      <span>{slide.ctaText}</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </a>
+                  )}
+
+                  {slide.secondaryCtaText && (
+                    <a
+                      href={slide.secondaryCtaLink || '#ai-quiz'}
+                      onClick={() => handleCtaClick(slide.id, slide.secondaryCtaLink)}
+                      className="border border-[var(--brand-gold)]/60 text-white px-6 sm:px-8 py-3 sm:py-3.5 font-sans text-xs font-bold uppercase tracking-[0.2em] backdrop-blur-md bg-black/30 hover:bg-[var(--brand-gold)]/20 transition-all rounded-sm flex items-center gap-2"
+                    >
+                      <Sparkles className="w-4 h-4 text-[var(--brand-gold)]" />
+                      <span>{slide.secondaryCtaText}</span>
+                    </a>
+                  )}
+                </div>
+
+                {/* Key Guarantee Badges */}
+                <div className="pt-4 sm:pt-6 grid grid-cols-3 gap-2 sm:gap-4 border-t border-white/10 max-w-lg font-sans text-[10px] sm:text-[11px] text-slate-300">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[var(--brand-gold)] shrink-0" />
+                    <span>42 Rare Herbs</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[var(--brand-gold)] shrink-0" />
+                    <span>21-Day Woodfire Brew</span>
+                  </div>
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <Award className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[var(--brand-gold)] shrink-0" />
+                    <span>100% Organic</span>
+                  </div>
                 </div>
               </div>
-            )}
+
+              {/* Right Feature Card (AI Hair Analysis Preview) */}
+              {slide.textPosition !== 'CENTER' && (
+                <div className="hidden lg:flex lg:col-span-5 justify-end">
+                  <div className="w-[320px] p-6 bg-black/60 backdrop-blur-xl border border-[var(--brand-gold)]/50 rounded-2xl space-y-4 gold-border-glow shadow-2xl transform hover:scale-102 transition-all">
+                    <div className="flex items-center justify-between">
+                      <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-[var(--brand-gold)] bg-[var(--brand-gold)]/10 px-2.5 py-1 rounded">
+                        AI Trichology Engine
+                      </span>
+                      <span className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    </div>
+
+                    <div className="flex items-center gap-4">
+                      <div className="w-16 h-16 rounded-full bg-[var(--brand-primary-dark)] border-2 border-[var(--brand-gold)] flex items-center justify-center shrink-0 shadow-lg">
+                        <Sparkles className="w-8 h-8 text-[var(--brand-gold)]" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold font-serif-luxury text-slate-100">Personalized Hair Formula</h4>
+                        <p className="text-xs text-slate-300 mt-1 leading-snug">Get custom tribal herbal dosage and scalp diagnostics in 60 seconds.</p>
+                      </div>
+                    </div>
+
+                    <button
+                      onClick={() => {
+                        playSound('cta_click');
+                        setIsQuizOpen(true);
+                      }}
+                      className="w-full bg-gradient-to-r from-[var(--brand-gold)] to-[var(--brand-gold-light)] text-[var(--brand-primary-dark)] py-2.5 rounded font-sans text-xs font-bold uppercase tracking-wider hover:brightness-110 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                    >
+                      <span>Analyze My Hair Now</span>
+                      <ChevronRight className="w-4 h-4" />
+                    </button>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
         );
       })}
 
-      {/* Controls & Dots Navigation */}
+      {/* Controls & Dots Navigation (z-index 4 / z-30) */}
       {slidesToRender.length > 1 && (
         <>
           <button
             onClick={() =>
               setCurrentSlideIndex((prev) => (prev - 1 + slidesToRender.length) % slidesToRender.length)
             }
-            className="absolute left-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-black/40 border border-white/20 text-white flex items-center justify-center hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all"
+            className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 border border-white/20 text-white flex items-center justify-center hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all cursor-pointer"
+            style={{ zIndex: 4 }}
             aria-label="Previous Slide"
           >
             <ChevronLeft className="w-5 h-5" />
           </button>
           <button
             onClick={() => setCurrentSlideIndex((prev) => (prev + 1) % slidesToRender.length)}
-            className="absolute right-4 top-1/2 -translate-y-1/2 z-30 w-10 h-10 rounded-full bg-black/40 border border-white/20 text-white flex items-center justify-center hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all"
+            className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 border border-white/20 text-white flex items-center justify-center hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all cursor-pointer"
+            style={{ zIndex: 4 }}
             aria-label="Next Slide"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
 
-          <div className="absolute bottom-6 left-1/2 -translate-x-1/2 z-30 flex items-center gap-2">
+          <div
+            className="absolute bottom-5 sm:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2"
+            style={{ zIndex: 4 }}
+          >
             {slidesToRender.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentSlideIndex(idx)}
-                className={`h-1.5 rounded-full transition-all duration-500 ${
-                  idx === currentSlideIndex ? 'w-8 bg-[var(--brand-gold)]' : 'w-2 bg-white/40'
+                className={`h-1.5 rounded-full transition-all duration-500 cursor-pointer ${
+                  idx === currentSlideIndex ? 'w-8 bg-[var(--brand-gold)]' : 'w-2 bg-white/50'
                 }`}
                 aria-label={`Go to slide ${idx + 1}`}
               />

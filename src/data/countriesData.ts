@@ -2,9 +2,18 @@ export type SupportedCurrencyCode = 'INR' | 'SGD' | 'MYR' | 'FJD' | 'MUR' | 'AED
 
 export interface CountryItem {
   code: string;
+  iso2: string;
   name: string;
   flag: string;
+  phoneCode: string;
+  dialCode: string;
   currencyCode: SupportedCurrencyCode;
+  currency: string;
+  postalLabel: string;
+  postalPlaceholder: string;
+  phoneMinDigits: number;
+  phoneMaxDigits: number;
+  supportsLookup: boolean;
   region?: string;
   marketId?: string;
 }
@@ -91,6 +100,90 @@ export function codeToFlag(code: string): string {
   return String.fromCodePoint(first, second);
 }
 
+// Map of international calling codes and validation constraints by ISO 2 code
+const COUNTRY_CALLING_CODES: Record<string, { dialCode: string; minLen?: number; maxLen?: number; postalPlaceholder?: string }> = {
+  IN: { dialCode: '+91', minLen: 10, maxLen: 10, postalPlaceholder: 'e.g. 141008' },
+  US: { dialCode: '+1', minLen: 10, maxLen: 10, postalPlaceholder: 'e.g. 10282' },
+  GB: { dialCode: '+44', minLen: 10, maxLen: 11, postalPlaceholder: 'e.g. SW1A 1AA' },
+  AE: { dialCode: '+971', minLen: 8, maxLen: 9, postalPlaceholder: 'e.g. 00000' },
+  SG: { dialCode: '+65', minLen: 8, maxLen: 8, postalPlaceholder: 'e.g. 049318' },
+  MY: { dialCode: '+60', minLen: 9, maxLen: 10, postalPlaceholder: 'e.g. 50450' },
+  FJ: { dialCode: '+679', minLen: 7, maxLen: 7, postalPlaceholder: 'e.g. 00240' },
+  MU: { dialCode: '+230', minLen: 7, maxLen: 8, postalPlaceholder: 'e.g. 742CU001' },
+  NP: { dialCode: '+977', minLen: 10, maxLen: 10, postalPlaceholder: 'e.g. 44600' },
+  AU: { dialCode: '+61', minLen: 9, maxLen: 9, postalPlaceholder: 'e.g. 2000' },
+  CA: { dialCode: '+1', minLen: 10, maxLen: 10, postalPlaceholder: 'e.g. M5V 2T6' },
+  BO: { dialCode: '+591', minLen: 8, maxLen: 8, postalPlaceholder: 'e.g. 1234' },
+  AF: { dialCode: '+93' }, AX: { dialCode: '+358' }, AL: { dialCode: '+355' }, DZ: { dialCode: '+213' },
+  AS: { dialCode: '+1' }, AD: { dialCode: '+376' }, AO: { dialCode: '+244' }, AI: { dialCode: '+1' },
+  AQ: { dialCode: '+672' }, AG: { dialCode: '+1' }, AR: { dialCode: '+54' }, AM: { dialCode: '+374' },
+  AW: { dialCode: '+297' }, AT: { dialCode: '+43' }, AZ: { dialCode: '+994' }, BS: { dialCode: '+1' },
+  BH: { dialCode: '+973' }, BD: { dialCode: '+880' }, BB: { dialCode: '+1' }, BY: { dialCode: '+375' },
+  BE: { dialCode: '+32' }, BZ: { dialCode: '+501' }, BJ: { dialCode: '+229' }, BM: { dialCode: '+1' },
+  BT: { dialCode: '+975' }, BA: { dialCode: '+387' }, BW: { dialCode: '+267' }, BV: { dialCode: '+47' },
+  BR: { dialCode: '+55' }, IO: { dialCode: '+246' }, BN: { dialCode: '+673' }, BG: { dialCode: '+359' },
+  BF: { dialCode: '+226' }, BI: { dialCode: '+257' }, KH: { dialCode: '+855' }, CM: { dialCode: '+237' },
+  CV: { dialCode: '+238' }, KY: { dialCode: '+1' }, CF: { dialCode: '+236' }, TD: { dialCode: '+235' },
+  CL: { dialCode: '+56' }, CN: { dialCode: '+86' }, CX: { dialCode: '+61' }, CC: { dialCode: '+61' },
+  CO: { dialCode: '+57' }, KM: { dialCode: '+269' }, CG: { dialCode: '+242' }, CD: { dialCode: '+243' },
+  CK: { dialCode: '+682' }, CR: { dialCode: '+506' }, CI: { dialCode: '+225' }, HR: { dialCode: '+385' },
+  CU: { dialCode: '+53' }, CW: { dialCode: '+599' }, CY: { dialCode: '+357' }, CZ: { dialCode: '+420' },
+  DK: { dialCode: '+45' }, DJ: { dialCode: '+253' }, DM: { dialCode: '+1' }, DO: { dialCode: '+1' },
+  EC: { dialCode: '+593' }, EG: { dialCode: '+20' }, SV: { dialCode: '+503' }, GQ: { dialCode: '+240' },
+  ER: { dialCode: '+291' }, EE: { dialCode: '+372' }, SZ: { dialCode: '+268' }, ET: { dialCode: '+251' },
+  FK: { dialCode: '+500' }, FO: { dialCode: '+298' }, FI: { dialCode: '+358' }, FR: { dialCode: '+33' },
+  GF: { dialCode: '+594' }, PF: { dialCode: '+689' }, TF: { dialCode: '+262' }, GA: { dialCode: '+241' },
+  GM: { dialCode: '+220' }, GE: { dialCode: '+995' }, DE: { dialCode: '+49' }, GH: { dialCode: '+233' },
+  GI: { dialCode: '+350' }, GR: { dialCode: '+30' }, GL: { dialCode: '+299' }, GD: { dialCode: '+1' },
+  GP: { dialCode: '+590' }, GU: { dialCode: '+1' }, GT: { dialCode: '+502' }, GG: { dialCode: '+44' },
+  GN: { dialCode: '+224' }, GW: { dialCode: '+245' }, GY: { dialCode: '+592' }, HT: { dialCode: '+509' },
+  HM: { dialCode: '+672' }, VA: { dialCode: '+39' }, HN: { dialCode: '+504' }, HK: { dialCode: '+852' },
+  HU: { dialCode: '+36' }, IS: { dialCode: '+354' }, ID: { dialCode: '+62' }, IR: { dialCode: '+98' },
+  IQ: { dialCode: '+964' }, IE: { dialCode: '+353' }, IM: { dialCode: '+44' }, IL: { dialCode: '+972' },
+  IT: { dialCode: '+39' }, JM: { dialCode: '+1' }, JP: { dialCode: '+81' }, JE: { dialCode: '+44' },
+  JO: { dialCode: '+962' }, KZ: { dialCode: '+7' }, KE: { dialCode: '+254' }, KI: { dialCode: '+686' },
+  KP: { dialCode: '+850' }, KR: { dialCode: '+82' }, KW: { dialCode: '+965' }, KG: { dialCode: '+996' },
+  LA: { dialCode: '+856' }, LV: { dialCode: '+371' }, LB: { dialCode: '+961' }, LS: { dialCode: '+266' },
+  LR: { dialCode: '+231' }, LY: { dialCode: '+218' }, LI: { dialCode: '+423' }, LT: { dialCode: '+370' },
+  LU: { dialCode: '+352' }, MO: { dialCode: '+853' }, MG: { dialCode: '+261' }, MW: { dialCode: '+265' },
+  MV: { dialCode: '+960' }, ML: { dialCode: '+223' }, MT: { dialCode: '+356' }, MH: { dialCode: '+692' },
+  MQ: { dialCode: '+596' }, MR: { dialCode: '+222' }, YT: { dialCode: '+262' }, MX: { dialCode: '+52' },
+  FM: { dialCode: '+691' }, MD: { dialCode: '+373' }, MC: { dialCode: '+377' }, MN: { dialCode: '+976' },
+  ME: { dialCode: '+382' }, MS: { dialCode: '+1' }, MA: { dialCode: '+212' }, MZ: { dialCode: '+258' },
+  MM: { dialCode: '+95' }, NA: { dialCode: '+264' }, NR: { dialCode: '+674' }, NL: { dialCode: '+31' },
+  NC: { dialCode: '+687' }, NZ: { dialCode: '+64' }, NI: { dialCode: '+505' }, NE: { dialCode: '+227' },
+  NG: { dialCode: '+234' }, NU: { dialCode: '+683' }, NF: { dialCode: '+672' }, MK: { dialCode: '+389' },
+  MP: { dialCode: '+1' }, NO: { dialCode: '+47' }, OM: { dialCode: '+968' }, PK: { dialCode: '+92' },
+  PW: { dialCode: '+680' }, PS: { dialCode: '+970' }, PA: { dialCode: '+507' }, PG: { dialCode: '+675' },
+  PY: { dialCode: '+595' }, PE: { dialCode: '+51' }, PH: { dialCode: '+63' }, PN: { dialCode: '+64' },
+  PL: { dialCode: '+48' }, PT: { dialCode: '+351' }, PR: { dialCode: '+1' }, QA: { dialCode: '+974' },
+  RE: { dialCode: '+262' }, RO: { dialCode: '+40' }, RU: { dialCode: '+7' }, RW: { dialCode: '+250' },
+  BL: { dialCode: '+590' }, SH: { dialCode: '+290' }, KN: { dialCode: '+1' }, LC: { dialCode: '+1' },
+  MF: { dialCode: '+590' }, PM: { dialCode: '+508' }, VC: { dialCode: '+1' }, WS: { dialCode: '+685' },
+  SM: { dialCode: '+378' }, ST: { dialCode: '+239' }, SA: { dialCode: '+966' }, SN: { dialCode: '+221' },
+  RS: { dialCode: '+381' }, SC: { dialCode: '+248' }, SL: { dialCode: '+232' }, SX: { dialCode: '+1' },
+  SK: { dialCode: '+421' }, SI: { dialCode: '+386' }, SB: { dialCode: '+677' }, SO: { dialCode: '+252' },
+  ZA: { dialCode: '+27' }, GS: { dialCode: '+500' }, SS: { dialCode: '+211' }, ES: { dialCode: '+34' },
+  LK: { dialCode: '+94' }, SD: { dialCode: '+249' }, SR: { dialCode: '+597' }, SJ: { dialCode: '+47' },
+  SE: { dialCode: '+46' }, CH: { dialCode: '+41' }, SY: { dialCode: '+963' }, TW: { dialCode: '+886' },
+  TJ: { dialCode: '+992' }, TZ: { dialCode: '+255' }, TH: { dialCode: '+66' }, TL: { dialCode: '+670' },
+  TG: { dialCode: '+228' }, TK: { dialCode: '+690' }, TO: { dialCode: '+676' }, TT: { dialCode: '+1' },
+  TN: { dialCode: '+216' }, TR: { dialCode: '+90' }, TM: { dialCode: '+993' }, TC: { dialCode: '+1' },
+  TV: { dialCode: '+688' }, UG: { dialCode: '+256' }, UA: { dialCode: '+380' }, UM: { dialCode: '+1' },
+  UY: { dialCode: '+598' }, UZ: { dialCode: '+998' }, VU: { dialCode: '+678' }, VE: { dialCode: '+58' },
+  VN: { dialCode: '+84' }, VG: { dialCode: '+1' }, VI: { dialCode: '+1' }, WF: { dialCode: '+681' },
+  EH: { dialCode: '+212' }, YE: { dialCode: '+967' }, ZM: { dialCode: '+260' }, ZW: { dialCode: '+263' },
+};
+
+function getPostalLabel(code: string): string {
+  if (code === 'US') return 'ZIP Code';
+  if (code === 'IN') return 'Pincode';
+  if (code === 'GB') return 'Postcode';
+  return 'Postal Code';
+}
+
+const LOOKUP_SUPPORTED_CODES = new Set(['IN', 'US', 'GB', 'SG', 'MY', 'CA', 'AU']);
+
 // Complete list of ISO 3166-1 alpha-2 countries and territories worldwide
 const RAW_COUNTRIES: { code: string; name: string }[] = [
   { code: 'AF', name: 'Afghanistan' },
@@ -146,7 +239,7 @@ const RAW_COUNTRIES: { code: string; name: string }[] = [
   { code: 'CD', name: 'Congo - Kinshasa' },
   { code: 'CK', name: 'Cook Islands' },
   { code: 'CR', name: 'Costa Rica' },
-  { code: 'CI', name: 'Côte d’Ivoire' },
+  { code: 'CI', name: "Côte d'Ivoire" },
   { code: 'HR', name: 'Croatia' },
   { code: 'CU', name: 'Cuba' },
   { code: 'CW', name: 'Curaçao' },
@@ -343,18 +436,64 @@ const RAW_COUNTRIES: { code: string; name: string }[] = [
   { code: 'ZW', name: 'Zimbabwe' },
 ];
 
-export const WORLD_COUNTRIES: CountryItem[] = RAW_COUNTRIES.map((c) => ({
-  code: c.code,
-  name: c.name,
-  flag: codeToFlag(c.code),
-  currencyCode: getCurrencyForCountry(c.code, c.name),
-  region: getRegionForCountry(c.code),
-  marketId: getMarketForCountry(c.code),
-}));
+export const WORLD_COUNTRIES: CountryItem[] = RAW_COUNTRIES.map((c) => {
+  const meta = COUNTRY_CALLING_CODES[c.code] || { dialCode: '+1' };
+  const currencyCode = getCurrencyForCountry(c.code, c.name);
+  return {
+    code: c.code,
+    iso2: c.code,
+    name: c.name,
+    flag: codeToFlag(c.code),
+    phoneCode: meta.dialCode,
+    dialCode: meta.dialCode,
+    currencyCode: currencyCode,
+    currency: currencyCode,
+    postalLabel: getPostalLabel(c.code),
+    postalPlaceholder: meta.postalPlaceholder || 'Postal / ZIP Code',
+    phoneMinDigits: meta.minLen || 6,
+    phoneMaxDigits: meta.maxLen || 12,
+    supportsLookup: LOOKUP_SUPPORTED_CODES.has(c.code),
+    region: getRegionForCountry(c.code),
+    marketId: getMarketForCountry(c.code),
+  };
+});
 
 export const DEFAULT_COUNTRY: CountryItem = WORLD_COUNTRIES.find((c) => c.code === 'IN') || {
   code: 'IN',
+  iso2: 'IN',
   name: 'India',
   flag: '🇮🇳',
+  phoneCode: '+91',
+  dialCode: '+91',
   currencyCode: 'INR',
+  currency: 'INR',
+  postalLabel: 'Pincode',
+  postalPlaceholder: 'e.g. 141008',
+  phoneMinDigits: 10,
+  phoneMaxDigits: 10,
+  supportsLookup: true,
 };
+
+export function getCountryDetails(query: string): CountryItem {
+  if (!query) return DEFAULT_COUNTRY;
+  const q = query.trim().toLowerCase();
+
+  const exact = WORLD_COUNTRIES.find(
+    (c) => c.name.toLowerCase() === q || c.code.toLowerCase() === q || c.iso2.toLowerCase() === q
+  );
+  if (exact) return exact;
+
+  const partial = WORLD_COUNTRIES.find(
+    (c) => c.name.toLowerCase().includes(q) || q.includes(c.name.toLowerCase())
+  );
+
+  return partial || DEFAULT_COUNTRY;
+}
+
+export function formatE164(dialCode: string, rawPhone: string): string {
+  if (!rawPhone) return '';
+  const cleanDigits = rawPhone.replace(/\D/g, '').replace(/^0+/, '');
+  if (!cleanDigits) return '';
+  const cleanDialCode = dialCode.startsWith('+') ? dialCode : `+${dialCode}`;
+  return `${cleanDialCode}${cleanDigits}`;
+}

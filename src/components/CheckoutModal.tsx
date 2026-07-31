@@ -3,6 +3,7 @@ import { X, ShieldCheck, CheckCircle2, Truck, ArrowRight, Building2, FileText, G
 import { useStore } from '../context/StoreContext';
 import { Order, PaymentGatewayId } from '../types/store';
 import { PaymentIcon } from './PaymentIcons';
+import { WORLD_COUNTRIES, getCountryDetails, formatE164, CountryItem } from '../data/countriesData';
 
 export interface CountryDetails {
   code: string;
@@ -17,152 +18,21 @@ export interface CountryDetails {
   supportsLookup: boolean;
 }
 
-export const COUNTRY_LOOKUP_MAP: Record<string, CountryDetails> = {
-  'India': {
-    code: 'IN',
-    name: 'India',
-    flag: '🇮🇳',
-    phoneCode: '+91',
-    postalLabel: 'Pincode',
-    postalPlaceholder: 'e.g. 141008',
-    phoneMinDigits: 10,
-    phoneMaxDigits: 10,
-    currency: 'INR',
-    supportsLookup: true,
-  },
-  'United States': {
-    code: 'US',
-    name: 'United States',
-    flag: '🇺🇸',
-    phoneCode: '+1',
-    postalLabel: 'ZIP Code',
-    postalPlaceholder: 'e.g. 10282',
-    phoneMinDigits: 10,
-    phoneMaxDigits: 10,
-    currency: 'USD',
-    supportsLookup: true,
-  },
-  'United Kingdom': {
-    code: 'GB',
-    name: 'United Kingdom',
-    flag: '🇬🇧',
-    phoneCode: '+44',
-    postalLabel: 'Postcode',
-    postalPlaceholder: 'e.g. SW1A 1AA',
-    phoneMinDigits: 10,
-    phoneMaxDigits: 11,
-    currency: 'GBP',
-    supportsLookup: true,
-  },
-  'United Arab Emirates': {
-    code: 'AE',
-    name: 'United Arab Emirates',
-    flag: '🇦🇪',
-    phoneCode: '+971',
-    postalLabel: 'Postal Code (Optional)',
-    postalPlaceholder: 'e.g. 00000',
-    phoneMinDigits: 8,
-    phoneMaxDigits: 9,
-    currency: 'USD',
-    supportsLookup: false,
-  },
-  'Singapore': {
-    code: 'SG',
-    name: 'Singapore',
-    flag: '🇸🇬',
-    phoneCode: '+65',
-    postalLabel: 'Postal Code',
-    postalPlaceholder: 'e.g. 049318',
-    phoneMinDigits: 8,
-    phoneMaxDigits: 8,
-    currency: 'SGD',
-    supportsLookup: true,
-  },
-  'Malaysia': {
-    code: 'MY',
-    name: 'Malaysia',
-    flag: '🇲🇾',
-    phoneCode: '+60',
-    postalLabel: 'Postal Code',
-    postalPlaceholder: 'e.g. 50450',
-    phoneMinDigits: 9,
-    phoneMaxDigits: 10,
-    currency: 'MYR',
-    supportsLookup: true,
-  },
-  'Fiji': {
-    code: 'FJ',
-    name: 'Fiji',
-    flag: '🇫🇯',
-    phoneCode: '+679',
-    postalLabel: 'Postal Code',
-    postalPlaceholder: 'e.g. 00240',
-    phoneMinDigits: 7,
-    phoneMaxDigits: 7,
-    currency: 'FJD',
-    supportsLookup: false,
-  },
-  'Mauritius': {
-    code: 'MU',
-    name: 'Mauritius',
-    flag: '🇲🇺',
-    phoneCode: '+230',
-    postalLabel: 'Postal Code',
-    postalPlaceholder: 'e.g. 742CU001',
-    phoneMinDigits: 7,
-    phoneMaxDigits: 8,
-    currency: 'MUR',
-    supportsLookup: false,
-  },
-  'Nepal': {
-    code: 'NP',
-    name: 'Nepal',
-    flag: '🇳🇵',
-    phoneCode: '+977',
-    postalLabel: 'Postal Code',
-    postalPlaceholder: 'e.g. 44600',
-    phoneMinDigits: 10,
-    phoneMaxDigits: 10,
-    currency: 'USD',
-    supportsLookup: false,
-  },
-  'Australia': {
-    code: 'AU',
-    name: 'Australia',
-    flag: '🇦🇺',
-    phoneCode: '+61',
-    postalLabel: 'Postcode',
-    postalPlaceholder: 'e.g. 2000',
-    phoneMinDigits: 9,
-    phoneMaxDigits: 9,
-    currency: 'AUD',
-    supportsLookup: true,
-  },
-  'Canada': {
-    code: 'CA',
-    name: 'Canada',
-    flag: '🇨🇦',
-    phoneCode: '+1',
-    postalLabel: 'Postal Code',
-    postalPlaceholder: 'e.g. M5V 2T6',
-    phoneMinDigits: 10,
-    phoneMaxDigits: 10,
-    currency: 'USD',
-    supportsLookup: true,
-  },
-  'Worldwide': {
-    code: 'WW',
-    name: 'Rest of World',
-    flag: '🌐',
-    phoneCode: '+1',
-    postalLabel: 'Postal Code',
-    postalPlaceholder: 'Zip / Postal Code',
-    phoneMinDigits: 6,
-    phoneMaxDigits: 15,
-    currency: 'USD',
-    supportsLookup: false,
-  },
-};
+export const COUNTRY_LOOKUP_MAP: Record<string, CountryDetails> = WORLD_COUNTRIES.reduce((acc, c) => {
+  acc[c.name] = {
+    code: c.code,
+    name: c.name,
+    flag: c.flag,
+    phoneCode: c.phoneCode,
+    postalLabel: c.postalLabel,
+    postalPlaceholder: c.postalPlaceholder,
+    phoneMinDigits: c.phoneMinDigits,
+    phoneMaxDigits: c.phoneMaxDigits,
+    currency: c.currencyCode,
+    supportsLookup: c.supportsLookup,
+  };
+  return acc;
+}, {} as Record<string, CountryDetails>);
 
 export const CheckoutModal: React.FC = () => {
   const {
@@ -173,6 +43,7 @@ export const CheckoutModal: React.FC = () => {
     formatPrice,
     currentCurrency,
     selectedCountry,
+    selectCountry,
     countries,
     currentMarket,
     paymentGateways,
@@ -233,17 +104,20 @@ export const CheckoutModal: React.FC = () => {
 
   if (!isCheckoutOpen) return null;
 
+  const activeCountryInfo = getCountryDetails(country);
+  const billingCountryInfo = getCountryDetails(billingCountry);
+
   const matchedCountry =
-    countries.find((c) => c.name.toLowerCase() === country.toLowerCase() || c.code.toLowerCase() === country.toLowerCase()) ||
-    countries.find((c) => c.code === selectedCountry.code);
+    countries.find((c) => c.name.toLowerCase() === activeCountryInfo.name.toLowerCase() || c.code.toLowerCase() === activeCountryInfo.code.toLowerCase()) ||
+    countries.find((c) => c.code === activeCountryInfo.code);
 
   const isBlocked = matchedCountry?.shippingRule === 'BLOCK_ORDERS';
-  const isIndia = matchedCountry?.code === 'IN' || country.toLowerCase() === 'india' || country.toLowerCase().includes('in');
-  const activeCountryInfo = COUNTRY_LOOKUP_MAP[country] || COUNTRY_LOOKUP_MAP['Worldwide'];
+  const isIndia = activeCountryInfo.code === 'IN';
 
   const handleCountryChange = (newCountryName: string) => {
-    setCountry(newCountryName);
-    setBillingCountry(newCountryName);
+    const newCountryObj = getCountryDetails(newCountryName);
+    setCountry(newCountryObj.name);
+    setBillingCountry(newCountryObj.name);
     setCity('');
     setState('');
     setPincode('');
@@ -257,8 +131,10 @@ export const CheckoutModal: React.FC = () => {
     setAltPhone('');
     setBillingPhone('');
 
-    const newIsIndia = newCountryName.toLowerCase() === 'india' || newCountryName.toLowerCase().includes('in');
-    if (!newIsIndia && paymentMethod === 'COD') {
+    // Sync global store country and currency immediately
+    selectCountry(newCountryObj);
+
+    if (newCountryObj.code !== 'IN' && paymentMethod === 'COD') {
       setPaymentMethod('RAZORPAY');
     }
   };
@@ -506,8 +382,8 @@ export const CheckoutModal: React.FC = () => {
           return;
         }
         const cleanBilling = billingPhone.replace(/\D/g, '').replace(/^0+/, '');
-        if (!cleanBilling || cleanBilling.length < activeCountryInfo.phoneMinDigits || cleanBilling.length > activeCountryInfo.phoneMaxDigits) {
-          setAddressFormError('Please enter a valid billing mobile number.');
+        if (!cleanBilling || cleanBilling.length < billingCountryInfo.phoneMinDigits || cleanBilling.length > billingCountryInfo.phoneMaxDigits) {
+          setAddressFormError(`Please enter a valid billing mobile number for ${billingCountryInfo.name} (${billingCountryInfo.phoneMinDigits}-${billingCountryInfo.phoneMaxDigits} digits).`);
           return;
         }
         if (!billingAddress.trim()) {
@@ -537,14 +413,9 @@ export const CheckoutModal: React.FC = () => {
     setTimeout(() => {
       const isCod = paymentMethod === 'COD';
 
-      const formatE164 = (phoneCode: string, rawDigits: string): string => {
-        const clean = rawDigits.replace(/\D/g, '').replace(/^0+/, '');
-        return clean ? `${phoneCode}${clean}` : '';
-      };
-
       const fullAddress = line2 ? `${line1}, ${line2}${landmark ? `, Landmark: ${landmark}` : ''}` : (landmark ? `${line1}, Landmark: ${landmark}` : line1);
-      const fullPhone = formatE164(activeCountryInfo.phoneCode, phone);
-      const fullAltPhone = formatE164(activeCountryInfo.phoneCode, altPhone);
+      const fullPhone = formatE164(activeCountryInfo.dialCode, phone);
+      const fullAltPhone = formatE164(activeCountryInfo.dialCode, altPhone);
 
       const billingFullAddress = isBillingSame
         ? fullAddress
@@ -552,7 +423,7 @@ export const CheckoutModal: React.FC = () => {
 
       const billingFullPhone = isBillingSame
         ? fullPhone
-        : formatE164(activeCountryInfo.phoneCode, billingPhone);
+        : formatE164(billingCountryInfo.dialCode, billingPhone);
 
       const order = placeOrder({
         items: [...cart],
@@ -563,7 +434,7 @@ export const CheckoutModal: React.FC = () => {
           name,
           email,
           phone: fullPhone,
-          phoneCode: activeCountryInfo.phoneCode,
+          phoneCode: activeCountryInfo.dialCode,
           localPhone: phone,
           altPhone: fullAltPhone,
           address: fullAddress,
@@ -660,17 +531,11 @@ export const CheckoutModal: React.FC = () => {
                   onChange={(e) => handleCountryChange(e.target.value)}
                   className="bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg px-3 py-1.5 text-xs text-[var(--input-text)] font-bold focus:outline-none focus:border-[var(--input-focus-border)] cursor-pointer"
                 >
-                  <option value="India">🇮🇳 India (INR)</option>
-                  <option value="United States">🇺🇸 United States (USD)</option>
-                  <option value="United Kingdom">🇬🇧 United Kingdom (GBP)</option>
-                  <option value="Singapore">🇸🇬 Singapore (SGD)</option>
-                  <option value="Malaysia">🇲🇾 Malaysia (MYR)</option>
-                  <option value="United Arab Emirates">🇦🇪 United Arab Emirates (USD)</option>
-                  <option value="Fiji">🇫🇯 Fiji (FJD)</option>
-                  <option value="Mauritius">🇲🇺 Mauritius (MUR)</option>
-                  <option value="Nepal">🇳🇵 Nepal (USD)</option>
-                  <option value="Canada">🇨🇦 Canada (USD)</option>
-                  <option value="Worldwide">🌐 Rest of World (USD)</option>
+                  {WORLD_COUNTRIES.map((c) => (
+                    <option key={c.code} value={c.name}>
+                      {c.flag} {c.name} ({c.dialCode})
+                    </option>
+                  ))}
                 </select>
               </div>
             </div>
@@ -975,9 +840,9 @@ export const CheckoutModal: React.FC = () => {
                     onChange={(e) => handleCountryChange(e.target.value)}
                     className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2.5 text-xs text-[var(--input-text)] font-semibold focus:outline-none focus:border-[var(--input-focus-border)] cursor-pointer"
                   >
-                    {Object.values(COUNTRY_LOOKUP_MAP).map((c) => (
-                      <option key={c.name} value={c.name}>
-                        {c.flag} {c.name} ({c.currency})
+                    {WORLD_COUNTRIES.map((c) => (
+                      <option key={c.code} value={c.name}>
+                        {c.flag} {c.name} ({c.dialCode})
                       </option>
                     ))}
                   </select>

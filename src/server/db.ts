@@ -25,6 +25,8 @@ import {
   INITIAL_MARKET_GATEWAYS,
   INITIAL_PAYMENT_LOGS,
   INITIAL_B2B_SECTION_CONFIG,
+  INITIAL_VIDEO_POPUP_CONFIG,
+  INITIAL_SHOPPABLE_REELS,
 } from '../data/initialData';
 
 const dbDir = process.env.DB_DIR || path.join(process.cwd(), 'data');
@@ -140,6 +142,8 @@ export async function getDb() {
       market_gateways: INITIAL_MARKET_GATEWAYS,
       payment_logs: INITIAL_PAYMENT_LOGS,
       b2b_section_config: INITIAL_B2B_SECTION_CONFIG,
+      video_popup_config: INITIAL_VIDEO_POPUP_CONFIG,
+      shoppable_reels: INITIAL_SHOPPABLE_REELS,
       seeded: true,
     };
 

@@ -30,6 +30,8 @@ import {
   PaymentGatewayId,
   FooterConfig,
   B2BSectionConfig,
+  VideoPopupConfig,
+  ShoppableReel,
 } from '../types/store';
 import {
   INITIAL_CURRENCIES,
@@ -58,6 +60,8 @@ import {
   INITIAL_PAYMENT_LOGS,
   INITIAL_FOOTER_CONFIG,
   INITIAL_B2B_SECTION_CONFIG,
+  INITIAL_VIDEO_POPUP_CONFIG,
+  INITIAL_SHOPPABLE_REELS,
 } from '../data/initialData';
 import { hashPassword, DEFAULT_ADMIN_EMAIL, DEFAULT_ADMIN_PASSWORD_PLAIN } from '../utils/auth';
 import { idbGet, idbSet, idbClear } from '../utils/idbStorage';
@@ -114,6 +118,18 @@ interface StoreContextType {
   // B2B Homepage Section Manager Configuration
   b2bSectionConfig: B2BSectionConfig;
   updateB2BSectionConfig: (updater: Partial<B2BSectionConfig> | ((prev: B2BSectionConfig) => B2BSectionConfig)) => Promise<boolean>;
+
+  // Promotional Video Popup Configuration
+  videoPopupConfig: VideoPopupConfig;
+  updateVideoPopupConfig: (updater: Partial<VideoPopupConfig> | ((prev: VideoPopupConfig) => VideoPopupConfig)) => Promise<boolean>;
+
+  // Shoppable Video Reels
+  shoppableReels: ShoppableReel[];
+  addShoppableReel: (reel: Omit<ShoppableReel, 'id'>) => Promise<boolean>;
+  updateShoppableReel: (id: string, partial: Partial<ShoppableReel>) => Promise<boolean>;
+  deleteShoppableReel: (id: string) => Promise<boolean>;
+  reorderShoppableReels: (newList: ShoppableReel[]) => Promise<boolean>;
+  setAllShoppableReels: (reels: ShoppableReel[]) => Promise<boolean>;
 
   // Nav Links & Header Layout
   navLinks: NavLink[];
@@ -645,6 +661,64 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       localStorage.setItem('hakkiveda_b2b_section_config', JSON.stringify(next));
     } catch (_) {}
     return await setStored('b2b_section_config', next);
+  };
+
+  // Video Popup Config State & Functions
+  const [videoPopupConfig, setVideoPopupConfig] = useState<VideoPopupConfig>(() =>
+    getStored('video_popup_config', INITIAL_VIDEO_POPUP_CONFIG)
+  );
+
+  const updateVideoPopupConfig = async (
+    updater: Partial<VideoPopupConfig> | ((prev: VideoPopupConfig) => VideoPopupConfig)
+  ): Promise<boolean> => {
+    let next: VideoPopupConfig;
+    if (typeof updater === 'function') {
+      next = updater(videoPopupConfig);
+    } else {
+      next = { ...videoPopupConfig, ...updater };
+    }
+    setVideoPopupConfig(next);
+    try {
+      localStorage.setItem('hakkiveda_video_popup_config', JSON.stringify(next));
+    } catch (_) {}
+    return await setStored('video_popup_config', next);
+  };
+
+  // Shoppable Video Reels State & Functions
+  const [shoppableReels, setShoppableReels] = useState<ShoppableReel[]>(() =>
+    getStored('shoppable_reels', INITIAL_SHOPPABLE_REELS)
+  );
+
+  const addShoppableReel = async (newReel: Omit<ShoppableReel, 'id'>): Promise<boolean> => {
+    const reel: ShoppableReel = {
+      ...newReel,
+      id: `reel-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+    };
+    const next = [...shoppableReels, reel];
+    setShoppableReels(next);
+    return await setStored('shoppable_reels', next);
+  };
+
+  const updateShoppableReel = async (id: string, partial: Partial<ShoppableReel>): Promise<boolean> => {
+    const next = shoppableReels.map((r) => (r.id === id ? { ...r, ...partial } : r));
+    setShoppableReels(next);
+    return await setStored('shoppable_reels', next);
+  };
+
+  const deleteShoppableReel = async (id: string): Promise<boolean> => {
+    const next = shoppableReels.filter((r) => r.id !== id);
+    setShoppableReels(next);
+    return await setStored('shoppable_reels', next);
+  };
+
+  const reorderShoppableReels = async (newList: ShoppableReel[]): Promise<boolean> => {
+    setShoppableReels(newList);
+    return await setStored('shoppable_reels', newList);
+  };
+
+  const setAllShoppableReels = async (reels: ShoppableReel[]): Promise<boolean> => {
+    setShoppableReels(reels);
+    return await setStored('shoppable_reels', reels);
   };
 
   const applyBrandStyles = (brand: BrandIdentityConfig) => {
@@ -1325,6 +1399,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           if (d.header_layout_settings) setHeaderLayoutSettings(d.header_layout_settings);
           if (d.footer_config) setFooterConfig(d.footer_config);
           if (d.b2b_section_config) setB2BSectionConfig(d.b2b_section_config);
+          if (d.video_popup_config) setVideoPopupConfig(d.video_popup_config);
+          if (Array.isArray(d.shoppable_reels)) setShoppableReels(d.shoppable_reels);
           if (Array.isArray(d.nav_links)) setNavLinks(d.nav_links);
           if (Array.isArray(d.currencies)) setCurrencies(d.currencies);
           if (d.current_currency) setCurrentCurrency(d.current_currency);
@@ -2381,6 +2457,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         deleteB2BLead,
         b2bSectionConfig,
         updateB2BSectionConfig,
+        videoPopupConfig,
+        updateVideoPopupConfig,
+        shoppableReels,
+        addShoppableReel,
+        updateShoppableReel,
+        deleteShoppableReel,
+        reorderShoppableReels,
+        setAllShoppableReels,
         addProduct,
         updateProduct,
         deleteProduct,

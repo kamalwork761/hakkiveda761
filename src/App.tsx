@@ -7,6 +7,7 @@ import { ProductGrid } from './components/ProductGrid';
 import { BeforeAfterSlider } from './components/BeforeAfterSlider';
 import { BrandStory } from './components/BrandStory';
 import { VideoTestimonials } from './components/VideoTestimonials';
+import { ShoppableReelsSection } from './components/ShoppableReelsSection';
 import { CustomerReviews } from './components/CustomerReviews';
 import { BlogSection } from './components/BlogSection';
 import { B2BSection } from './components/B2BSection';
@@ -14,6 +15,7 @@ import { Footer } from './components/Footer';
 
 // Modals & Drawers
 import { ProductDetailModal } from './components/ProductDetailModal';
+import { VideoPopupModal } from './components/VideoPopupModal';
 import { AIHairQuiz } from './components/AIHairQuiz';
 import { AIChatModal } from './components/AIChatModal';
 import { CartDrawer } from './components/CartDrawer';
@@ -28,7 +30,7 @@ import { AdminDashboard } from './components/AdminDashboard';
 import { AdminLogin } from './pages/AdminLogin';
 
 export function AppContent() {
-  const { adminAuthenticated, logoutAdmin, isCountryModalOpen, setIsCountryModalOpen, playSound } = useStore();
+  const { adminAuthenticated, logoutAdmin, isCountryModalOpen, setIsCountryModalOpen, playSound, openQuickView } = useStore();
   const [selectedCategory, setSelectedCategory] = useState<string>(() => {
     const params = new URLSearchParams(window.location.search);
     const cat = params.get('category');
@@ -150,6 +152,9 @@ export function AppContent() {
         {/* Video Testimonials */}
         <VideoTestimonials />
 
+        {/* Shoppable Video Reels */}
+        <ShoppableReelsSection onSelectProduct={openQuickView} />
+
         {/* Customer Reviews */}
         <CustomerReviews />
 
@@ -164,6 +169,7 @@ export function AppContent() {
       <Footer />
 
       {/* Customer Interactive Overlays */}
+      <VideoPopupModal onSelectProduct={openQuickView} />
       <ProductDetailModal />
       <AIHairQuiz />
       <AIChatModal />

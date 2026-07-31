@@ -12,6 +12,8 @@ import { AdminQuizManager } from './AdminQuizManager';
 import { AdminBrandManager } from './AdminBrandManager';
 import { AdminFooterManager } from './AdminFooterManager';
 import { AdminB2BSectionManager } from './AdminB2BSectionManager';
+import { AdminVideoPopupManager } from './AdminVideoPopupManager';
+import { AdminShoppableReelsManager } from './AdminShoppableReelsManager';
 import {
   Lock,
   LayoutDashboard,
@@ -35,6 +37,7 @@ import {
   Globe,
   Users,
   Video,
+  Film,
   FileText,
   HelpCircle,
   Image,
@@ -520,6 +523,24 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             >
               <Video className="w-4 h-4" />
               <span>Video Testimonials</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('video_popup')}
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
+                activeTab === 'video_popup' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
+              }`}
+            >
+              <Megaphone className="w-4 h-4" />
+              <span>Video Popup Modal</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('shoppable_reels')}
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
+                activeTab === 'shoppable_reels' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
+              }`}
+            >
+              <Film className="w-4 h-4" />
+              <span>Shoppable Video Reels</span>
             </button>
             <button
               onClick={() => setActiveTab('blogs')}
@@ -1247,6 +1268,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
 
         {/* Video Testimonials Module */}
         {activeTab === 'videos' && <AdminVideoTestimonialsManager showToast={showToast} />}
+
+        {/* Video Popup Modal Module */}
+        {activeTab === 'video_popup' && <AdminVideoPopupManager showToast={showToast} />}
+
+        {/* Shoppable Reels Module */}
+        {activeTab === 'shoppable_reels' && <AdminShoppableReelsManager showToast={showToast} />}
 
         {/* Journal & Articles Module */}
         {activeTab === 'blogs' && <AdminBlogManager showToast={showToast} />}

@@ -766,3 +766,40 @@ export interface B2BSectionConfig {
   theme: B2BSectionTheme;
 }
 
+export type VideoPopupFrequency = 'ONCE_PER_SESSION' | 'EVERY_3_DAYS' | 'EVERY_7_DAYS' | 'ALWAYS' | 'DISABLED';
+
+export interface VideoPopupConfig {
+  enabled: boolean;
+  frequency: VideoPopupFrequency;
+  delaySeconds: number;
+  videoUrl: string;
+  posterUrl: string;
+  heading: string;
+  description: string;
+  ctaText: string;
+  ctaDestination: string;
+  linkedProductId?: string;
+  startDate?: string;
+  endDate?: string;
+  enableDesktop: boolean;
+  enableMobile: boolean;
+}
+
+export interface ShoppableReel {
+  id: string;
+  title: string;
+  videoUrl: string;
+  posterUrl: string;
+  customerName: string;
+  country: string;
+  caption: string;
+  verifiedBadge: boolean;
+  linkedProductId: string;
+  showViewProductButton: boolean;
+  showAddToCartButton: boolean;
+  showBuyNowButton: boolean;
+  showWhatsappButton: boolean;
+  active: boolean;
+  sortOrder: number;
+}
+

@@ -90,10 +90,97 @@
     color: var(--color-text) !important;
   }
 
-  /* Light Theme Text Contrast */
+  /* Light Theme Text Contrast for Light Background Sections */
+  [data-theme="light"] .text-slate-100,
+  [data-theme="light"] .text-slate-200,
+  [data-theme="light"] .text-slate-300 {
+    color: var(--color-text, #1F2A1F) !important;
+  }
+
   [data-theme="light"] .text-slate-400,
   [data-theme="light"] .text-slate-500 {
-    color: var(--color-secondary-text) !important;
+    color: var(--color-secondary-text, #475569) !important;
+  }
+
+  /* EXPLICITLY PRESERVE WHITE/LIGHT/GOLD TEXT FOR HERO & DARK OVERLAYS IN LIGHT THEME */
+  [data-theme="light"] .hero-content .text-slate-100,
+  [data-theme="light"] .hero-content .text-slate-200,
+  [data-theme="light"] .hero-content .text-slate-300,
+  [data-theme="light"] .hero-content .text-white,
+  [data-theme="light"] .hero-content p,
+  [data-theme="light"] .hero-content h1,
+  [data-theme="light"] .hero-content h2,
+  [data-theme="light"] .hero-content h3,
+  [data-theme="light"] .hero-content h4,
+  [data-theme="light"] .hero-content span,
+  [data-theme="light"] .hero-content div,
+  [data-theme="light"] .overlay-card .text-slate-100,
+  [data-theme="light"] .overlay-card .text-slate-200,
+  [data-theme="light"] .overlay-card .text-slate-300,
+  [data-theme="light"] .overlay-card .text-white,
+  [data-theme="light"] .dark-media-card .text-slate-100,
+  [data-theme="light"] .dark-media-card .text-slate-200,
+  [data-theme="light"] .dark-media-card .text-slate-300,
+  [data-theme="light"] .dark-media-card .text-white,
+  [data-theme="light"] .overlay-content .text-slate-100,
+  [data-theme="light"] .overlay-content .text-slate-200,
+  [data-theme="light"] .overlay-content .text-slate-300,
+  [data-theme="light"] .overlay-content .text-white,
+  [data-theme="light"] .banner-content .text-slate-100,
+  [data-theme="light"] .banner-content .text-slate-200,
+  [data-theme="light"] .banner-content .text-slate-300,
+  [data-theme="light"] .banner-content .text-white,
+  [data-theme="light"] [class*="bg-black"] .text-slate-100,
+  [data-theme="light"] [class*="bg-black"] .text-slate-200,
+  [data-theme="light"] [class*="bg-black"] .text-slate-300,
+  [data-theme="light"] [class*="bg-black"] .text-white,
+  [data-theme="light"] [class*="bg-black/"] .text-slate-100,
+  [data-theme="light"] [class*="bg-black/"] .text-slate-200,
+  [data-theme="light"] [class*="bg-black/"] .text-slate-300,
+  [data-theme="light"] [class*="bg-black/"] .text-white,
+  [data-theme="light"] .bg-slate-900 .text-slate-100,
+  [data-theme="light"] .bg-slate-900 .text-slate-200,
+  [data-theme="light"] .bg-slate-900 .text-slate-300,
+  [data-theme="light"] .bg-slate-900 .text-white {
+    color: #FFFFFF !important;
+  }
+
+  [data-theme="light"] .hero-content .text-slate-200,
+  [data-theme="light"] .overlay-card .text-slate-200,
+  [data-theme="light"] .dark-media-card .text-slate-200,
+  [data-theme="light"] .overlay-content .text-slate-200,
+  [data-theme="light"] .banner-content .text-slate-200,
+  [data-theme="light"] [class*="bg-black"] .text-slate-200,
+  [data-theme="light"] [class*="bg-black/"] .text-slate-200 {
+    color: #E2E8F0 !important;
+  }
+
+  [data-theme="light"] .hero-content .text-slate-300,
+  [data-theme="light"] .overlay-card .text-slate-300,
+  [data-theme="light"] .dark-media-card .text-slate-300,
+  [data-theme="light"] .overlay-content .text-slate-300,
+  [data-theme="light"] .banner-content .text-slate-300,
+  [data-theme="light"] [class*="bg-black"] .text-slate-300,
+  [data-theme="light"] [class*="bg-black/"] .text-slate-300 {
+    color: #CBD5E1 !important;
+  }
+
+  /* Ensure Gold text remains Gold everywhere */
+  [data-theme="light"] .text-\[var\(--brand-gold\)\],
+  [data-theme="light"] .hero-content .text-\[var\(--brand-gold\)\],
+  [data-theme="light"] .overlay-card .text-\[var\(--brand-gold\)\],
+  [data-theme="light"] .dark-media-card .text-\[var\(--brand-gold\)\],
+  [data-theme="light"] .overlay-content .text-\[var\(--brand-gold\)\],
+  [data-theme="light"] .banner-content .text-\[var\(--brand-gold\)\],
+  [data-theme="light"] [class*="bg-black"] .text-\[var\(--brand-gold\)\] {
+    color: var(--brand-gold, #D4AF37) !important;
+  }
+
+  /* High Contrast Text for Gold Buttons */
+  [data-theme="light"] .bg-\[var\(--brand-gold\)\] .text-\[var\(--brand-primary-dark\)\],
+  [data-theme="light"] a.bg-\[var\(--brand-gold\)\],
+  [data-theme="light"] button.bg-\[var\(--brand-gold\)\] {
+    color: #0A3D14 !important;
   }
 
   /* Light Theme Card & Section Backgrounds */

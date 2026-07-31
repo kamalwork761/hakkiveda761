@@ -126,6 +126,18 @@ export const COUNTRY_LOOKUP_MAP: Record<string, CountryDetails> = {
     currency: 'USD',
     supportsLookup: false,
   },
+  'Australia': {
+    code: 'AU',
+    name: 'Australia',
+    flag: '🇦🇺',
+    phoneCode: '+61',
+    postalLabel: 'Postcode',
+    postalPlaceholder: 'e.g. 2000',
+    phoneMinDigits: 9,
+    phoneMaxDigits: 9,
+    currency: 'AUD',
+    supportsLookup: true,
+  },
   'Canada': {
     code: 'CA',
     name: 'Canada',
@@ -239,6 +251,11 @@ export const CheckoutModal: React.FC = () => {
     setAddressFormError('');
     setLookupNote('');
     setIsLookupReadonly(false);
+
+    // Keep phone input empty and update prefix immediately when changing country
+    setPhone('');
+    setAltPhone('');
+    setBillingPhone('');
 
     const newIsIndia = newCountryName.toLowerCase() === 'india' || newCountryName.toLowerCase().includes('in');
     if (!newIsIndia && paymentMethod === 'COD') {
@@ -397,15 +414,23 @@ export const CheckoutModal: React.FC = () => {
         setAddressFormError('Please enter full name.');
         return;
       }
-      const cleanPhone = phone.replace(/\D/g, '');
-      if (cleanPhone.length !== 10) {
-        setAddressFormError('Please enter a valid 10-digit Indian mobile number.');
+      const cleanPhone = phone.replace(/\D/g, '').replace(/^0+/, '');
+      if (cleanPhone.length < activeCountryInfo.phoneMinDigits || cleanPhone.length > activeCountryInfo.phoneMaxDigits) {
+        setAddressFormError(
+          `Please enter a valid ${activeCountryInfo.phoneMinDigits}${
+            activeCountryInfo.phoneMinDigits === activeCountryInfo.phoneMaxDigits ? '' : `-${activeCountryInfo.phoneMaxDigits}`
+          }-digit mobile number for ${country}.`
+        );
         return;
       }
       if (altPhone.trim()) {
-        const cleanAlt = altPhone.replace(/\D/g, '');
-        if (cleanAlt.length !== 10) {
-          setAddressFormError('Alternate mobile number must be a valid 10-digit Indian mobile number.');
+        const cleanAlt = altPhone.replace(/\D/g, '').replace(/^0+/, '');
+        if (cleanAlt.length < activeCountryInfo.phoneMinDigits || cleanAlt.length > activeCountryInfo.phoneMaxDigits) {
+          setAddressFormError(
+            `Alternate mobile number must be a valid ${activeCountryInfo.phoneMinDigits}${
+              activeCountryInfo.phoneMinDigits === activeCountryInfo.phoneMaxDigits ? '' : `-${activeCountryInfo.phoneMaxDigits}`
+            }-digit mobile number.`
+          );
           return;
         }
       }
@@ -427,8 +452,9 @@ export const CheckoutModal: React.FC = () => {
           setAddressFormError('Please enter billing full name.');
           return;
         }
-        if (!billingPhone.replace(/\D/g, '')) {
-          setAddressFormError('Please enter billing mobile number.');
+        const cleanBilling = billingPhone.replace(/\D/g, '').replace(/^0+/, '');
+        if (!cleanBilling || cleanBilling.length < activeCountryInfo.phoneMinDigits || cleanBilling.length > activeCountryInfo.phoneMaxDigits) {
+          setAddressFormError('Please enter a valid billing mobile number.');
           return;
         }
         if (!billingAddress.trim()) {
@@ -450,13 +476,13 @@ export const CheckoutModal: React.FC = () => {
         setAddressFormError('Please enter Full Name.');
         return;
       }
-      const phoneDigits = phone.replace(/\D/g, '');
+      const phoneDigits = phone.replace(/\D/g, '').replace(/^0+/, '');
       if (!phoneDigits || phoneDigits.length < activeCountryInfo.phoneMinDigits || phoneDigits.length > activeCountryInfo.phoneMaxDigits) {
         setAddressFormError(`Please enter a valid mobile number for ${country} (${activeCountryInfo.phoneMinDigits}-${activeCountryInfo.phoneMaxDigits} digits).`);
         return;
       }
       if (altPhone.trim()) {
-        const altDigits = altPhone.replace(/\D/g, '');
+        const altDigits = altPhone.replace(/\D/g, '').replace(/^0+/, '');
         if (altDigits.length < activeCountryInfo.phoneMinDigits || altDigits.length > activeCountryInfo.phoneMaxDigits) {
           setAddressFormError(`Alternate mobile number must be a valid number.`);
           return;
@@ -479,8 +505,9 @@ export const CheckoutModal: React.FC = () => {
           setAddressFormError('Please enter billing full name.');
           return;
         }
-        if (!billingPhone.replace(/\D/g, '')) {
-          setAddressFormError('Please enter billing mobile number.');
+        const cleanBilling = billingPhone.replace(/\D/g, '').replace(/^0+/, '');
+        if (!cleanBilling || cleanBilling.length < activeCountryInfo.phoneMinDigits || cleanBilling.length > activeCountryInfo.phoneMaxDigits) {
+          setAddressFormError('Please enter a valid billing mobile number.');
           return;
         }
         if (!billingAddress.trim()) {
@@ -510,11 +537,14 @@ export const CheckoutModal: React.FC = () => {
     setTimeout(() => {
       const isCod = paymentMethod === 'COD';
 
+      const formatE164 = (phoneCode: string, rawDigits: string): string => {
+        const clean = rawDigits.replace(/\D/g, '').replace(/^0+/, '');
+        return clean ? `${phoneCode}${clean}` : '';
+      };
+
       const fullAddress = line2 ? `${line1}, ${line2}${landmark ? `, Landmark: ${landmark}` : ''}` : (landmark ? `${line1}, Landmark: ${landmark}` : line1);
-      const cleanPhoneDigits = phone.replace(/\D/g, '');
-      const fullPhone = `${activeCountryInfo.phoneCode}${cleanPhoneDigits}`;
-      const cleanAltDigits = altPhone.replace(/\D/g, '');
-      const fullAltPhone = cleanAltDigits ? `${activeCountryInfo.phoneCode}${cleanAltDigits}` : '';
+      const fullPhone = formatE164(activeCountryInfo.phoneCode, phone);
+      const fullAltPhone = formatE164(activeCountryInfo.phoneCode, altPhone);
 
       const billingFullAddress = isBillingSame
         ? fullAddress
@@ -522,7 +552,7 @@ export const CheckoutModal: React.FC = () => {
 
       const billingFullPhone = isBillingSame
         ? fullPhone
-        : (billingPhone ? `${activeCountryInfo.phoneCode}${billingPhone.replace(/\D/g, '')}` : '');
+        : formatE164(activeCountryInfo.phoneCode, billingPhone);
 
       const order = placeOrder({
         items: [...cart],
@@ -656,18 +686,18 @@ export const CheckoutModal: React.FC = () => {
                     </label>
                     <div className="flex items-center">
                       <span className="inline-flex items-center px-3 py-2.5 rounded-l-lg border border-r-0 border-[var(--input-border)] bg-slate-100 dark:bg-emerald-950/60 text-xs font-bold text-slate-800 dark:text-emerald-200 select-none">
-                        +91
+                        {activeCountryInfo.phoneCode}
                       </span>
                       <input
                         type="tel"
                         required
-                        maxLength={10}
+                        maxLength={activeCountryInfo.phoneMaxDigits}
                         value={phone}
                         onChange={(e) => {
-                          setPhone(e.target.value.replace(/\D/g, '').slice(0, 10));
+                          setPhone(e.target.value.replace(/\D/g, '').slice(0, activeCountryInfo.phoneMaxDigits));
                           setAddressFormError('');
                         }}
-                        placeholder="10-digit mobile number"
+                        placeholder={`Mobile number (${activeCountryInfo.phoneMinDigits}-${activeCountryInfo.phoneMaxDigits} digits)`}
                         className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-r-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)] font-mono"
                       />
                     </div>
@@ -796,13 +826,13 @@ export const CheckoutModal: React.FC = () => {
                     </label>
                     <div className="flex items-center">
                       <span className="inline-flex items-center px-3 py-2.5 rounded-l-lg border border-r-0 border-[var(--input-border)] bg-slate-100 dark:bg-emerald-950/60 text-xs font-bold text-slate-800 dark:text-emerald-200 select-none">
-                        +91
+                        {activeCountryInfo.phoneCode}
                       </span>
                       <input
                         type="tel"
-                        maxLength={10}
+                        maxLength={activeCountryInfo.phoneMaxDigits}
                         value={altPhone}
-                        onChange={(e) => setAltPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
+                        onChange={(e) => setAltPhone(e.target.value.replace(/\D/g, '').slice(0, activeCountryInfo.phoneMaxDigits))}
                         placeholder="Optional second contact"
                         className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-r-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)] font-mono"
                       />
@@ -856,14 +886,20 @@ export const CheckoutModal: React.FC = () => {
                       </div>
                       <div>
                         <label className="block text-xs font-bold mb-1">Billing Mobile Number *</label>
-                        <input
-                          type="tel"
-                          required
-                          value={billingPhone}
-                          onChange={(e) => setBillingPhone(e.target.value.replace(/\D/g, '').slice(0, 10))}
-                          placeholder="10-digit number"
-                          className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2 text-xs text-[var(--input-text)]"
-                        />
+                        <div className="flex items-center">
+                          <span className="inline-flex items-center px-2 py-2 rounded-l-lg border border-r-0 border-[var(--input-border)] bg-slate-100 dark:bg-emerald-950/60 text-xs font-bold text-slate-800 dark:text-emerald-200 select-none">
+                            {activeCountryInfo.phoneCode}
+                          </span>
+                          <input
+                            type="tel"
+                            required
+                            maxLength={activeCountryInfo.phoneMaxDigits}
+                            value={billingPhone}
+                            onChange={(e) => setBillingPhone(e.target.value.replace(/\D/g, '').slice(0, activeCountryInfo.phoneMaxDigits))}
+                            placeholder="Mobile number"
+                            className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-r-lg p-2 text-xs text-[var(--input-text)] font-mono"
+                          />
+                        </div>
                       </div>
                     </div>
                     <div>
@@ -1071,9 +1107,10 @@ export const CheckoutModal: React.FC = () => {
                       <input
                         type="tel"
                         required
+                        maxLength={activeCountryInfo.phoneMaxDigits}
                         value={phone}
                         onChange={(e) => {
-                          setPhone(e.target.value.replace(/\D/g, ''));
+                          setPhone(e.target.value.replace(/\D/g, '').slice(0, activeCountryInfo.phoneMaxDigits));
                           setAddressFormError('');
                         }}
                         placeholder={`Local phone number (${activeCountryInfo.phoneMinDigits}-${activeCountryInfo.phoneMaxDigits} digits)`}
@@ -1126,8 +1163,9 @@ export const CheckoutModal: React.FC = () => {
                       </span>
                       <input
                         type="tel"
+                        maxLength={activeCountryInfo.phoneMaxDigits}
                         value={altPhone}
-                        onChange={(e) => setAltPhone(e.target.value.replace(/\D/g, ''))}
+                        onChange={(e) => setAltPhone(e.target.value.replace(/\D/g, '').slice(0, activeCountryInfo.phoneMaxDigits))}
                         placeholder="Optional second number"
                         className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-r-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)] font-mono"
                       />
@@ -1206,8 +1244,9 @@ export const CheckoutModal: React.FC = () => {
                           <input
                             type="tel"
                             required
+                            maxLength={activeCountryInfo.phoneMaxDigits}
                             value={billingPhone}
-                            onChange={(e) => setBillingPhone(e.target.value.replace(/\D/g, ''))}
+                            onChange={(e) => setBillingPhone(e.target.value.replace(/\D/g, '').slice(0, activeCountryInfo.phoneMaxDigits))}
                             placeholder="Local number"
                             className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-r-lg p-2 text-xs text-[var(--input-text)] font-mono"
                           />

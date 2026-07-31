@@ -497,3 +497,61 @@
   color: #D4AF37;
 }
 
+/* ==========================================================================
+   CATEGORY & TESTIMONIAL CARD BODY CONTRAST SYSTEM
+   ========================================================================== */
+
+.category-card-body {
+  background: #ffffff !important;
+  color: #123f2b !important;
+}
+
+.category-card-body h3,
+.category-card-body h4 {
+  color: #123f2b !important;
+}
+
+.category-card-body p {
+  color: #405b4a !important;
+}
+
+.category-card-body a {
+  color: #245c3a !important;
+}
+
+.category-card-body a:hover,
+.category-card-body h3:hover {
+  color: #b8891e !important;
+}
+
+.testimonial-card-body {
+  background: #ffffff !important;
+  color: #173a25 !important;
+}
+
+.testimonial-card-body h3,
+.testimonial-card-body .customer-name {
+  color: #123f2b !important;
+}
+
+.testimonial-card-body p,
+.testimonial-card-body .quote {
+  color: #173a25 !important;
+}
+
+.testimonial-card-body .location,
+.testimonial-card-body .rating {
+  color: #b8891e !important;
+}
+
+.testimonial-card-body a,
+.testimonial-card-body button {
+  color: #245c3a !important;
+}
+
+.testimonial-card-body a:hover,
+.testimonial-card-body button:hover {
+  color: #b8891e !important;
+}
+
+

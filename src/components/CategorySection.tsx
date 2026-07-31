@@ -49,10 +49,10 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ selectedCatego
               <div
                 key={cat.id}
                 onClick={() => handleCategoryClick(cat.name)}
-                className={`group relative rounded-xl overflow-hidden border transition-all duration-300 cursor-pointer active:scale-98 dark-media-card ${
+                className={`group relative rounded-xl overflow-hidden border transition-all duration-300 cursor-pointer active:scale-98 shadow-md ${
                   isSelected
-                    ? 'border-[var(--brand-gold)] ring-2 ring-[var(--brand-gold)]/50 bg-[var(--brand-primary-dark)] shadow-xl'
-                    : 'border-white/10 bg-[var(--brand-primary-dark)]/80 hover:border-[var(--brand-gold)]/60 hover:bg-[var(--brand-primary-dark)]'
+                    ? 'border-[var(--brand-gold)] ring-2 ring-[var(--brand-gold)]/50 bg-white shadow-xl'
+                    : 'border-[rgba(212,175,55,0.30)] bg-white hover:border-[var(--brand-gold)]'
                 }`}
               >
                 <div className="h-44 overflow-hidden relative">
@@ -61,18 +61,18 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ selectedCatego
                     alt={cat.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-100"
                   />
-                  <div className="image-overlay bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
-                  <span className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-[var(--brand-gold)] text-[10px] font-bold font-sans px-2.5 py-0.5 rounded-full border border-[var(--brand-gold)]/30 accent z-10">
+                  <div className="category-image-overlay absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                  <span className="absolute top-3 right-3 bg-[#123F2B] text-[#D4AF37] text-[10px] font-bold font-sans px-2.5 py-0.5 rounded-full border border-[var(--brand-gold)]/40 z-10 shadow-md">
                     {cat.itemCount} Items
                   </span>
                 </div>
 
-                <div className="p-5 space-y-2 overlay-content">
-                  <h3 className="text-base font-bold font-serif-luxury group-hover:text-[var(--brand-gold)] transition-colors flex items-center justify-between">
+                <div className="category-card-body p-5 space-y-2 bg-white">
+                  <h3 className="text-base font-bold font-serif-luxury text-[#123F2B] group-hover:text-[#B8891E] transition-colors flex items-center justify-between">
                     <span>{cat.name}</span>
-                    <ArrowRight className="w-4 h-4 text-[var(--brand-gold)] accent opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
+                    <ArrowRight className="w-4 h-4 text-[#123F2B] group-hover:text-[#B8891E] opacity-80 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
                   </h3>
-                  <p className="text-xs line-clamp-2 leading-relaxed opacity-90">
+                  <p className="text-xs line-clamp-2 leading-relaxed text-[#405B4A]">
                     {cat.description}
                   </p>
                 </div>

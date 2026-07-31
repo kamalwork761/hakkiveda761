@@ -638,4 +638,53 @@
   color: #718176 !important;
 }
 
+/* SHOPPABLE VIDEO REELS HEADING HIGH-CONTRAST LIGHT THEME STYLES */
+.shoppable-reels-heading {
+  isolation: isolate;
+}
+
+.shoppable-reels-heading .eyebrow {
+  color: #b8891e !important;
+  -webkit-text-fill-color: #b8891e !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+
+.shoppable-reels-heading h2 {
+  color: #123f2b !important;
+  -webkit-text-fill-color: #123f2b !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+  filter: none !important;
+  background-clip: border-box !important;
+  -webkit-background-clip: border-box !important;
+  background-image: none !important;
+}
+
+.shoppable-reels-heading .highlight {
+  color: #d4af37 !important;
+  -webkit-text-fill-color: #d4af37 !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+
+.shoppable-reels-heading p {
+  color: #405b4a !important;
+  -webkit-text-fill-color: #405b4a !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  mix-blend-mode: normal !important;
+  text-shadow: none !important;
+  filter: none !important;
+}
+
+
 

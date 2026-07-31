@@ -194,15 +194,24 @@ export const ShoppableReelsSection: React.FC<ShoppableReelsSectionProps> = ({
     <section className="py-16 md:py-24 bg-gradient-to-b from-amber-50/40 via-white to-amber-50/20 relative overflow-hidden border-t border-amber-100">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         {/* Section Header */}
-        <div className="text-center max-w-3xl mx-auto mb-12">
-          <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--brand-primary-dark,#123F2B)]/10 text-[var(--brand-primary-dark,#123F2B)] font-bold text-xs uppercase tracking-widest mb-3 border border-[var(--brand-gold,#D4AF37)]/40">
-            <Sparkles className="w-3.5 h-3.5 text-[var(--brand-gold,#D4AF37)]" />
-            <span>Shoppable Rituals</span>
+        <div className="shoppable-reels-heading text-center max-w-3xl mx-auto mb-12">
+          <div
+            className="eyebrow inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[#123F2B]/10 font-bold text-xs uppercase tracking-widest mb-3 border border-[#B8891E]/30"
+            style={{ color: '#B8891E', WebkitTextFillColor: '#B8891E', opacity: 1, visibility: 'visible' }}
+          >
+            <Sparkles className="w-3.5 h-3.5" style={{ color: '#B8891E' }} />
+            <span style={{ color: '#B8891E', WebkitTextFillColor: '#B8891E' }}>Shoppable Rituals</span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-serif font-bold text-[var(--brand-primary-dark,#123F2B)] tracking-tight mb-4">
-            HAKKIVEDA VIDEO RITUALS
+          <h2
+            className="text-3xl md:text-5xl font-serif font-bold tracking-tight mb-4"
+            style={{ color: '#123F2B', WebkitTextFillColor: '#123F2B', opacity: 1, visibility: 'visible' }}
+          >
+            HAKKIVEDA <span className="highlight" style={{ color: '#D4AF37', WebkitTextFillColor: '#D4AF37' }}>VIDEO RITUALS</span>
           </h2>
-          <p className="text-slate-600 text-base md:text-lg font-sans leading-relaxed">
+          <p
+            className="text-base md:text-lg font-sans leading-relaxed"
+            style={{ color: '#405B4A', WebkitTextFillColor: '#405B4A', opacity: 1, visibility: 'visible' }}
+          >
             Watch real customer hair transformation journeys, 400-year-old Hakki-Pikki brewing traditions, and tap to shop authentic herbal formulas directly.
           </p>
         </div>

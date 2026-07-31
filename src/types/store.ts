@@ -812,3 +812,20 @@ export interface ShoppableReel {
   sortOrder: number;
 }
 
+export interface ShiprocketSettings {
+  enabled: boolean;
+  autoCreateOrder: boolean;
+  autoGenerateAwb: boolean;
+  autoSchedulePickup: boolean;
+  pickupPincode: string;
+  defaultLengthCm: number;
+  defaultWidthCm: number;
+  defaultHeightCm: number;
+  defaultWeightKg: number;
+  courierPreference: 'SURFACE' | 'EXPRESS' | 'LOWEST_COST';
+  codEnabled: boolean;
+  codFeeINR: number;
+  codMinAmountINR: number;
+  codMaxAmountINR: number;
+}
+

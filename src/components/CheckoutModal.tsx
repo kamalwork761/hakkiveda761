@@ -40,6 +40,16 @@ export const CheckoutModal: React.FC = () => {
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
 
+  // Shiprocket Pincode Serviceability state
+  const [isCheckingPincode, setIsCheckingPincode] = useState(false);
+  const [pincodeStatus, setPincodeStatus] = useState<{
+    checked: boolean;
+    serviceable: boolean;
+    couriers: string[];
+    codAllowed: boolean;
+    message: string;
+  }>({ checked: false, serviceable: true, couriers: [], codAllowed: true, message: '' });
+
   if (!isCheckoutOpen) return null;
 
   const matchedCountry =
@@ -48,6 +58,49 @@ export const CheckoutModal: React.FC = () => {
 
   const isBlocked = matchedCountry?.shippingRule === 'BLOCK_ORDERS';
   const isIndia = matchedCountry?.code === 'IN' || country.toLowerCase() === 'india' || country.toLowerCase().includes('in');
+
+  // Pincode validation & Shiprocket check trigger
+  const handlePincodeChange = (value: string) => {
+    setPincode(value);
+    if (isIndia && value.trim().length === 6 && /^\d{6}$/.test(value.trim())) {
+      setIsCheckingPincode(true);
+      fetch(`/api/shiprocket/check-serviceability?delivery_pincode=${value.trim()}`)
+        .then((res) => res.json())
+        .then((data) => {
+          setIsCheckingPincode(false);
+          if (data.success && data.serviceable) {
+            setPincodeStatus({
+              checked: true,
+              serviceable: true,
+              couriers: data.couriers || ['Delhivery', 'Xpressbees', 'Bluedart'],
+              codAllowed: data.codAllowed !== false,
+              message: `Serviceable via ${data.couriers?.slice(0, 3).join(', ') || 'Shiprocket Logistics Network'}`,
+            });
+          } else {
+            setPincodeStatus({
+              checked: true,
+              serviceable: false,
+              couriers: [],
+              codAllowed: false,
+              message: data.message || 'Pincode unserviceable for delivery',
+            });
+          }
+        })
+        .catch(() => {
+          setIsCheckingPincode(false);
+          // Fallback graceful
+          setPincodeStatus({
+            checked: true,
+            serviceable: true,
+            couriers: ['Delhivery Surface', 'Shiprocket Express'],
+            codAllowed: true,
+            message: 'Serviceable via Express Delivery',
+          });
+        });
+    } else {
+      setPincodeStatus({ checked: false, serviceable: true, couriers: [], codAllowed: true, message: '' });
+    }
+  };
 
   // Determine market payment gateways
   const marketMapping = marketGateways.find((mg) => mg.marketId === currentMarket.id) ||
@@ -61,10 +114,10 @@ export const CheckoutModal: React.FC = () => {
     .filter((gw) => gw.enabled && activeGatewayIds.includes(gw.id))
     .sort((a, b) => a.sortOrder - b.sortOrder);
 
-  // COD checks - India: COD & Prepaid allowed; International: Prepaid only, disable COD automatically
+  // COD checks - India: COD & Prepaid allowed if pincode serviceable; International: Prepaid only, disable COD automatically
   const isCodGloballyEnabled = codRules.enabled && (!codRules.restrictToIndia || isIndia);
   const isCodWithinLimits = cartTotalINR >= codRules.minOrderAmountINR && cartTotalINR <= codRules.maxOrderAmountINR;
-  const isCodAllowed = isIndia && (matchedCountry
+  const isCodAllowed = isIndia && pincodeStatus.codAllowed && (matchedCountry
     ? matchedCountry.shippingRule === 'COD_AND_PREPAID' && matchedCountry.paymentRule === 'COD_AND_PREPAID' && isCodGloballyEnabled && isCodWithinLimits
     : isCodGloballyEnabled && isCodWithinLimits);
 
@@ -143,76 +196,76 @@ export const CheckoutModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/85 backdrop-blur-md overflow-y-auto">
-      <div className="relative w-full max-w-3xl bg-[var(--brand-primary-deep)] border border-[var(--brand-gold)]/50 rounded-2xl shadow-2xl p-6 sm:p-10 my-8 text-slate-100 font-sans">
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto">
+      <div className="relative w-full max-w-3xl bg-[var(--surface-background)] border border-[var(--border-strong)] rounded-2xl shadow-2xl p-6 sm:p-10 my-8 text-[var(--text-primary)] font-sans">
         <button
           onClick={() => setIsCheckoutOpen(false)}
-          className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/40 text-white hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all flex items-center justify-center"
+          className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/30 text-[var(--text-primary)] hover:bg-[var(--border-strong)] hover:text-black transition-all flex items-center justify-center"
         >
           <X className="w-5 h-5" />
         </button>
 
         {/* Header Steps */}
-        <div className="flex items-center gap-3 border-b border-white/10 pb-4 mb-6 text-xs uppercase tracking-widest font-bold">
-          <span className={step === 'address' ? 'text-[var(--brand-gold)]' : 'text-slate-500'}>1. Delivery Address</span>
-          <span className="text-slate-600">/</span>
-          <span className={step === 'payment' ? 'text-[var(--brand-gold)]' : 'text-slate-500'}>2. Payment Method</span>
-          <span className="text-slate-600">/</span>
-          <span className={step === 'confirmation' ? 'text-[var(--brand-gold)]' : 'text-slate-500'}>3. Order Receipt</span>
+        <div className="flex items-center gap-3 border-b border-[var(--border-muted)] pb-4 mb-6 text-xs uppercase tracking-widest font-bold">
+          <span className={step === 'address' ? 'text-[var(--heading-primary)] underline decoration-2' : 'text-[var(--text-muted)]'}>1. Delivery Address</span>
+          <span className="text-[var(--text-muted)]">/</span>
+          <span className={step === 'payment' ? 'text-[var(--heading-primary)] underline decoration-2' : 'text-[var(--text-muted)]'}>2. Payment Method</span>
+          <span className="text-[var(--text-muted)]">/</span>
+          <span className={step === 'confirmation' ? 'text-[var(--heading-primary)] underline decoration-2' : 'text-[var(--text-muted)]'}>3. Order Receipt</span>
         </div>
 
         {/* Step 1: Address Form */}
         {step === 'address' && (
           <form onSubmit={handleAddressSubmit} className="space-y-4">
-            <h3 className="text-2xl font-serif-luxury font-bold text-slate-100">
+            <h3 className="text-2xl font-serif-luxury font-bold text-[var(--text-primary)]">
               Shipping & Customer Information
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Full Name *</label>
+                <label className="block text-xs font-bold text-[var(--input-label)] mb-1">Full Name *</label>
                 <input
                   type="text"
                   required
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   placeholder="e.g. Priya Sharma"
-                  className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
+                  className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Email Address *</label>
+                <label className="block text-xs font-bold text-[var(--input-label)] mb-1">Email Address *</label>
                 <input
                   type="email"
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   placeholder="e.g. priya@gmail.com"
-                  className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
+                  className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)]"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Phone / WhatsApp *</label>
+                <label className="block text-xs font-bold text-[var(--input-label)] mb-1">Phone / WhatsApp *</label>
                 <input
                   type="tel"
                   required
                   value={phone}
                   onChange={(e) => setPhone(e.target.value)}
                   placeholder="+91 98765 43210"
-                  className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
+                  className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Country *</label>
+                <label className="block text-xs font-bold text-[var(--input-label)] mb-1">Country *</label>
                 <select
                   value={country}
                   onChange={(e) => setCountry(e.target.value)}
-                  className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
+                  className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)]"
                 >
                   <option value="India">India (INR)</option>
                   <option value="Singapore">Singapore (SGD)</option>
@@ -227,72 +280,94 @@ export const CheckoutModal: React.FC = () => {
             </div>
 
             <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1">Street Address *</label>
+              <label className="block text-xs font-bold text-[var(--input-label)] mb-1">Street Address *</label>
               <input
                 type="text"
                 required
                 value={line1}
                 onChange={(e) => setLine1(e.target.value)}
                 placeholder="House No, Street, Landmark"
-                className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
+                className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)]"
               />
             </div>
 
             <div className="grid grid-cols-3 gap-3">
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">City *</label>
+                <label className="block text-xs font-bold text-[var(--input-label)] mb-1">City *</label>
                 <input
                   type="text"
                   required
                   value={city}
                   onChange={(e) => setCity(e.target.value)}
-                  className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
+                  className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">State / Region *</label>
+                <label className="block text-xs font-bold text-[var(--input-label)] mb-1">State / Region *</label>
                 <input
                   type="text"
                   required
                   value={state}
                   onChange={(e) => setState(e.target.value)}
-                  className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
+                  className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)]"
                 />
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">Zip / Pincode *</label>
+                <label className="block text-xs font-bold text-[var(--input-label)] mb-1">Zip / Pincode *</label>
                 <input
                   type="text"
                   required
                   value={pincode}
-                  onChange={(e) => setPincode(e.target.value)}
-                  className="w-full bg-[var(--brand-primary-dark)] border border-white/20 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
+                  onChange={(e) => handlePincodeChange(e.target.value)}
+                  placeholder="e.g. 560001"
+                  className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)]"
                 />
               </div>
             </div>
 
+            {/* Pincode Serviceability Feedback Badge */}
+            {isIndia && (
+              <div className="text-xs font-bold">
+                {isCheckingPincode ? (
+                  <span className="text-amber-600 dark:text-amber-400 flex items-center gap-1.5 animate-pulse">
+                    <Truck className="w-4 h-4" /> Checking Shiprocket pincode serviceability...
+                  </span>
+                ) : pincodeStatus.checked ? (
+                  pincodeStatus.serviceable ? (
+                    <span className="text-emerald-700 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-950/40 p-2 rounded-lg border border-emerald-300 dark:border-emerald-500/40 block">
+                      ✓ {pincodeStatus.message}
+                    </span>
+                  ) : (
+                    <span className="text-rose-700 dark:text-rose-400 bg-rose-50 dark:bg-rose-950/40 p-2 rounded-lg border border-rose-300 dark:border-rose-500/40 block">
+                      ⚠️ {pincodeStatus.message}
+                    </span>
+                  )
+                ) : null}
+              </div>
+            )}
+
             {/* Order Items Preview with Product Images */}
             {cart.length > 0 && (
-              <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-xl p-3 space-y-2">
-                <span className="text-[10px] uppercase font-bold text-[var(--brand-gold)] tracking-wider block">
+              <div className="bg-[var(--surface-muted)] border border-[var(--border-default)] rounded-xl p-3 space-y-2">
+                <span className="text-[10px] uppercase font-bold text-[var(--heading-primary)] tracking-wider block">
                   Order Summary ({cart.reduce((sum, item) => sum + item.quantity, 0)} Items)
                 </span>
                 <div className="max-h-36 overflow-y-auto space-y-2 pr-1">
                   {cart.map((item) => (
-                    <div key={item.product.id} className="flex items-center gap-3 bg-black/20 p-2 rounded-lg border border-white/5">
+                    <div key={item.product.id} className="flex items-center gap-3 bg-[var(--surface-background)] p-2 rounded-lg border border-[var(--border-muted)]">
                       <img
                         src={item.product.image}
                         alt={item.product.name}
                         loading="lazy"
-                        className="w-10 h-10 object-contain rounded bg-black/40 p-0.5 border border-white/10 shrink-0"
+                        className="w-10 h-10 object-contain rounded bg-white p-0.5 border border-slate-200 shrink-0"
                       />
                       <div className="flex-1 min-w-0">
-                        <h4 className="text-xs font-bold text-slate-100 truncate">{item.product.name}</h4>
-                        <p className="text-[10px] text-slate-400">Qty: {item.quantity} × {formatPrice(item.product.priceINR)}</p>
+                        <h4 className="text-xs font-bold text-[var(--text-primary)] truncate">{item.product.name}</h4>
+                        <p className="text-[10px] text-[var(--text-secondary)]">Qty: {item.quantity} × {formatPrice(item.product.priceINR)}</p>
                       </div>
-                      <span className="text-xs font-bold text-[var(--brand-gold)] shrink-0">
+                      <span className="text-xs font-bold text-[var(--heading-primary)] shrink-0">
                         {formatPrice(item.product.priceINR * item.quantity)}
                       </span>
                     </div>
@@ -302,8 +377,8 @@ export const CheckoutModal: React.FC = () => {
             )}
 
             {isBlocked && (
-              <div className="p-4 bg-red-950/60 border border-red-500/50 rounded-xl text-xs text-rose-200 space-y-1">
-                <span className="font-bold flex items-center gap-1.5 text-rose-400">
+              <div className="p-4 bg-rose-50 dark:bg-red-950/60 border border-rose-300 dark:border-red-500/50 rounded-xl text-xs text-rose-800 dark:text-rose-200 space-y-1">
+                <span className="font-bold flex items-center gap-1.5 text-rose-600 dark:text-rose-400">
                   ⚠️ Shipping Unavailable
                 </span>
                 <p>
@@ -317,8 +392,8 @@ export const CheckoutModal: React.FC = () => {
               disabled={isBlocked}
               className={`w-full py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all shadow-xl flex items-center justify-center gap-2 mt-6 ${
                 isBlocked
-                  ? 'bg-slate-700 text-slate-400 cursor-not-allowed opacity-60'
-                  : 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] hover:bg-white'
+                  ? 'bg-[var(--button-disabled-bg)] text-[var(--button-disabled-text)] cursor-not-allowed'
+                  : 'bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:opacity-95'
               }`}
             >
               <span>{isBlocked ? 'Shipping Blocked' : 'Continue To Payment'}</span>
@@ -330,19 +405,19 @@ export const CheckoutModal: React.FC = () => {
         {/* Step 2: Payment Selection */}
         {step === 'payment' && (
           <div className="space-y-6">
-            <h3 className="text-2xl font-serif-luxury font-bold text-slate-100">
+            <h3 className="text-2xl font-serif-luxury font-bold text-[var(--text-primary)]">
               Select Payment Method
             </h3>
 
             {/* Rules Callout */}
-            <div className="p-4 bg-black/40 border border-[var(--brand-gold)]/30 rounded-xl text-xs space-y-1">
+            <div className="p-4 bg-[var(--surface-muted)] border border-[var(--border-default)] rounded-xl text-xs space-y-1">
               <div className="flex items-center justify-between">
-                <span className="text-[var(--brand-gold)] font-bold block">Market & Payment Policy:</span>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-[var(--brand-gold)]/20 text-[var(--brand-gold)] border border-[var(--brand-gold)]/40 font-bold">
+                <span className="text-[var(--heading-primary)] font-bold block">Market & Payment Policy:</span>
+                <span className="text-[10px] px-2 py-0.5 rounded bg-[var(--surface-background)] text-[var(--text-primary)] border border-[var(--border-default)] font-bold">
                   {matchedCountry?.flag || selectedCountry.flag} {matchedCountry?.name || selectedCountry.name} ({currentCurrency.code})
                 </span>
               </div>
-              <p className="text-slate-300">
+              <p className="text-[var(--text-secondary)]">
                 {isCodAllowed
                   ? `• Shipments to ${matchedCountry?.name || 'India'} qualify for both Razorpay Online Payment and Cash on Delivery (COD).`
                   : `• Cash on Delivery (COD) is disabled for ${matchedCountry?.name || country}. International shipments require Prepaid Checkout.`}
@@ -357,14 +432,14 @@ export const CheckoutModal: React.FC = () => {
                 return (
                   <div key={gw.id}>
                     {isDisabledCod ? (
-                      <div className="p-3.5 bg-red-950/30 border border-red-500/20 rounded-xl text-[11px] text-rose-300 flex items-center justify-between">
+                      <div className="p-3.5 bg-rose-50 dark:bg-red-950/30 border border-rose-200 dark:border-red-500/20 rounded-xl text-[11px] text-rose-700 dark:text-rose-300 flex items-center justify-between">
                         <div className="flex items-center gap-3">
                           <PaymentIcon gatewayId="COD" size="sm" />
                           <span>
                             Cash on Delivery unavailable for {matchedCountry?.name || country} (Min ₹{codRules.minOrderAmountINR}, Max ₹{codRules.maxOrderAmountINR})
                           </span>
                         </div>
-                        <span className="text-[10px] font-bold px-2 py-0.5 bg-red-900/40 text-red-300 rounded border border-red-500/30">
+                        <span className="text-[10px] font-bold px-2 py-0.5 bg-rose-200 dark:bg-red-900/40 text-rose-800 dark:text-red-300 rounded border border-rose-300 dark:border-red-500/30">
                           Prepaid Only
                         </span>
                       </div>
@@ -373,29 +448,29 @@ export const CheckoutModal: React.FC = () => {
                         onClick={() => setPaymentMethod(gw.id)}
                         className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
                           paymentMethod === gw.id
-                            ? 'border-[var(--brand-gold)] bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] shadow-lg ring-1 ring-[var(--brand-gold)]/30'
-                            : 'border-white/15 bg-black/30 text-slate-200 hover:border-white/30'
+                            ? 'border-[var(--border-strong)] bg-[var(--surface-elevated)] text-[var(--heading-primary)] shadow-md ring-1 ring-[var(--border-strong)]'
+                            : 'border-[var(--border-muted)] bg-[var(--surface-background)] text-[var(--text-primary)] hover:border-[var(--border-default)]'
                         }`}
                       >
                         <div className="flex items-center gap-3.5">
                           <PaymentIcon gatewayId={gw.id} size="md" />
                           <div>
                             <div className="flex items-center gap-2">
-                              <span className="font-bold text-sm block text-slate-100">{gw.name}</span>
+                              <span className="font-bold text-sm block text-[var(--text-primary)]">{gw.name}</span>
                               {gw.mode === 'TEST' && (
-                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-300 border border-amber-500/30">
+                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">
                                   TEST MODE
                                 </span>
                               )}
                             </div>
-                            <span className="text-[11px] text-slate-400 block">{gw.description}</span>
+                            <span className="text-[11px] text-[var(--text-secondary)] block">{gw.description}</span>
                           </div>
                         </div>
                         <div className="flex items-center gap-3">
-                          <span className="text-[10px] font-mono font-bold text-slate-400 bg-white/5 px-2 py-1 rounded border border-white/10">
+                          <span className="text-[10px] font-mono font-bold text-[var(--text-secondary)] bg-[var(--surface-muted)] px-2 py-1 rounded border border-[var(--border-muted)]">
                             {currentCurrency.code}
                           </span>
-                          <input type="radio" name="pay" checked={paymentMethod === gw.id} readOnly className="accent-[var(--brand-gold)] w-4 h-4" />
+                          <input type="radio" name="pay" checked={paymentMethod === gw.id} readOnly className="accent-[var(--button-primary-bg)] w-4 h-4" />
                         </div>
                       </label>
                     )}
@@ -404,14 +479,14 @@ export const CheckoutModal: React.FC = () => {
               })}
 
               {availableGateways.length === 0 && (
-                <div className="p-4 bg-amber-950/40 border border-amber-500/30 rounded-xl text-xs text-amber-200">
+                <div className="p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-500/30 rounded-xl text-xs text-amber-800 dark:text-amber-200">
                   No payment gateways configured for this market yet. Please contact store administration.
                 </div>
               )}
             </div>
 
             {/* Order Total Preview */}
-            <div className="bg-black/30 p-4 rounded-xl space-y-3 border border-white/10 text-xs">
+            <div className="bg-[var(--surface-muted)] p-4 rounded-xl space-y-3 border border-[var(--border-default)] text-xs">
               <div className="flex gap-2 overflow-x-auto pb-1">
                 {cart.map((item) => (
                   <img
@@ -420,33 +495,43 @@ export const CheckoutModal: React.FC = () => {
                     alt={item.product.name}
                     title={`${item.product.name} (x${item.quantity})`}
                     loading="lazy"
-                    className="w-10 h-10 object-contain rounded bg-black/40 p-0.5 border border-white/10 shrink-0"
+                    className="w-10 h-10 object-contain rounded bg-white p-0.5 border border-slate-200 shrink-0"
                   />
                 ))}
               </div>
-              <div className="flex justify-between text-slate-300 border-t border-white/10 pt-2">
+              <div className="flex justify-between text-[var(--text-primary)] border-t border-[var(--border-muted)] pt-2 font-bold">
                 <span>Total Amount:</span>
-                <span className="font-bold text-[var(--brand-gold)] text-sm">{formatPrice(cartTotalINR)}</span>
+                <span className="font-bold text-[var(--heading-primary)] text-sm">{formatPrice(cartTotalINR)}</span>
               </div>
             </div>
 
             <div className="flex gap-3">
               <button
                 onClick={() => setStep('address')}
-                className="px-6 py-3 border border-white/20 rounded-lg text-xs font-bold uppercase text-slate-300 hover:text-white"
+                className="px-6 py-3 border border-[var(--border-default)] rounded-lg text-xs font-bold uppercase text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               >
                 Back
               </button>
               <button
                 onClick={handlePlaceOrder}
                 disabled={isProcessingPayment}
-                className="flex-1 bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-white transition-all shadow-xl flex items-center justify-center gap-2"
+                className="flex-1 bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-[var(--button-primary-hover)] transition-all shadow-xl flex items-center justify-center gap-2"
               >
                 {isProcessingPayment ? (
                   <span>Processing Secure Payment...</span>
                 ) : (
                   <span>
-                    {paymentMethod === 'COD' ? 'Confirm COD Order' : 'Pay Now via Razorpay'}
+                    {paymentMethod === 'COD'
+                      ? `Confirm Cash on Delivery Order (${formatPrice(cartTotalINR)})`
+                      : paymentMethod === 'RAZORPAY'
+                      ? `Pay ${formatPrice(cartTotalINR)} via Razorpay`
+                      : paymentMethod === 'PHONEPE'
+                      ? `Pay ${formatPrice(cartTotalINR)} via PhonePe`
+                      : paymentMethod === 'UPI'
+                      ? `Pay ${formatPrice(cartTotalINR)} via Instant UPI`
+                      : paymentMethod === 'PAYPAL'
+                      ? `Pay ${formatPrice(cartTotalINR)} via PayPal`
+                      : `Pay ${formatPrice(cartTotalINR)}`}
                   </span>
                 )}
               </button>

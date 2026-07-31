@@ -32,6 +32,7 @@ import {
   B2BSectionConfig,
   VideoPopupConfig,
   ShoppableReel,
+  ShiprocketSettings,
 } from '../types/store';
 import {
   INITIAL_CURRENCIES,
@@ -311,6 +312,10 @@ interface StoreContextType {
   paymentLogs: PaymentLog[];
   addPaymentLog: (log: Omit<PaymentLog, 'id' | 'createdAt'> & { id?: string; createdAt?: string }) => void;
   refundPaymentLog: (logId: string, refundAmount: number, refundReason: string) => void;
+
+  // Shiprocket Settings Manager
+  shiprocketSettings: ShiprocketSettings;
+  updateShiprocketSettings: (partial: Partial<ShiprocketSettings>) => void;
 
   dbSyncStatus: 'loading' | 'synced' | 'saving' | 'error';
   serverSaveError: string | null;
@@ -740,43 +745,71 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     // Strict Light vs Dark theme specifications according to design system
     let cardBg = '#FFFFFF';
-    let primaryText = '#173A25';
-    let secondaryText = '#375243';
-    let mutedText = 'rgba(23, 58, 37, 0.70)';
-    let buttonBg = brand.buttonColor && brand.buttonColor !== '#0A5A2A' ? brand.buttonColor : '#D4AF37';
-    let buttonText = '#173A25';
-    let buttonHoverBg = brand.hoverColor && brand.hoverColor !== '#083F1E' ? brand.hoverColor : '#B8962E';
-    let buttonHoverText = '#173A25';
-    let inputBg = '#FFFFFF';
-    let inputText = '#173A25';
-    let inputBorder = brand.borderColor || '#D8CDAF';
-    let border = brand.borderColor || '#D8CDAF';
-    let iconColor = '#173A25';
-    let linkColor = brand.accentColor || '#176B3A';
-    let linkHoverColor = '#0A4F1F';
-    let deepBg = '#FFFFFF';
-    let deeperBg = '#F0EBE1';
+    let primaryText = brand.textColor || (isLight ? '#173A25' : '#FFFFFF');
+    let secondaryText = isLight ? '#375243' : '#CBD5E1';
+    let mutedText = isLight ? 'rgba(23, 58, 37, 0.70)' : 'rgba(248, 250, 252, 0.70)';
+    let buttonBg = brand.buttonColor || (isLight ? '#0A5A2A' : '#D4AF37');
+    let buttonText = isLight ? '#FFFFFF' : '#0B1D13';
+    let buttonHoverBg = brand.hoverColor || (isLight ? '#083F1E' : '#E8D279');
+    let buttonHoverText = isLight ? '#FFFFFF' : '#0B1D13';
+    let inputBg = isLight ? '#FFFFFF' : '#122B1E';
+    let inputText = isLight ? '#173A25' : '#FFFFFF';
+    let inputBorder = brand.borderColor || (isLight ? '#D8CDAF' : 'rgba(212, 175, 55, 0.3)');
+    let border = brand.borderColor || (isLight ? '#D8CDAF' : 'rgba(212, 175, 55, 0.3)');
+    let iconColor = isLight ? '#173A25' : (brand.secondaryGold || '#D4AF37');
+    let linkColor = brand.accentColor || (isLight ? '#176B3A' : '#3AA91F');
+    let linkHoverColor = isLight ? '#0A4F1F' : '#E8D279';
+    let deepBg = isLight ? '#FFFFFF' : '#122B1E';
+    let deeperBg = isLight ? '#F0EBE1' : '#05120B';
 
     if (!isLight) {
-      // DARK THEME SPECIFICATIONS
       cardBg = '#122B1E';
-      primaryText = '#FFFFFF';
-      secondaryText = '#CBD5E1';
-      mutedText = 'rgba(248, 250, 252, 0.70)';
-      buttonBg = brand.buttonColor || '#D4AF37';
-      buttonText = '#0B1D13';
-      buttonHoverBg = brand.hoverColor || '#E8D279';
-      buttonHoverText = '#0B1D13';
-      inputBg = '#122B1E';
-      inputText = '#FFFFFF';
-      inputBorder = brand.borderColor || 'rgba(212, 175, 55, 0.3)';
-      border = brand.borderColor || 'rgba(212, 175, 55, 0.3)';
-      iconColor = brand.secondaryGold || '#D4AF37';
-      linkColor = '#3AA91F';
-      linkHoverColor = '#E8D279';
-      deepBg = '#122B1E';
-      deeperBg = '#05120B';
     }
+
+    // PART 1 — COMPLETE SEMANTIC COLOUR SYSTEM VARIABLES
+    root.style.setProperty('--page-background', bg);
+    root.style.setProperty('--surface-background', deepBg);
+    root.style.setProperty('--surface-elevated', isLight ? '#F9FBF8' : '#173827');
+    root.style.setProperty('--surface-muted', deeperBg);
+    root.style.setProperty('--text-primary', primaryText);
+    root.style.setProperty('--text-secondary', secondaryText);
+    root.style.setProperty('--text-muted', mutedText);
+    root.style.setProperty('--text-disabled', isLight ? '#A3B1A8' : '#64748B');
+    root.style.setProperty('--text-inverse', isLight ? '#FFFFFF' : '#0B1D13');
+    root.style.setProperty('--heading-primary', isLight ? primary : gold);
+    root.style.setProperty('--heading-on-dark', '#FFFFFF');
+    root.style.setProperty('--border-default', border);
+    root.style.setProperty('--border-muted', isLight ? '#E2DDD0' : 'rgba(212, 175, 55, 0.15)');
+    root.style.setProperty('--border-strong', gold);
+    root.style.setProperty('--button-primary-bg', buttonBg);
+    root.style.setProperty('--button-primary-text', buttonText);
+    root.style.setProperty('--button-primary-hover', buttonHoverBg);
+    root.style.setProperty('--button-secondary-bg', gold);
+    root.style.setProperty('--button-secondary-text', isLight ? '#173A25' : '#0B1D13');
+    root.style.setProperty('--button-disabled-bg', isLight ? '#E2E8F0' : '#1E293B');
+    root.style.setProperty('--button-disabled-text', isLight ? '#94A3B8' : '#475569');
+    root.style.setProperty('--input-background', inputBg);
+    root.style.setProperty('--input-text', inputText);
+    root.style.setProperty('--input-label', isLight ? '#173A25' : '#F8FAFC');
+    root.style.setProperty('--input-placeholder', isLight ? '#64748B' : '#94A3B8');
+    root.style.setProperty('--input-border', inputBorder);
+    root.style.setProperty('--input-focus-border', gold);
+    root.style.setProperty('--overlay-background', isLight ? 'rgba(8, 31, 19, 0.78)' : 'rgba(0, 0, 0, 0.85)');
+    root.style.setProperty('--overlay-heading', '#FFFFFF');
+    root.style.setProperty('--overlay-body', '#F1F5F9');
+    root.style.setProperty('--overlay-accent', gold);
+    root.style.setProperty('--card-light-background', '#FFFFFF');
+    root.style.setProperty('--card-light-heading', '#173A25');
+    root.style.setProperty('--card-light-body', '#224230');
+    root.style.setProperty('--card-light-muted', '#526A5C');
+    root.style.setProperty('--card-dark-background', '#122B1E');
+    root.style.setProperty('--card-dark-heading', '#FFFFFF');
+    root.style.setProperty('--card-dark-body', '#E2E8F0');
+    root.style.setProperty('--card-dark-muted', '#94A3B8');
+    root.style.setProperty('--success', isLight ? '#16A34A' : '#22C55E');
+    root.style.setProperty('--warning', isLight ? '#D97706' : '#F59E0B');
+    root.style.setProperty('--error', isLight ? '#DC2626' : '#EF4444');
+    root.style.setProperty('--info', isLight ? '#2563EB' : '#3B82F6');
 
     // Global --color-* CSS Variables
     root.style.setProperty('--color-primary', primary);
@@ -1110,6 +1143,35 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [paymentLogs, setPaymentLogs] = useState<PaymentLog[]>(() =>
     getStored('payment_logs', INITIAL_PAYMENT_LOGS)
   );
+
+  const DEFAULT_SHIPROCKET_SETTINGS: ShiprocketSettings = {
+    enabled: true,
+    autoCreateOrder: true,
+    autoGenerateAwb: false,
+    autoSchedulePickup: false,
+    pickupPincode: '560001',
+    defaultLengthCm: 15,
+    defaultWidthCm: 10,
+    defaultHeightCm: 10,
+    defaultWeightKg: 0.5,
+    courierPreference: 'SURFACE',
+    codEnabled: true,
+    codFeeINR: 0,
+    codMinAmountINR: 1,
+    codMaxAmountINR: 50000,
+  };
+
+  const [shiprocketSettings, setShiprocketSettings] = useState<ShiprocketSettings>(() =>
+    getStored('shiprocket_settings', DEFAULT_SHIPROCKET_SETTINGS)
+  );
+
+  const updateShiprocketSettings = (partial: Partial<ShiprocketSettings>) => {
+    setShiprocketSettings((prev) => {
+      const next = { ...prev, ...partial };
+      setStored('shiprocket_settings', next);
+      return next;
+    });
+  };
 
   const updatePaymentGateway = (id: PaymentGatewayId, partial: Partial<PaymentGatewayConfig>) => {
     setPaymentGateways((prev) => {
@@ -2517,6 +2579,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         paymentLogs,
         addPaymentLog,
         refundPaymentLog,
+        shiprocketSettings,
+        updateShiprocketSettings,
         dbSyncStatus,
         serverSaveError,
         resetToDefaults,

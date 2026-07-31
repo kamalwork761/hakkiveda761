@@ -14,6 +14,7 @@ import { AdminFooterManager } from './AdminFooterManager';
 import { AdminB2BSectionManager } from './AdminB2BSectionManager';
 import { AdminVideoPopupManager } from './AdminVideoPopupManager';
 import { AdminShoppableReelsManager } from './AdminShoppableReelsManager';
+import { AdminShiprocketManager } from './AdminShiprocketManager';
 import {
   Lock,
   LayoutDashboard,
@@ -648,6 +649,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             >
               <Truck className="w-4 h-4" />
               <span>Shipping Rules</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('shiprocket')}
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
+                activeTab === 'shiprocket' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
+              }`}
+            >
+              <Box className="w-4 h-4" />
+              <span>Shiprocket Settings</span>
             </button>
             <button
               onClick={() => setActiveTab('seo')}
@@ -2360,6 +2370,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             </div>
           );
         })()}
+
+        {/* Shiprocket Tab */}
+        {activeTab === 'shiprocket' && <AdminShiprocketManager />}
 
         {/* Tab 12: Payments */}
         {activeTab === 'payments' && (

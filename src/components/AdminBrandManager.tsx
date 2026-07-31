@@ -590,14 +590,14 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
               {/* Quick Preset Color Swatches */}
               <div className="bg-black/30 p-4 rounded-xl border border-white/10 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-300 block text-xs">Official Brand Presets (Light & Dark Themes)</span>
+                  <span className="font-bold text-slate-300 block text-xs">Official Brand Presets (5 Curated Themes)</span>
                   <span className="text-[10px] font-mono text-[var(--brand-gold)] font-bold">Auto Theme-Engine Active</span>
                 </div>
                 <div className="flex flex-wrap gap-2.5">
                   {[
-                    { name: 'HAKKIVEDA Default', primary: '#0A4F1F', gold: '#D4AF37', bg: '#F8F5EE', text: '#173A25', accent: '#176B3A', button: '#D4AF37', hover: '#B8962E', border: '#D8CDAF', themeMode: 'light' },
+                    { name: 'HAKKIVEDA Ivory', primary: '#0A4F1F', gold: '#D4AF37', bg: '#F8F5EE', text: '#173A25', accent: '#176B3A', button: '#0A5A2A', hover: '#083F1E', border: '#D8CDAF', themeMode: 'light' },
                     { name: 'Forest Mist', primary: '#1B4332', gold: '#D4AF37', bg: '#F4F7F4', text: '#173A25', accent: '#2D6A4F', button: '#D4AF37', hover: '#B8962E', border: '#D0DCD5', themeMode: 'light' },
-                    { name: 'Herbal Ivory', primary: '#2D3B2D', gold: '#C5A059', bg: '#FAF8F5', text: '#1A251A', accent: '#384B38', button: '#C5A059', hover: '#A88440', border: '#E5DFD5', themeMode: 'light' },
+                    { name: 'Botanical Sage', primary: '#356447', gold: '#C9A43C', bg: '#F3F7F1', text: '#173A25', accent: '#709B68', button: '#356447', hover: '#284E37', border: '#D5E2D5', themeMode: 'light' },
                     { name: 'Ayurvedic Deep Forest', primary: '#0B1D13', gold: '#D4AF37', bg: '#0B1D13', text: '#FFFFFF', accent: '#3AA91F', button: '#D4AF37', hover: '#E8D279', border: 'rgba(212, 175, 55, 0.3)', themeMode: 'dark' },
                     { name: 'Royal Emerald', primary: '#022C22', gold: '#F59E0B', bg: '#022C22', text: '#F0FDF4', accent: '#10B981', button: '#F59E0B', hover: '#FBBF24', border: 'rgba(245, 158, 11, 0.3)', themeMode: 'dark' },
                   ].map((swatch, idx) => (
@@ -633,6 +633,92 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
                       </span>
                     </button>
                   ))}
+                </div>
+              </div>
+
+              {/* Comprehensive Live Theme Preview Matrix */}
+              <div className="bg-black/40 p-5 rounded-2xl border border-[var(--brand-gold)]/40 space-y-4">
+                <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                  <span className="text-xs font-mono font-bold text-[var(--brand-gold)] uppercase tracking-wider flex items-center gap-2">
+                    <Sparkles className="w-4 h-4" />
+                    <span>Live Colour Contrast & Component Matrix</span>
+                  </span>
+                  <span className="text-[10px] text-slate-400 font-mono">Real-Time Canvas Inspection</span>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 text-xs">
+                  {/* 1. Page Body & Headings */}
+                  <div className="p-4 rounded-xl border border-white/10 bg-[var(--page-background)] text-[var(--text-primary)] space-y-2 shadow-md">
+                    <span className="text-[10px] uppercase font-bold text-[var(--heading-primary)] tracking-widest block">1. Page Body Canvas</span>
+                    <h4 className="text-sm font-bold text-[var(--heading-primary)]">HAKKIVEDA Hair Rituals</h4>
+                    <p className="text-[11px] text-[var(--text-secondary)]">Authentic Ayurvedic oil formulation with 21 botanicals.</p>
+                  </div>
+
+                  {/* 2. Light Card */}
+                  <div className="p-4 rounded-xl border border-[var(--border-default)] bg-[var(--card-light-background)] text-[var(--card-light-body)] space-y-2 shadow-md">
+                    <span className="text-[10px] uppercase font-bold text-[var(--card-light-heading)] tracking-widest block">2. Light Surface Card</span>
+                    <h4 className="text-sm font-bold text-[var(--card-light-heading)]">Mahabhringraj Taila</h4>
+                    <p className="text-[11px] text-[var(--card-light-body)]">Deep root nourishment & anti-hairfall therapy.</p>
+                    <span className="text-[10px] text-[var(--card-light-muted)] block">200ml • Herbal Extraction</span>
+                  </div>
+
+                  {/* 3. Dark Card */}
+                  <div className="p-4 rounded-xl border border-white/20 bg-[var(--card-dark-background)] text-[var(--card-dark-body)] space-y-2 shadow-md">
+                    <span className="text-[10px] uppercase font-bold text-[var(--overlay-accent)] tracking-widest block">3. Dark Surface Card</span>
+                    <h4 className="text-sm font-bold text-[var(--card-dark-heading)]">Night Scalp Elixir</h4>
+                    <p className="text-[11px] text-[var(--card-dark-body)]">Overnight Ayurvedic regenerative serum.</p>
+                    <span className="text-[10px] text-[var(--card-dark-muted)] block">100ml • Cold Pressed</span>
+                  </div>
+
+                  {/* 4. Image Overlay */}
+                  <div className="relative p-4 rounded-xl overflow-hidden bg-emerald-950 text-white space-y-2 shadow-md">
+                    <div className="absolute inset-0 bg-[var(--overlay-background)] opacity-90"></div>
+                    <div className="relative z-10 space-y-1">
+                      <span className="text-[10px] uppercase font-bold text-[var(--overlay-accent)] tracking-widest block">4. Hero Image Overlay</span>
+                      <h4 className="text-sm font-bold text-[var(--overlay-heading)]">Royal Ayurvedic Heritage</h4>
+                      <p className="text-[11px] text-[var(--overlay-body)]">Crafted according to classical Samhita texts.</p>
+                    </div>
+                  </div>
+
+                  {/* 5. Input Form & Controls */}
+                  <div className="p-4 rounded-xl border border-[var(--border-default)] bg-[var(--surface-background)] space-y-2 shadow-md">
+                    <span className="text-[10px] uppercase font-bold text-[var(--text-primary)] tracking-widest block">5. Input Form Control</span>
+                    <label className="text-[11px] font-bold text-[var(--input-label)] block">Pincode Check</label>
+                    <input
+                      type="text"
+                      readOnly
+                      value="560001"
+                      className="w-full p-2 text-xs rounded-lg bg-[var(--input-background)] text-[var(--input-text)] border border-[var(--input-border)] font-bold focus:outline-none"
+                    />
+                  </div>
+
+                  {/* 6. Buttons & Badges */}
+                  <div className="p-4 rounded-xl border border-white/10 bg-[var(--surface-muted)] space-y-2.5 shadow-md flex flex-col justify-between">
+                    <span className="text-[10px] uppercase font-bold text-[var(--text-primary)] tracking-widest block">6. Interactive Buttons</span>
+                    <div className="flex flex-wrap gap-2">
+                      <button type="button" className="px-3 py-1.5 rounded-lg text-xs font-bold bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] shadow">
+                        Primary CTA
+                      </button>
+                      <button type="button" className="px-3 py-1.5 rounded-lg text-xs font-bold bg-[var(--button-secondary-bg)] text-[var(--button-secondary-text)] shadow">
+                        Secondary
+                      </button>
+                      <button type="button" disabled className="px-3 py-1.5 rounded-lg text-xs font-bold bg-[var(--button-disabled-bg)] text-[var(--button-disabled-text)] cursor-not-allowed">
+                        Disabled
+                      </button>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Status Messages Banner */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 text-xs">
+                  <div className="p-3 rounded-lg bg-[var(--success)]/15 border border-[var(--success)] text-[var(--success)] font-bold flex items-center justify-between">
+                    <span>✓ Shiprocket Serviceable & Ready</span>
+                    <span className="text-[10px] font-mono uppercase bg-[var(--success)] text-white px-1.5 py-0.5 rounded">Success</span>
+                  </div>
+                  <div className="p-3 rounded-lg bg-[var(--error)]/15 border border-[var(--error)] text-[var(--error)] font-bold flex items-center justify-between">
+                    <span>⚠️ International COD Restricted</span>
+                    <span className="text-[10px] font-mono uppercase bg-[var(--error)] text-white px-1.5 py-0.5 rounded">Prepaid Only</span>
+                  </div>
                 </div>
               </div>
             </div>

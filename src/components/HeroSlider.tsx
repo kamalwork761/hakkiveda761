@@ -194,7 +194,8 @@ export const HeroSlider: React.FC = () => {
               <video
                 key={`video-${slide.id}-${videoUrl}`}
                 src={videoUrl}
-                autoPlay
+                autoPlay={isActive}
+                preload={isActive ? 'metadata' : 'none'}
                 muted
                 loop
                 playsInline
@@ -222,6 +223,8 @@ export const HeroSlider: React.FC = () => {
                     slide.animation === 'kenburns' ? 'animate-pulse' : ''
                   }`}
                   loading={idx === 0 ? 'eager' : 'lazy'}
+                  decoding={idx === 0 ? 'sync' : 'async'}
+                  {...(idx === 0 ? ({ fetchPriority: 'high' } as any) : {})}
                 />
               </picture>
             )}

@@ -1340,12 +1340,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [wishlist, setWishlist] = useState<Product[]>(() => getStored('wishlist', []));
   const [currentUser, setCurrentUser] = useState<User | null>(() => getStored('current_user', null));
 
-  // Hydrate state directly from SQLite Server Database (/app/data/hakkiveda.db)
+  // Hydrate public state directly from SQLite Server Database (/app/data/hakkiveda.db)
   useEffect(() => {
     let isMounted = true;
     setDbSyncStatus('loading');
 
-    fetch('/api/store')
+    fetch('/api/store/public')
       .then((res) => {
         if (!res.ok) throw new Error(`Server returned HTTP ${res.status}`);
         return res.json();

@@ -181,3 +181,15 @@ export async function getAllStoreData(): Promise<Record<string, any>> {
   }
   return result;
 }
+
+export async function getPublicStoreData(): Promise<Record<string, any>> {
+  const store = loadMemoryFromDisk();
+  const privateKeys = new Set(['seeded', 'orders', 'b2b_leads', 'customer_accounts', 'payment_logs']);
+  const result: Record<string, any> = {};
+  for (const [k, v] of Object.entries(store)) {
+    if (!privateKeys.has(k)) {
+      result[k] = v;
+    }
+  }
+  return result;
+}

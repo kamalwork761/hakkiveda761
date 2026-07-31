@@ -1,33 +1,44 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, Suspense, lazy } from 'react';
 import { StoreProvider, useStore } from './context/StoreContext';
 import { Header } from './components/Header';
 import { HeroSlider } from './components/HeroSlider';
 import { CategorySection } from './components/CategorySection';
 import { ProductGrid } from './components/ProductGrid';
-import { BeforeAfterSlider } from './components/BeforeAfterSlider';
-import { BrandStory } from './components/BrandStory';
-import { VideoTestimonials } from './components/VideoTestimonials';
-import { ShoppableReelsSection } from './components/ShoppableReelsSection';
-import { CustomerReviews } from './components/CustomerReviews';
-import { BlogSection } from './components/BlogSection';
-import { B2BSection } from './components/B2BSection';
 import { Footer } from './components/Footer';
-
-// Modals & Drawers
-import { ProductDetailModal } from './components/ProductDetailModal';
-import { VideoPopupModal } from './components/VideoPopupModal';
-import { AIHairQuiz } from './components/AIHairQuiz';
-import { AIChatModal } from './components/AIChatModal';
-import { CartDrawer } from './components/CartDrawer';
-import { CheckoutModal } from './components/CheckoutModal';
-import { CustomerPortal } from './components/CustomerPortal';
 import { WhatsAppButton } from './components/WhatsAppButton';
-import { CountrySelectorModal } from './components/CountrySelectorModal';
 import { AmbientSoundControl } from './components/AmbientSoundControl';
 
+// Dynamic / Lazy-loaded Below-the-fold sections
+const BeforeAfterSlider = lazy(() => import('./components/BeforeAfterSlider').then(m => ({ default: m.BeforeAfterSlider })));
+const BrandStory = lazy(() => import('./components/BrandStory').then(m => ({ default: m.BrandStory })));
+const VideoTestimonials = lazy(() => import('./components/VideoTestimonials').then(m => ({ default: m.VideoTestimonials })));
+const ShoppableReelsSection = lazy(() => import('./components/ShoppableReelsSection').then(m => ({ default: m.ShoppableReelsSection })));
+const CustomerReviews = lazy(() => import('./components/CustomerReviews').then(m => ({ default: m.CustomerReviews })));
+const BlogSection = lazy(() => import('./components/BlogSection').then(m => ({ default: m.BlogSection })));
+const B2BSection = lazy(() => import('./components/B2BSection').then(m => ({ default: m.B2BSection })));
+
+// Dynamic Modals & Drawers
+const ProductDetailModal = lazy(() => import('./components/ProductDetailModal').then(m => ({ default: m.ProductDetailModal })));
+const VideoPopupModal = lazy(() => import('./components/VideoPopupModal').then(m => ({ default: m.VideoPopupModal })));
+const AIHairQuiz = lazy(() => import('./components/AIHairQuiz').then(m => ({ default: m.AIHairQuiz })));
+const AIChatModal = lazy(() => import('./components/AIChatModal').then(m => ({ default: m.AIChatModal })));
+const CartDrawer = lazy(() => import('./components/CartDrawer').then(m => ({ default: m.CartDrawer })));
+const CheckoutModal = lazy(() => import('./components/CheckoutModal').then(m => ({ default: m.CheckoutModal })));
+const CustomerPortal = lazy(() => import('./components/CustomerPortal').then(m => ({ default: m.CustomerPortal })));
+const CountrySelectorModal = lazy(() => import('./components/CountrySelectorModal').then(m => ({ default: m.CountrySelectorModal })));
+
 // Private Admin Views
-import { AdminDashboard } from './components/AdminDashboard';
-import { AdminLogin } from './pages/AdminLogin';
+const AdminDashboard = lazy(() => import('./components/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
+const AdminLogin = lazy(() => import('./pages/AdminLogin').then(m => ({ default: m.AdminLogin })));
+
+const SectionSkeleton: React.FC = () => (
+  <div className="w-full max-w-7xl mx-auto px-4 sm:px-8 py-8">
+    <div className="bg-[var(--brand-primary-deep)]/40 border border-white/5 rounded-2xl p-8 animate-pulse flex flex-col items-center justify-center min-h-[180px]">
+      <div className="h-4 w-32 bg-white/10 rounded-full mb-3" />
+      <div className="h-6 w-64 bg-white/10 rounded-lg" />
+    </div>
+  </div>
+);
 
 export function AppContent() {
   const { adminAuthenticated, logoutAdmin, isCountryModalOpen, setIsCountryModalOpen, playSound, openQuickView } = useStore();
@@ -105,20 +116,24 @@ export function AppContent() {
   if (isAdminRoute) {
     if (adminAuthenticated) {
       return (
-        <AdminDashboard
-          onLogoutAdmin={() => {
-            logoutAdmin();
-            navigate('/admin/login');
-          }}
-          onReturnToStoreFront={() => navigate('/')}
-        />
+        <Suspense fallback={<SectionSkeleton />}>
+          <AdminDashboard
+            onLogoutAdmin={() => {
+              logoutAdmin();
+              navigate('/admin/login');
+            }}
+            onReturnToStoreFront={() => navigate('/')}
+          />
+        </Suspense>
       );
     }
     return (
-      <AdminLogin
-        onLoginSuccess={() => navigate('/admin')}
-        onReturnToStore={() => navigate('/')}
-      />
+      <Suspense fallback={<SectionSkeleton />}>
+        <AdminLogin
+          onLoginSuccess={() => navigate('/admin')}
+          onReturnToStore={() => navigate('/')}
+        />
+      </Suspense>
     );
   }
 
@@ -143,42 +158,46 @@ export function AppContent() {
           onSelectCategory={(catName) => handleSelectCategory(catName, false)}
         />
 
-        {/* Before & After Interactive Comparison */}
-        <BeforeAfterSlider />
+        <Suspense fallback={<SectionSkeleton />}>
+          {/* Before & After Interactive Comparison */}
+          <BeforeAfterSlider />
 
-        {/* Brand Lore Story */}
-        <BrandStory />
+          {/* Brand Lore Story */}
+          <BrandStory />
 
-        {/* Video Testimonials */}
-        <VideoTestimonials />
+          {/* Video Testimonials */}
+          <VideoTestimonials />
 
-        {/* Shoppable Video Reels */}
-        <ShoppableReelsSection onSelectProduct={openQuickView} />
+          {/* Shoppable Video Reels */}
+          <ShoppableReelsSection onSelectProduct={openQuickView} />
 
-        {/* Customer Reviews */}
-        <CustomerReviews />
+          {/* Customer Reviews */}
+          <CustomerReviews />
 
-        {/* Blog & Tribal Journal */}
-        <BlogSection />
+          {/* Blog & Tribal Journal */}
+          <BlogSection />
 
-        {/* B2B Wholesale Export */}
-        <B2BSection />
+          {/* B2B Wholesale Export */}
+          <B2BSection />
+        </Suspense>
       </main>
 
       {/* Customer Footer */}
       <Footer />
 
-      {/* Customer Interactive Overlays */}
-      <VideoPopupModal onSelectProduct={openQuickView} />
-      <ProductDetailModal />
-      <AIHairQuiz />
-      <AIChatModal />
-      <WhatsAppButton />
-      <AmbientSoundControl />
-      <CartDrawer />
-      <CheckoutModal />
-      <CustomerPortal />
-      <CountrySelectorModal isOpen={isCountryModalOpen} onClose={() => setIsCountryModalOpen(false)} />
+      {/* Customer Interactive Overlays (Lazy Loaded) */}
+      <Suspense fallback={null}>
+        <VideoPopupModal onSelectProduct={openQuickView} />
+        <ProductDetailModal />
+        <AIHairQuiz />
+        <AIChatModal />
+        <WhatsAppButton />
+        <AmbientSoundControl />
+        <CartDrawer />
+        <CheckoutModal />
+        <CustomerPortal />
+        <CountrySelectorModal isOpen={isCountryModalOpen} onClose={() => setIsCountryModalOpen(false)} />
+      </Suspense>
     </div>
   );
 }

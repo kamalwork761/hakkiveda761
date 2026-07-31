@@ -3,9 +3,10 @@ import path from 'path';
 import fs from 'fs';
 import dotenv from 'dotenv';
 import multer from 'multer';
+import compression from 'compression';
 import { GoogleGenAI } from '@google/genai';
 import { createServer as createViteServer } from 'vite';
-import { getDb, getStoreValue, setStoreValue, getAllStoreData } from './src/server/db';
+import { getDb, getStoreValue, setStoreValue, getAllStoreData, getPublicStoreData } from './src/server/db';
 import { INITIAL_HERO_SLIDES } from './src/data/initialData';
 
 dotenv.config();
@@ -69,18 +70,32 @@ async function startServer() {
   // Initialize SQLite Database at startup
   await getDb();
 
+  // Enable HTTP response compression (gzip/deflate)
+  app.use(compression());
+
   app.use(express.json({ limit: '100mb' }));
   app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
-  // Static serving for persistent uploaded media
-  app.use('/uploads', express.static(uploadDir));
+  // Static serving for persistent uploaded media with caching
+  app.use('/uploads', express.static(uploadDir, { maxAge: '1d' }));
 
   // Health Check Endpoint
   app.get('/api/health', (_req, res) => {
     res.json({ status: 'ok' });
   });
 
-  // Store Persistence API Routes (SQLite Server Storage)
+  // Public Store Persistence API Route (Fast, cached, no admin data)
+  app.get('/api/store/public', async (_req, res) => {
+    try {
+      const data = await getPublicStoreData();
+      res.setHeader('Cache-Control', 'public, max-age=60, stale-while-revalidate=300');
+      res.json({ success: true, data });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message || 'Failed to fetch public store data' });
+    }
+  });
+
+  // Full Store Persistence API Routes (Admin data included)
   app.get('/api/store', async (_req, res) => {
     try {
       const data = await getAllStoreData();
@@ -501,8 +516,21 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
     app.use(vite.middlewares);
   } else {
     const distPath = path.join(process.cwd(), 'dist');
-    app.use(express.static(distPath));
+    // Cache hashed static assets immutably for 1 year
+    app.use('/assets', express.static(path.join(distPath, 'assets'), {
+      maxAge: '1y',
+      immutable: true,
+    }));
+    app.use(express.static(distPath, {
+      maxAge: 0,
+      setHeaders: (res, filepath) => {
+        if (filepath.endsWith('.html')) {
+          res.setHeader('Cache-Control', 'no-cache');
+        }
+      },
+    }));
     app.get('*', (req, res) => {
+      res.setHeader('Cache-Control', 'no-cache');
       res.sendFile(path.join(distPath, 'index.html'));
     });
   }

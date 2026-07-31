@@ -133,13 +133,33 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
     playSound('nav_click');
     if (link.id) trackNavClick(link.id);
 
-    // 1. Check B2B links FIRST (never open AI Hair Quiz for B2B)
+    const labelLower = (link.label || '').toLowerCase().trim();
+    const urlLower = (link.url || '').toLowerCase().trim();
+
+    // 1. Check Tribal Heritage FIRST (must ONLY scroll to Tribal Heritage section and NEVER trigger quiz/modals)
+    if (
+      link.id === 'nav-2' ||
+      labelLower.includes('heritage') ||
+      labelLower.includes('tribal lore') ||
+      urlLower === '#brand-story' ||
+      urlLower === '#tribal-heritage' ||
+      urlLower === '/tribal-heritage'
+    ) {
+      const el = document.getElementById('tribal-heritage') || document.getElementById('brand-story');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+      return;
+    }
+
+    // 2. Check B2B links
     if (
       link.linkType === 'B2B' ||
       link.modalType === 'B2B' ||
-      link.url === '#b2b' ||
-      link.url === '#b2b-export' ||
-      (link.label && link.label.toLowerCase().includes('b2b'))
+      urlLower === '#b2b' ||
+      urlLower === '#b2b-export' ||
+      labelLower.includes('b2b') ||
+      labelLower.includes('export')
     ) {
       const b2bEl = document.getElementById('b2b') || document.getElementById('b2b-export');
       if (b2bEl) {
@@ -150,29 +170,38 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
       return;
     }
 
-    // 2. Check AI Hair Quiz links
-    if (link.linkType === 'QUIZ' || link.modalType === 'QUIZ' || link.url === '#ai-quiz') {
+    // 3. Check AI Hair Quiz links ONLY (must trigger quiz modal ONLY when customer clicks quiz)
+    if (
+      link.linkType === 'QUIZ' ||
+      link.modalType === 'QUIZ' ||
+      urlLower === '#ai-quiz' ||
+      labelLower.includes('hair quiz') ||
+      labelLower.includes('ai quiz')
+    ) {
       setIsQuizOpen(true);
       return;
     }
 
-    // 3. Check general modal flag
+    // 4. Check general modal flag
     if (link.isModal) {
       if ((link.modalType as string) === 'B2B') {
         setIsB2BModalOpen(true);
-      } else {
-        setIsQuizOpen(true);
+        return;
       }
-      return;
+      if ((link.modalType as string) === 'QUIZ' || urlLower === '#ai-quiz') {
+        setIsQuizOpen(true);
+        return;
+      }
+      // For non-quiz, non-B2B modals, do NOT default to quiz modal
     }
 
-    // 4. Open in new tab
+    // 5. Open in new tab
     if (link.openInNewTab && link.url && link.url !== '#') {
       window.open(link.url, '_blank');
       return;
     }
 
-    // 5. Hash navigation & categories
+    // 6. Hash navigation & categories
     if (link.url) {
       if (link.url.startsWith('#category-')) {
         const catName = link.url.replace('#category-', '');
@@ -330,7 +359,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
                   <a
                     href={item.url || '#'}
                     onClick={(e) => {
-                      if (!item.url || item.url === '#') e.preventDefault();
+                      if (!item.url || item.url === '#' || item.url.startsWith('#')) e.preventDefault();
                       handleNavClick(item);
                     }}
                     className={`flex items-center gap-1.5 transition-colors py-1 ${getHoverStyleClass()}`}

@@ -682,6 +682,7 @@ export const INITIAL_NAV_LINKS: NavLink[] = [
     label: 'Tribal Heritage',
     url: '#brand-story',
     linkType: 'HOMEPAGE',
+    isModal: false,
     visible: true,
     showOnDesktop: true,
     showOnTablet: true,

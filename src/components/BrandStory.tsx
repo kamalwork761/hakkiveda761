@@ -71,6 +71,9 @@ export const BrandStory: React.FC = () => {
 
   return (
     <section id="brand-story" className="py-24 bg-[var(--brand-primary-dark)] relative overflow-hidden">
+      {/* Anchor for Tribal Heritage navigation target */}
+      <div id="tribal-heritage" className="absolute top-0 left-0 scroll-mt-24 pointer-events-none" />
+
       {/* Background Decorative Gradient */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-[var(--brand-gold)]/5 rounded-full blur-3xl pointer-events-none"></div>
 

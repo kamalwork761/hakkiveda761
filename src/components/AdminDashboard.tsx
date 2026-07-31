@@ -27,6 +27,7 @@ import {
   DollarSign,
   Settings,
   Plus,
+  Box,
   Trash2,
   Edit2,
   RefreshCw,

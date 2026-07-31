@@ -27,6 +27,8 @@ const CheckoutModal = lazy(() => import('./components/CheckoutModal').then(m => 
 const CustomerPortal = lazy(() => import('./components/CustomerPortal').then(m => ({ default: m.CustomerPortal })));
 const CountrySelectorModal = lazy(() => import('./components/CountrySelectorModal').then(m => ({ default: m.CountrySelectorModal })));
 
+import { AdminErrorBoundary } from './components/AdminErrorBoundary';
+
 // Private Admin Views
 const AdminDashboard = lazy(() => import('./components/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
 const AdminLogin = lazy(() => import('./pages/AdminLogin').then(m => ({ default: m.AdminLogin })));
@@ -116,24 +118,28 @@ export function AppContent() {
   if (isAdminRoute) {
     if (adminAuthenticated) {
       return (
-        <Suspense fallback={<SectionSkeleton />}>
-          <AdminDashboard
-            onLogoutAdmin={() => {
-              logoutAdmin();
-              navigate('/admin/login');
-            }}
-            onReturnToStoreFront={() => navigate('/')}
-          />
-        </Suspense>
+        <AdminErrorBoundary>
+          <Suspense fallback={<SectionSkeleton />}>
+            <AdminDashboard
+              onLogoutAdmin={() => {
+                logoutAdmin();
+                navigate('/admin/login');
+              }}
+              onReturnToStoreFront={() => navigate('/')}
+            />
+          </Suspense>
+        </AdminErrorBoundary>
       );
     }
     return (
-      <Suspense fallback={<SectionSkeleton />}>
-        <AdminLogin
-          onLoginSuccess={() => navigate('/admin')}
-          onReturnToStore={() => navigate('/')}
-        />
-      </Suspense>
+      <AdminErrorBoundary>
+        <Suspense fallback={<SectionSkeleton />}>
+          <AdminLogin
+            onLoginSuccess={() => navigate('/admin')}
+            onReturnToStore={() => navigate('/')}
+          />
+        </Suspense>
+      </AdminErrorBoundary>
     );
   }
 

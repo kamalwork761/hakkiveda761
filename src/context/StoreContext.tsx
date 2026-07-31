@@ -1161,9 +1161,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     codMaxAmountINR: 50000,
   };
 
-  const [shiprocketSettings, setShiprocketSettings] = useState<ShiprocketSettings>(() =>
-    getStored('shiprocket_settings', DEFAULT_SHIPROCKET_SETTINGS)
-  );
+  const [shiprocketSettings, setShiprocketSettings] = useState<ShiprocketSettings>(() => ({
+    ...DEFAULT_SHIPROCKET_SETTINGS,
+    ...(getStored('shiprocket_settings', DEFAULT_SHIPROCKET_SETTINGS) || {}),
+  }));
 
   const updateShiprocketSettings = (partial: Partial<ShiprocketSettings>) => {
     setShiprocketSettings((prev) => {

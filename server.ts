@@ -187,7 +187,100 @@ async function startServer() {
     });
   });
 
-  // 2. Check Serviceability (PIN code)
+  // 2. Check Serviceability & India Pincode Lookup API
+  app.get('/api/shipping/india-pincode/:pincode', async (req, res) => {
+    try {
+      const pincode = req.params.pincode ? req.params.pincode.trim() : '';
+
+      if (!/^\d{6}$/.test(pincode)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Please enter a valid Indian pincode.',
+        });
+      }
+
+      let city = '';
+      let state = '';
+
+      // 1. Primary Lookup via India Post Postal API
+      try {
+        const postalRes = await fetch(`https://api.postalpincode.in/pincode/${pincode}`, {
+          signal: AbortSignal.timeout(4000),
+        });
+        if (postalRes.ok) {
+          const postalData = await postalRes.json();
+          if (Array.isArray(postalData) && postalData[0]?.Status === 'Success' && postalData[0]?.PostOffice?.length > 0) {
+            const po = postalData[0].PostOffice[0];
+            city = po.District || po.Block || po.Circle || po.Name || '';
+            state = po.State || '';
+          }
+        }
+      } catch (err: any) {
+        console.warn(`[India Post Pincode Lookup Warning for ${pincode}]:`, err.message);
+      }
+
+      // 2. Secondary Lookup via Shiprocket Serviceability if configured
+      if ((!city || !state) && isShiprocketConfigured()) {
+        try {
+          const srRes: any = await checkServiceability({ deliveryPincode: pincode });
+          if (srRes.success && srRes.data) {
+            if (srRes.data.city) city = srRes.data.city;
+            if (srRes.data.state) state = srRes.data.state;
+          }
+        } catch (srErr: any) {
+          console.warn(`[Shiprocket Pincode Check Warning for ${pincode}]:`, srErr.message);
+        }
+      }
+
+      // 3. Fallback Database for common Indian regional hub pincodes
+      if (!city || !state) {
+        const knownPincodes: Record<string, { city: string; state: string }> = {
+          '141008': { city: 'Ludhiana', state: 'Punjab' },
+          '110001': { city: 'New Delhi', state: 'Delhi' },
+          '400001': { city: 'Mumbai', state: 'Maharashtra' },
+          '700001': { city: 'Kolkata', state: 'West Bengal' },
+          '600001': { city: 'Chennai', state: 'Tamil Nadu' },
+          '560001': { city: 'Bengaluru', state: 'Karnataka' },
+          '500001': { city: 'Hyderabad', state: 'Telangana' },
+          '380001': { city: 'Ahmedabad', state: 'Gujarat' },
+          '302001': { city: 'Jaipur', state: 'Rajasthan' },
+          '570001': { city: 'Mysore', state: 'Karnataka' },
+          '571105': { city: 'Hunsur', state: 'Karnataka' },
+          '201301': { city: 'Noida', state: 'Uttar Pradesh' },
+          '122001': { city: 'Gurugram', state: 'Haryana' },
+          '160017': { city: 'Chandigarh', state: 'Chandigarh' },
+          '411001': { city: 'Pune', state: 'Maharashtra' },
+          '682001': { city: 'Kochi', state: 'Kerala' },
+        };
+        if (knownPincodes[pincode]) {
+          city = knownPincodes[pincode].city;
+          state = knownPincodes[pincode].state;
+        }
+      }
+
+      if (!city || !state) {
+        return res.status(404).json({
+          success: false,
+          error: 'Please enter a valid Indian pincode.',
+        });
+      }
+
+      return res.json({
+        success: true,
+        pincode,
+        city,
+        state,
+        serviceable: true,
+      });
+    } catch (error: any) {
+      console.error('[API /api/shipping/india-pincode Error]:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Failed to look up pincode details. Please retry.',
+      });
+    }
+  });
+
   app.post('/api/shiprocket/serviceability', async (req, res) => {
     try {
       const { deliveryPincode, pickupPincode, weightInKg, cod } = req.body;

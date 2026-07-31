@@ -790,7 +790,7 @@ export const INITIAL_NAV_LINKS: NavLink[] = [
     label: 'B2B / Export',
     url: '#b2b',
     linkType: 'B2B',
-    isModal: true,
+    isModal: false,
     modalType: 'B2B',
     visible: true,
     showOnDesktop: true,

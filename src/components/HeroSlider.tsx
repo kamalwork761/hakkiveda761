@@ -17,6 +17,7 @@ export const HeroSlider: React.FC = () => {
     heroSliderSettings,
     dbSyncStatus,
     setIsQuizOpen,
+    setIsB2BModalOpen,
     playSound,
     trackSlideImpression,
     trackSlideClick,
@@ -127,6 +128,16 @@ export const HeroSlider: React.FC = () => {
 
     if (link === '#ai-quiz' || link === '#quiz') {
       setIsQuizOpen(true);
+      return;
+    }
+
+    if (link === '#b2b' || link === '#b2b-export') {
+      const b2bEl = document.getElementById('b2b') || document.getElementById('b2b-export');
+      if (b2bEl) {
+        b2bEl.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        setIsB2BModalOpen(true);
+      }
       return;
     }
 

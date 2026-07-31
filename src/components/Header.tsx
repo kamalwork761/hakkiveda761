@@ -133,24 +133,60 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
     playSound('nav_click');
     if (link.id) trackNavClick(link.id);
 
-    if (link.isModal || link.linkType === 'QUIZ') {
+    // 1. Check B2B links FIRST (never open AI Hair Quiz for B2B)
+    if (
+      link.linkType === 'B2B' ||
+      link.modalType === 'B2B' ||
+      link.url === '#b2b' ||
+      link.url === '#b2b-export' ||
+      (link.label && link.label.toLowerCase().includes('b2b'))
+    ) {
+      const b2bEl = document.getElementById('b2b') || document.getElementById('b2b-export');
+      if (b2bEl) {
+        b2bEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else {
+        setIsB2BModalOpen(true);
+      }
+      return;
+    }
+
+    // 2. Check AI Hair Quiz links
+    if (link.linkType === 'QUIZ' || link.modalType === 'QUIZ' || link.url === '#ai-quiz') {
       setIsQuizOpen(true);
       return;
     }
-    if (link.linkType === 'B2B') {
-      setIsB2BModalOpen(true);
+
+    // 3. Check general modal flag
+    if (link.isModal) {
+      if ((link.modalType as string) === 'B2B') {
+        setIsB2BModalOpen(true);
+      } else {
+        setIsQuizOpen(true);
+      }
       return;
     }
+
+    // 4. Open in new tab
     if (link.openInNewTab && link.url && link.url !== '#') {
       window.open(link.url, '_blank');
       return;
     }
+
+    // 5. Hash navigation & categories
     if (link.url) {
       if (link.url.startsWith('#category-')) {
         const catName = link.url.replace('#category-', '');
         if (onSelectCategory) onSelectCategory(catName);
-      } else if (link.url === '#products') {
+        const el = document.getElementById('products');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      } else if (link.url === '#products' || link.url === '#categories' || link.url === '#collections') {
+        const el = document.getElementById('categories') || document.getElementById('collections') || document.getElementById('products');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
         if (onSelectCategory) onSelectCategory('ALL');
+      } else if (link.url.startsWith('#')) {
+        const targetId = link.url.replace('#', '');
+        const el = document.getElementById(targetId);
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }
     }
   };

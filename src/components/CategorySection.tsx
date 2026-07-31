@@ -1,5 +1,5 @@
 import React from 'react';
-import { Leaf, ArrowRight } from 'lucide-react';
+import { ArrowRight } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
 interface CategorySectionProps {
@@ -16,7 +16,8 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ selectedCatego
   };
 
   return (
-    <section className="py-16 bg-[var(--brand-primary-deep)] border-t border-b border-white/10 relative overflow-hidden">
+    <section id="categories" className="py-16 bg-[var(--brand-primary-deep)] border-t border-b border-white/10 relative overflow-hidden scroll-mt-12">
+      <div id="collections" className="absolute -top-12 left-0" />
       <div className="max-w-7xl mx-auto px-6 sm:px-12">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
           <div>
@@ -28,8 +29,9 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ selectedCatego
             </h2>
           </div>
           <button
+            type="button"
             onClick={() => handleCategoryClick('ALL')}
-            className={`mt-4 md:mt-0 text-xs font-sans uppercase tracking-widest font-bold border-b pb-1 transition-colors ${
+            className={`mt-4 md:mt-0 text-xs font-sans uppercase tracking-widest font-bold border-b pb-1 transition-colors cursor-pointer focus:outline-none ${
               selectedCategory === 'ALL'
                 ? 'text-[var(--brand-gold)] border-[var(--brand-gold)]'
                 : 'text-slate-400 border-transparent hover:text-[var(--brand-gold)]'
@@ -44,41 +46,49 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ selectedCatego
             .filter((c) => (c.status || 'ACTIVE') === 'ACTIVE' && c.showOnHomepage !== false)
             .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
             .map((cat) => {
-            const isSelected = selectedCategory === cat.name;
-            return (
-              <div
-                key={cat.id}
-                onClick={() => handleCategoryClick(cat.name)}
-                className={`group relative rounded-xl overflow-hidden border transition-all duration-300 cursor-pointer active:scale-98 shadow-md ${
-                  isSelected
-                    ? 'border-[var(--brand-gold)] ring-2 ring-[var(--brand-gold)]/50 bg-white shadow-xl'
-                    : 'border-[rgba(212,175,55,0.30)] bg-white hover:border-[var(--brand-gold)]'
-                }`}
-              >
-                <div className="h-44 overflow-hidden relative">
-                  <img
-                    src={cat.image}
-                    alt={cat.name}
-                    className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-100"
-                  />
-                  <div className="category-image-overlay absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
-                  <span className="absolute top-3 right-3 bg-[#123F2B] text-[#D4AF37] text-[10px] font-bold font-sans px-2.5 py-0.5 rounded-full border border-[var(--brand-gold)]/40 z-10 shadow-md">
-                    {cat.itemCount} Items
-                  </span>
-                </div>
+              const isSelected = selectedCategory === cat.name;
+              return (
+                <button
+                  key={cat.id}
+                  type="button"
+                  onClick={() => handleCategoryClick(cat.name)}
+                  onKeyDown={(e) => {
+                    if (e.key === 'Enter' || e.key === ' ') {
+                      e.preventDefault();
+                      handleCategoryClick(cat.name);
+                    }
+                  }}
+                  className={`group relative w-full text-left rounded-xl overflow-hidden border transition-all duration-300 cursor-pointer active:scale-98 shadow-md focus:outline-none focus:ring-2 focus:ring-[var(--brand-gold)] ${
+                    isSelected
+                      ? 'border-[var(--brand-gold)] ring-2 ring-[var(--brand-gold)]/50 bg-white shadow-xl'
+                      : 'border-[rgba(212,175,55,0.30)] bg-white hover:border-[var(--brand-gold)]'
+                  }`}
+                  aria-label={`View category ${cat.name}`}
+                >
+                  <div className="h-44 overflow-hidden relative w-full pointer-events-auto">
+                    <img
+                      src={cat.image}
+                      alt={cat.name}
+                      className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-100 pointer-events-none"
+                    />
+                    <div className="category-image-overlay absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity pointer-events-none" />
+                    <span className="absolute top-3 right-3 bg-[#123F2B] text-[#D4AF37] text-[10px] font-bold font-sans px-2.5 py-0.5 rounded-full border border-[var(--brand-gold)]/40 z-10 shadow-md pointer-events-none">
+                      {cat.itemCount} Items
+                    </span>
+                  </div>
 
-                <div className="category-card-body p-5 space-y-2 bg-white">
-                  <h3 className="text-base font-bold font-serif-luxury text-[#123F2B] group-hover:text-[#B8891E] transition-colors flex items-center justify-between">
-                    <span>{cat.name}</span>
-                    <ArrowRight className="w-4 h-4 text-[#123F2B] group-hover:text-[#B8891E] opacity-80 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
-                  </h3>
-                  <p className="text-xs line-clamp-2 leading-relaxed text-[#405B4A]">
-                    {cat.description}
-                  </p>
-                </div>
-              </div>
-            );
-          })}
+                  <div className="category-card-body p-5 space-y-2 bg-white w-full pointer-events-auto">
+                    <h3 className="text-base font-bold font-serif-luxury text-[#123F2B] group-hover:text-[#B8891E] transition-colors flex items-center justify-between">
+                      <span>{cat.name}</span>
+                      <ArrowRight className="w-4 h-4 text-[#123F2B] group-hover:text-[#B8891E] opacity-80 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all shrink-0" />
+                    </h3>
+                    <p className="text-xs line-clamp-2 leading-relaxed text-[#405B4A]">
+                      {cat.description}
+                    </p>
+                  </div>
+                </button>
+              );
+            })}
         </div>
       </div>
     </section>

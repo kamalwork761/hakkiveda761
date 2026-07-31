@@ -124,9 +124,11 @@ export const B2BSection: React.FC = () => {
       {/* On-page B2B Banner Section */}
       {config?.enabled && (
         <section
-          className="py-16 sm:py-20 relative overflow-hidden border-t border-b border-white/10"
+          id="b2b"
+          className="py-16 sm:py-20 relative overflow-hidden border-t border-b border-white/10 scroll-mt-12"
           style={{ backgroundColor: theme.backgroundColor }}
         >
+          <div id="b2b-export" className="absolute -top-12 left-0" />
           {/* Background Image & Overlay */}
           {config.backgroundImage && (
             <div

@@ -164,12 +164,12 @@ export const ProductDetailModal: React.FC = () => {
       >
         {/* Modal content container */}
         <div
-          className="product-modal-content relative w-full max-w-4xl bg-[var(--brand-primary-deep)] border border-[var(--brand-gold)]/40 rounded-2xl shadow-2xl text-slate-100 my-auto sm:my-4 overflow-y-auto -webkit-overflow-scrolling-touch flex flex-col animate-in zoom-in-95 duration-200"
+          className="product-modal-content product-detail-panel light-modal-content relative w-full max-w-4xl bg-white border border-[rgba(18,63,43,0.18)] rounded-2xl shadow-2xl text-[#123F2B] my-auto sm:my-4 overflow-y-auto -webkit-overflow-scrolling-touch flex flex-col animate-in zoom-in-95 duration-200"
           onClick={(e) => e.stopPropagation()}
         >
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
             {/* Left: Interactive Multi-Image Gallery */}
-            <div className="lg:col-span-6 p-4 sm:p-6 bg-black/20 flex flex-col justify-between space-y-4">
+            <div className="lg:col-span-6 p-4 sm:p-6 bg-slate-900/5 flex flex-col justify-between space-y-4">
               {/* Main Stage Image with Desktop Hover Zoom & Mobile Touch Swipe */}
               <div
                 ref={imageContainerRef}
@@ -179,7 +179,7 @@ export const ProductDetailModal: React.FC = () => {
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
-                className="w-full h-64 sm:h-80 md:h-96 rounded-xl overflow-hidden relative border border-white/10 bg-black/40 flex items-center justify-center p-2 sm:p-4 cursor-crosshair group select-none shrink-0"
+                className="w-full h-64 sm:h-80 md:h-96 rounded-xl overflow-hidden relative border border-slate-200 bg-white flex items-center justify-center p-2 sm:p-4 cursor-crosshair group select-none shrink-0"
               >
                 <img
                   src={productImages[selectedImageIndex]}
@@ -197,17 +197,17 @@ export const ProductDetailModal: React.FC = () => {
                 />
 
                 {/* SKU Tag */}
-                <span className="absolute top-3 left-3 bg-[var(--brand-primary-dark)]/90 text-[var(--brand-gold)] text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full border border-[var(--brand-gold)]/30 z-10 shadow-md">
+                <span className="absolute top-3 left-3 bg-[#123F2B] text-[#D4AF37] text-[10px] uppercase font-bold tracking-widest px-2.5 py-1 rounded-full border border-[var(--brand-gold)]/30 z-10 shadow-md">
                   SKU: {product.sku}
                 </span>
 
                 {/* Image Counter Badge */}
-                <span className="absolute top-3 right-3 bg-black/70 text-slate-200 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border border-white/20 z-10">
+                <span className="absolute top-3 right-3 bg-black/75 text-white text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border border-white/20 z-10">
                   {selectedImageIndex + 1} / {productImages.length}
                 </span>
 
                 {/* Desktop Hover Zoom Hint */}
-                <div className="absolute bottom-3 left-3 bg-black/70 text-[var(--brand-gold)] text-[10px] font-bold px-2.5 py-1 rounded-full border border-[var(--brand-gold)]/30 opacity-80 group-hover:opacity-0 transition-opacity flex items-center gap-1 z-10">
+                <div className="absolute bottom-3 left-3 bg-black/75 text-[#D4AF37] text-[10px] font-bold px-2.5 py-1 rounded-full border border-[var(--brand-gold)]/30 opacity-80 group-hover:opacity-0 transition-opacity flex items-center gap-1 z-10">
                   <ZoomIn className="w-3 h-3" />
                   <span>Hover to zoom • Swipe on mobile</span>
                 </div>
@@ -249,10 +249,10 @@ export const ProductDetailModal: React.FC = () => {
                       key={idx}
                       type="button"
                       onClick={() => setSelectedImageIndex(idx)}
-                      className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 transition-all shrink-0 bg-black/40 p-1 flex items-center justify-center relative cursor-pointer ${
+                      className={`w-14 h-14 sm:w-16 sm:h-16 rounded-xl overflow-hidden border-2 transition-all shrink-0 bg-white p-1 flex items-center justify-center relative cursor-pointer ${
                         selectedImageIndex === idx
                           ? 'border-[var(--brand-gold)] ring-2 ring-[var(--brand-gold)]/30 scale-105'
-                          : 'border-white/10 opacity-60 hover:opacity-100'
+                          : 'border-slate-200 opacity-60 hover:opacity-100'
                       }`}
                     >
                       <img src={img} alt={`Thumbnail ${idx + 1}`} loading="lazy" className="w-full h-full object-contain" />
@@ -266,89 +266,89 @@ export const ProductDetailModal: React.FC = () => {
             </div>
 
             {/* Right: Product Info & Actions */}
-            <div className="lg:col-span-6 p-4 sm:p-8 flex flex-col justify-between space-y-5 sm:space-y-6">
+            <div className="product-detail-body lg:col-span-6 p-4 sm:p-8 flex flex-col justify-between space-y-5 sm:space-y-6 bg-white text-[#123F2B]">
               <div className="space-y-3">
-                <div className="flex items-center gap-2">
-                  <span className="text-xs uppercase tracking-widest text-[var(--brand-gold)] font-bold">
+                <div className="product-meta flex items-center gap-2">
+                  <span className="text-xs uppercase tracking-widest text-[#B8891E] font-bold">
                     {product.category}
                   </span>
-                  <span className="text-slate-500">•</span>
-                  <span className="text-xs text-emerald-400 font-medium">In Stock ({product.stock} units)</span>
+                  <span className="text-[#718176]">•</span>
+                  <span className="text-xs text-[#008F62] font-semibold">In Stock ({product.stock} units)</span>
                 </div>
 
-                <h2 className="text-xl sm:text-3xl font-serif-luxury font-bold text-slate-100">
+                <h2 className="text-xl sm:text-3xl font-serif-luxury font-bold text-[#123F2B]">
                   {product.name}
                 </h2>
-                <p className="text-xs text-[var(--brand-gold)] font-sans font-medium">{product.subtitle}</p>
+                <p className="text-xs text-[#B8891E] font-sans font-medium">{product.subtitle}</p>
 
                 {/* Rating */}
                 <div className="flex items-center gap-2">
-                  <div className="flex text-[var(--brand-gold)]">
+                  <div className="flex text-[#B8891E]">
                     {[...Array(5)].map((_, i) => (
                       <Star key={i} className="w-4 h-4 fill-current" />
                     ))}
                   </div>
-                  <span className="text-xs text-slate-300 font-sans font-bold">
+                  <span className="review-count text-xs text-[#5E7465] font-sans font-bold">
                     {product.rating} ({product.reviewsCount} verified reviews)
                   </span>
                 </div>
 
                 {/* Price */}
                 <div className="pt-1 sm:pt-2 flex items-baseline gap-3">
-                  <span className="text-xl sm:text-2xl font-bold font-sans text-[var(--brand-gold)]">
+                  <span className="price text-xl sm:text-2xl font-bold font-sans text-[#B8891E]">
                     {formatPrice(product.priceINR)}
                   </span>
                   {product.originalPriceINR && (
-                    <span className="text-sm text-slate-400 line-through">
+                    <span className="old-price text-sm text-[#5F6F63] line-through">
                       {formatPrice(product.originalPriceINR)}
                     </span>
                   )}
-                  <span className="text-xs text-slate-400">({product.volume})</span>
+                  <span className="secondary text-xs text-[#718176]">({product.volume})</span>
                 </div>
 
-                <p className="text-xs text-slate-300 leading-relaxed font-sans">{product.description}</p>
+                <p className="product-description text-xs text-[#405B4A] leading-relaxed font-sans">{product.description}</p>
               </div>
 
               {/* Tabs for Details */}
-              <div className="border-t border-b border-white/10 py-3">
-                <div className="flex gap-3 sm:gap-4 border-b border-white/10 pb-2 text-xs font-sans font-bold uppercase tracking-wider overflow-x-auto">
+              <div className="border-t border-b border-[rgba(18,63,43,0.18)] py-3">
+                <div className="flex gap-3 sm:gap-4 border-b border-[rgba(18,63,43,0.18)] pb-2 text-xs font-sans font-bold uppercase tracking-wider overflow-x-auto">
                   <button
                     type="button"
                     onClick={() => setActiveTab('benefits')}
-                    className={`pb-1 transition-colors cursor-pointer whitespace-nowrap ${activeTab === 'benefits' ? 'text-[var(--brand-gold)] border-b-2 border-[var(--brand-gold)]' : 'text-slate-400'}`}
+                    className={`pb-1 transition-colors cursor-pointer whitespace-nowrap ${activeTab === 'benefits' ? 'text-[#B8891E] border-b-2 border-[#B8891E] tab-active' : 'text-[#5E7465] hover:text-[#B8891E]'}`}
                   >
                     Benefits
                   </button>
                   <button
                     type="button"
                     onClick={() => setActiveTab('ingredients')}
-                    className={`pb-1 transition-colors cursor-pointer whitespace-nowrap ${activeTab === 'ingredients' ? 'text-[var(--brand-gold)] border-b-2 border-[var(--brand-gold)]' : 'text-slate-400'}`}
+                    className={`pb-1 transition-colors cursor-pointer whitespace-nowrap ${activeTab === 'ingredients' ? 'text-[#B8891E] border-b-2 border-[#B8891E] tab-active' : 'text-[#5E7465] hover:text-[#B8891E]'}`}
                   >
                     42 Herbs
                   </button>
                   <button
                     type="button"
                     onClick={() => setActiveTab('ritual')}
-                    className={`pb-1 transition-colors cursor-pointer whitespace-nowrap ${activeTab === 'ritual' ? 'text-[var(--brand-gold)] border-b-2 border-[var(--brand-gold)]' : 'text-slate-400'}`}
+                    className={`pb-1 transition-colors cursor-pointer whitespace-nowrap ${activeTab === 'ritual' ? 'text-[#B8891E] border-b-2 border-[#B8891E] tab-active' : 'text-[#5E7465] hover:text-[#B8891E]'}`}
                   >
                     Usage Ritual
                   </button>
                   <button
                     type="button"
                     onClick={() => setActiveTab('reviews')}
-                    className={`pb-1 transition-colors cursor-pointer whitespace-nowrap ${activeTab === 'reviews' ? 'text-[var(--brand-gold)] border-b-2 border-[var(--brand-gold)]' : 'text-slate-400'}`}
+                    className={`pb-1 transition-colors cursor-pointer whitespace-nowrap ${activeTab === 'reviews' ? 'text-[#B8891E] border-b-2 border-[#B8891E] tab-active' : 'text-[#5E7465] hover:text-[#B8891E]'}`}
                   >
                     Reviews ({productReviews.length})
                   </button>
                 </div>
 
-                <div className="pt-3 text-xs text-slate-200 font-sans max-h-36 overflow-y-auto">
+                <div className="pt-3 text-xs text-[#405B4A] font-sans max-h-36 overflow-y-auto">
                   {activeTab === 'benefits' && (
-                    <ul className="space-y-1.5">
+                    <ul className="product-benefits space-y-1.5 text-[#405B4A]">
                       {product.benefits?.map((b, i) => (
                         <li key={i} className="flex items-start gap-2">
-                          <Check className="w-4 h-4 text-[var(--brand-gold)] shrink-0 mt-0.5" />
-                          <span>{b}</span>
+                          <Check className="w-4 h-4 text-[#B8891E] shrink-0 mt-0.5" />
+                          <span className="text-[#405B4A]">{b}</span>
                         </li>
                       ))}
                     </ul>
@@ -356,10 +356,10 @@ export const ProductDetailModal: React.FC = () => {
 
                   {activeTab === 'ingredients' && (
                     <div className="space-y-1">
-                      <p className="text-[11px] text-[var(--brand-gold)] mb-1">Key Wild-Harvested Botanicals:</p>
+                      <p className="text-[11px] text-[#B8891E] font-bold mb-1">Key Wild-Harvested Botanicals:</p>
                       <div className="flex flex-wrap gap-1.5">
                         {product.ingredients?.map((ing, i) => (
-                          <span key={i} className="bg-black/40 border border-[var(--brand-gold)]/30 px-2 py-0.5 rounded text-[10px] text-slate-200">
+                          <span key={i} className="bg-[#FAF8F1] border border-[rgba(18,63,43,0.18)] px-2 py-0.5 rounded text-[10px] text-[#123F2B] font-medium">
                             {ing}
                           </span>
                         ))}
@@ -368,7 +368,7 @@ export const ProductDetailModal: React.FC = () => {
                   )}
 
                   {activeTab === 'ritual' && (
-                    <p className="leading-relaxed text-slate-300 italic">
+                    <p className="leading-relaxed text-[#405B4A] italic">
                       "{product.usageRitual || 'Massage onto dry scalp twice weekly before sleep. Wash off with warm water and herbal shampoo.'}"
                     </p>
                   )}
@@ -378,27 +378,27 @@ export const ProductDetailModal: React.FC = () => {
                       <button
                         type="button"
                         onClick={() => setIsAddingReview(!isAddingReview)}
-                        className="text-[var(--brand-gold)] font-bold underline text-[11px] mb-2 block cursor-pointer"
+                        className="text-[#245C3A] hover:text-[#B8891E] font-bold underline text-[11px] mb-2 block cursor-pointer"
                       >
                         {isAddingReview ? 'Cancel Review' : '+ Write a Customer Review'}
                       </button>
 
                       {isAddingReview && (
-                        <form onSubmit={handleReviewSubmit} className="bg-black/30 p-3 rounded-lg space-y-2 mb-3">
+                        <form onSubmit={handleReviewSubmit} className="bg-[#FAF8F1] p-3 rounded-lg border border-[rgba(18,63,43,0.18)] space-y-2 mb-3">
                           <input
                             type="text"
                             placeholder="Your Name"
                             required
                             value={newReviewName}
                             onChange={(e) => setNewReviewName(e.target.value)}
-                            className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-1.5 text-xs rounded text-slate-100"
+                            className="w-full bg-white border border-[rgba(18,63,43,0.18)] p-1.5 text-xs rounded text-[#123F2B] focus:outline-none focus:border-[#245C3A]"
                           />
                           <input
                             type="text"
                             placeholder="Review Headline"
                             value={newReviewTitle}
                             onChange={(e) => setNewReviewTitle(e.target.value)}
-                            className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-1.5 text-xs rounded text-slate-100"
+                            className="w-full bg-white border border-[rgba(18,63,43,0.18)] p-1.5 text-xs rounded text-[#123F2B] focus:outline-none focus:border-[#245C3A]"
                           />
                           <textarea
                             placeholder="Your experience with this formula..."
@@ -406,11 +406,11 @@ export const ProductDetailModal: React.FC = () => {
                             rows={2}
                             value={newReviewComment}
                             onChange={(e) => setNewReviewComment(e.target.value)}
-                            className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-1.5 text-xs rounded text-slate-100"
+                            className="w-full bg-white border border-[rgba(18,63,43,0.18)] p-1.5 text-xs rounded text-[#123F2B] focus:outline-none focus:border-[#245C3A]"
                           ></textarea>
                           <button
                             type="submit"
-                            className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-3 py-1 font-bold text-xs rounded uppercase cursor-pointer"
+                            className="bg-[#123F2B] text-white px-3 py-1 font-bold text-xs rounded uppercase hover:bg-[#245C3A] transition-colors cursor-pointer"
                           >
                             Submit Review
                           </button>
@@ -418,16 +418,16 @@ export const ProductDetailModal: React.FC = () => {
                       )}
 
                       {productReviews.length === 0 ? (
-                        <p className="text-slate-400">Be the first to review this herbal product.</p>
+                        <p className="text-[#718176]">Be the first to review this herbal product.</p>
                       ) : (
                         productReviews.map((rev) => (
-                          <div key={rev.id} className="border-b border-white/10 pb-2">
+                          <div key={rev.id} className="border-b border-[rgba(18,63,43,0.18)] pb-2">
                             <div className="flex justify-between items-center text-[10px]">
-                              <span className="font-bold text-slate-200">{rev.customerName}</span>
-                              <span className="text-[var(--brand-gold)]">{'★'.repeat(rev.rating)}</span>
+                              <span className="font-bold text-[#123F2B]">{rev.customerName}</span>
+                              <span className="text-[#B8891E]">{'★'.repeat(rev.rating)}</span>
                             </div>
-                            <p className="text-[11px] font-semibold text-[var(--brand-gold)] mt-0.5">{rev.title}</p>
-                            <p className="text-[10px] text-slate-300 mt-0.5">{rev.comment}</p>
+                            <p className="text-[11px] font-semibold text-[#B8891E] mt-0.5">{rev.title}</p>
+                            <p className="text-[10px] text-[#405B4A] mt-0.5">{rev.comment}</p>
                           </div>
                         ))
                       )}
@@ -439,19 +439,19 @@ export const ProductDetailModal: React.FC = () => {
               {/* Quantity & CTA */}
               <div className="space-y-4">
                 <div className="flex items-center gap-3 sm:gap-4">
-                  <div className="flex items-center border border-white/20 rounded-lg overflow-hidden bg-black/30 shrink-0">
+                  <div className="flex items-center border border-[rgba(18,63,43,0.18)] rounded-lg overflow-hidden bg-[#FAF8F1] shrink-0">
                     <button
                       type="button"
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="w-10 h-10 text-slate-300 hover:text-[var(--brand-gold)] font-bold text-lg flex items-center justify-center cursor-pointer"
+                      className="w-10 h-10 text-[#123F2B] hover:text-[#B8891E] font-bold text-lg flex items-center justify-center cursor-pointer"
                     >
                       -
                     </button>
-                    <span className="px-3 font-bold text-sm text-slate-100">{quantity}</span>
+                    <span className="px-3 font-bold text-sm text-[#123F2B]">{quantity}</span>
                     <button
                       type="button"
                       onClick={() => setQuantity(quantity + 1)}
-                      className="w-10 h-10 text-slate-300 hover:text-[var(--brand-gold)] font-bold text-lg flex items-center justify-center cursor-pointer"
+                      className="w-10 h-10 text-[#123F2B] hover:text-[#B8891E] font-bold text-lg flex items-center justify-center cursor-pointer"
                     >
                       +
                     </button>
@@ -460,9 +460,9 @@ export const ProductDetailModal: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleAddToCart}
-                    className="flex-1 bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] min-h-[48px] py-3 px-4 rounded-lg font-sans text-xs sm:text-sm font-bold uppercase tracking-wider hover:bg-white transition-all flex items-center justify-center gap-2 shadow-xl cursor-pointer"
+                    className="flex-1 bg-[#123F2B] text-white min-h-[48px] py-3 px-4 rounded-lg font-sans text-xs sm:text-sm font-bold uppercase tracking-wider hover:bg-[#245C3A] transition-all flex items-center justify-center gap-2 shadow-xl cursor-pointer"
                   >
-                    <ShoppingBag className="w-4 h-4 shrink-0" />
+                    <ShoppingBag className="w-4 h-4 shrink-0 text-[#D4AF37]" />
                     <span>Add To Bag • {formatPrice(product.priceINR * quantity)}</span>
                   </button>
 
@@ -471,8 +471,8 @@ export const ProductDetailModal: React.FC = () => {
                     onClick={() => toggleWishlist(product)}
                     className={`p-3 rounded-lg border transition-colors shrink-0 cursor-pointer ${
                       isInWishlist(product.id)
-                        ? 'border-[var(--brand-gold)] bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]'
-                        : 'border-white/20 text-slate-300 hover:border-[var(--brand-gold)]'
+                        ? 'border-[#B8891E] bg-[#B8891E] text-white'
+                        : 'border-[rgba(18,63,43,0.18)] text-[#123F2B] hover:border-[#B8891E]'
                     }`}
                   >
                     <Heart className="w-5 h-5 fill-current" />
@@ -480,13 +480,13 @@ export const ProductDetailModal: React.FC = () => {
                 </div>
 
                 {/* Shipping Guarantee */}
-                <div className="grid grid-cols-2 gap-3 text-[10px] font-sans text-slate-300 pt-2 border-t border-white/10">
+                <div className="product-delivery-info grid grid-cols-2 gap-3 text-[10px] font-sans text-[#5E7465] pt-2 border-t border-[rgba(18,63,43,0.18)]">
                   <div className="flex items-center gap-2">
-                    <Truck className="w-3.5 h-3.5 text-[var(--brand-gold)] shrink-0" />
+                    <Truck className="w-3.5 h-3.5 text-[#B8891E] shrink-0" />
                     <span>Worldwide Express Delivery</span>
                   </div>
                   <div className="flex items-center gap-2">
-                    <Shield className="w-3.5 h-3.5 text-[var(--brand-gold)] shrink-0" />
+                    <Shield className="w-3.5 h-3.5 text-[#B8891E] shrink-0" />
                     <span>100% Herbal Guarantee</span>
                   </div>
                 </div>

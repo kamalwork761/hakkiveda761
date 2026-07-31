@@ -498,60 +498,144 @@
 }
 
 /* ==========================================================================
-   CATEGORY & TESTIMONIAL CARD BODY CONTRAST SYSTEM
+   LIGHT-BACKGROUND DETAIL PANEL & MODAL CONTRAST SYSTEM
    ========================================================================== */
 
-.category-card-body {
+.product-detail-panel,
+.product-detail-body,
+.light-modal-content {
   background: #ffffff !important;
-  color: #123f2b !important;
+  color: #123F2B !important;
 }
 
-.category-card-body h3,
-.category-card-body h4 {
-  color: #123f2b !important;
+.product-detail-panel h1,
+.product-detail-panel h2,
+.product-detail-panel h3,
+.product-detail-panel h4,
+.product-detail-body h1,
+.product-detail-body h2,
+.product-detail-body h3,
+.product-detail-body h4,
+.light-modal-content h1,
+.light-modal-content h2,
+.light-modal-content h3,
+.light-modal-content h4 {
+  color: #123F2B !important;
 }
 
-.category-card-body p {
-  color: #405b4a !important;
+.product-detail-panel h5,
+.product-detail-panel h6,
+.product-detail-body h5,
+.product-detail-body h6,
+.light-modal-content h5,
+.light-modal-content h6 {
+  color: #173A25 !important;
 }
 
-.category-card-body a {
-  color: #245c3a !important;
+.product-detail-panel p,
+.product-detail-panel li,
+.product-detail-panel .description,
+.product-detail-body p,
+.product-detail-body li,
+.product-description,
+.product-benefits,
+.product-benefits li,
+.product-benefits span,
+.light-modal-content p,
+.light-modal-content li {
+  color: #405B4A !important;
 }
 
-.category-card-body a:hover,
-.category-card-body h3:hover {
-  color: #b8891e !important;
+.product-detail-panel .secondary,
+.product-detail-panel .meta,
+.product-detail-panel .review-count,
+.product-detail-panel .delivery-note,
+.product-detail-body .secondary,
+.product-detail-body .meta,
+.product-detail-body .review-count,
+.product-meta,
+.product-delivery-info,
+.light-modal-content .secondary,
+.light-modal-content .meta,
+.light-modal-content .review-count,
+.light-modal-content .delivery-note {
+  color: #5E7465 !important;
 }
 
-.testimonial-card-body {
-  background: #ffffff !important;
-  color: #173a25 !important;
+.product-detail-panel .muted,
+.product-detail-body .muted,
+.light-modal-content .muted {
+  color: #718176 !important;
 }
 
-.testimonial-card-body h3,
-.testimonial-card-body .customer-name {
-  color: #123f2b !important;
+.product-detail-panel a,
+.product-detail-body a,
+.light-modal-content a {
+  color: #245C3A !important;
 }
 
-.testimonial-card-body p,
-.testimonial-card-body .quote {
-  color: #173a25 !important;
+.product-detail-panel a:hover,
+.product-detail-body a:hover,
+.light-modal-content a:hover {
+  color: #B8891E !important;
 }
 
-.testimonial-card-body .location,
-.testimonial-card-body .rating {
-  color: #b8891e !important;
+.product-detail-panel .accent,
+.product-detail-panel .price,
+.product-detail-panel .tab-active,
+.product-detail-body .accent,
+.product-detail-body .price,
+.product-detail-body .tab-active,
+.light-modal-content .accent,
+.light-modal-content .price,
+.light-modal-content .tab-active {
+  color: #B8891E !important;
 }
 
-.testimonial-card-body a,
-.testimonial-card-body button {
-  color: #245c3a !important;
+.product-detail-panel .old-price,
+.product-detail-body .old-price,
+.light-modal-content .old-price {
+  color: #5F6F63 !important;
 }
 
-.testimonial-card-body a:hover,
-.testimonial-card-body button:hover {
-  color: #b8891e !important;
+.product-detail-panel .disabled,
+.product-detail-body .disabled,
+.light-modal-content .disabled {
+  color: #8A958D !important;
+}
+
+.product-detail-panel .stock-text,
+.product-detail-panel .in-stock,
+.product-detail-body .stock-text,
+.product-detail-body .in-stock,
+.light-modal-content .stock-text,
+.light-modal-content .in-stock {
+  color: #008F62 !important;
+}
+
+.product-detail-panel .border-divider,
+.product-detail-body .border-divider,
+.light-modal-content .border-divider {
+  border-color: rgba(18, 63, 43, 0.18) !important;
+}
+
+/* Ensure light modal input elements are clear and readable */
+.product-detail-panel input,
+.product-detail-panel textarea,
+.product-detail-panel select,
+.light-modal-content input,
+.light-modal-content textarea,
+.light-modal-content select {
+  background-color: #FFFFFF !important;
+  color: #123F2B !important;
+  border-color: rgba(18, 63, 43, 0.25) !important;
+}
+
+.product-detail-panel input::placeholder,
+.product-detail-panel textarea::placeholder,
+.light-modal-content input::placeholder,
+.light-modal-content textarea::placeholder {
+  color: #718176 !important;
 }
 
 

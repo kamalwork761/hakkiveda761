@@ -78,7 +78,7 @@ export const BrandStory: React.FC = () => {
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Visual Hero */}
           <div className="lg:col-span-6 relative">
-            <div className="relative rounded-2xl overflow-hidden border border-[var(--brand-gold)]/40 shadow-2xl group">
+            <div className="relative rounded-2xl overflow-hidden border border-[var(--brand-gold)]/40 shadow-2xl group dark-media-card">
               {/* Responsive Hero Picture or Video */}
               {/\.(mp4|webm|ogg|mov)($|\?)/i.test(desktopHero) ? (
                 <video
@@ -102,18 +102,18 @@ export const BrandStory: React.FC = () => {
                   />
                 </picture>
               )}
-              <div className="absolute inset-0 bg-gradient-to-t from-[var(--brand-primary-dark)] via-transparent to-black/30"></div>
+              <div className="image-overlay bg-gradient-to-t from-[var(--brand-primary-dark)] via-transparent to-black/30"></div>
 
               {/* Floating Lore Quote Badge */}
-              <div className="absolute bottom-6 left-6 right-6 p-6 bg-black/70 backdrop-blur-xl border border-[var(--brand-gold)]/40 rounded-xl space-y-2">
-                <div className="flex items-center gap-2 text-[var(--brand-gold)]">
-                  <Quote className="w-4 h-4" />
-                  <span className="text-[10px] font-sans font-bold uppercase tracking-widest">
+              <div className="absolute bottom-6 left-6 right-6 p-6 bg-black/75 backdrop-blur-xl border border-[var(--brand-gold)]/50 rounded-xl space-y-2 overlay-card z-10">
+                <div className="flex items-center gap-2 text-[var(--brand-gold)] accent">
+                  <Quote className="w-4 h-4 accent" />
+                  <span className="text-[10px] font-sans font-bold uppercase tracking-widest accent">
                     {highlightText}
                   </span>
                 </div>
                 {quotes.map((q, idx) => (
-                  <p key={idx} className="text-xs text-slate-200 font-sans italic leading-relaxed">
+                  <p key={idx} className="text-xs font-sans italic leading-relaxed">
                     "{q.replace(/^"/, '').replace(/"$/, '')}"
                   </p>
                 ))}
@@ -200,19 +200,20 @@ export const BrandStory: React.FC = () => {
                 <div
                   key={img.id}
                   onClick={() => setSelectedGalleryImg(img.url)}
-                  className="group relative rounded-xl overflow-hidden border border-white/10 hover:border-[var(--brand-gold)]/60 cursor-pointer shadow-lg transition-all"
+                  className="group relative rounded-xl overflow-hidden border border-white/10 hover:border-[var(--brand-gold)]/60 cursor-pointer shadow-lg transition-all dark-media-card"
                 >
                   <img
                     src={img.url}
                     alt={img.altText || img.title || 'Tribal Gallery'}
                     className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity p-4 flex flex-col justify-end">
-                    <span className="text-xs font-bold text-slate-100 font-serif-luxury">
+                  <div className="image-overlay bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
+                  <div className="overlay-content p-4 flex flex-col justify-end h-full">
+                    <span className="text-xs font-bold font-serif-luxury">
                       {img.title || 'Ancestral Heritage Image'}
                     </span>
                     {img.altText && (
-                      <span className="text-[10px] text-slate-300 line-clamp-1">
+                      <span className="text-[10px] secondary-text line-clamp-1">
                         {img.altText}
                       </span>
                     )}

@@ -90,10 +90,10 @@
     color: var(--color-text) !important;
   }
 
-  /* Light Theme Text Contrast */
-  [data-theme="light"] .text-slate-100,
-  [data-theme="light"] .text-slate-200,
-  [data-theme="light"] .text-slate-300 {
+  /* Light Theme Text Contrast (Excluding dark overlay systems) */
+  [data-theme="light"] :not(.overlay-card, .dark-media-card, .banner-content, .overlay-content, .overlay-card *, .dark-media-card *, .banner-content *, .overlay-content *).text-slate-100,
+  [data-theme="light"] :not(.overlay-card, .dark-media-card, .banner-content, .overlay-content, .overlay-card *, .dark-media-card *, .banner-content *, .overlay-content *).text-slate-200,
+  [data-theme="light"] :not(.overlay-card, .dark-media-card, .banner-content, .overlay-content, .overlay-card *, .dark-media-card *, .banner-content *, .overlay-content *).text-slate-300 {
     color: var(--color-text) !important;
   }
 
@@ -321,3 +321,92 @@
   height: auto;
   object-fit: contain;
 }
+
+/* ==========================================================================
+   REUSABLE GLOBAL OVERLAY TEXT SYSTEM FOR DARK OVERLAYS, CARDS & BANNERS
+   ========================================================================== */
+
+.overlay-content,
+.overlay-card,
+.dark-media-card,
+.banner-content {
+  position: relative;
+  z-index: 2;
+  color: #FFFFFF;
+}
+
+.image-overlay {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  pointer-events: none;
+}
+
+/* Headings inside dark overlays, cards, and banners */
+.overlay-card h1,
+.overlay-card h2,
+.overlay-card h3,
+.overlay-card h4,
+.overlay-card h5,
+.overlay-card h6,
+.dark-media-card h1,
+.dark-media-card h2,
+.dark-media-card h3,
+.dark-media-card h4,
+.dark-media-card h5,
+.dark-media-card h6,
+.banner-content h1,
+.banner-content h2,
+.banner-content h3,
+.banner-content h4,
+.banner-content h5,
+.banner-content h6,
+.overlay-content h1,
+.overlay-content h2,
+.overlay-content h3,
+.overlay-content h4,
+.overlay-content h5,
+.overlay-content h6 {
+  color: #FFFFFF !important;
+}
+
+/* Body / paragraph text inside dark overlays, cards, and banners */
+.overlay-card p,
+.dark-media-card p,
+.banner-content p,
+.overlay-content p,
+.overlay-card li,
+.dark-media-card li,
+.banner-content li,
+.overlay-content li {
+  color: #F3F1E8 !important;
+}
+
+/* Secondary / muted text in dark overlays */
+.overlay-card .secondary-text,
+.dark-media-card .secondary-text,
+.banner-content .secondary-text,
+.overlay-content .secondary-text,
+.overlay-card .text-secondary,
+.dark-media-card .text-secondary,
+.banner-content .text-secondary,
+.overlay-content .text-secondary {
+  color: #D8D6CE !important;
+}
+
+/* Gold Accents, Badges, Highlights and Icons */
+.overlay-card .accent,
+.dark-media-card .accent,
+.banner-content .accent,
+.overlay-content .accent,
+.overlay-card .text-gold,
+.dark-media-card .text-gold,
+.banner-content .text-gold,
+.overlay-content .text-gold,
+.overlay-card svg.accent,
+.dark-media-card svg.accent,
+.banner-content svg.accent,
+.overlay-content svg.accent {
+  color: #D4AF37 !important;
+}
+

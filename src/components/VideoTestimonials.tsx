@@ -121,7 +121,7 @@ export const VideoTestimonials: React.FC = () => {
             return (
               <div
                 key={item.id}
-                className="group bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl overflow-hidden hover:border-[var(--brand-gold)]/80 transition-all duration-300 shadow-xl flex flex-col"
+                className="group bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl overflow-hidden hover:border-[var(--brand-gold)]/80 transition-all duration-300 shadow-xl flex flex-col dark-media-card"
               >
                 <div className="relative h-60 sm:h-72 overflow-hidden bg-slate-900">
                   {isPlayingInline ? (
@@ -158,7 +158,7 @@ export const VideoTestimonials: React.FC = () => {
 
                       {/* Small badge top-left */}
                       <div className="absolute top-3 left-3 z-10">
-                        <span className="bg-black/75 backdrop-blur-md border border-white/15 text-[var(--brand-gold)] text-[10px] font-sans font-bold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1.5">
+                        <span className="bg-black/75 backdrop-blur-md border border-white/15 text-[var(--brand-gold)] text-[10px] font-sans font-bold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1.5 accent">
                           <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
                           <span>Verified Customer</span>
                         </span>
@@ -179,27 +179,27 @@ export const VideoTestimonials: React.FC = () => {
                   )}
                 </div>
 
-                <div className="p-5 flex-1 flex flex-col justify-between space-y-3">
+                <div className="p-5 flex-1 flex flex-col justify-between space-y-3 overlay-content">
                   <div>
-                    <div className="flex items-center justify-between text-xs text-slate-300 font-sans mb-1">
-                      <span className="font-bold text-slate-100">{item.name}</span>
-                      <span className="flex items-center gap-1 text-[var(--brand-gold)]">
-                        <MapPin className="w-3 h-3" />
+                    <div className="flex items-center justify-between text-xs font-sans mb-1">
+                      <span className="font-bold">{item.name}</span>
+                      <span className="flex items-center gap-1 text-[var(--brand-gold)] accent">
+                        <MapPin className="w-3 h-3 accent" />
                         <span>{item.location}</span>
                       </span>
                     </div>
 
                     <h4
                       onClick={() => setActiveVideo(item)}
-                      className="text-sm font-bold font-serif-luxury text-slate-100 hover:text-[var(--brand-gold)] transition-colors leading-snug cursor-pointer"
+                      className="text-sm font-bold font-serif-luxury hover:text-[var(--brand-gold)] transition-colors leading-snug cursor-pointer"
                     >
                       "{item.headline}"
                     </h4>
                   </div>
 
                   <div className="flex items-center justify-between border-t border-white/10 pt-3">
-                    <div className="flex items-center gap-1 text-[var(--brand-gold)] text-xs font-sans font-semibold">
-                      <Star className="w-3.5 h-3.5 fill-current" />
+                    <div className="flex items-center gap-1 text-[var(--brand-gold)] text-xs font-sans font-semibold accent">
+                      <Star className="w-3.5 h-3.5 fill-current accent" />
                       <span>5.0 Verified Review</span>
                     </div>
 

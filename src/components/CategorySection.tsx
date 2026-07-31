@@ -49,7 +49,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ selectedCatego
               <div
                 key={cat.id}
                 onClick={() => handleCategoryClick(cat.name)}
-                className={`group relative rounded-xl overflow-hidden border transition-all duration-300 cursor-pointer active:scale-98 ${
+                className={`group relative rounded-xl overflow-hidden border transition-all duration-300 cursor-pointer active:scale-98 dark-media-card ${
                   isSelected
                     ? 'border-[var(--brand-gold)] ring-2 ring-[var(--brand-gold)]/50 bg-[var(--brand-primary-dark)] shadow-xl'
                     : 'border-white/10 bg-[var(--brand-primary-dark)]/80 hover:border-[var(--brand-gold)]/60 hover:bg-[var(--brand-primary-dark)]'
@@ -61,17 +61,18 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ selectedCatego
                     alt={cat.name}
                     className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-700 opacity-100"
                   />
-                  <span className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-[var(--brand-gold)] text-[10px] font-bold font-sans px-2.5 py-0.5 rounded-full border border-[var(--brand-gold)]/30">
+                  <div className="image-overlay bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 group-hover:opacity-40 transition-opacity" />
+                  <span className="absolute top-3 right-3 bg-black/60 backdrop-blur-md text-[var(--brand-gold)] text-[10px] font-bold font-sans px-2.5 py-0.5 rounded-full border border-[var(--brand-gold)]/30 accent z-10">
                     {cat.itemCount} Items
                   </span>
                 </div>
 
-                <div className="p-5 space-y-2">
-                  <h3 className="text-base font-bold font-serif-luxury text-slate-100 group-hover:text-[var(--brand-gold)] transition-colors flex items-center justify-between">
+                <div className="p-5 space-y-2 overlay-content">
+                  <h3 className="text-base font-bold font-serif-luxury group-hover:text-[var(--brand-gold)] transition-colors flex items-center justify-between">
                     <span>{cat.name}</span>
-                    <ArrowRight className="w-4 h-4 text-[var(--brand-gold)] opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
+                    <ArrowRight className="w-4 h-4 text-[var(--brand-gold)] accent opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
                   </h3>
-                  <p className="text-xs text-slate-300 line-clamp-2 leading-relaxed opacity-80">
+                  <p className="text-xs line-clamp-2 leading-relaxed opacity-90">
                     {cat.description}
                   </p>
                 </div>

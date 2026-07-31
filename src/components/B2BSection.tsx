@@ -134,7 +134,7 @@ export const B2BSection: React.FC = () => {
               style={{ backgroundImage: `url(${config.backgroundImage})` }}
             >
               <div
-                className="absolute inset-0"
+                className="image-overlay"
                 style={{
                   backgroundColor: theme.overlayColor || '#000000',
                   opacity: (theme.overlayOpacity ?? 35) / 100,
@@ -146,14 +146,14 @@ export const B2BSection: React.FC = () => {
           <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 relative z-10 space-y-12">
             {/* Main B2B Box */}
             <div
-              className="bg-gradient-to-br from-[var(--brand-primary-deep)]/90 to-black/80 backdrop-blur-md border border-[var(--brand-gold)]/40 rounded-3xl p-6 sm:p-12 shadow-2xl overflow-hidden"
+              className="bg-gradient-to-br from-[var(--brand-primary-deep)]/90 to-black/80 backdrop-blur-md border border-[var(--brand-gold)]/40 rounded-3xl p-6 sm:p-12 shadow-2xl overflow-hidden banner-content overlay-card"
               style={{ color: theme.textColor }}
             >
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
                 {/* Text Content */}
                 <div className="lg:col-span-7 space-y-5">
                   {config.badgeText && (
-                    <span className="inline-block bg-[var(--brand-gold)]/20 border border-[var(--brand-gold)] text-[var(--brand-gold)] text-[10px] uppercase tracking-[0.25em] font-bold px-3.5 py-1.5 rounded-full shadow-sm">
+                    <span className="inline-block bg-[var(--brand-gold)]/20 border border-[var(--brand-gold)] text-[var(--brand-gold)] text-[10px] uppercase tracking-[0.25em] font-bold px-3.5 py-1.5 rounded-full shadow-sm accent">
                       {config.badgeText}
                     </span>
                   )}
@@ -165,13 +165,13 @@ export const B2BSection: React.FC = () => {
                   )}
 
                   {config.subheading && (
-                    <h3 className="text-sm sm:text-base font-semibold text-[var(--brand-gold)]">
+                    <h3 className="text-sm sm:text-base font-semibold text-[var(--brand-gold)] accent">
                       {config.subheading}
                     </h3>
                   )}
 
                   {config.description && (
-                    <p className="text-xs sm:text-sm opacity-90 font-sans leading-relaxed max-w-2xl">
+                    <p className="text-xs sm:text-sm font-sans leading-relaxed max-w-2xl">
                       {config.description}
                     </p>
                   )}
@@ -182,15 +182,15 @@ export const B2BSection: React.FC = () => {
                       {sortedFeatures.map((feat) => (
                         <div
                           key={feat.id}
-                          className="flex items-start gap-2.5 bg-black/40 border border-white/10 rounded-xl p-2.5 backdrop-blur-sm"
+                          className="flex items-start gap-2.5 bg-black/40 border border-white/10 rounded-xl p-2.5 backdrop-blur-sm overlay-card"
                         >
-                          <div className="mt-0.5">
+                          <div className="mt-0.5 accent">
                             {renderIcon(feat.icon, theme.buttonColor)}
                           </div>
                           <div>
-                            <h4 className="text-xs font-bold text-slate-100">{feat.title}</h4>
+                            <h4 className="text-xs font-bold">{feat.title}</h4>
                             {feat.description && (
-                              <p className="text-[11px] text-slate-300 mt-0.5 leading-snug">
+                              <p className="text-[11px] secondary-text mt-0.5 leading-snug">
                                 {feat.description}
                               </p>
                             )}

@@ -234,7 +234,7 @@ export const HeroSlider: React.FC = () => {
         return (
           <div
             key={`slide-content-${slide.id || idx}`}
-            className={`relative z-20 max-w-7xl mx-auto px-6 sm:px-12 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center transition-all duration-700 ease-in-out ${
+            className={`relative z-20 max-w-7xl mx-auto px-6 sm:px-12 w-full grid grid-cols-1 lg:grid-cols-12 gap-8 items-center transition-all duration-700 ease-in-out banner-content overlay-content ${
               isActive
                 ? 'opacity-100 translate-y-0 z-20 pointer-events-auto block'
                 : 'opacity-0 translate-y-4 z-0 pointer-events-none hidden'
@@ -319,7 +319,7 @@ export const HeroSlider: React.FC = () => {
             {/* Right Feature Card (AI Hair Analysis Preview) */}
             {slide.textPosition !== 'CENTER' && (
               <div className="hidden lg:flex lg:col-span-5 justify-end">
-                <div className="w-[320px] p-6 bg-black/40 backdrop-blur-xl border border-[var(--brand-gold)]/40 rounded-2xl space-y-4 gold-border-glow shadow-2xl transform hover:scale-102 transition-all">
+                <div className="w-[320px] p-6 bg-black/50 backdrop-blur-xl border border-[var(--brand-gold)]/50 rounded-2xl space-y-4 gold-border-glow shadow-2xl transform hover:scale-102 transition-all overlay-card">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] font-sans font-bold uppercase tracking-widest text-[var(--brand-gold)] bg-[var(--brand-gold)]/10 px-2.5 py-1 rounded">
                       AI Trichology Engine

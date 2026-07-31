@@ -151,6 +151,15 @@ export interface Order {
     timestamp: string;
     completed: boolean;
   }[];
+  // Shiprocket integration fields
+  shiprocketOrderId?: string | number;
+  shipmentId?: string | number;
+  awbCode?: string;
+  trackingUrl?: string;
+  shipmentStatus?: string;
+  pickupScheduledDate?: string;
+  labelUrl?: string;
+  invoiceUrl?: string;
 }
 
 export interface Coupon {

@@ -112,6 +112,26 @@ export const CustomerPortal: React.FC = () => {
 
   // Track Order Modal State
   const [trackingOrder, setTrackingOrder] = useState<Order | null>(null);
+  const [isFetchingTracking, setIsFetchingTracking] = useState(false);
+  const [liveTrackingData, setLiveTrackingData] = useState<any>(null);
+
+  useEffect(() => {
+    if (trackingOrder) {
+      const identifier = trackingOrder.awbCode || trackingOrder.trackingNumber || trackingOrder.shipmentId || trackingOrder.orderNumber;
+      setIsFetchingTracking(true);
+      fetch(`/api/shiprocket/track/${identifier}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setLiveTrackingData(data);
+          }
+        })
+        .catch((err) => console.warn('Could not fetch tracking:', err))
+        .finally(() => setIsFetchingTracking(false));
+    } else {
+      setLiveTrackingData(null);
+    }
+  }, [trackingOrder]);
 
   // Return Request Modal State
   const [returnOrder, setReturnOrder] = useState<Order | null>(null);
@@ -1018,18 +1038,34 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                                   <span className="text-slate-400 text-[10px]">Placed on {order.date}</span>
                                 </div>
 
-                                <div className="flex items-center gap-2">
-                                  <span
-                                    className={`px-2.5 py-1 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
-                                      order.trackingStatus === 'DELIVERED'
-                                        ? 'bg-emerald-950 text-emerald-400 border-emerald-500/40'
-                                        : 'bg-amber-950 text-amber-300 border-amber-500/40 animate-pulse'
-                                    }`}
-                                  >
-                                    {order.trackingStatus?.replace('_', ' ') || 'PROCESSING'}
-                                  </span>
-                                  <span className="font-bold text-white text-sm">
-                                    {formatPrice(order.totalAmountINR)}
+                                <div className="flex flex-col items-end gap-1">
+                                  <div className="flex items-center gap-2">
+                                    <span
+                                      className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${
+                                        order.trackingStatus === 'DELIVERED'
+                                          ? 'bg-emerald-950 text-emerald-400 border-emerald-500/40'
+                                          : 'bg-amber-950 text-amber-300 border-amber-500/40 animate-pulse'
+                                      }`}
+                                    >
+                                      {order.shipmentStatus || order.trackingStatus?.replace('_', ' ') || 'PROCESSING'}
+                                    </span>
+                                    <span className="font-bold text-white text-sm">
+                                      {formatPrice(order.totalAmountINR)}
+                                    </span>
+                                  </div>
+                                </div>
+                              </div>
+
+                              {/* Courier & Shipping Telemetry Bar */}
+                              <div className="bg-[var(--brand-primary-deep)] p-2.5 rounded-xl border border-white/5 flex flex-wrap items-center justify-between gap-2 text-[11px]">
+                                <div>
+                                  <span className="text-slate-400">Courier Partner: </span>
+                                  <span className="font-bold text-slate-100">{order.courierName || 'Shiprocket Air Express'}</span>
+                                </div>
+                                <div>
+                                  <span className="text-slate-400">AWB No: </span>
+                                  <span className="font-mono font-bold text-[var(--brand-gold)]">
+                                    {order.awbCode || order.trackingNumber || 'Pending Assignment'}
                                   </span>
                                 </div>
                               </div>
@@ -1522,10 +1558,50 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
               <h3 className="text-xl font-bold font-serif-luxury text-slate-100">
                 Tracking Order {trackingOrder.orderNumber}
               </h3>
-              <p className="text-xs text-slate-300 mt-0.5">
-                Courier: <span className="font-bold text-white">{trackingOrder.courierName || 'BlueDart Air Express'}</span> • AWB: <span className="font-mono text-[var(--brand-gold)]">{trackingOrder.trackingNumber || 'BD-EXP-883901'}</span>
+              <p className="text-xs text-slate-300 mt-1">
+                Courier: <span className="font-bold text-white">{trackingOrder.courierName || 'BlueDart Air Express'}</span> • AWB: <span className="font-mono text-[var(--brand-gold)]">{trackingOrder.awbCode || trackingOrder.trackingNumber || 'BD-EXP-883901'}</span>
+              </p>
+              <p className="text-[11px] text-emerald-400 font-bold mt-0.5">
+                Shipment Status: {trackingOrder.shipmentStatus || trackingOrder.trackingStatus || 'IN_TRANSIT'}
               </p>
             </div>
+
+            {/* Live API Telemetry Stream */}
+            {isFetchingTracking ? (
+              <div className="p-4 bg-[var(--brand-primary-dark)] rounded-xl border border-white/10 text-center text-xs text-slate-400 flex items-center justify-center gap-2">
+                <div className="w-4 h-4 border-2 border-[var(--brand-gold)] border-t-transparent rounded-full animate-spin" />
+                <span>Fetching live Shiprocket tracking updates...</span>
+              </div>
+            ) : liveTrackingData ? (
+              <div className="bg-[var(--brand-primary-dark)] p-4 rounded-xl border border-[var(--brand-gold)]/30 space-y-2 text-xs">
+                <div className="flex justify-between font-bold text-[var(--brand-gold)]">
+                  <span>Current Status:</span>
+                  <span>{liveTrackingData.shipmentStatus}</span>
+                </div>
+                {liveTrackingData.trackingUrl && (
+                  <a
+                    href={liveTrackingData.trackingUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-1 text-sky-400 hover:underline font-mono text-[11px]"
+                  >
+                    <span>Open External Courier Tracking Page</span>
+                    <ExternalLink className="w-3 h-3" />
+                  </a>
+                )}
+                {liveTrackingData.scans && Array.isArray(liveTrackingData.scans) && liveTrackingData.scans.length > 0 && (
+                  <div className="pt-2 border-t border-white/10 space-y-1.5 max-h-36 overflow-y-auto">
+                    <span className="text-[10px] uppercase text-slate-400 font-bold block">Checkpoint History:</span>
+                    {liveTrackingData.scans.map((scan: any, idx: number) => (
+                      <div key={idx} className="text-[11px] text-slate-300 font-mono flex justify-between gap-2 bg-black/30 p-1.5 rounded">
+                        <span>{scan.activity} ({scan.location})</span>
+                        <span className="text-slate-400 shrink-0">{scan.date}</span>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            ) : null}
 
             {/* Stepper Delivery Timeline Bar */}
             <div className="space-y-4 pt-2">

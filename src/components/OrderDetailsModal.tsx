@@ -48,6 +48,18 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   const [isEditing, setIsEditing] = useState(false);
   const [printMode, setPrintMode] = useState<'NONE' | 'INVOICE' | 'LABEL'>('NONE');
 
+  // Shiprocket integration state
+  const [srLoading, setSrLoading] = useState<string | null>(null);
+  const [srShiprocketOrderId, setSrShiprocketOrderId] = useState<string | number | undefined>(order.shiprocketOrderId);
+  const [srShipmentId, setSrShipmentId] = useState<string | number | undefined>(order.shipmentId);
+  const [srAwbCode, setSrAwbCode] = useState<string | undefined>(order.awbCode || order.trackingNumber);
+  const [srCourierName, setSrCourierName] = useState<string | undefined>(order.courierName || 'Shiprocket Partner');
+  const [srShipmentStatus, setSrShipmentStatus] = useState<string | undefined>(order.shipmentStatus || 'NEW');
+  const [srTrackingUrl, setSrTrackingUrl] = useState<string | undefined>(order.trackingUrl);
+  const [srLabelUrl, setSrLabelUrl] = useState<string | undefined>(order.labelUrl);
+  const [srInvoiceUrl, setSrInvoiceUrl] = useState<string | undefined>(order.invoiceUrl);
+  const [srTrackingInfo, setSrTrackingInfo] = useState<any>(null);
+
   // Local form state for order editing
   const [trackingStatus, setTrackingStatus] = useState<string>(order.trackingStatus);
   const [paymentStatus, setPaymentStatus] = useState<string>(order.paymentStatus || 'PAID');
@@ -137,6 +149,190 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
       setTrackingStatus('CANCELLED');
       playSound('order_success');
       onShowToast('Order refunded and marked as cancelled');
+    }
+  };
+
+  // Shiprocket API Action Handlers
+  const handleSrCreateOrder = async () => {
+    setSrLoading('Creating Shiprocket Order...');
+    try {
+      const res = await fetch('/api/shiprocket/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: order.id, orderData: order }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSrShiprocketOrderId(data.shiprocketOrderId);
+        setSrShipmentId(data.shipmentId);
+        if (data.awbCode) setSrAwbCode(data.awbCode);
+        if (data.courierName) setSrCourierName(data.courierName);
+        if (data.trackingUrl) setSrTrackingUrl(data.trackingUrl);
+        if (data.shipmentStatus) setSrShipmentStatus(data.shipmentStatus);
+
+        updateOrderDetails(order.id, {
+          shiprocketOrderId: data.shiprocketOrderId,
+          shipmentId: data.shipmentId,
+          awbCode: data.awbCode || srAwbCode,
+          courierName: data.courierName || srCourierName,
+          trackingUrl: data.trackingUrl || srTrackingUrl,
+          shipmentStatus: data.shipmentStatus || 'MANIFESTED',
+        });
+        playSound('order_success');
+        onShowToast('Shiprocket order created successfully!');
+      } else {
+        alert(`Error: ${data.error || 'Failed to create Shiprocket order'}`);
+      }
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    } finally {
+      setSrLoading(null);
+    }
+  };
+
+  const handleSrGenerateAwb = async () => {
+    setSrLoading('Assigning Courier & Generating AWB...');
+    try {
+      const res = await fetch('/api/shiprocket/generate-awb', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: order.id, shipmentId: srShipmentId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSrAwbCode(data.awbCode);
+        if (data.courierName) setSrCourierName(data.courierName);
+        if (data.trackingUrl) setSrTrackingUrl(data.trackingUrl);
+        setSrShipmentStatus('AWB_GENERATED');
+
+        updateOrderDetails(order.id, {
+          awbCode: data.awbCode,
+          courierName: data.courierName || srCourierName,
+          trackingUrl: data.trackingUrl || srTrackingUrl,
+          shipmentStatus: 'AWB_GENERATED',
+          trackingNumber: data.awbCode,
+          trackingStatus: 'DISPATCHED',
+        });
+        playSound('order_success');
+        onShowToast(`AWB ${data.awbCode} generated successfully!`);
+      } else {
+        alert(`Error: ${data.error || 'Failed to generate AWB'}`);
+      }
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    } finally {
+      setSrLoading(null);
+    }
+  };
+
+  const handleSrSchedulePickup = async () => {
+    setSrLoading('Scheduling Courier Pickup...');
+    try {
+      const res = await fetch('/api/shiprocket/schedule-pickup', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: order.id, shipmentId: srShipmentId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        setSrShipmentStatus('PICKUP_SCHEDULED');
+        updateOrderDetails(order.id, {
+          pickupScheduledDate: data.pickupScheduledDate,
+          shipmentStatus: 'PICKUP_SCHEDULED',
+          trackingStatus: 'DISPATCHED',
+        });
+        playSound('order_success');
+        onShowToast(`Pickup scheduled for ${data.pickupScheduledDate || 'tomorrow'}!`);
+      } else {
+        alert(`Error: ${data.error || 'Failed to schedule pickup'}`);
+      }
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    } finally {
+      setSrLoading(null);
+    }
+  };
+
+  const handleSrPrintLabel = async () => {
+    if (srLabelUrl) {
+      window.open(srLabelUrl, '_blank');
+      return;
+    }
+    setSrLoading('Fetching Shiprocket Label...');
+    try {
+      const res = await fetch('/api/shiprocket/generate-label', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: order.id, shipmentId: srShipmentId }),
+      });
+      const data = await res.json();
+      if (data.success && data.labelUrl) {
+        setSrLabelUrl(data.labelUrl);
+        updateOrderDetails(order.id, { labelUrl: data.labelUrl });
+        window.open(data.labelUrl, '_blank');
+      } else {
+        setPrintMode('LABEL');
+      }
+    } catch (err) {
+      setPrintMode('LABEL');
+    } finally {
+      setSrLoading(null);
+    }
+  };
+
+  const handleSrPrintInvoice = async () => {
+    if (srInvoiceUrl) {
+      window.open(srInvoiceUrl, '_blank');
+      return;
+    }
+    setSrLoading('Fetching Shiprocket Invoice...');
+    try {
+      const res = await fetch('/api/shiprocket/generate-invoice', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: order.id, shiprocketOrderId: srShiprocketOrderId }),
+      });
+      const data = await res.json();
+      if (data.success && data.invoiceUrl) {
+        setSrInvoiceUrl(data.invoiceUrl);
+        updateOrderDetails(order.id, { invoiceUrl: data.invoiceUrl });
+        window.open(data.invoiceUrl, '_blank');
+      } else {
+        setPrintMode('INVOICE');
+      }
+    } catch (err) {
+      setPrintMode('INVOICE');
+    } finally {
+      setSrLoading(null);
+    }
+  };
+
+  const handleSrTrackShipment = async () => {
+    const targetId = srAwbCode || srShipmentId || order.orderNumber || order.id;
+    setSrLoading('Fetching Live Shipment Tracking Telemetry...');
+    try {
+      const res = await fetch(`/api/shiprocket/track/${targetId}`);
+      const data = await res.json();
+      if (data.success) {
+        setSrTrackingInfo(data);
+        if (data.shipmentStatus) setSrShipmentStatus(data.shipmentStatus);
+        if (data.courierName) setSrCourierName(data.courierName);
+        if (data.trackingUrl) setSrTrackingUrl(data.trackingUrl);
+
+        updateOrderDetails(order.id, {
+          shipmentStatus: data.shipmentStatus,
+          courierName: data.courierName || srCourierName,
+          trackingUrl: data.trackingUrl || srTrackingUrl,
+        });
+        playSound('notification_chime');
+        onShowToast(`Shipment Status: ${data.shipmentStatus}`);
+      } else {
+        alert(`Tracking Error: ${data.error || 'Failed to track shipment'}`);
+      }
+    } catch (err: any) {
+      alert(`Error: ${err.message}`);
+    } finally {
+      setSrLoading(null);
     }
   };
 
@@ -880,6 +1076,144 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                 <option value="CANCELLED">7. CANCELLED</option>
               </select>
             </div>
+          </div>
+
+          {/* Shiprocket REST API Fulfillment Control Card */}
+          <div className="bg-[var(--brand-primary-deep)] border border-[var(--brand-gold)]/40 p-5 rounded-2xl space-y-4 shadow-xl">
+            <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
+              <div className="flex items-center gap-2">
+                <Truck className="w-5 h-5 text-[var(--brand-gold)]" />
+                <h3 className="font-bold font-serif-luxury text-sm text-[var(--brand-gold)]">
+                  Shiprocket Logistics & Express Fulfillment
+                </h3>
+              </div>
+              {srLoading && (
+                <span className="text-xs text-amber-300 font-mono animate-pulse flex items-center gap-1.5">
+                  <RefreshCw className="w-3.5 h-3.5 animate-spin" />
+                  {srLoading}
+                </span>
+              )}
+            </div>
+
+            {/* Shipment Metadata Grid */}
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div className="bg-[var(--brand-primary-dark)] p-3 rounded-xl border border-white/5 space-y-1">
+                <span className="text-[10px] text-slate-400 font-bold block uppercase">Shiprocket Order ID</span>
+                <span className="font-mono font-bold text-white text-xs">{srShiprocketOrderId || 'Not Synced'}</span>
+              </div>
+
+              <div className="bg-[var(--brand-primary-dark)] p-3 rounded-xl border border-white/5 space-y-1">
+                <span className="text-[10px] text-slate-400 font-bold block uppercase">Shipment ID</span>
+                <span className="font-mono font-bold text-white text-xs">{srShipmentId || 'N/A'}</span>
+              </div>
+
+              <div className="bg-[var(--brand-primary-dark)] p-3 rounded-xl border border-white/5 space-y-1">
+                <span className="text-[10px] text-slate-400 font-bold block uppercase">AWB Tracking Code</span>
+                <span className="font-mono font-bold text-[var(--brand-gold)] text-xs">{srAwbCode || 'Unassigned'}</span>
+              </div>
+
+              <div className="bg-[var(--brand-primary-dark)] p-3 rounded-xl border border-white/5 space-y-1">
+                <span className="text-[10px] text-slate-400 font-bold block uppercase">Courier & Status</span>
+                <span className="font-bold text-emerald-400 text-xs block truncate">{srCourierName}</span>
+                <span className="text-[10px] text-slate-300 block font-mono">[{srShipmentStatus || 'NEW'}]</span>
+              </div>
+            </div>
+
+            {/* Action Buttons Toolbar */}
+            <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
+              {!srShiprocketOrderId ? (
+                <button
+                  type="button"
+                  onClick={handleSrCreateOrder}
+                  disabled={!!srLoading}
+                  className="px-3.5 py-2 bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold rounded-xl flex items-center gap-1.5 hover:bg-white transition-all cursor-pointer shadow-md"
+                >
+                  <Package className="w-4 h-4" />
+                  <span>Create Shiprocket Shipment</span>
+                </button>
+              ) : null}
+
+              <button
+                type="button"
+                onClick={handleSrGenerateAwb}
+                disabled={!!srLoading}
+                className="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-xl flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+              >
+                <Tag className="w-4 h-4" />
+                <span>Generate AWB</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSrSchedulePickup}
+                disabled={!!srLoading}
+                className="px-3.5 py-2 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-xl flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+              >
+                <Calendar className="w-4 h-4" />
+                <span>Schedule Pickup</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSrPrintLabel}
+                disabled={!!srLoading}
+                className="px-3.5 py-2 bg-indigo-700 hover:bg-indigo-600 text-white font-bold rounded-xl flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+              >
+                <Printer className="w-4 h-4" />
+                <span>Print Label</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSrPrintInvoice}
+                disabled={!!srLoading}
+                className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+              >
+                <FileText className="w-4 h-4" />
+                <span>Print Invoice</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleSrTrackShipment}
+                disabled={!!srLoading}
+                className="px-3.5 py-2 bg-sky-700 hover:bg-sky-600 text-white font-bold rounded-xl flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+              >
+                <ExternalLink className="w-4 h-4" />
+                <span>Track Shipment</span>
+              </button>
+            </div>
+
+            {/* Live Tracking Telemetry Box if loaded */}
+            {srTrackingInfo && (
+              <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-4 rounded-xl space-y-2 text-xs font-mono animate-in fade-in">
+                <div className="flex justify-between items-center text-slate-300 font-bold font-sans">
+                  <span>Shiprocket Live Tracking Stream</span>
+                  <span className="text-[var(--brand-gold)]">{srTrackingInfo.shipmentStatus}</span>
+                </div>
+                <div className="text-[11px] text-slate-300 space-y-1 bg-black/40 p-3 rounded-lg border border-white/5 font-mono">
+                  <p>AWB: {srTrackingInfo.awbCode || srAwbCode}</p>
+                  <p>Courier: {srTrackingInfo.courierName || srCourierName}</p>
+                  {srTrackingInfo.trackingUrl && (
+                    <p>
+                      URL:{' '}
+                      <a href={srTrackingInfo.trackingUrl} target="_blank" rel="noreferrer" className="text-sky-400 underline">
+                        {srTrackingInfo.trackingUrl}
+                      </a>
+                    </p>
+                  )}
+                  {srTrackingInfo.scans && Array.isArray(srTrackingInfo.scans) && (
+                    <div className="pt-2 border-t border-white/10 space-y-1">
+                      {srTrackingInfo.scans.map((scan: any, idx: number) => (
+                        <p key={idx} className="text-slate-400">
+                          [{scan.date}] {scan.activity} - {scan.location}
+                        </p>
+                      ))}
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
           </div>
 
           {/* Editable Mode Panel */}

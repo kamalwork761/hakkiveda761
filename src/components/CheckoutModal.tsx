@@ -61,12 +61,12 @@ export const CheckoutModal: React.FC = () => {
     .filter((gw) => gw.enabled && activeGatewayIds.includes(gw.id))
     .sort((a, b) => a.sortOrder - b.sortOrder);
 
-  // COD checks
+  // COD checks - India: COD & Prepaid allowed; International: Prepaid only, disable COD automatically
   const isCodGloballyEnabled = codRules.enabled && (!codRules.restrictToIndia || isIndia);
   const isCodWithinLimits = cartTotalINR >= codRules.minOrderAmountINR && cartTotalINR <= codRules.maxOrderAmountINR;
-  const isCodAllowed = matchedCountry
+  const isCodAllowed = isIndia && (matchedCountry
     ? matchedCountry.shippingRule === 'COD_AND_PREPAID' && matchedCountry.paymentRule === 'COD_AND_PREPAID' && isCodGloballyEnabled && isCodWithinLimits
-    : isIndia && isCodGloballyEnabled && isCodWithinLimits;
+    : isCodGloballyEnabled && isCodWithinLimits);
 
   const handleAddressSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -106,9 +106,35 @@ export const CheckoutModal: React.FC = () => {
         paymentStatus: isCod ? 'COD_DUE' : 'PAID',
         trackingStatus: 'ORDER_PLACED',
         trackingNumber: `HV-${Math.floor(100000 + Math.random() * 900000)}`,
-        courierName: isIndia ? 'BlueDart Express / India Post' : 'DHL Express Worldwide',
+        courierName: isIndia ? 'Delhivery Surface / Shiprocket' : 'DHL Express Worldwide',
         estimatedDeliveryDate: new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0],
       });
+
+      // Synchronize order with Shiprocket backend API
+      fetch('/api/shiprocket/create-order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ orderId: order.id, orderData: order }),
+      })
+        .then((res) => res.json())
+        .then((srRes) => {
+          if (srRes.success) {
+            setCompletedOrder((prev) =>
+              prev
+                ? {
+                    ...prev,
+                    shiprocketOrderId: srRes.shiprocketOrderId,
+                    shipmentId: srRes.shipmentId,
+                    awbCode: srRes.awbCode || prev.awbCode,
+                    courierName: srRes.courierName || prev.courierName,
+                    trackingUrl: srRes.trackingUrl || prev.trackingUrl,
+                    shipmentStatus: srRes.shipmentStatus || 'MANIFESTED',
+                  }
+                : null
+            );
+          }
+        })
+        .catch((err) => console.error('[Shiprocket Create Order Error]:', err));
 
       setCompletedOrder(order);
       setIsProcessingPayment(false);

@@ -7,6 +7,17 @@ import compression from 'compression';
 import { GoogleGenAI } from '@google/genai';
 import { createServer as createViteServer } from 'vite';
 import { getDb, getStoreValue, setStoreValue, getAllStoreData, getPublicStoreData } from './src/server/db';
+import {
+  isShiprocketConfigured,
+  checkServiceability,
+  estimateShippingRate,
+  createShiprocketOrder,
+  generateAwb,
+  schedulePickup,
+  trackShipment,
+  downloadLabel,
+  downloadInvoice,
+} from './src/server/shiprocketService';
 import { INITIAL_HERO_SLIDES } from './src/data/initialData';
 
 dotenv.config();
@@ -146,6 +157,281 @@ async function startServer() {
       res.json({ success: true, message: 'Bulk store data saved.' });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // Helper to update an order with Shiprocket details in DB
+  const updateOrderShiprocketData = async (orderId: string, updates: Record<string, any>) => {
+    const orders = (await getStoreValue<any[]>('orders')) || [];
+    const idx = orders.findIndex((o: any) => String(o.id) === String(orderId) || String(o.orderNumber) === String(orderId));
+    if (idx !== -1) {
+      orders[idx] = { ...orders[idx], ...updates };
+      await setStoreValue('orders', orders);
+      return orders[idx];
+    }
+    return null;
+  };
+
+  // ==========================================
+  // SHIPROCKET REST API INTEGRATION ROUTES
+  // ==========================================
+
+  // 1. Status Check
+  app.get('/api/shiprocket/status', (_req, res) => {
+    res.json({
+      success: true,
+      configured: isShiprocketConfigured(),
+      message: isShiprocketConfigured()
+        ? 'Shiprocket API credentials are configured.'
+        : 'Shiprocket is running in Simulation Mode (add SHIPROCKET_EMAIL & SHIPROCKET_PASSWORD to .env to enable live API).',
+    });
+  });
+
+  // 2. Check Serviceability (PIN code)
+  app.post('/api/shiprocket/serviceability', async (req, res) => {
+    try {
+      const { deliveryPincode, pickupPincode, weightInKg, cod } = req.body;
+      if (!deliveryPincode) {
+        return res.status(400).json({ success: false, error: 'deliveryPincode is required' });
+      }
+      const result = await checkServiceability({ deliveryPincode, pickupPincode, weightInKg, cod });
+      res.json(result);
+    } catch (err: any) {
+      console.error('[API /shiprocket/serviceability Error]:', err.message);
+      res.status(500).json({ success: false, error: err.message || 'Failed to check serviceability' });
+    }
+  });
+
+  app.get('/api/shiprocket/serviceability', async (req, res) => {
+    try {
+      const deliveryPincode = (req.query.pincode || req.query.deliveryPincode) as string;
+      if (!deliveryPincode) {
+        return res.status(400).json({ success: false, error: 'pincode query param is required' });
+      }
+      const result = await checkServiceability({ deliveryPincode });
+      res.json(result);
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: err.message });
+    }
+  });
+
+  // 3. Shipping Rate Estimation & Business Rules (India vs International COD rules)
+  app.post('/api/shiprocket/estimate-rate', async (req, res) => {
+    try {
+      const { deliveryPincode, country, weightInKg, cod } = req.body;
+      const isInternational = Boolean(
+        country && country.trim().toUpperCase() !== 'INDIA' && country.trim().toUpperCase() !== 'IN'
+      );
+
+      const result = await estimateShippingRate({
+        deliveryPincode: deliveryPincode || '110001',
+        weightInKg: weightInKg || 0.5,
+        cod: isInternational ? false : Boolean(cod),
+        isInternational,
+      });
+
+      res.json(result);
+    } catch (err: any) {
+      console.error('[API /shiprocket/estimate-rate Error]:', err.message);
+      res.status(500).json({ success: false, error: err.message || 'Failed to estimate rate' });
+    }
+  });
+
+  // 4. Create Shipment / Order on Shiprocket
+  app.post('/api/shiprocket/create-order', async (req, res) => {
+    try {
+      const { orderId, orderData } = req.body;
+      let targetOrder = orderData;
+
+      if (!targetOrder && orderId) {
+        const orders = (await getStoreValue<any[]>('orders')) || [];
+        targetOrder = orders.find((o: any) => String(o.id) === String(orderId) || String(o.orderNumber) === String(orderId));
+      }
+
+      if (!targetOrder) {
+        return res.status(400).json({ success: false, error: 'Order not found or not provided' });
+      }
+
+      const result = await createShiprocketOrder(targetOrder);
+
+      // Save Shiprocket order details with order in DB
+      if (result.success) {
+        const updates = {
+          shiprocketOrderId: result.shiprocketOrderId,
+          shipmentId: result.shipmentId,
+          awbCode: result.awbCode || targetOrder.awbCode,
+          courierName: result.courierName || targetOrder.courierName,
+          trackingUrl: result.trackingUrl || targetOrder.trackingUrl,
+          shipmentStatus: result.shipmentStatus || 'MANIFESTED',
+          trackingStatus: 'PROCESSING',
+        };
+        await updateOrderShiprocketData(targetOrder.id || orderId, updates);
+      }
+
+      res.json(result);
+    } catch (err: any) {
+      console.error('[API /shiprocket/create-order Error]:', err.message);
+      res.status(500).json({ success: false, error: err.message || 'Failed to create Shiprocket shipment' });
+    }
+  });
+
+  // 5. Generate AWB
+  app.post('/api/shiprocket/generate-awb', async (req, res) => {
+    try {
+      const { orderId, shipmentId, courierId } = req.body;
+      let targetShipmentId = shipmentId;
+      let targetOrderId = orderId;
+
+      if (!targetShipmentId && targetOrderId) {
+        const orders = (await getStoreValue<any[]>('orders')) || [];
+        const ord = orders.find((o: any) => String(o.id) === String(targetOrderId) || String(o.orderNumber) === String(targetOrderId));
+        if (ord) targetShipmentId = ord.shipmentId;
+      }
+
+      if (!targetShipmentId) {
+        return res.status(400).json({ success: false, error: 'shipmentId is required' });
+      }
+
+      const result = await generateAwb(targetShipmentId, courierId);
+
+      if (result.success && targetOrderId) {
+        await updateOrderShiprocketData(targetOrderId, {
+          awbCode: result.awbCode,
+          courierName: result.courierName,
+          trackingUrl: result.trackingUrl,
+          shipmentStatus: 'AWB_GENERATED',
+          trackingNumber: result.awbCode,
+          trackingStatus: 'DISPATCHED',
+        });
+      }
+
+      res.json(result);
+    } catch (err: any) {
+      console.error('[API /shiprocket/generate-awb Error]:', err.message);
+      res.status(500).json({ success: false, error: err.message || 'Failed to generate AWB' });
+    }
+  });
+
+  // 6. Schedule Pickup
+  app.post('/api/shiprocket/schedule-pickup', async (req, res) => {
+    try {
+      const { orderId, shipmentId } = req.body;
+      let targetShipmentId = shipmentId;
+      let targetOrderId = orderId;
+
+      if (!targetShipmentId && targetOrderId) {
+        const orders = (await getStoreValue<any[]>('orders')) || [];
+        const ord = orders.find((o: any) => String(o.id) === String(targetOrderId) || String(o.orderNumber) === String(targetOrderId));
+        if (ord) targetShipmentId = ord.shipmentId;
+      }
+
+      if (!targetShipmentId) {
+        return res.status(400).json({ success: false, error: 'shipmentId is required' });
+      }
+
+      const result = await schedulePickup(targetShipmentId);
+
+      if (result.success && targetOrderId) {
+        await updateOrderShiprocketData(targetOrderId, {
+          pickupScheduledDate: result.pickupScheduledDate,
+          shipmentStatus: 'PICKUP_SCHEDULED',
+          trackingStatus: 'DISPATCHED',
+        });
+      }
+
+      res.json(result);
+    } catch (err: any) {
+      console.error('[API /shiprocket/schedule-pickup Error]:', err.message);
+      res.status(500).json({ success: false, error: err.message || 'Failed to schedule pickup' });
+    }
+  });
+
+  // 7. Track Shipment
+  app.get('/api/shiprocket/track/:identifier', async (req, res) => {
+    try {
+      const identifier = req.params.identifier;
+      const result = await trackShipment(identifier);
+
+      // If an order exists with this AWB or ID, update tracking status
+      const orders = (await getStoreValue<any[]>('orders')) || [];
+      const ord = orders.find((o: any) =>
+        String(o.awbCode) === String(identifier) ||
+        String(o.shipmentId) === String(identifier) ||
+        String(o.id) === String(identifier) ||
+        String(o.orderNumber) === String(identifier)
+      );
+
+      if (ord) {
+        await updateOrderShiprocketData(ord.id, {
+          shipmentStatus: result.shipmentStatus,
+          courierName: result.courierName || ord.courierName,
+        });
+      }
+
+      res.json(result);
+    } catch (err: any) {
+      console.error('[API /shiprocket/track Error]:', err.message);
+      res.status(500).json({ success: false, error: err.message || 'Failed to track shipment' });
+    }
+  });
+
+  // 8. Download Shipping Label
+  app.post('/api/shiprocket/generate-label', async (req, res) => {
+    try {
+      const { orderId, shipmentId } = req.body;
+      let targetShipmentId = shipmentId;
+      let targetOrderId = orderId;
+
+      if (!targetShipmentId && targetOrderId) {
+        const orders = (await getStoreValue<any[]>('orders')) || [];
+        const ord = orders.find((o: any) => String(o.id) === String(targetOrderId) || String(o.orderNumber) === String(targetOrderId));
+        if (ord) targetShipmentId = ord.shipmentId;
+      }
+
+      if (!targetShipmentId) {
+        return res.status(400).json({ success: false, error: 'shipmentId is required' });
+      }
+
+      const result = await downloadLabel(targetShipmentId);
+
+      if (result.success && result.labelUrl && targetOrderId) {
+        await updateOrderShiprocketData(targetOrderId, { labelUrl: result.labelUrl });
+      }
+
+      res.json(result);
+    } catch (err: any) {
+      console.error('[API /shiprocket/generate-label Error]:', err.message);
+      res.status(500).json({ success: false, error: err.message || 'Failed to generate shipping label' });
+    }
+  });
+
+  // 9. Download Invoice
+  app.post('/api/shiprocket/generate-invoice', async (req, res) => {
+    try {
+      const { orderId, shiprocketOrderId } = req.body;
+      let targetShiprocketOrderId = shiprocketOrderId;
+      let targetOrderId = orderId;
+
+      if (!targetShiprocketOrderId && targetOrderId) {
+        const orders = (await getStoreValue<any[]>('orders')) || [];
+        const ord = orders.find((o: any) => String(o.id) === String(targetOrderId) || String(o.orderNumber) === String(targetOrderId));
+        if (ord) targetShiprocketOrderId = ord.shiprocketOrderId;
+      }
+
+      if (!targetShiprocketOrderId) {
+        return res.status(400).json({ success: false, error: 'shiprocketOrderId is required' });
+      }
+
+      const result = await downloadInvoice(targetShiprocketOrderId);
+
+      if (result.success && result.invoiceUrl && targetOrderId) {
+        await updateOrderShiprocketData(targetOrderId, { invoiceUrl: result.invoiceUrl });
+      }
+
+      res.json(result);
+    } catch (err: any) {
+      console.error('[API /shiprocket/generate-invoice Error]:', err.message);
+      res.status(500).json({ success: false, error: err.message || 'Failed to generate invoice' });
     }
   });
 

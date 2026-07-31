@@ -22,6 +22,7 @@ export const CheckoutModal: React.FC = () => {
     codRules,
     marketGateways,
     placeOrder,
+    clearCart,
   } = useStore();
 
   const [step, setStep] = useState<'address' | 'payment' | 'confirmation'>('address');
@@ -114,12 +115,19 @@ export const CheckoutModal: React.FC = () => {
     .filter((gw) => gw.enabled && activeGatewayIds.includes(gw.id))
     .sort((a, b) => a.sortOrder - b.sortOrder);
 
-  // COD checks - India: COD & Prepaid allowed if pincode serviceable; International: Prepaid only, disable COD automatically
-  const isCodGloballyEnabled = codRules.enabled && (!codRules.restrictToIndia || isIndia);
-  const isCodWithinLimits = cartTotalINR >= codRules.minOrderAmountINR && cartTotalINR <= codRules.maxOrderAmountINR;
-  const isCodAllowed = isIndia && pincodeStatus.codAllowed && (matchedCountry
-    ? matchedCountry.shippingRule === 'COD_AND_PREPAID' && matchedCountry.paymentRule === 'COD_AND_PREPAID' && isCodGloballyEnabled && isCodWithinLimits
-    : isCodGloballyEnabled && isCodWithinLimits);
+  // COD checks
+  // Requirement 1: If customer country is India -> COD allowed (show COD option, allow selection, no "Prepaid Only", no "COD disabled for India" msg).
+  // Requirement 2: If customer country is outside India -> COD disabled (show "Prepaid Only", disable COD).
+  // Requirement 3: Ignore Shiprocket COD serviceability for now. Do not block COD based on pincode yet.
+  // Requirement 4: Use actual configured min/max order limits. If no limits configured, do not show "Min ₹, Max ₹".
+  const minOrder = codRules?.minOrderAmountINR ?? codRules?.minOrderINR ?? 0;
+  const maxOrder = codRules?.maxOrderAmountINR ?? codRules?.maxOrderINR ?? 0;
+
+  const isCodWithinLimits =
+    (minOrder <= 0 || cartTotalINR >= minOrder) &&
+    (maxOrder <= 0 || cartTotalINR <= maxOrder);
+
+  const isCodAllowed = isIndia && (codRules?.enabled !== false) && isCodWithinLimits;
 
   const handleAddressSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -190,6 +198,7 @@ export const CheckoutModal: React.FC = () => {
         .catch((err) => console.error('[Shiprocket Create Order Error]:', err));
 
       setCompletedOrder(order);
+      clearCart();
       setIsProcessingPayment(false);
       setStep('confirmation');
     }, 1800);
@@ -436,7 +445,10 @@ export const CheckoutModal: React.FC = () => {
                         <div className="flex items-center gap-3">
                           <PaymentIcon gatewayId="COD" size="sm" />
                           <span>
-                            Cash on Delivery unavailable for {matchedCountry?.name || country} (Min ₹{codRules.minOrderAmountINR}, Max ₹{codRules.maxOrderAmountINR})
+                            Cash on Delivery unavailable for {matchedCountry?.name || country}
+                            {minOrder > 0 || maxOrder > 0
+                              ? ` (${minOrder > 0 ? `Min ₹${minOrder}` : ''}${minOrder > 0 && maxOrder > 0 ? ', ' : ''}${maxOrder > 0 ? `Max ₹${maxOrder}` : ''})`
+                              : ''}
                           </span>
                         </div>
                         <span className="text-[10px] font-bold px-2 py-0.5 bg-rose-200 dark:bg-red-900/40 text-rose-800 dark:text-red-300 rounded border border-rose-300 dark:border-red-500/30">
@@ -522,7 +534,7 @@ export const CheckoutModal: React.FC = () => {
                 ) : (
                   <span>
                     {paymentMethod === 'COD'
-                      ? `Confirm Cash on Delivery Order (${formatPrice(cartTotalINR)})`
+                      ? 'PLACE CASH ON DELIVERY ORDER'
                       : paymentMethod === 'RAZORPAY'
                       ? `Pay ${formatPrice(cartTotalINR)} via Razorpay`
                       : paymentMethod === 'PHONEPE'

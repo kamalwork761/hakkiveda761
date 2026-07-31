@@ -1,23 +1,168 @@
 import React, { useState } from 'react';
-import { X, ShieldCheck, CheckCircle2, CreditCard, Banknote, Truck, ArrowRight } from 'lucide-react';
+import { X, ShieldCheck, CheckCircle2, Truck, ArrowRight, Building2, FileText, Globe } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { Order, PaymentGatewayId } from '../types/store';
 import { PaymentIcon } from './PaymentIcons';
+
+export interface CountryDetails {
+  code: string;
+  name: string;
+  flag: string;
+  phoneCode: string;
+  postalLabel: string;
+  postalPlaceholder: string;
+  phoneMinDigits: number;
+  phoneMaxDigits: number;
+  currency: string;
+  supportsLookup: boolean;
+}
+
+export const COUNTRY_LOOKUP_MAP: Record<string, CountryDetails> = {
+  'India': {
+    code: 'IN',
+    name: 'India',
+    flag: '🇮🇳',
+    phoneCode: '+91',
+    postalLabel: 'Pincode',
+    postalPlaceholder: 'e.g. 141008',
+    phoneMinDigits: 10,
+    phoneMaxDigits: 10,
+    currency: 'INR',
+    supportsLookup: true,
+  },
+  'United States': {
+    code: 'US',
+    name: 'United States',
+    flag: '🇺🇸',
+    phoneCode: '+1',
+    postalLabel: 'ZIP Code',
+    postalPlaceholder: 'e.g. 10282',
+    phoneMinDigits: 10,
+    phoneMaxDigits: 10,
+    currency: 'USD',
+    supportsLookup: true,
+  },
+  'United Kingdom': {
+    code: 'GB',
+    name: 'United Kingdom',
+    flag: '🇬🇧',
+    phoneCode: '+44',
+    postalLabel: 'Postcode',
+    postalPlaceholder: 'e.g. SW1A 1AA',
+    phoneMinDigits: 10,
+    phoneMaxDigits: 11,
+    currency: 'GBP',
+    supportsLookup: true,
+  },
+  'United Arab Emirates': {
+    code: 'AE',
+    name: 'United Arab Emirates',
+    flag: '🇦🇪',
+    phoneCode: '+971',
+    postalLabel: 'Postal Code (Optional)',
+    postalPlaceholder: 'e.g. 00000',
+    phoneMinDigits: 8,
+    phoneMaxDigits: 9,
+    currency: 'USD',
+    supportsLookup: false,
+  },
+  'Singapore': {
+    code: 'SG',
+    name: 'Singapore',
+    flag: '🇸🇬',
+    phoneCode: '+65',
+    postalLabel: 'Postal Code',
+    postalPlaceholder: 'e.g. 049318',
+    phoneMinDigits: 8,
+    phoneMaxDigits: 8,
+    currency: 'SGD',
+    supportsLookup: true,
+  },
+  'Malaysia': {
+    code: 'MY',
+    name: 'Malaysia',
+    flag: '🇲🇾',
+    phoneCode: '+60',
+    postalLabel: 'Postal Code',
+    postalPlaceholder: 'e.g. 50450',
+    phoneMinDigits: 9,
+    phoneMaxDigits: 10,
+    currency: 'MYR',
+    supportsLookup: true,
+  },
+  'Fiji': {
+    code: 'FJ',
+    name: 'Fiji',
+    flag: '🇫🇯',
+    phoneCode: '+679',
+    postalLabel: 'Postal Code',
+    postalPlaceholder: 'e.g. 00240',
+    phoneMinDigits: 7,
+    phoneMaxDigits: 7,
+    currency: 'FJD',
+    supportsLookup: false,
+  },
+  'Mauritius': {
+    code: 'MU',
+    name: 'Mauritius',
+    flag: '🇲🇺',
+    phoneCode: '+230',
+    postalLabel: 'Postal Code',
+    postalPlaceholder: 'e.g. 742CU001',
+    phoneMinDigits: 7,
+    phoneMaxDigits: 8,
+    currency: 'MUR',
+    supportsLookup: false,
+  },
+  'Nepal': {
+    code: 'NP',
+    name: 'Nepal',
+    flag: '🇳🇵',
+    phoneCode: '+977',
+    postalLabel: 'Postal Code',
+    postalPlaceholder: 'e.g. 44600',
+    phoneMinDigits: 10,
+    phoneMaxDigits: 10,
+    currency: 'USD',
+    supportsLookup: false,
+  },
+  'Canada': {
+    code: 'CA',
+    name: 'Canada',
+    flag: '🇨🇦',
+    phoneCode: '+1',
+    postalLabel: 'Postal Code',
+    postalPlaceholder: 'e.g. M5V 2T6',
+    phoneMinDigits: 10,
+    phoneMaxDigits: 10,
+    currency: 'USD',
+    supportsLookup: true,
+  },
+  'Worldwide': {
+    code: 'WW',
+    name: 'Rest of World',
+    flag: '🌐',
+    phoneCode: '+1',
+    postalLabel: 'Postal Code',
+    postalPlaceholder: 'Zip / Postal Code',
+    phoneMinDigits: 6,
+    phoneMaxDigits: 15,
+    currency: 'USD',
+    supportsLookup: false,
+  },
+};
 
 export const CheckoutModal: React.FC = () => {
   const {
     isCheckoutOpen,
     setIsCheckoutOpen,
     cart,
-    cartSubtotalINR,
     cartTotalINR,
-    discountAmountINR,
     formatPrice,
     currentCurrency,
     selectedCountry,
     countries,
     currentMarket,
-    markets,
     paymentGateways,
     codRules,
     marketGateways,
@@ -33,21 +178,30 @@ export const CheckoutModal: React.FC = () => {
   const [phone, setPhone] = useState('');
   const [altPhone, setAltPhone] = useState('');
   const [line1, setLine1] = useState('');
+  const [line2, setLine2] = useState('');
   const [landmark, setLandmark] = useState('');
+  const [companyName, setCompanyName] = useState('');
+  const [taxNumber, setTaxNumber] = useState('');
   const [city, setCity] = useState('');
   const [state, setState] = useState('');
   const [country, setCountry] = useState(selectedCountry?.name || 'India');
   const [pincode, setPincode] = useState('');
+
+  // Lookup state
+  const [isLookupReadonly, setIsLookupReadonly] = useState(false);
+  const [lookupNote, setLookupNote] = useState('');
 
   // Billing Address State
   const [isBillingSame, setIsBillingSame] = useState(true);
   const [billingName, setBillingName] = useState('');
   const [billingPhone, setBillingPhone] = useState('');
   const [billingAddress, setBillingAddress] = useState('');
+  const [billingLine2, setBillingLine2] = useState('');
   const [billingLandmark, setBillingLandmark] = useState('');
   const [billingPincode, setBillingPincode] = useState('');
   const [billingCity, setBillingCity] = useState('');
   const [billingState, setBillingState] = useState('');
+  const [billingCountry, setBillingCountry] = useState(selectedCountry?.name || 'India');
 
   const [paymentMethod, setPaymentMethod] = useState<PaymentGatewayId>('RAZORPAY');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
@@ -73,32 +227,49 @@ export const CheckoutModal: React.FC = () => {
 
   const isBlocked = matchedCountry?.shippingRule === 'BLOCK_ORDERS';
   const isIndia = matchedCountry?.code === 'IN' || country.toLowerCase() === 'india' || country.toLowerCase().includes('in');
+  const activeCountryInfo = COUNTRY_LOOKUP_MAP[country] || COUNTRY_LOOKUP_MAP['Worldwide'];
 
-  // Pincode validation & India backend lookup
-  const handlePincodeChange = (value: string) => {
-    // 2. Accept numbers only, max 6 digits
-    const cleanPincode = value.replace(/\D/g, '').slice(0, 6);
-    setPincode(cleanPincode);
+  const handleCountryChange = (newCountryName: string) => {
+    setCountry(newCountryName);
+    setBillingCountry(newCountryName);
+    setCity('');
+    setState('');
+    setPincode('');
+    setPincodeError('');
+    setAddressFormError('');
+    setLookupNote('');
+    setIsLookupReadonly(false);
+
+    const newIsIndia = newCountryName.toLowerCase() === 'india' || newCountryName.toLowerCase().includes('in');
+    if (!newIsIndia && paymentMethod === 'COD') {
+      setPaymentMethod('RAZORPAY');
+    }
+  };
+
+  const handlePostalCodeChange = (val: string) => {
+    setPincode(val);
+    setAddressFormError('');
 
     if (isIndia) {
-      // D. Clear old City and State when pincode changes
+      const cleanPincode = val.replace(/\D/g, '').slice(0, 6);
+      setPincode(cleanPincode);
       setCity('');
       setState('');
       setPincodeError('');
-      setAddressFormError('');
+      setIsLookupReadonly(false);
 
-      // 2. Do not call lookup API until all 6 digits are entered
       if (cleanPincode.length === 6) {
         setIsCheckingPincode(true);
         setPincodeStatus({ checked: false, serviceable: true, couriers: [], codAllowed: true, message: '' });
 
-        fetch(`/api/shipping/india-pincode/${cleanPincode}`)
+        fetch(`/api/shipping/address-lookup?country=IN&postalCode=${cleanPincode}`)
           .then((res) => res.json())
           .then((data) => {
             setIsCheckingPincode(false);
             if (data.success && data.city && data.state) {
               setCity(data.city);
               setState(data.state);
+              setIsLookupReadonly(true);
               setPincodeError('');
               setPincodeStatus({
                 checked: true,
@@ -110,6 +281,7 @@ export const CheckoutModal: React.FC = () => {
             } else {
               setCity('');
               setState('');
+              setIsLookupReadonly(false);
               setPincodeError(data.error || 'Please enter a valid Indian pincode.');
               setPincodeStatus({
                 checked: true,
@@ -122,13 +294,73 @@ export const CheckoutModal: React.FC = () => {
           })
           .catch(() => {
             setIsCheckingPincode(false);
+            setIsLookupReadonly(false);
             setCity('');
             setState('');
             setPincodeError('Failed to verify pincode. Please check your connection and retry.');
           });
       }
     } else {
-      setPincodeStatus({ checked: false, serviceable: true, couriers: [], codAllowed: true, message: '' });
+      setCity('');
+      setState('');
+      setPincodeError('');
+      setLookupNote('');
+      setIsLookupReadonly(false);
+
+      if (!activeCountryInfo.supportsLookup) {
+        setLookupNote('Automatic address lookup is not available for this country. Please enter city and region manually.');
+        return;
+      }
+
+      const cleanVal = val.trim();
+      let triggerLookup = false;
+
+      if (activeCountryInfo.code === 'US') {
+        const digits = cleanVal.replace(/\D/g, '');
+        if (digits.length === 5 || /^\d{5}-\d{4}$/.test(cleanVal)) {
+          triggerLookup = true;
+        }
+      } else if (activeCountryInfo.code === 'GB') {
+        if (cleanVal.length >= 5) {
+          triggerLookup = true;
+        }
+      } else if (activeCountryInfo.code === 'SG') {
+        if (cleanVal.replace(/\D/g, '').length === 6) {
+          triggerLookup = true;
+        }
+      } else if (activeCountryInfo.code === 'MY') {
+        if (cleanVal.replace(/\D/g, '').length === 5) {
+          triggerLookup = true;
+        }
+      } else if (activeCountryInfo.code === 'CA') {
+        if (cleanVal.replace(/\s+/g, '').length >= 6) {
+          triggerLookup = true;
+        }
+      }
+
+      if (triggerLookup) {
+        setIsCheckingPincode(true);
+        fetch(`/api/shipping/address-lookup?country=${encodeURIComponent(activeCountryInfo.code)}&postalCode=${encodeURIComponent(cleanVal)}`)
+          .then((res) => res.json())
+          .then((data) => {
+            setIsCheckingPincode(false);
+            if (data.success && data.city && data.state) {
+              setCity(data.city);
+              setState(data.state);
+              setIsLookupReadonly(true);
+              setPincodeError('');
+              setLookupNote('');
+            } else {
+              setIsLookupReadonly(false);
+              setLookupNote(data.error || 'Automatic address lookup is not available for this country. Please enter city and region manually.');
+            }
+          })
+          .catch(() => {
+            setIsCheckingPincode(false);
+            setIsLookupReadonly(false);
+            setLookupNote('Automatic address lookup is not available for this country. Please enter city and region manually.');
+          });
+      }
     }
   };
 
@@ -139,9 +371,10 @@ export const CheckoutModal: React.FC = () => {
     ? marketMapping.gateways
     : (currentMarket.paymentGateways as PaymentGatewayId[]) || ['RAZORPAY', 'UPI', 'PHONEPE', 'COD'];
 
-  // Filter paymentGateways by enabled & active for this market
+  // Filter paymentGateways by enabled & active for this market, AND EXCLUDE COD FOR INTERNATIONAL
   const availableGateways = paymentGateways
     .filter((gw) => gw.enabled && activeGatewayIds.includes(gw.id))
+    .filter((gw) => isIndia || gw.id !== 'COD')
     .sort((a, b) => a.sortOrder - b.sortOrder);
 
   // COD checks
@@ -160,7 +393,6 @@ export const CheckoutModal: React.FC = () => {
     setAddressFormError('');
 
     if (isIndia) {
-      // 8. Checkout validation for India
       if (!name.trim()) {
         setAddressFormError('Please enter full name.');
         return;
@@ -213,13 +445,56 @@ export const CheckoutModal: React.FC = () => {
         }
       }
     } else {
-      if (!name.trim() || !line1.trim() || !city.trim() || !pincode.trim()) {
-        setAddressFormError('Please fill in all required delivery fields.');
+      // International validation
+      if (!name.trim()) {
+        setAddressFormError('Please enter Full Name.');
         return;
+      }
+      const phoneDigits = phone.replace(/\D/g, '');
+      if (!phoneDigits || phoneDigits.length < activeCountryInfo.phoneMinDigits || phoneDigits.length > activeCountryInfo.phoneMaxDigits) {
+        setAddressFormError(`Please enter a valid mobile number for ${country} (${activeCountryInfo.phoneMinDigits}-${activeCountryInfo.phoneMaxDigits} digits).`);
+        return;
+      }
+      if (altPhone.trim()) {
+        const altDigits = altPhone.replace(/\D/g, '');
+        if (altDigits.length < activeCountryInfo.phoneMinDigits || altDigits.length > activeCountryInfo.phoneMaxDigits) {
+          setAddressFormError(`Alternate mobile number must be a valid number.`);
+          return;
+        }
+      }
+      if (!line1.trim()) {
+        setAddressFormError('Please enter Address Line 1.');
+        return;
+      }
+      if (activeCountryInfo.code !== 'AE' && !pincode.trim()) {
+        setAddressFormError(`Please enter ${activeCountryInfo.postalLabel}.`);
+        return;
+      }
+      if (!city.trim() || !state.trim()) {
+        setAddressFormError('Please enter City and State / Province / Region.');
+        return;
+      }
+      if (!isBillingSame) {
+        if (!billingName.trim()) {
+          setAddressFormError('Please enter billing full name.');
+          return;
+        }
+        if (!billingPhone.replace(/\D/g, '')) {
+          setAddressFormError('Please enter billing mobile number.');
+          return;
+        }
+        if (!billingAddress.trim()) {
+          setAddressFormError('Please enter billing address line 1.');
+          return;
+        }
+        if (!billingCity.trim() || !billingState.trim()) {
+          setAddressFormError('Please enter billing city and state.');
+          return;
+        }
       }
     }
 
-    if (!isCodAllowed && paymentMethod === 'COD') {
+    if (!isIndia && paymentMethod === 'COD') {
       const fallback = availableGateways.find((g) => g.id !== 'COD')?.id || 'RAZORPAY';
       setPaymentMethod(fallback);
     } else if (availableGateways.length > 0 && !availableGateways.some((g) => g.id === paymentMethod)) {
@@ -233,16 +508,21 @@ export const CheckoutModal: React.FC = () => {
     setIsProcessingPayment(true);
 
     setTimeout(() => {
-      const selectedGw = paymentGateways.find((g) => g.id === paymentMethod);
       const isCod = paymentMethod === 'COD';
 
-      const fullAddress = landmark ? `${line1}, Landmark: ${landmark}` : line1;
-      const formattedPhone = isIndia ? (phone.startsWith('+91') ? phone : `+91 ${phone}`) : phone;
-      const formattedAltPhone = altPhone ? (isIndia ? (altPhone.startsWith('+91') ? altPhone : `+91 ${altPhone}`) : altPhone) : '';
+      const fullAddress = line2 ? `${line1}, ${line2}${landmark ? `, Landmark: ${landmark}` : ''}` : (landmark ? `${line1}, Landmark: ${landmark}` : line1);
+      const cleanPhoneDigits = phone.replace(/\D/g, '');
+      const fullPhone = `${activeCountryInfo.phoneCode}${cleanPhoneDigits}`;
+      const cleanAltDigits = altPhone.replace(/\D/g, '');
+      const fullAltPhone = cleanAltDigits ? `${activeCountryInfo.phoneCode}${cleanAltDigits}` : '';
 
       const billingFullAddress = isBillingSame
         ? fullAddress
-        : (billingLandmark ? `${billingAddress}, Landmark: ${billingLandmark}` : billingAddress);
+        : (billingLine2 ? `${billingAddress}, ${billingLine2}${billingLandmark ? `, Landmark: ${billingLandmark}` : ''}` : (billingLandmark ? `${billingAddress}, Landmark: ${billingLandmark}` : billingAddress));
+
+      const billingFullPhone = isBillingSame
+        ? fullPhone
+        : (billingPhone ? `${activeCountryInfo.phoneCode}${billingPhone.replace(/\D/g, '')}` : '');
 
       const order = placeOrder({
         items: [...cart],
@@ -252,22 +532,31 @@ export const CheckoutModal: React.FC = () => {
         customer: {
           name,
           email,
-          phone: formattedPhone,
-          altPhone: formattedAltPhone,
+          phone: fullPhone,
+          phoneCode: activeCountryInfo.phoneCode,
+          localPhone: phone,
+          altPhone: fullAltPhone,
           address: fullAddress,
           line1,
+          line2,
           landmark,
+          companyName,
+          taxNumber,
           city,
           state,
           country,
+          countryCode: activeCountryInfo.code,
           pincode,
           isBillingSame,
           billingName: isBillingSame ? name : billingName,
-          billingPhone: isBillingSame ? formattedPhone : billingPhone,
+          billingPhone: billingFullPhone,
           billingAddress: billingFullAddress,
+          billingLine1: isBillingSame ? line1 : billingAddress,
+          billingLine2: isBillingSame ? line2 : billingLine2,
           billingCity: isBillingSame ? city : billingCity,
           billingState: isBillingSame ? state : billingState,
           billingPincode: isBillingSame ? pincode : billingPincode,
+          billingCountry: isBillingSame ? country : billingCountry,
         },
         paymentMethod: paymentMethod,
         paymentStatus: isCod ? 'COD_DUE' : 'PAID',
@@ -277,7 +566,6 @@ export const CheckoutModal: React.FC = () => {
         estimatedDeliveryDate: new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0],
       });
 
-      // Synchronize order with Shiprocket backend API
       fetch('/api/shiprocket/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -339,26 +627,26 @@ export const CheckoutModal: React.FC = () => {
               <div>
                 <select
                   value={country}
-                  onChange={(e) => {
-                    setCountry(e.target.value);
-                    setAddressFormError('');
-                    setPincodeError('');
-                  }}
-                  className="bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg px-3 py-1.5 text-xs text-[var(--input-text)] font-bold focus:outline-none focus:border-[var(--input-focus-border)]"
+                  onChange={(e) => handleCountryChange(e.target.value)}
+                  className="bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg px-3 py-1.5 text-xs text-[var(--input-text)] font-bold focus:outline-none focus:border-[var(--input-focus-border)] cursor-pointer"
                 >
                   <option value="India">🇮🇳 India (INR)</option>
+                  <option value="United States">🇺🇸 United States (USD)</option>
+                  <option value="United Kingdom">🇬🇧 United Kingdom (GBP)</option>
                   <option value="Singapore">🇸🇬 Singapore (SGD)</option>
                   <option value="Malaysia">🇲🇾 Malaysia (MYR)</option>
+                  <option value="United Arab Emirates">🇦🇪 United Arab Emirates (USD)</option>
                   <option value="Fiji">🇫🇯 Fiji (FJD)</option>
                   <option value="Mauritius">🇲🇺 Mauritius (MUR)</option>
-                  <option value="United States">🇺🇸 United States (USD)</option>
-                  <option value="United Arab Emirates">🇦🇪 United Arab Emirates (USD)</option>
+                  <option value="Nepal">🇳🇵 Nepal (USD)</option>
+                  <option value="Canada">🇨🇦 Canada (USD)</option>
                   <option value="Worldwide">🌐 Rest of World (USD)</option>
                 </select>
               </div>
             </div>
 
             {isIndia ? (
+              /* Indian Address Form */
               <div className="space-y-4">
                 {/* 1. Mobile Number & 2. Full Name */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -435,7 +723,7 @@ export const CheckoutModal: React.FC = () => {
                   />
                 </div>
 
-                {/* 5. Pincode, 6. City (auto-filled & read-only), 7. State (auto-filled & read-only) */}
+                {/* 5. Pincode, 6. City, 7. State */}
                 <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
                     <label className="block text-xs font-bold text-[var(--input-label)] mb-1">
@@ -446,7 +734,7 @@ export const CheckoutModal: React.FC = () => {
                       required
                       maxLength={6}
                       value={pincode}
-                      onChange={(e) => handlePincodeChange(e.target.value)}
+                      onChange={(e) => handlePostalCodeChange(e.target.value)}
                       placeholder="e.g. 141008"
                       className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)] font-mono font-bold"
                     />
@@ -548,7 +836,7 @@ export const CheckoutModal: React.FC = () => {
                   </label>
                 </div>
 
-                {/* Separate Billing Address Form if Checkbox Unchecked */}
+                {/* Separate Billing Address Form */}
                 {!isBillingSame && (
                   <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 space-y-3 mt-3">
                     <h4 className="text-xs font-extrabold uppercase tracking-wider text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
@@ -638,23 +926,186 @@ export const CheckoutModal: React.FC = () => {
                 )}
               </div>
             ) : (
-              /* International Delivery Form */
+              /* International Delivery Form (Shiprocket International Order Style) */
               <div className="space-y-4">
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* 1. Country */}
+                <div>
+                  <label className="block text-xs font-bold text-[var(--input-label)] mb-1 flex items-center gap-1.5">
+                    <Globe className="w-3.5 h-3.5 text-amber-500" />
+                    1. Country *
+                  </label>
+                  <select
+                    value={country}
+                    onChange={(e) => handleCountryChange(e.target.value)}
+                    className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2.5 text-xs text-[var(--input-text)] font-semibold focus:outline-none focus:border-[var(--input-focus-border)] cursor-pointer"
+                  >
+                    {Object.values(COUNTRY_LOOKUP_MAP).map((c) => (
+                      <option key={c.name} value={c.name}>
+                        {c.flag} {c.name} ({c.currency})
+                      </option>
+                    ))}
+                  </select>
+                </div>
+
+                {/* 2. Postal Code / ZIP Code & Lookup Status */}
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
                   <div>
-                    <label className="block text-xs font-bold text-[var(--input-label)] mb-1">Full Name *</label>
+                    <label className="block text-xs font-bold text-[var(--input-label)] mb-1">
+                      2. {activeCountryInfo.postalLabel} {activeCountryInfo.code !== 'AE' ? '*' : '(Optional)'}
+                    </label>
+                    <input
+                      type="text"
+                      required={activeCountryInfo.code !== 'AE'}
+                      value={pincode}
+                      onChange={(e) => handlePostalCodeChange(e.target.value)}
+                      placeholder={activeCountryInfo.postalPlaceholder}
+                      className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)] font-mono font-bold"
+                    />
+                  </div>
+
+                  {/* 3. State / Province / Region */}
+                  <div>
+                    <label className="block text-xs font-bold text-[var(--input-label)] mb-1">
+                      3. State / Province / Region *
+                    </label>
                     <input
                       type="text"
                       required
-                      value={name}
-                      onChange={(e) => setName(e.target.value)}
-                      placeholder="e.g. John Doe"
+                      readOnly={isLookupReadonly}
+                      value={state}
+                      onChange={(e) => setState(e.target.value)}
+                      placeholder={isLookupReadonly ? 'Auto-filled' : 'e.g. California / London'}
+                      className={`w-full text-xs p-2.5 rounded-lg focus:outline-none ${
+                        isLookupReadonly
+                          ? 'bg-slate-100 dark:bg-emerald-950/40 border border-slate-300 dark:border-emerald-500/30 text-slate-900 dark:text-emerald-100 font-semibold cursor-not-allowed select-none'
+                          : 'bg-[var(--input-background)] border border-[var(--input-border)] text-[var(--input-text)] focus:border-[var(--input-focus-border)]'
+                      }`}
+                    />
+                  </div>
+
+                  {/* 4. City */}
+                  <div>
+                    <label className="block text-xs font-bold text-[var(--input-label)] mb-1">
+                      4. City *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      readOnly={isLookupReadonly}
+                      value={city}
+                      onChange={(e) => setCity(e.target.value)}
+                      placeholder={isLookupReadonly ? 'Auto-filled' : 'e.g. New York / Manchester'}
+                      className={`w-full text-xs p-2.5 rounded-lg focus:outline-none ${
+                        isLookupReadonly
+                          ? 'bg-slate-100 dark:bg-emerald-950/40 border border-slate-300 dark:border-emerald-500/30 text-slate-900 dark:text-emerald-100 font-semibold cursor-not-allowed select-none'
+                          : 'bg-[var(--input-background)] border border-[var(--input-border)] text-[var(--input-text)] focus:border-[var(--input-focus-border)]'
+                      }`}
+                    />
+                  </div>
+                </div>
+
+                {/* Postal Code Feedback Status */}
+                {isCheckingPincode && (
+                  <div className="text-xs font-bold text-amber-600 dark:text-amber-400 flex items-center gap-2 bg-amber-50 dark:bg-amber-950/40 p-2.5 rounded-lg border border-amber-200 dark:border-amber-500/30 animate-pulse">
+                    <Truck className="w-4 h-4 animate-bounce shrink-0" />
+                    <span>Checking postal code...</span>
+                  </div>
+                )}
+
+                {city && state && isLookupReadonly && !isCheckingPincode && (
+                  <div className="text-xs font-bold text-emerald-800 dark:text-emerald-300 bg-emerald-50 dark:bg-emerald-950/40 p-2.5 rounded-lg border border-emerald-300 dark:border-emerald-500/40 flex items-center justify-between">
+                    <span>✓ Verified Location: <strong>{city}, {state}</strong></span>
+                    <span className="text-[10px] bg-emerald-200 dark:bg-emerald-900/60 px-2 py-0.5 rounded text-emerald-900 dark:text-emerald-200 uppercase font-extrabold">Auto-Filled</span>
+                  </div>
+                )}
+
+                {lookupNote && !isCheckingPincode && !isLookupReadonly && (
+                  <div className="text-[11px] text-amber-800 dark:text-amber-300 bg-amber-50 dark:bg-amber-950/40 p-2 rounded-lg border border-amber-300 dark:border-amber-500/30">
+                    ℹ️ {lookupNote}
+                  </div>
+                )}
+
+                {/* 5. Address Line 1 & 6. Address Line 2 */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[var(--input-label)] mb-1">
+                      5. Address Line 1 *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={line1}
+                      onChange={(e) => {
+                        setLine1(e.target.value);
+                        setAddressFormError('');
+                      }}
+                      placeholder="House / Flat No., Street Address"
                       className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-[var(--input-label)] mb-1">Email Address *</label>
+                    <label className="block text-xs font-bold text-[var(--input-label)] mb-1">
+                      6. Address Line 2 <span className="text-[10px] font-normal text-slate-400">(Optional)</span>
+                    </label>
+                    <input
+                      type="text"
+                      value={line2}
+                      onChange={(e) => setLine2(e.target.value)}
+                      placeholder="Apartment, Suite, Unit, Building, Floor"
+                      className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)]"
+                    />
+                  </div>
+                </div>
+
+                {/* 7. Mobile Number & 8. Full Name */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[var(--input-label)] mb-1">
+                      7. Mobile Number *
+                    </label>
+                    <div className="flex items-center">
+                      <span className="inline-flex items-center px-3 py-2.5 rounded-l-lg border border-r-0 border-[var(--input-border)] bg-slate-100 dark:bg-emerald-950/60 text-xs font-bold text-slate-800 dark:text-emerald-200 select-none">
+                        {activeCountryInfo.phoneCode}
+                      </span>
+                      <input
+                        type="tel"
+                        required
+                        value={phone}
+                        onChange={(e) => {
+                          setPhone(e.target.value.replace(/\D/g, ''));
+                          setAddressFormError('');
+                        }}
+                        placeholder={`Local phone number (${activeCountryInfo.phoneMinDigits}-${activeCountryInfo.phoneMaxDigits} digits)`}
+                        className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-r-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)] font-mono"
+                      />
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[var(--input-label)] mb-1">
+                      8. Full Name *
+                    </label>
+                    <input
+                      type="text"
+                      required
+                      value={name}
+                      onChange={(e) => {
+                        setName(e.target.value);
+                        setAddressFormError('');
+                      }}
+                      placeholder="e.g. John Smith"
+                      className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)]"
+                    />
+                  </div>
+                </div>
+
+                {/* 9. Email ID & 10. Alternate Mobile Number */}
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  <div>
+                    <label className="block text-xs font-bold text-[var(--input-label)] mb-1">
+                      9. Email ID *
+                    </label>
                     <input
                       type="email"
                       required
@@ -664,69 +1115,167 @@ export const CheckoutModal: React.FC = () => {
                       className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)]"
                     />
                   </div>
+
+                  <div>
+                    <label className="block text-xs font-bold text-[var(--input-label)] mb-1">
+                      10. Alternate Mobile Number <span className="text-[10px] font-normal text-slate-400">(Optional)</span>
+                    </label>
+                    <div className="flex items-center">
+                      <span className="inline-flex items-center px-3 py-2.5 rounded-l-lg border border-r-0 border-[var(--input-border)] bg-slate-100 dark:bg-emerald-950/60 text-xs font-bold text-slate-800 dark:text-emerald-200 select-none">
+                        {activeCountryInfo.phoneCode}
+                      </span>
+                      <input
+                        type="tel"
+                        value={altPhone}
+                        onChange={(e) => setAltPhone(e.target.value.replace(/\D/g, ''))}
+                        placeholder="Optional second number"
+                        className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-r-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)] font-mono"
+                      />
+                    </div>
+                  </div>
                 </div>
 
+                {/* 11. Company Name & 12. Tax / VAT / GST Number */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-xs font-bold text-[var(--input-label)] mb-1">Phone Number *</label>
+                    <label className="block text-xs font-bold text-[var(--input-label)] mb-1 flex items-center gap-1">
+                      <Building2 className="w-3.5 h-3.5 text-slate-400" />
+                      11. Company Name <span className="text-[10px] font-normal text-slate-400">(Optional)</span>
+                    </label>
                     <input
-                      type="tel"
-                      required
-                      value={phone}
-                      onChange={(e) => setPhone(e.target.value)}
-                      placeholder="Full phone with country code"
+                      type="text"
+                      value={companyName}
+                      onChange={(e) => setCompanyName(e.target.value)}
+                      placeholder="e.g. Acme International LLC"
                       className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)]"
                     />
                   </div>
 
                   <div>
-                    <label className="block text-xs font-bold text-[var(--input-label)] mb-1">Street Address *</label>
+                    <label className="block text-xs font-bold text-[var(--input-label)] mb-1 flex items-center gap-1">
+                      <FileText className="w-3.5 h-3.5 text-slate-400" />
+                      12. Tax / VAT / GST Number <span className="text-[10px] font-normal text-slate-400">(Optional)</span>
+                    </label>
                     <input
                       type="text"
-                      required
-                      value={line1}
-                      onChange={(e) => setLine1(e.target.value)}
-                      placeholder="House No., Street Address"
+                      value={taxNumber}
+                      onChange={(e) => setTaxNumber(e.target.value)}
+                      placeholder="e.g. EU123456789 / EIN / Tax ID"
                       className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)]"
                     />
                   </div>
                 </div>
 
-                <div className="grid grid-cols-3 gap-3">
-                  <div>
-                    <label className="block text-xs font-bold text-[var(--input-label)] mb-1">City *</label>
+                {/* 13. Billing address same as shipping address Checkbox */}
+                <div className="pt-2 border-t border-[var(--border-muted)]">
+                  <label className="flex items-center gap-2.5 cursor-pointer select-none text-xs font-bold text-[var(--text-primary)]">
                     <input
-                      type="text"
-                      required
-                      value={city}
-                      onChange={(e) => setCity(e.target.value)}
-                      className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)]"
+                      type="checkbox"
+                      checked={isBillingSame}
+                      onChange={(e) => setIsBillingSame(e.target.checked)}
+                      className="w-4 h-4 rounded border-slate-300 text-amber-600 focus:ring-amber-500 accent-amber-600"
                     />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-[var(--input-label)] mb-1">State / Province *</label>
-                    <input
-                      type="text"
-                      required
-                      value={state}
-                      onChange={(e) => setState(e.target.value)}
-                      className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)]"
-                    />
-                  </div>
-
-                  <div>
-                    <label className="block text-xs font-bold text-[var(--input-label)] mb-1">Postal Code *</label>
-                    <input
-                      type="text"
-                      required
-                      value={pincode}
-                      onChange={(e) => setPincode(e.target.value)}
-                      placeholder="Zip / Postal Code"
-                      className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2.5 text-xs text-[var(--input-text)] focus:outline-none focus:border-[var(--input-focus-border)]"
-                    />
-                  </div>
+                    <span>13. Billing address is same as shipping address</span>
+                  </label>
                 </div>
+
+                {/* Separate Billing Address Form for International */}
+                {!isBillingSame && (
+                  <div className="p-4 rounded-xl border border-amber-500/30 bg-amber-500/5 space-y-3 mt-3">
+                    <h4 className="text-xs font-extrabold uppercase tracking-wider text-amber-700 dark:text-amber-400 flex items-center gap-1.5">
+                      <ShieldCheck className="w-4 h-4" /> Separate International Billing Address
+                    </h4>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold mb-1">Billing Full Name *</label>
+                        <input
+                          type="text"
+                          required
+                          value={billingName}
+                          onChange={(e) => setBillingName(e.target.value)}
+                          placeholder="Full Name on bill"
+                          className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2 text-xs text-[var(--input-text)]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold mb-1">Billing Mobile Number *</label>
+                        <div className="flex items-center">
+                          <span className="inline-flex items-center px-2 py-2 rounded-l-lg border border-r-0 border-[var(--input-border)] bg-slate-100 text-xs font-bold select-none">
+                            {activeCountryInfo.phoneCode}
+                          </span>
+                          <input
+                            type="tel"
+                            required
+                            value={billingPhone}
+                            onChange={(e) => setBillingPhone(e.target.value.replace(/\D/g, ''))}
+                            placeholder="Local number"
+                            className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-r-lg p-2 text-xs text-[var(--input-text)] font-mono"
+                          />
+                        </div>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label className="block text-xs font-bold mb-1">Billing Address Line 1 *</label>
+                        <input
+                          type="text"
+                          required
+                          value={billingAddress}
+                          onChange={(e) => setBillingAddress(e.target.value)}
+                          placeholder="House/Street"
+                          className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2 text-xs text-[var(--input-text)]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold mb-1">Billing Address Line 2</label>
+                        <input
+                          type="text"
+                          value={billingLine2}
+                          onChange={(e) => setBillingLine2(e.target.value)}
+                          placeholder="Apt, Suite, Unit"
+                          className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2 text-xs text-[var(--input-text)]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-3 gap-2">
+                      <div>
+                        <label className="block text-xs font-bold mb-1">{activeCountryInfo.postalLabel} *</label>
+                        <input
+                          type="text"
+                          required
+                          value={billingPincode}
+                          onChange={(e) => setBillingPincode(e.target.value)}
+                          placeholder="Postal / ZIP"
+                          className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2 text-xs text-[var(--input-text)] font-mono"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold mb-1">City *</label>
+                        <input
+                          type="text"
+                          required
+                          value={billingCity}
+                          onChange={(e) => setBillingCity(e.target.value)}
+                          placeholder="City"
+                          className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2 text-xs text-[var(--input-text)]"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-bold mb-1">State / Region *</label>
+                        <input
+                          type="text"
+                          required
+                          value={billingState}
+                          onChange={(e) => setBillingState(e.target.value)}
+                          placeholder="State / Region"
+                          className="w-full bg-[var(--input-background)] border border-[var(--input-border)] rounded-lg p-2 text-xs text-[var(--input-text)]"
+                        />
+                      </div>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -737,7 +1286,7 @@ export const CheckoutModal: React.FC = () => {
               </div>
             )}
 
-            {/* Order Items Preview with Product Images */}
+            {/* Order Items Preview */}
             {cart.length > 0 && (
               <div className="bg-[var(--surface-muted)] border border-[var(--border-default)] rounded-xl p-3 space-y-2">
                 <span className="text-[10px] uppercase font-bold text-[var(--heading-primary)] tracking-wider block">
@@ -798,77 +1347,66 @@ export const CheckoutModal: React.FC = () => {
               Select Payment Method
             </h3>
 
-            {/* Rules Callout */}
-            <div className="p-4 bg-[var(--surface-muted)] border border-[var(--border-default)] rounded-xl text-xs space-y-1">
-              <div className="flex items-center justify-between">
-                <span className="text-[var(--heading-primary)] font-bold block">Market & Payment Policy:</span>
-                <span className="text-[10px] px-2 py-0.5 rounded bg-[var(--surface-background)] text-[var(--text-primary)] border border-[var(--border-default)] font-bold">
-                  {matchedCountry?.flag || selectedCountry.flag} {matchedCountry?.name || selectedCountry.name} ({currentCurrency.code})
-                </span>
+            {/* Policy Callout - No COD warning for international! */}
+            {isIndia ? (
+              <div className="p-4 bg-[var(--surface-muted)] border border-[var(--border-default)] rounded-xl text-xs space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[var(--heading-primary)] font-bold block">Market & Payment Policy:</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-[var(--surface-background)] text-[var(--text-primary)] border border-[var(--border-default)] font-bold">
+                    🇮🇳 India (INR)
+                  </span>
+                </div>
+                <p className="text-[var(--text-secondary)]">
+                  • Shipments to India qualify for both Razorpay Online Payment and Cash on Delivery (COD).
+                </p>
               </div>
-              <p className="text-[var(--text-secondary)]">
-                {isCodAllowed
-                  ? `• Shipments to ${matchedCountry?.name || 'India'} qualify for both Razorpay Online Payment and Cash on Delivery (COD).`
-                  : `• Cash on Delivery (COD) is disabled for ${matchedCountry?.name || country}. International shipments require Prepaid Checkout.`}
-              </p>
-            </div>
+            ) : (
+              <div className="p-4 bg-[var(--surface-muted)] border border-[var(--border-default)] rounded-xl text-xs space-y-1">
+                <div className="flex items-center justify-between">
+                  <span className="text-[var(--heading-primary)] font-bold block">International Express Checkout:</span>
+                  <span className="text-[10px] px-2 py-0.5 rounded bg-[var(--surface-background)] text-[var(--text-primary)] border border-[var(--border-default)] font-bold">
+                    {activeCountryInfo.flag} {activeCountryInfo.name} ({currentCurrency.code})
+                  </span>
+                </div>
+                <p className="text-[var(--text-secondary)]">
+                  • Fast & secure prepaid international payment with instant confirmation.
+                </p>
+              </div>
+            )}
 
             <div className="space-y-3">
-              {availableGateways.map((gw) => {
-                const isCod = gw.id === 'COD';
-                const isDisabledCod = isCod && !isCodAllowed;
-
-                return (
-                  <div key={gw.id}>
-                    {isDisabledCod ? (
-                      <div className="p-3.5 bg-rose-50 dark:bg-red-950/30 border border-rose-200 dark:border-red-500/20 rounded-xl text-[11px] text-rose-700 dark:text-rose-300 flex items-center justify-between">
-                        <div className="flex items-center gap-3">
-                          <PaymentIcon gatewayId="COD" size="sm" />
-                          <span>
-                            Cash on Delivery unavailable for {matchedCountry?.name || country}
-                            {minOrder > 0 || maxOrder > 0
-                              ? ` (${minOrder > 0 ? `Min ₹${minOrder}` : ''}${minOrder > 0 && maxOrder > 0 ? ', ' : ''}${maxOrder > 0 ? `Max ₹${maxOrder}` : ''})`
-                              : ''}
+              {availableGateways.map((gw) => (
+                <label
+                  key={gw.id}
+                  onClick={() => setPaymentMethod(gw.id)}
+                  className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
+                    paymentMethod === gw.id
+                      ? 'border-[var(--border-strong)] bg-[var(--surface-elevated)] text-[var(--heading-primary)] shadow-md ring-1 ring-[var(--border-strong)]'
+                      : 'border-[var(--border-muted)] bg-[var(--surface-background)] text-[var(--text-primary)] hover:border-[var(--border-default)]'
+                  }`}
+                >
+                  <div className="flex items-center gap-3.5">
+                    <PaymentIcon gatewayId={gw.id} size="md" />
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="font-bold text-sm block text-[var(--text-primary)]">{gw.name}</span>
+                        {gw.mode === 'TEST' && (
+                          <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">
+                            TEST MODE
                           </span>
-                        </div>
-                        <span className="text-[10px] font-bold px-2 py-0.5 bg-rose-200 dark:bg-red-900/40 text-rose-800 dark:text-red-300 rounded border border-rose-300 dark:border-red-500/30">
-                          Prepaid Only
-                        </span>
+                        )}
                       </div>
-                    ) : (
-                      <label
-                        onClick={() => setPaymentMethod(gw.id)}
-                        className={`flex items-center justify-between p-4 rounded-xl border cursor-pointer transition-all ${
-                          paymentMethod === gw.id
-                            ? 'border-[var(--border-strong)] bg-[var(--surface-elevated)] text-[var(--heading-primary)] shadow-md ring-1 ring-[var(--border-strong)]'
-                            : 'border-[var(--border-muted)] bg-[var(--surface-background)] text-[var(--text-primary)] hover:border-[var(--border-default)]'
-                        }`}
-                      >
-                        <div className="flex items-center gap-3.5">
-                          <PaymentIcon gatewayId={gw.id} size="md" />
-                          <div>
-                            <div className="flex items-center gap-2">
-                              <span className="font-bold text-sm block text-[var(--text-primary)]">{gw.name}</span>
-                              {gw.mode === 'TEST' && (
-                                <span className="text-[9px] font-bold px-1.5 py-0.2 rounded bg-amber-500/20 text-amber-700 dark:text-amber-300 border border-amber-500/30">
-                                  TEST MODE
-                                </span>
-                              )}
-                            </div>
-                            <span className="text-[11px] text-[var(--text-secondary)] block">{gw.description}</span>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <span className="text-[10px] font-mono font-bold text-[var(--text-secondary)] bg-[var(--surface-muted)] px-2 py-1 rounded border border-[var(--border-muted)]">
-                            {currentCurrency.code}
-                          </span>
-                          <input type="radio" name="pay" checked={paymentMethod === gw.id} readOnly className="accent-[var(--button-primary-bg)] w-4 h-4" />
-                        </div>
-                      </label>
-                    )}
+                      <span className="text-[11px] text-[var(--text-secondary)] block">{gw.description}</span>
+                    </div>
                   </div>
-                );
-              })}
+                  <div className="flex items-center gap-3">
+                    <span className="text-[10px] font-mono font-bold text-[var(--text-secondary)] bg-[var(--surface-muted)] px-2 py-1 rounded border border-[var(--border-muted)]">
+                      {currentCurrency.code}
+                    </span>
+                    <input type="radio" name="pay" checked={paymentMethod === gw.id} readOnly className="accent-[var(--button-primary-bg)] w-4 h-4" />
+                  </div>
+                </label>
+              ))}
 
               {availableGateways.length === 0 && (
                 <div className="p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-500/30 rounded-xl text-xs text-amber-800 dark:text-amber-200">
@@ -913,17 +1451,19 @@ export const CheckoutModal: React.FC = () => {
                   <span>Processing Secure Payment...</span>
                 ) : (
                   <span>
-                    {paymentMethod === 'COD'
-                      ? 'PLACE CASH ON DELIVERY ORDER'
-                      : paymentMethod === 'RAZORPAY'
-                      ? `Pay ${formatPrice(cartTotalINR)} via Razorpay`
-                      : paymentMethod === 'PHONEPE'
-                      ? `Pay ${formatPrice(cartTotalINR)} via PhonePe`
-                      : paymentMethod === 'UPI'
-                      ? `Pay ${formatPrice(cartTotalINR)} via Instant UPI`
+                    {paymentMethod === 'STRIPE'
+                      ? `PAY ${formatPrice(cartTotalINR)} VIA STRIPE`
                       : paymentMethod === 'PAYPAL'
-                      ? `Pay ${formatPrice(cartTotalINR)} via PayPal`
-                      : `Pay ${formatPrice(cartTotalINR)}`}
+                      ? `PAY ${formatPrice(cartTotalINR)} VIA PAYPAL`
+                      : paymentMethod === 'RAZORPAY'
+                      ? `PAY ${formatPrice(cartTotalINR)} VIA RAZORPAY`
+                      : paymentMethod === 'PHONEPE'
+                      ? `PAY ${formatPrice(cartTotalINR)} VIA PHONEPE`
+                      : paymentMethod === 'UPI'
+                      ? `PAY ${formatPrice(cartTotalINR)} VIA INSTANT UPI`
+                      : paymentMethod === 'COD'
+                      ? 'PLACE CASH ON DELIVERY ORDER'
+                      : `PAY ${formatPrice(cartTotalINR)}`}
                   </span>
                 )}
               </button>

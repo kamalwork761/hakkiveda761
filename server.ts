@@ -188,6 +188,219 @@ async function startServer() {
   });
 
   // 2. Check Serviceability & India Pincode Lookup API
+  app.get('/api/shipping/address-lookup', async (req, res) => {
+    try {
+      const countryRaw = (req.query.country || req.query.countryCode || '').toString().trim();
+      const postalCodeRaw = (req.query.postalCode || req.query.pincode || req.query.zip || '').toString().trim();
+
+      if (!postalCodeRaw) {
+        return res.status(400).json({
+          success: false,
+          error: 'Postal code is required.',
+        });
+      }
+
+      // Standardize Country Code
+      let countryCode = countryRaw.toUpperCase();
+      if (countryCode === 'UNITED STATES' || countryCode === 'USA' || countryCode === 'US') countryCode = 'US';
+      else if (countryCode === 'UNITED KINGDOM' || countryCode === 'UK' || countryCode === 'GB') countryCode = 'GB';
+      else if (countryCode === 'INDIA' || countryCode === 'IN') countryCode = 'IN';
+      else if (countryCode === 'SINGAPORE' || countryCode === 'SG') countryCode = 'SG';
+      else if (countryCode === 'MALAYSIA' || countryCode === 'MY') countryCode = 'MY';
+      else if (countryCode === 'CANADA' || countryCode === 'CA') countryCode = 'CA';
+      else if (countryCode === 'UNITED ARAB EMIRATES' || countryCode === 'UAE' || countryCode === 'AE') countryCode = 'AE';
+      else if (countryCode === 'FIJI' || countryCode === 'FJ') countryCode = 'FJ';
+      else if (countryCode === 'MAURITIUS' || countryCode === 'MU') countryCode = 'MU';
+      else if (countryCode === 'NEPAL' || countryCode === 'NP') countryCode = 'NP';
+
+      let city = '';
+      let state = '';
+
+      // United States Lookup
+      if (countryCode === 'US') {
+        const cleanZip = postalCodeRaw.split('-')[0].replace(/\D/g, '').slice(0, 5);
+        if (cleanZip.length === 5) {
+          try {
+            const zipRes = await fetch(`https://api.zippopotam.us/us/${cleanZip}`, {
+              signal: AbortSignal.timeout(3000),
+            });
+            if (zipRes.ok) {
+              const zipData = await zipRes.json();
+              if (zipData.places && zipData.places.length > 0) {
+                city = zipData.places[0]['place name'] || '';
+                state = zipData.places[0]['state'] || '';
+              }
+            }
+          } catch (e: any) {
+            console.warn(`[US ZIP Lookup API Warning for ${cleanZip}]:`, e.message);
+          }
+
+          if (!city || !state) {
+            const knownUsZips: Record<string, { city: string; state: string }> = {
+              '10282': { city: 'New York', state: 'New York' },
+              '10001': { city: 'New York', state: 'New York' },
+              '90210': { city: 'Beverly Hills', state: 'California' },
+              '94102': { city: 'San Francisco', state: 'California' },
+              '60601': { city: 'Chicago', state: 'Illinois' },
+              '33101': { city: 'Miami', state: 'Florida' },
+              '98101': { city: 'Seattle', state: 'Washington' },
+              '75001': { city: 'Dallas', state: 'Texas' },
+            };
+            if (knownUsZips[cleanZip]) {
+              city = knownUsZips[cleanZip].city;
+              state = knownUsZips[cleanZip].state;
+            }
+          }
+        }
+      }
+      // United Kingdom Lookup
+      else if (countryCode === 'GB') {
+        const cleanPostcode = postalCodeRaw.trim();
+        try {
+          const pcRes = await fetch(`https://api.postcodes.io/postcodes/${encodeURIComponent(cleanPostcode)}`, {
+            signal: AbortSignal.timeout(3000),
+          });
+          if (pcRes.ok) {
+            const pcData = await pcRes.json();
+            if (pcData.status === 200 && pcData.result) {
+              city = pcData.result.admin_district || pcData.result.parish || pcData.result.parliamentary_constituency || 'London';
+              state = pcData.result.region || pcData.result.country || 'England';
+            }
+          }
+        } catch (e: any) {
+          console.warn(`[UK Postcode Lookup API Warning for ${cleanPostcode}]:`, e.message);
+        }
+
+        if (!city || !state) {
+          const formattedPc = cleanPostcode.replace(/\s+/g, '').toUpperCase();
+          const knownUkPcs: Record<string, { city: string; state: string }> = {
+            'SW1A1AA': { city: 'London', state: 'England' },
+            'EC1A1BB': { city: 'London', state: 'England' },
+            'M11AE': { city: 'Manchester', state: 'England' },
+            'B11AA': { city: 'Birmingham', state: 'England' },
+          };
+          if (knownUkPcs[formattedPc]) {
+            city = knownUkPcs[formattedPc].city;
+            state = knownUkPcs[formattedPc].state;
+          }
+        }
+      }
+      // Singapore Lookup
+      else if (countryCode === 'SG') {
+        const cleanSg = postalCodeRaw.replace(/\D/g, '');
+        if (cleanSg.length === 6) {
+          city = 'Singapore';
+          state = 'Singapore';
+        }
+      }
+      // Malaysia Lookup
+      else if (countryCode === 'MY') {
+        const cleanMy = postalCodeRaw.replace(/\D/g, '');
+        if (cleanMy.length === 5) {
+          const knownMy: Record<string, { city: string; state: string }> = {
+            '50450': { city: 'Kuala Lumpur', state: 'Kuala Lumpur' },
+            '10000': { city: 'George Town', state: 'Penang' },
+            '80000': { city: 'Johor Bahru', state: 'Johor' },
+          };
+          if (knownMy[cleanMy]) {
+            city = knownMy[cleanMy].city;
+            state = knownMy[cleanMy].state;
+          } else {
+            city = 'Kuala Lumpur';
+            state = 'Malaysia';
+          }
+        }
+      }
+      // Canada Lookup
+      else if (countryCode === 'CA') {
+        const cleanCa = postalCodeRaw.replace(/\s+/g, '').toUpperCase();
+        if (cleanCa.length >= 3) {
+          const f3 = cleanCa.slice(0, 3);
+          try {
+            const caRes = await fetch(`https://api.zippopotam.us/ca/${f3}`, {
+              signal: AbortSignal.timeout(3000),
+            });
+            if (caRes.ok) {
+              const caData = await caRes.json();
+              if (caData.places && caData.places.length > 0) {
+                city = caData.places[0]['place name'] || '';
+                state = caData.places[0]['state'] || '';
+              }
+            }
+          } catch (e: any) {
+            console.warn(`[CA Postal Lookup Warning for ${cleanCa}]:`, e.message);
+          }
+          if (!city || !state) {
+            if (cleanCa.startsWith('M5V') || cleanCa.startsWith('M')) {
+              city = 'Toronto';
+              state = 'Ontario';
+            } else if (cleanCa.startsWith('V6B') || cleanCa.startsWith('V')) {
+              city = 'Vancouver';
+              state = 'British Columbia';
+            }
+          }
+        }
+      }
+      // India Lookup
+      else if (countryCode === 'IN') {
+        const cleanIn = postalCodeRaw.replace(/\D/g, '');
+        if (cleanIn.length === 6) {
+          try {
+            const postalRes = await fetch(`https://api.postalpincode.in/pincode/${cleanIn}`, {
+              signal: AbortSignal.timeout(3000),
+            });
+            if (postalRes.ok) {
+              const postalData = await postalRes.json();
+              if (Array.isArray(postalData) && postalData[0]?.Status === 'Success' && postalData[0]?.PostOffice?.length > 0) {
+                const po = postalData[0].PostOffice[0];
+                city = po.District || po.Block || po.Circle || po.Name || '';
+                state = po.State || '';
+              }
+            }
+          } catch (err: any) {
+            console.warn(`[India Post Lookup Warning for ${cleanIn}]:`, err.message);
+          }
+
+          if (!city || !state) {
+            const knownPincodes: Record<string, { city: string; state: string }> = {
+              '141008': { city: 'Ludhiana', state: 'Punjab' },
+              '110001': { city: 'New Delhi', state: 'Delhi' },
+              '400001': { city: 'Mumbai', state: 'Maharashtra' },
+              '700001': { city: 'Kolkata', state: 'West Bengal' },
+              '600001': { city: 'Chennai', state: 'Tamil Nadu' },
+              '560001': { city: 'Bengaluru', state: 'Karnataka' },
+            };
+            if (knownPincodes[cleanIn]) {
+              city = knownPincodes[cleanIn].city;
+              state = knownPincodes[cleanIn].state;
+            }
+          }
+        }
+      }
+
+      if (city && state) {
+        return res.json({
+          success: true,
+          countryCode,
+          postalCode: postalCodeRaw,
+          city,
+          state,
+        });
+      }
+
+      return res.status(404).json({
+        success: false,
+        error: 'Automatic address lookup is not available for this country. Please enter city and region manually.',
+      });
+    } catch (error: any) {
+      console.error('[API /api/shipping/address-lookup Error]:', error);
+      return res.status(500).json({
+        success: false,
+        error: 'Automatic address lookup failed. Please enter city and region manually.',
+      });
+    }
+  });
+
   app.get('/api/shipping/india-pincode/:pincode', async (req, res) => {
     try {
       const pincode = req.params.pincode ? req.params.pincode.trim() : '';

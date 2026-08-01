@@ -15,6 +15,7 @@ import { AdminB2BSectionManager } from './AdminB2BSectionManager';
 import { AdminVideoPopupManager } from './AdminVideoPopupManager';
 import { AdminShoppableReelsManager } from './AdminShoppableReelsManager';
 import { AdminShiprocketManager } from './AdminShiprocketManager';
+import { AdminOrderManager } from './AdminOrderManager';
 import {
   Lock,
   LayoutDashboard,
@@ -67,6 +68,7 @@ import {
   ArrowUp,
   ArrowDown,
   RotateCcw,
+  Clock,
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { OrderDetailsModal } from './OrderDetailsModal';
@@ -266,6 +268,26 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
   const [selectedRuleFilter, setSelectedRuleFilter] = useState<string>('ALL');
   const [countryPage, setCountryPage] = useState<number>(1);
   const COUNTRIES_PER_PAGE = 20;
+
+  // Analytics Metrics for Dashboard Cards (Requirement 7)
+  const todayDateStr = new Date().toISOString().split('T')[0];
+  const currentMonthStr = todayDateStr.substring(0, 7);
+
+  const todaysOrders = orders.filter((o) => o.date === todayDateStr || o.date?.startsWith(todayDateStr));
+  const pendingOrders = orders.filter(
+    (o) =>
+      o.paymentStatus === 'PENDING' ||
+      o.paymentStatus === 'COD_DUE' ||
+      o.paymentStatus === 'Awaiting Fulfillment' ||
+      o.trackingStatus === 'ORDER_PLACED' ||
+      o.trackingStatus === 'Pending Payment'
+  );
+  const paidOrders = orders.filter((o) => o.paymentStatus === 'PAID' || o.paymentStatus === 'Paid' || o.paymentStatus === 'SUCCESSFUL');
+  const codOrders = orders.filter((o) => o.paymentMethod === 'COD');
+  const internationalOrders = orders.filter((o) => o.customer?.country && o.customer.country !== 'India' && o.customer.country !== 'IN');
+  const revenueToday = todaysOrders.reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
+  const revenueThisMonth = orders.filter((o) => o.date?.startsWith(currentMonthStr)).reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
+  const lowStockProducts = products.filter((p) => (typeof p.stock === 'number' ? p.stock : 100) < 10 || p.inStock === false);
 
   const [isAddingProduct, setIsAddingProduct] = useState(false);
   const [editingProduct, setEditingProduct] = useState<Product | null>(null);
@@ -730,81 +752,149 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               <p className="text-xs text-slate-300">Live analytics and operational status of HAKKIVEDA.</p>
             </div>
 
-            {/* Top Stat Cards */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            {/* Top Stat Cards for Requirement 7 */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div
                 onClick={() => setActiveTab('orders')}
-                className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/30 p-5 rounded-2xl cursor-pointer hover:border-[var(--brand-gold)] hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] hover:shadow-2xl hover:shadow-[var(--brand-gold)]/10 transition-all duration-200 group flex flex-col justify-between"
+                className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/30 p-5 rounded-2xl cursor-pointer hover:border-[var(--brand-gold)] hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between">
                     <div className="text-[10px] uppercase tracking-widest text-[var(--brand-gold)] font-bold">
-                      Total Orders
+                      Today's Orders
                     </div>
-                    <ShoppingBag className="w-4 h-4 text-[var(--brand-gold)] opacity-70 group-hover:opacity-100 transition-opacity" />
+                    <ShoppingBag className="w-4 h-4 text-[var(--brand-gold)]" />
                   </div>
-                  <div className="text-3xl font-bold font-mono text-white mt-1">{orders.length}</div>
+                  <div className="text-3xl font-bold font-mono text-white mt-1">{todaysOrders.length}</div>
                 </div>
-                <div className="text-[10px] text-[var(--brand-gold)] group-hover:underline font-bold mt-3 flex items-center justify-between">
-                  <span>View All Orders</span>
-                  <span>→</span>
+                <div className="text-[10px] text-[var(--brand-gold)] group-hover:underline font-bold mt-3">
+                  View Today's Orders →
+                </div>
+              </div>
+
+              <div
+                onClick={() => setActiveTab('orders')}
+                className="bg-[var(--brand-primary-dark)] border border-amber-500/30 p-5 rounded-2xl cursor-pointer hover:border-amber-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-[10px] uppercase tracking-widest text-amber-400 font-bold">
+                      Pending Orders
+                    </div>
+                    <Clock className="w-4 h-4 text-amber-400" />
+                  </div>
+                  <div className="text-3xl font-bold font-mono text-white mt-1">{pendingOrders.length}</div>
+                </div>
+                <div className="text-[10px] text-amber-400 group-hover:underline font-bold mt-3">
+                  Awaiting Fulfillment →
+                </div>
+              </div>
+
+              <div
+                onClick={() => setActiveTab('orders')}
+                className="bg-[var(--brand-primary-dark)] border border-emerald-500/30 p-5 rounded-2xl cursor-pointer hover:border-emerald-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">
+                      Paid Orders
+                    </div>
+                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                  </div>
+                  <div className="text-3xl font-bold font-mono text-white mt-1">{paidOrders.length}</div>
+                </div>
+                <div className="text-[10px] text-emerald-400 group-hover:underline font-bold mt-3">
+                  Successful Payments →
+                </div>
+              </div>
+
+              <div
+                onClick={() => setActiveTab('orders')}
+                className="bg-[var(--brand-primary-dark)] border border-cyan-500/30 p-5 rounded-2xl cursor-pointer hover:border-cyan-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-[10px] uppercase tracking-widest text-cyan-400 font-bold">
+                      COD Orders
+                    </div>
+                    <Banknote className="w-4 h-4 text-cyan-400" />
+                  </div>
+                  <div className="text-3xl font-bold font-mono text-white mt-1">{codOrders.length}</div>
+                </div>
+                <div className="text-[10px] text-cyan-400 group-hover:underline font-bold mt-3">
+                  Cash on Delivery →
+                </div>
+              </div>
+
+              <div
+                onClick={() => setActiveTab('orders')}
+                className="bg-[var(--brand-primary-dark)] border border-indigo-500/30 p-5 rounded-2xl cursor-pointer hover:border-indigo-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-[10px] uppercase tracking-widest text-indigo-400 font-bold">
+                      International Orders
+                    </div>
+                    <Globe className="w-4 h-4 text-indigo-400" />
+                  </div>
+                  <div className="text-3xl font-bold font-mono text-white mt-1">{internationalOrders.length}</div>
+                </div>
+                <div className="text-[10px] text-indigo-400 group-hover:underline font-bold mt-3">
+                  Global Express Shipments →
+                </div>
+              </div>
+
+              <div
+                onClick={() => setActiveTab('orders')}
+                className="bg-[var(--brand-primary-dark)] border border-emerald-500/30 p-5 rounded-2xl cursor-pointer hover:border-emerald-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">
+                      Revenue Today
+                    </div>
+                    <DollarSign className="w-4 h-4 text-emerald-400" />
+                  </div>
+                  <div className="text-2xl font-bold font-mono text-white mt-1">{formatPrice(revenueToday)}</div>
+                </div>
+                <div className="text-[10px] text-emerald-400 group-hover:underline font-bold mt-3">
+                  Today's Sales →
+                </div>
+              </div>
+
+              <div
+                onClick={() => setActiveTab('orders')}
+                className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/30 p-5 rounded-2xl cursor-pointer hover:border-[var(--brand-gold)] hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-[10px] uppercase tracking-widest text-[var(--brand-gold)] font-bold">
+                      Revenue This Month
+                    </div>
+                    <DollarSign className="w-4 h-4 text-[var(--brand-gold)]" />
+                  </div>
+                  <div className="text-2xl font-bold font-mono text-white mt-1">{formatPrice(revenueThisMonth)}</div>
+                </div>
+                <div className="text-[10px] text-[var(--brand-gold)] group-hover:underline font-bold mt-3">
+                  Monthly Total →
                 </div>
               </div>
 
               <div
                 onClick={() => setActiveTab('products')}
-                className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/30 p-5 rounded-2xl cursor-pointer hover:border-[var(--brand-gold)] hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] hover:shadow-2xl hover:shadow-[var(--brand-gold)]/10 transition-all duration-200 group flex flex-col justify-between"
+                className="bg-[var(--brand-primary-dark)] border border-rose-500/30 p-5 rounded-2xl cursor-pointer hover:border-rose-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <div className="text-[10px] uppercase tracking-widest text-[var(--brand-gold)] font-bold">
-                      Active Products
+                    <div className="text-[10px] uppercase tracking-widest text-rose-400 font-bold">
+                      Low Stock Products
                     </div>
-                    <Package className="w-4 h-4 text-[var(--brand-gold)] opacity-70 group-hover:opacity-100 transition-opacity" />
+                    <AlertTriangle className="w-4 h-4 text-rose-400" />
                   </div>
-                  <div className="text-3xl font-bold font-mono text-white mt-1">{products.length}</div>
+                  <div className="text-3xl font-bold font-mono text-white mt-1">{lowStockProducts.length}</div>
                 </div>
-                <div className="text-[10px] text-[var(--brand-gold)] group-hover:underline font-bold mt-3 flex items-center justify-between">
-                  <span>Across {categories.length} categories</span>
-                  <span>→</span>
-                </div>
-              </div>
-
-              <div
-                onClick={() => setActiveTab('b2b')}
-                className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/30 p-5 rounded-2xl cursor-pointer hover:border-[var(--brand-gold)] hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] hover:shadow-2xl hover:shadow-[var(--brand-gold)]/10 transition-all duration-200 group flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div className="text-[10px] uppercase tracking-widest text-[var(--brand-gold)] font-bold">
-                      B2B Wholesale Enquiries
-                    </div>
-                    <Building2 className="w-4 h-4 text-[var(--brand-gold)] opacity-70 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  <div className="text-3xl font-bold font-mono text-white mt-1">{b2bLeads.length}</div>
-                </div>
-                <div className="text-[10px] text-[var(--brand-gold)] group-hover:underline font-bold mt-3 flex items-center justify-between">
-                  <span>View Global Enquiries</span>
-                  <span>→</span>
-                </div>
-              </div>
-
-              <div
-                onClick={() => setActiveTab('customers')}
-                className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/30 p-5 rounded-2xl cursor-pointer hover:border-[var(--brand-gold)] hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] hover:shadow-2xl hover:shadow-[var(--brand-gold)]/10 transition-all duration-200 group flex flex-col justify-between"
-              >
-                <div>
-                  <div className="flex items-center justify-between">
-                    <div className="text-[10px] uppercase tracking-widest text-[var(--brand-gold)] font-bold">
-                      Registered Customers
-                    </div>
-                    <Users className="w-4 h-4 text-[var(--brand-gold)] opacity-70 group-hover:opacity-100 transition-opacity" />
-                  </div>
-                  <div className="text-3xl font-bold font-mono text-white mt-1">{customerAccounts.length}</div>
-                </div>
-                <div className="text-[10px] text-[var(--brand-gold)] group-hover:underline font-bold mt-3 flex items-center justify-between">
-                  <span>Customer Accounts</span>
-                  <span>→</span>
+                <div className="text-[10px] text-rose-400 group-hover:underline font-bold mt-3">
+                  Manage Inventory →
                 </div>
               </div>
             </div>
@@ -1294,71 +1384,13 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
 
         {/* Tab 8: Orders & Tracking */}
         {activeTab === 'orders' && (
-          <div className="space-y-6 animate-in fade-in">
-            <div>
-              <h1 className="text-2xl font-bold font-serif-luxury text-slate-100">Orders & Express Shipping</h1>
-              <p className="text-xs text-slate-300">View orders, assign tracking numbers, and update delivery status.</p>
-            </div>
-
-            {orders.length === 0 ? (
-              <div className="p-12 text-center text-slate-400 border border-dashed border-white/10 rounded-2xl">
-                No orders received yet. Start with empty database state.
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {orders.map((o) => (
-                  <div key={o.id} className="bg-[var(--brand-primary-dark)] border border-white/10 p-5 rounded-2xl space-y-3 text-xs">
-                    <div className="flex flex-wrap justify-between items-center gap-2 border-b border-white/10 pb-3">
-                      <div>
-                        <span className="font-mono text-base font-bold text-[var(--brand-gold)]">{o.orderNumber}</span>
-                        <span className="text-slate-400 ml-3">Date: {o.date}</span>
-                      </div>
-                      <div className="font-mono font-bold text-sm text-white">{formatPrice(o.totalAmountINR)}</div>
-                    </div>
-
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-slate-300">
-                      <div>
-                        <span className="text-[var(--brand-gold)] font-bold">Customer:</span> {o.customer.name} ({o.customer.email})
-                      </div>
-                      <div>
-                        <span className="text-[var(--brand-gold)] font-bold">Shipping Address:</span> {o.customer.address}, {o.customer.city}, {o.customer.country}
-                      </div>
-                    </div>
-
-                    <div className="flex flex-wrap items-center justify-between gap-3 pt-2">
-                      <div className="flex items-center gap-3">
-                        <span className="font-bold text-slate-200">Tracking Status:</span>
-                        <select
-                          value={o.trackingStatus}
-                          onChange={(e) => {
-                            updateOrderStatus(o.id, e.target.value as any);
-                            showToast('Order status updated');
-                          }}
-                          className="bg-[var(--brand-primary-deep)] border border-white/20 p-2 rounded-lg text-slate-100 text-xs font-bold"
-                        >
-                          <option value="ORDER_PLACED">ORDER_PLACED</option>
-                          <option value="PROCESSING">PROCESSING</option>
-                          <option value="DISPATCHED">DISPATCHED</option>
-                          <option value="IN_TRANSIT">IN_TRANSIT</option>
-                          <option value="OUT_FOR_DELIVERY">OUT_FOR_DELIVERY</option>
-                          <option value="DELIVERED">DELIVERED</option>
-                          <option value="CANCELLED">CANCELLED</option>
-                        </select>
-                      </div>
-
-                      <button
-                        onClick={() => setSelectedOrder(o)}
-                        className="px-3.5 py-1.5 bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold text-xs rounded-xl hover:bg-white transition-colors inline-flex items-center gap-1.5 shadow-md"
-                      >
-                        <Eye className="w-3.5 h-3.5" />
-                        <span>Manage Complete Order Details</span>
-                      </button>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+          <AdminOrderManager
+            orders={orders}
+            updateOrderStatus={updateOrderStatus}
+            setSelectedOrder={setSelectedOrder}
+            formatPrice={formatPrice}
+            showToast={showToast}
+          />
         )}
 
         {/* Tab 9: B2B Wholesale */}

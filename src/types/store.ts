@@ -178,6 +178,7 @@ export interface Order {
   pickupScheduledDate?: string;
   labelUrl?: string;
   invoiceUrl?: string;
+  stockRestored?: boolean;
 }
 
 export interface Coupon {

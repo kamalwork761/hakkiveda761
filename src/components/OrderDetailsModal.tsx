@@ -1067,13 +1067,23 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                 onChange={(e) => handleQuickStatusChange(e.target.value)}
                 className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/40 text-[var(--brand-gold)] font-bold text-xs p-2 rounded-xl focus:outline-none cursor-pointer"
               >
-                <option value="ORDER_PLACED">1. ORDER_PLACED</option>
-                <option value="PROCESSING">2. PROCESSING</option>
-                <option value="DISPATCHED">3. DISPATCHED</option>
-                <option value="IN_TRANSIT">4. IN_TRANSIT</option>
-                <option value="OUT_FOR_DELIVERY">5. OUT_FOR_DELIVERY</option>
-                <option value="DELIVERED">6. DELIVERED</option>
-                <option value="CANCELLED">7. CANCELLED</option>
+                <option value="Pending Payment">1. Pending Payment</option>
+                <option value="Paid">2. Paid</option>
+                <option value="COD Confirmed">3. COD Confirmed</option>
+                <option value="Preparing">4. Preparing</option>
+                <option value="Packed">5. Packed</option>
+                <option value="AWB Generated">6. AWB Generated</option>
+                <option value="Pickup Scheduled">7. Pickup Scheduled</option>
+                <option value="Shipped">8. Shipped</option>
+                <option value="In Transit">9. In Transit</option>
+                <option value="Out For Delivery">10. Out For Delivery</option>
+                <option value="Delivered">11. Delivered</option>
+                <option value="Cancelled">12. Cancelled</option>
+                <option value="Refunded">13. Refunded</option>
+                <option value="Returned">14. Returned</option>
+                <option value="ORDER_PLACED">ORDER_PLACED</option>
+                <option value="PROCESSING">PROCESSING</option>
+                <option value="DISPATCHED">DISPATCHED</option>
               </select>
             </div>
           </div>

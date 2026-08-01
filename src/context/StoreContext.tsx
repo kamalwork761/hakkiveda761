@@ -1681,6 +1681,27 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return newOrder;
   };
 
+  const restoreStockForOrder = (targetOrder: Order) => {
+    if (targetOrder.stockRestored) return;
+    setProducts((prevProducts) => {
+      const updatedProducts = prevProducts.map((p) => {
+        const itemInOrder = targetOrder.items.find((item) => item.product.id === p.id);
+        if (itemInOrder) {
+          const currentStock = typeof p.stock === 'number' ? p.stock : 100;
+          const newStock = currentStock + itemInOrder.quantity;
+          return {
+            ...p,
+            stock: newStock,
+            inStock: newStock > 0,
+          };
+        }
+        return p;
+      });
+      setStored('products', updatedProducts);
+      return updatedProducts;
+    });
+  };
+
   const updateOrderStatus = (
     orderId: string,
     status: Order['trackingStatus'],
@@ -1688,6 +1709,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     courier?: string
   ) => {
     setOrders((prev) => {
+      const targetOrder = prev.find((o) => o.id === orderId);
+      const isCancelling = status === 'CANCELLED' || status === 'Cancelled';
+      if (targetOrder && isCancelling && !targetOrder.stockRestored) {
+        restoreStockForOrder(targetOrder);
+      }
+
       const next = prev.map((o) =>
         o.id === orderId
           ? {
@@ -1695,6 +1722,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               trackingStatus: status,
               trackingNumber: trackingNumber || o.trackingNumber,
               courierName: courier || o.courierName,
+              stockRestored: isCancelling ? true : o.stockRestored,
             }
           : o
       );
@@ -1705,7 +1733,23 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const updateOrderDetails = (orderId: string, updates: Partial<Order>) => {
     setOrders((prev) => {
-      const next = prev.map((o) => (o.id === orderId ? { ...o, ...updates } : o));
+      const targetOrder = prev.find((o) => o.id === orderId);
+      const isCancelling = updates.trackingStatus === 'CANCELLED' || updates.trackingStatus === 'Cancelled';
+      const isRefunding = updates.paymentStatus === 'REFUNDED' || updates.paymentStatus === 'Refunded';
+
+      if (targetOrder && (isCancelling || isRefunding) && !targetOrder.stockRestored) {
+        restoreStockForOrder(targetOrder);
+      }
+
+      const next = prev.map((o) =>
+        o.id === orderId
+          ? {
+              ...o,
+              ...updates,
+              stockRestored: (isCancelling || isRefunding) ? true : o.stockRestored,
+            }
+          : o
+      );
       setStored('orders', next);
       return next;
     });

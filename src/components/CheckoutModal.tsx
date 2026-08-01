@@ -34,6 +34,13 @@ export const COUNTRY_LOOKUP_MAP: Record<string, CountryDetails> = WORLD_COUNTRIE
   return acc;
 }, {} as Record<string, CountryDetails>);
 
+const RAZORPAY_SUPPORTED_CURRENCIES = new Set([
+  'INR', 'USD', 'EUR', 'GBP', 'SGD', 'AED', 'MYR', 'SAR', 'AUD', 'CAD',
+  'HKD', 'NZD', 'CHF', 'SEK', 'JPY', 'KWD', 'BHD', 'OMR', 'QAR', 'THB',
+  'ZAR', 'RUB', 'MUR', 'NPR', 'BRL', 'MXN', 'DKK', 'NOK', 'PLN', 'CZK',
+  'HUF', 'ILS', 'EGP', 'PHP', 'IDR', 'TRY', 'KRW', 'LKR', 'BDT'
+]);
+
 export const CheckoutModal: React.FC = () => {
   const {
     isCheckoutOpen,
@@ -1910,6 +1917,19 @@ export const CheckoutModal: React.FC = () => {
                 </div>
               )}
             </div>
+
+            {/* Currency Settlement Disclosure for unsupported gateway currencies (e.g. FJD) */}
+            {paymentMethod === 'RAZORPAY' && !RAZORPAY_SUPPORTED_CURRENCIES.has(currentCurrency.code) && (
+              <div className="p-4 bg-amber-50/90 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-700/60 rounded-xl space-y-1.5 text-xs text-amber-900 dark:text-amber-200 animate-in fade-in duration-200">
+                <div className="font-bold flex items-center gap-1.5 text-amber-900 dark:text-amber-100">
+                  <span>💱</span>
+                  <span>Currency Charge Disclosure</span>
+                </div>
+                <p>
+                  Your order display total is <strong>{formatPrice(grandTotalINR)} ({currentCurrency.code})</strong>. Because Razorpay processes transactions in Indian Rupees (INR) for this currency, <strong>your card will be charged ₹{grandTotalINR.toLocaleString('en-IN')} (INR)</strong> at checkout.
+                </p>
+              </div>
+            )}
 
             {/* Order Total Preview */}
             <div className="bg-[var(--surface-muted)] p-4 rounded-xl space-y-3 border border-[var(--border-default)] text-xs">

@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { X, ShieldCheck, CheckCircle2, Truck, ArrowRight, Building2, FileText, Globe } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { Order, PaymentGatewayId } from '../types/store';
@@ -102,6 +102,23 @@ export const CheckoutModal: React.FC = () => {
     message: string;
   }>({ checked: false, serviceable: true, couriers: [], codAllowed: true, message: '' });
 
+  // Lock body scroll and synchronize country state with StoreContext live selectedCountry
+  useEffect(() => {
+    if (isCheckoutOpen) {
+      document.body.style.overflow = 'hidden';
+      if (selectedCountry?.name) {
+        const matched = getCountryDetails(selectedCountry.name);
+        setCountry(matched.name);
+        setBillingCountry(matched.name);
+      }
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isCheckoutOpen, selectedCountry?.name]);
+
   if (!isCheckoutOpen) return null;
 
   const activeCountryInfo = getCountryDetails(country);
@@ -132,7 +149,25 @@ export const CheckoutModal: React.FC = () => {
     setBillingPhone('');
 
     // Sync global store country and currency immediately
-    selectCountry(newCountryObj);
+    const countryItem = WORLD_COUNTRIES.find(
+      (c) => c.name.toLowerCase() === newCountryObj.name.toLowerCase() || c.code.toLowerCase() === newCountryObj.code.toLowerCase()
+    ) || {
+      code: newCountryObj.code,
+      iso2: newCountryObj.code,
+      name: newCountryObj.name,
+      flag: newCountryObj.flag,
+      phoneCode: newCountryObj.phoneCode,
+      dialCode: newCountryObj.phoneCode,
+      currencyCode: (newCountryObj.currency as any) || 'USD',
+      currency: newCountryObj.currency,
+      postalLabel: newCountryObj.postalLabel,
+      postalPlaceholder: newCountryObj.postalPlaceholder,
+      phoneMinDigits: newCountryObj.phoneMinDigits,
+      phoneMaxDigits: newCountryObj.phoneMaxDigits,
+      supportsLookup: newCountryObj.supportsLookup,
+    };
+
+    selectCountry(countryItem);
 
     if (newCountryObj.code !== 'IN' && paymentMethod === 'COD') {
       setPaymentMethod('RAZORPAY');
@@ -481,36 +516,42 @@ export const CheckoutModal: React.FC = () => {
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 bg-black/80 backdrop-blur-md overflow-y-auto">
-      <div className="relative w-full max-w-3xl bg-[var(--surface-background)] border border-[var(--border-strong)] rounded-2xl shadow-2xl p-6 sm:p-10 my-8 text-[var(--text-primary)] font-sans">
-        <button
-          onClick={() => setIsCheckoutOpen(false)}
-          className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/30 text-[var(--text-primary)] hover:bg-[var(--border-strong)] hover:text-black transition-all flex items-center justify-center"
-        >
-          <X className="w-5 h-5" />
-        </button>
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md overflow-hidden">
+      <div className="relative w-full max-w-3xl h-[96dvh] sm:h-[90dvh] max-h-[850px] bg-[var(--surface-background)] border border-[var(--border-strong)] rounded-2xl shadow-2xl flex flex-col text-[var(--text-primary)] font-sans overflow-hidden my-auto">
+        {/* Sticky Header with Step Navigation and Close Button */}
+        <div className="flex-none px-4 py-3.5 sm:px-8 sm:py-4 border-b border-[var(--border-muted)] bg-[var(--surface-background)] relative z-30 flex items-center justify-between gap-3">
+          <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs uppercase tracking-widest font-bold overflow-x-auto whitespace-nowrap scrollbar-none pr-8">
+            <span className={step === 'address' ? 'text-[var(--heading-primary)] underline decoration-2 font-black' : 'text-[var(--text-muted)]'}>
+              1. Delivery Address
+            </span>
+            <span className="text-[var(--text-muted)]">/</span>
+            <span className={step === 'review' ? 'text-[var(--heading-primary)] underline decoration-2 font-black' : 'text-[var(--text-muted)]'}>
+              2. Order Review
+            </span>
+            <span className="text-[var(--text-muted)]">/</span>
+            <span className={step === 'payment' ? 'text-[var(--heading-primary)] underline decoration-2 font-black' : 'text-[var(--text-muted)]'}>
+              3. Payment Method
+            </span>
+            <span className="text-[var(--text-muted)]">/</span>
+            <span className={step === 'confirmation' ? 'text-[var(--heading-primary)] underline decoration-2 font-black' : 'text-[var(--text-muted)]'}>
+              4. Order Receipt
+            </span>
+          </div>
 
-        {/* Header Steps */}
-        <div className="flex items-center gap-2 sm:gap-3 border-b border-[var(--border-muted)] pb-4 mb-6 text-[10px] sm:text-xs uppercase tracking-widest font-bold overflow-x-auto">
-          <span className={step === 'address' ? 'text-[var(--heading-primary)] underline decoration-2 font-black' : 'text-[var(--text-muted)]'}>
-            1. Delivery Address
-          </span>
-          <span className="text-[var(--text-muted)]">/</span>
-          <span className={step === 'review' ? 'text-[var(--heading-primary)] underline decoration-2 font-black' : 'text-[var(--text-muted)]'}>
-            2. Order Review
-          </span>
-          <span className="text-[var(--text-muted)]">/</span>
-          <span className={step === 'payment' ? 'text-[var(--heading-primary)] underline decoration-2 font-black' : 'text-[var(--text-muted)]'}>
-            3. Payment Method
-          </span>
-          <span className="text-[var(--text-muted)]">/</span>
-          <span className={step === 'confirmation' ? 'text-[var(--heading-primary)] underline decoration-2 font-black' : 'text-[var(--text-muted)]'}>
-            4. Order Receipt
-          </span>
+          <button
+            type="button"
+            onClick={() => setIsCheckoutOpen(false)}
+            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-800/80 dark:bg-black/80 text-white hover:bg-amber-600 transition-all flex items-center justify-center shrink-0 shadow-lg cursor-pointer"
+            aria-label="Close Checkout Modal"
+          >
+            <X className="w-4 h-4 sm:w-5 sm:h-5" />
+          </button>
         </div>
 
-        {/* Step 1: Address Form */}
-        {step === 'address' && (
+        {/* Scrollable Body Container */}
+        <div className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6 overscroll-contain">
+          {/* Step 1: Address Form */}
+          {step === 'address' && (
           <form onSubmit={handleAddressSubmit} className="space-y-4">
             <div className="flex items-center justify-between">
               <h3 className="text-2xl font-serif-luxury font-bold text-[var(--text-primary)]">
@@ -1561,6 +1602,7 @@ export const CheckoutModal: React.FC = () => {
             </button>
           </div>
         )}
+        </div>
       </div>
     </div>
   );

@@ -18,7 +18,7 @@ import {
   downloadLabel,
   downloadInvoice,
 } from './src/server/shiprocketService';
-import { INITIAL_HERO_SLIDES } from './src/data/initialData';
+import { INITIAL_HERO_SLIDES, INITIAL_PRODUCTS } from './src/data/initialData';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
 
@@ -1227,7 +1227,11 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
     customerCountry: string,
     couponCode?: string
   ) {
-    const dbProducts = (await getStoreValue<any[]>('products')) || [];
+    let dbProducts = (await getStoreValue<any[]>('products')) || [];
+    if (!dbProducts || dbProducts.length === 0) {
+      dbProducts = INITIAL_PRODUCTS;
+    }
+
     let subtotalINR = 0;
     const validatedItems: any[] = [];
 
@@ -1236,7 +1240,7 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
       const prod = dbProducts.find((p) => p.id === pId);
       if (!prod) continue;
       const qty = Math.max(1, Math.min(100, Number(item.quantity) || 1));
-      const itemPrice = Number(prod.price) || 0;
+      const itemPrice = Number(prod.priceINR ?? prod.price) || 0;
       subtotalINR += itemPrice * qty;
       validatedItems.push({
         product: prod,
@@ -1257,7 +1261,7 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
         (c) => c.code?.toUpperCase() === couponCode.trim().toUpperCase() && c.isActive !== false
       );
       if (validCoupon) {
-        if (validCoupon.discountType === 'PERCENTAGE' || validCoupon.type === 'PERCENTAGE') {
+        if (validCoupon.discountType === 'PERCENTAGE' || validCoupon.type === 'PERCENTAGE' || validCoupon.discountType === 'PERCENT') {
           discountINR = Math.round((subtotalINR * (validCoupon.discountValue || validCoupon.value || 0)) / 100);
         } else {
           discountINR = Math.round(validCoupon.discountValue || validCoupon.value || 0);
@@ -1274,12 +1278,12 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
 
     let shippingFeeINR = 0;
     if (isIndia) {
-      shippingFeeINR = subtotalINR >= 999 ? 0 : 99;
+      shippingFeeINR = taxableAmount >= 999 ? 0 : 99;
     } else {
-      shippingFeeINR = subtotalINR >= 2500 ? 0 : 499;
+      shippingFeeINR = taxableAmount >= 2500 ? 0 : 499;
     }
 
-    const grandTotalINR = Math.max(1, Math.round(taxableAmount + taxINR + shippingFeeINR));
+    const grandTotalINR = Math.max(1, Math.round(taxableAmount + shippingFeeINR));
 
     return {
       subtotalINR,
@@ -1318,6 +1322,10 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
       const amountInPaise = Math.round(grandTotalINR * 100);
       const receipt = `rec_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 
+      console.log(`[Payment Calculation] Calculated Amount: ₹${grandTotalINR} (Subtotal: ₹${subtotalINR}, Discount: ₹${discountINR}, Tax: ₹${taxINR}, Shipping: ₹${shippingFeeINR})`);
+      console.log(`[Payment Calculation] Currency: INR`);
+      console.log(`[Payment Calculation] Razorpay Amount (Paise): ${amountInPaise}`);
+
       const razorpayOrder = await rzp.orders.create({
         amount: amountInPaise,
         currency: 'INR',
@@ -1329,6 +1337,8 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
           customer_country: customer.country || 'India',
         },
       });
+
+      console.log(`[Payment Calculation] Razorpay Order ID: ${razorpayOrder.id}`);
 
       const localOrderId = `ord-${Date.now()}`;
       const orderNumber = `HV-ORD-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;

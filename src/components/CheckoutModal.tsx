@@ -392,19 +392,6 @@ export const CheckoutModal: React.FC = () => {
     }
   };
 
-  // Determine market payment gateways
-  const marketMapping = marketGateways.find((mg) => mg.marketId === currentMarket.id) ||
-    marketGateways.find((mg) => mg.countryCode === matchedCountry?.code);
-  const activeGatewayIds: PaymentGatewayId[] = marketMapping
-    ? marketMapping.gateways
-    : (currentMarket.paymentGateways as PaymentGatewayId[]) || ['RAZORPAY', 'UPI', 'PHONEPE', 'COD'];
-
-  // Filter paymentGateways by enabled & active for this market, AND EXCLUDE COD FOR INTERNATIONAL
-  const availableGateways = paymentGateways
-    .filter((gw) => gw.enabled && activeGatewayIds.includes(gw.id))
-    .filter((gw) => isIndia || gw.id !== 'COD')
-    .sort((a, b) => a.sortOrder - b.sortOrder);
-
   // COD checks
   const minOrder = codRules?.minOrderAmountINR ?? codRules?.minOrderINR ?? 0;
   const maxOrder = codRules?.maxOrderAmountINR ?? codRules?.maxOrderINR ?? 0;
@@ -414,6 +401,40 @@ export const CheckoutModal: React.FC = () => {
     (maxOrder <= 0 || cartTotalINR <= maxOrder);
 
   const isCodAllowed = isIndia && (codRules?.enabled !== false) && isCodWithinLimits;
+
+  // Final Payment Architecture:
+  // - India: Razorpay Secure Checkout (prepaid) + Cash on Delivery (if allowed)
+  // - International: Razorpay Secure International Checkout ONLY (no COD, no Stripe, no PayPal)
+  const razorpayConfig = paymentGateways.find((g) => g.id === 'RAZORPAY');
+  const razorpayMode = razorpayConfig?.mode || 'LIVE';
+
+  const availableGateways: { id: PaymentGatewayId; name: string; description: string; mode: string }[] = isIndia
+    ? [
+        {
+          id: 'RAZORPAY',
+          name: 'Razorpay Secure Checkout',
+          description: 'Pay securely via UPI, Google Pay, PhonePe, Cards, Net Banking & Wallets',
+          mode: razorpayMode,
+        },
+        ...(isCodAllowed
+          ? [
+              {
+                id: 'COD' as PaymentGatewayId,
+                name: 'Cash on Delivery (COD)',
+                description: 'Pay with cash upon package delivery at your doorstep',
+                mode: 'LIVE',
+              },
+            ]
+          : []),
+      ]
+    : [
+        {
+          id: 'RAZORPAY',
+          name: 'Razorpay Secure International Checkout',
+          description: 'Pay securely using supported international Visa, Mastercard, American Express and other enabled cards.',
+          mode: razorpayMode,
+        },
+      ];
 
   // Dynamic Shipping & Grand Total Calculation
   const isFreeShipping = isIndia ? cartTotalINR >= 999 : cartTotalINR >= 2500;
@@ -1762,19 +1783,15 @@ export const CheckoutModal: React.FC = () => {
                   <span>Processing Secure Payment...</span>
                 ) : (
                   <span>
-                    {paymentMethod === 'STRIPE'
-                      ? `PAY ${formatPrice(grandTotalINR)} VIA STRIPE`
-                      : paymentMethod === 'PAYPAL'
-                      ? `PAY ${formatPrice(grandTotalINR)} VIA PAYPAL`
-                      : paymentMethod === 'RAZORPAY'
-                      ? `PAY ${formatPrice(grandTotalINR)} VIA RAZORPAY`
-                      : paymentMethod === 'PHONEPE'
-                      ? `PAY ${formatPrice(grandTotalINR)} VIA PHONEPE`
-                      : paymentMethod === 'UPI'
-                      ? `PAY ${formatPrice(grandTotalINR)} VIA INSTANT UPI`
-                      : paymentMethod === 'COD'
-                      ? 'PLACE CASH ON DELIVERY ORDER'
-                      : `PAY ${formatPrice(grandTotalINR)}`}
+                    {isIndia
+                      ? paymentMethod === 'COD'
+                        ? 'PLACE CASH ON DELIVERY ORDER'
+                        : `PAY ₹${grandTotalINR.toLocaleString('en-IN')} SECURELY`
+                      : `PAY ${currentCurrency.code} ${
+                          currentCurrency.code === 'INR'
+                            ? grandTotalINR.toLocaleString('en-IN')
+                            : (grandTotalINR / currentCurrency.rateToINR).toFixed(2)
+                        } SECURELY`}
                   </span>
                 )}
               </button>

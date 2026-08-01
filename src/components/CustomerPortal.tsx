@@ -1283,7 +1283,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                     <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-6 space-y-4 animate-in fade-in text-xs">
                       <h4 className="text-lg font-bold font-serif-luxury text-slate-100">Saved Payment Methods</h4>
                       <p className="text-slate-300">
-                        HAKKIVEDA supports 100% secure encrypted checkout via Razorpay, Stripe, PayPal, and Cash on Delivery.
+                        HAKKIVEDA supports 100% secure encrypted checkout via Razorpay Secure Checkout, Razorpay International, and Cash on Delivery.
                       </p>
 
                       <div className="space-y-3 pt-2">

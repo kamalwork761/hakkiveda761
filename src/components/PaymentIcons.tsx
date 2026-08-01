@@ -131,8 +131,6 @@ export const PaymentIcons: React.FC<{ className?: string }> = ({ className = '' 
 
       <div className="flex items-center gap-2 flex-wrap">
         <PaymentIcon gatewayId="RAZORPAY" size="sm" />
-        <PaymentIcon gatewayId="STRIPE" size="sm" />
-        <PaymentIcon gatewayId="PAYPAL" size="sm" />
         <PaymentIcon gatewayId="PHONEPE" size="sm" />
         <PaymentIcon gatewayId="UPI" size="sm" />
         <PaymentIcon gatewayId="COD" size="sm" />

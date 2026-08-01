@@ -84,11 +84,116 @@ async function startServer() {
   // Enable HTTP response compression (gzip/deflate)
   app.use(compression());
 
+  // Security Headers Middleware
+  app.use((_req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    next();
+  });
+
   app.use(express.json({ limit: '100mb' }));
   app.use(express.urlencoded({ limit: '100mb', extended: true }));
 
   // Static serving for persistent uploaded media with caching
-  app.use('/uploads', express.static(uploadDir, { maxAge: '1d' }));
+  app.use('/uploads', express.static(uploadDir, { maxAge: '30d' }));
+
+  // Dynamic Robots.txt Route
+  app.get('/robots.txt', (_req, res) => {
+    res.setHeader('Content-Type', 'text/plain');
+    res.setHeader('Cache-Control', 'public, max-age=86400');
+    res.send(`User-agent: *
+Allow: /
+
+Disallow: /admin
+Disallow: /api/private
+Disallow: /temp
+Disallow: /uploads/private
+
+Sitemap: https://hakkiveda.store/sitemap.xml`);
+  });
+
+  // Dynamic Sitemap.xml Route
+  app.get('/sitemap.xml', async (_req, res) => {
+    try {
+      const siteUrl = 'https://hakkiveda.store';
+      const products = (await getStoreValue<any[]>('products')) || [];
+      const categories = (await getStoreValue<any[]>('categories')) || [];
+      const blogs = (await getStoreValue<any[]>('blogs')) || [];
+
+      const slugify = (str: string) =>
+        str
+          .toLowerCase()
+          .trim()
+          .replace(/[^\w\s-]/g, '')
+          .replace(/[\s_]+/g, '-')
+          .replace(/^-+|-+$/g, '');
+
+      interface SitemapItem {
+        url: string;
+        priority: string;
+        changefreq: string;
+        lastmod?: string;
+      }
+
+      const staticPages: SitemapItem[] = [
+        { url: siteUrl, priority: '1.0', changefreq: 'daily', lastmod: new Date().toISOString().split('T')[0] },
+        { url: `${siteUrl}/collections`, priority: '0.9', changefreq: 'weekly', lastmod: new Date().toISOString().split('T')[0] },
+        { url: `${siteUrl}/quiz`, priority: '0.8', changefreq: 'monthly', lastmod: new Date().toISOString().split('T')[0] },
+        { url: `${siteUrl}/b2b`, priority: '0.8', changefreq: 'monthly', lastmod: new Date().toISOString().split('T')[0] },
+        { url: `${siteUrl}/gallery`, priority: '0.7', changefreq: 'monthly', lastmod: new Date().toISOString().split('T')[0] },
+        { url: `${siteUrl}/testimonials`, priority: '0.7', changefreq: 'weekly', lastmod: new Date().toISOString().split('T')[0] },
+      ];
+
+      const productUrls: SitemapItem[] = products.map((p) => ({
+        url: `${siteUrl}/products/${slugify(p.name || p.id)}`,
+        priority: '0.9',
+        changefreq: 'weekly',
+        lastmod: new Date().toISOString().split('T')[0],
+      }));
+
+      const categoryUrls: SitemapItem[] = categories.map((c) => ({
+        url: `${siteUrl}/categories/${c.slug || slugify(c.name || c.id)}`,
+        priority: '0.8',
+        changefreq: 'weekly',
+        lastmod: new Date().toISOString().split('T')[0],
+      }));
+
+      const blogUrls: SitemapItem[] = blogs.map((b) => ({
+        url: `${siteUrl}/journal/${slugify(b.title || b.id)}`,
+        priority: '0.7',
+        changefreq: 'monthly',
+        lastmod: b.createdAt ? new Date(b.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+      }));
+
+      const allUrls = [...staticPages, ...productUrls, ...categoryUrls, ...blogUrls];
+
+      let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
+      xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
+
+      for (const item of allUrls) {
+        xml += `  <url>\n`;
+        xml += `    <loc>${item.url}</loc>\n`;
+        if (item.lastmod) {
+          xml += `    <lastmod>${item.lastmod}</lastmod>\n`;
+        }
+        xml += `    <changefreq>${item.changefreq}</changefreq>\n`;
+        xml += `    <priority>${item.priority}</priority>\n`;
+        xml += `  </url>\n`;
+      }
+
+      xml += `</urlset>`;
+
+      res.setHeader('Content-Type', 'application/xml');
+      res.setHeader('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
+      res.send(xml);
+    } catch (err: any) {
+      console.error('Sitemap error:', err);
+      res.status(500).send('Error generating sitemap');
+    }
+  });
 
   // Health Check Endpoint
   app.get('/api/health', (_req, res) => {

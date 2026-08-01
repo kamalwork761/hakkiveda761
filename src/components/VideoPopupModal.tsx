@@ -201,7 +201,7 @@ export const VideoPopupModal: React.FC<VideoPopupModalProps> = ({
             muted={isMuted}
             loop
             playsInline
-            preload="auto"
+            preload="metadata"
             className="w-full h-full object-cover"
             onPlay={() => setIsPlaying(true)}
             onPause={() => setIsPlaying(false)}

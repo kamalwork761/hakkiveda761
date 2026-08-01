@@ -44,7 +44,7 @@ const SectionSkeleton: React.FC = () => (
 );
 
 export function AppContent() {
-  const { adminAuthenticated, logoutAdmin, isCountryModalOpen, setIsCountryModalOpen, playSound, openQuickView } = useStore();
+  const { adminAuthenticated, logoutAdmin, isCountryModalOpen, setIsCountryModalOpen, playSound, openQuickView, products, categories } = useStore();
   const [selectedCategory, setSelectedCategory] = useState<string>(() => {
     const params = new URLSearchParams(window.location.search);
     const cat = params.get('category');
@@ -59,7 +59,33 @@ export function AppContent() {
 
   useEffect(() => {
     const handleLocationChange = () => {
-      setCurrentPath(window.location.pathname);
+      const pathname = window.location.pathname;
+      setCurrentPath(pathname);
+
+      // Handle product route
+      if (pathname.startsWith('/products/') && products.length > 0) {
+        const slug = pathname.replace('/products/', '').toLowerCase();
+        const slugify = (s: string) => s.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-');
+        const matched = products.find(
+          (p) => p.id === slug || slugify(p.name) === slug || (p.sku && p.sku.toLowerCase() === slug)
+        );
+        if (matched) {
+          openQuickView(matched);
+        }
+      }
+
+      // Handle category route
+      if (pathname.startsWith('/categories/') && categories.length > 0) {
+        const slug = pathname.replace('/categories/', '').toLowerCase();
+        const slugify = (s: string) => s.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-');
+        const matched = categories.find(
+          (c) => c.id === slug || (c.slug && c.slug.toLowerCase() === slug) || slugify(c.name) === slug
+        );
+        if (matched) {
+          setSelectedCategory(matched.name);
+        }
+      }
+
       const params = new URLSearchParams(window.location.search);
       const cat = params.get('category');
       if (cat) {
@@ -68,19 +94,20 @@ export function AppContent() {
         const hash = window.location.hash;
         if (hash.startsWith('#category=')) {
           setSelectedCategory(decodeURIComponent(hash.replace('#category=', '')));
-        } else if (!window.location.search) {
+        } else if (!window.location.search && !pathname.startsWith('/categories/')) {
           setSelectedCategory('ALL');
         }
       }
     };
 
+    handleLocationChange();
     window.addEventListener('popstate', handleLocationChange);
     window.addEventListener('hashchange', handleLocationChange);
     return () => {
       window.removeEventListener('popstate', handleLocationChange);
       window.removeEventListener('hashchange', handleLocationChange);
     };
-  }, []);
+  }, [products, categories]);
 
   const handleSelectCategory = (catName: string, shouldScroll: boolean = true) => {
     playSound('nav_click');

@@ -1599,12 +1599,26 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     soundManager.play('menu_toggle');
     setQuickViewProduct(product);
     setIsQuickViewOpen(true);
+
+    try {
+      const slug = product.name.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-');
+      const newPath = `/products/${slug}`;
+      if (window.location.pathname !== newPath) {
+        window.history.pushState({ productId: product.id }, '', newPath);
+      }
+    } catch (e) {}
   };
 
   const closeQuickView = () => {
     soundManager.play('menu_toggle');
     setIsQuickViewOpen(false);
     setQuickViewProduct(null);
+
+    try {
+      if (window.location.pathname.startsWith('/products/')) {
+        window.history.pushState({}, '', '/');
+      }
+    } catch (e) {}
   };
 
   // Orders

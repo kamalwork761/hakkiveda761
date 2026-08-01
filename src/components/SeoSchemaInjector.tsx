@@ -31,6 +31,66 @@ export const SeoSchemaInjector: React.FC = () => {
     const email = siteSettings.contactEmail || brandIdentity.email || 'support@hakkiveda.store';
     const addressText = footerConfig.address || siteSettings.contactAddress || 'Door No. 574, V.P. Bore, Hunsur, Mysore, Karnataka 571105, India';
 
+    // ------------------------------------
+    // DYNAMIC HEAD & META TAG UPDATES
+    // ------------------------------------
+    const setMetaTag = (nameOrProperty: 'name' | 'property', key: string, content: string) => {
+      let tag = document.querySelector(`meta[${nameOrProperty}="${key}"]`) as HTMLMetaElement | null;
+      if (!tag) {
+        tag = document.createElement('meta');
+        tag.setAttribute(nameOrProperty, key);
+        document.head.appendChild(tag);
+      }
+      tag.setAttribute('content', content);
+    };
+
+    const setCanonical = (href: string) => {
+      let link = document.querySelector('link[rel="canonical"]') as HTMLLinkElement | null;
+      if (!link) {
+        link = document.createElement('link');
+        link.setAttribute('rel', 'canonical');
+        document.head.appendChild(link);
+      }
+      link.setAttribute('href', href);
+    };
+
+    let pageTitle = siteSettings.siteTitle || 'HAKKIVEDA | Authentic Hakki-Pikki Tribal Ayurvedic Hair Care';
+    let pageDesc = siteSettings.seoDescription || 'Discover authentic Hakki-Pikki tribal Ayurvedic hair care from HAKKIVEDA. Shop 108 Herbs Hair Oil, Herbal Shampoo, Baldness Powder and premium natural wellness products with worldwide shipping.';
+    let pageKeywords = siteSettings.seoKeywords || 'HAKKIVEDA, Adivasi Hair Oil, 108 Herbs Hair Oil, Hakki Pikki Tribe, Ayurvedic Hair Oil, Herbal Hair Growth, Natural Hair Care, Herbal Shampoo, Hair Fall Solution, Ayurvedic Wellness';
+    let pageImage = logoUrl;
+    let canonicalUrl = `${siteUrl}${window.location.pathname}${window.location.search}`;
+
+    if (quickViewProduct) {
+      pageTitle = `${quickViewProduct.name} | HAKKIVEDA Hakki-Pikki Tribal Hair Care`;
+      pageDesc = quickViewProduct.description ? quickViewProduct.description.slice(0, 160) : `Buy ${quickViewProduct.name} - Authentic Hakki-Pikki tribal Ayurvedic formula from HAKKIVEDA. Fast worldwide express shipping.`;
+      pageImage = quickViewProduct.image || logoUrl;
+      const slug = quickViewProduct.name.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-');
+      canonicalUrl = `${siteUrl}/products/${slug}`;
+
+      // Additional Product OpenGraph tags
+      setMetaTag('property', 'product:price:amount', String(quickViewProduct.priceINR || 0));
+      setMetaTag('property', 'product:price:currency', currentCurrency.code || 'INR');
+      setMetaTag('property', 'product:availability', quickViewProduct.inStock ? 'in stock' : 'out of stock');
+    }
+
+    document.title = pageTitle;
+    setMetaTag('name', 'description', pageDesc);
+    setMetaTag('name', 'keywords', pageKeywords);
+    setCanonical(canonicalUrl);
+
+    // OpenGraph
+    setMetaTag('property', 'og:title', pageTitle);
+    setMetaTag('property', 'og:description', pageDesc);
+    setMetaTag('property', 'og:image', pageImage);
+    setMetaTag('property', 'og:url', canonicalUrl);
+    setMetaTag('property', 'og:type', quickViewProduct ? 'product' : 'website');
+
+    // Twitter Card
+    setMetaTag('name', 'twitter:title', pageTitle);
+    setMetaTag('name', 'twitter:description', pageDesc);
+    setMetaTag('name', 'twitter:image', pageImage);
+    setMetaTag('name', 'twitter:card', 'summary_large_image');
+
     // Collect social links dynamically
     const sameAsList: string[] = [
       brandIdentity.socialFacebook,

@@ -377,7 +377,7 @@ export const ShoppableReelsSection: React.FC<ShoppableReelsSectionProps> = ({
                 muted={isMuted}
                 loop
                 playsInline
-                preload="auto"
+                preload="metadata"
                 className="w-full h-full object-cover"
                 onPlay={() => setIsPlaying(true)}
                 onPause={() => setIsPlaying(false)}

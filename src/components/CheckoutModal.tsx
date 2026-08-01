@@ -53,7 +53,7 @@ export const CheckoutModal: React.FC = () => {
     clearCart,
   } = useStore();
 
-  const [step, setStep] = useState<'address' | 'payment' | 'confirmation'>('address');
+  const [step, setStep] = useState<'address' | 'review' | 'payment' | 'confirmation'>('address');
 
   // Customer form state
   const [name, setName] = useState('');
@@ -280,40 +280,52 @@ export const CheckoutModal: React.FC = () => {
 
   const isCodAllowed = isIndia && (codRules?.enabled !== false) && isCodWithinLimits;
 
+  // Address Validation
+  const validateEmail = (val: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
+
   const handleAddressSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (isBlocked) return;
     setAddressFormError('');
 
-    if (isIndia) {
-      if (!name.trim()) {
-        setAddressFormError('Please enter full name.');
-        return;
-      }
-      const cleanPhone = phone.replace(/\D/g, '').replace(/^0+/, '');
-      if (cleanPhone.length < activeCountryInfo.phoneMinDigits || cleanPhone.length > activeCountryInfo.phoneMaxDigits) {
+    if (!name.trim()) {
+      setAddressFormError('Please enter full customer name.');
+      return;
+    }
+
+    if (!email.trim() || !validateEmail(email)) {
+      setAddressFormError('Please enter a valid email address (e.g. name@domain.com).');
+      return;
+    }
+
+    const cleanPhone = phone.replace(/\D/g, '').replace(/^0+/, '');
+    if (!cleanPhone || cleanPhone.length < activeCountryInfo.phoneMinDigits || cleanPhone.length > activeCountryInfo.phoneMaxDigits) {
+      setAddressFormError(
+        `Please enter a valid ${activeCountryInfo.phoneMinDigits}${
+          activeCountryInfo.phoneMinDigits === activeCountryInfo.phoneMaxDigits ? '' : `-${activeCountryInfo.phoneMaxDigits}`
+        }-digit mobile number for ${country}.`
+      );
+      return;
+    }
+
+    if (altPhone.trim()) {
+      const cleanAlt = altPhone.replace(/\D/g, '').replace(/^0+/, '');
+      if (cleanAlt.length < activeCountryInfo.phoneMinDigits || cleanAlt.length > activeCountryInfo.phoneMaxDigits) {
         setAddressFormError(
-          `Please enter a valid ${activeCountryInfo.phoneMinDigits}${
+          `Alternate mobile number must be a valid ${activeCountryInfo.phoneMinDigits}${
             activeCountryInfo.phoneMinDigits === activeCountryInfo.phoneMaxDigits ? '' : `-${activeCountryInfo.phoneMaxDigits}`
-          }-digit mobile number for ${country}.`
+          }-digit mobile number.`
         );
         return;
       }
-      if (altPhone.trim()) {
-        const cleanAlt = altPhone.replace(/\D/g, '').replace(/^0+/, '');
-        if (cleanAlt.length < activeCountryInfo.phoneMinDigits || cleanAlt.length > activeCountryInfo.phoneMaxDigits) {
-          setAddressFormError(
-            `Alternate mobile number must be a valid ${activeCountryInfo.phoneMinDigits}${
-              activeCountryInfo.phoneMinDigits === activeCountryInfo.phoneMaxDigits ? '' : `-${activeCountryInfo.phoneMaxDigits}`
-            }-digit mobile number.`
-          );
-          return;
-        }
-      }
-      if (!line1.trim()) {
-        setAddressFormError('Please enter complete address.');
-        return;
-      }
+    }
+
+    if (!line1.trim()) {
+      setAddressFormError('Please enter complete street address line 1.');
+      return;
+    }
+
+    if (isIndia) {
       const cleanPin = pincode.replace(/\D/g, '');
       if (cleanPin.length !== 6) {
         setAddressFormError('Please enter a valid 6-digit Indian pincode.');
@@ -323,51 +335,7 @@ export const CheckoutModal: React.FC = () => {
         setAddressFormError('Please enter a valid Indian pincode to fetch City and State.');
         return;
       }
-      if (!isBillingSame) {
-        if (!billingName.trim()) {
-          setAddressFormError('Please enter billing full name.');
-          return;
-        }
-        const cleanBilling = billingPhone.replace(/\D/g, '').replace(/^0+/, '');
-        if (!cleanBilling || cleanBilling.length < activeCountryInfo.phoneMinDigits || cleanBilling.length > activeCountryInfo.phoneMaxDigits) {
-          setAddressFormError('Please enter a valid billing mobile number.');
-          return;
-        }
-        if (!billingAddress.trim()) {
-          setAddressFormError('Please enter billing complete address.');
-          return;
-        }
-        if (!billingPincode.replace(/\D/g, '')) {
-          setAddressFormError('Please enter billing pincode.');
-          return;
-        }
-        if (!billingCity.trim() || !billingState.trim()) {
-          setAddressFormError('Please enter billing city and state.');
-          return;
-        }
-      }
     } else {
-      // International validation
-      if (!name.trim()) {
-        setAddressFormError('Please enter Full Name.');
-        return;
-      }
-      const phoneDigits = phone.replace(/\D/g, '').replace(/^0+/, '');
-      if (!phoneDigits || phoneDigits.length < activeCountryInfo.phoneMinDigits || phoneDigits.length > activeCountryInfo.phoneMaxDigits) {
-        setAddressFormError(`Please enter a valid mobile number for ${country} (${activeCountryInfo.phoneMinDigits}-${activeCountryInfo.phoneMaxDigits} digits).`);
-        return;
-      }
-      if (altPhone.trim()) {
-        const altDigits = altPhone.replace(/\D/g, '').replace(/^0+/, '');
-        if (altDigits.length < activeCountryInfo.phoneMinDigits || altDigits.length > activeCountryInfo.phoneMaxDigits) {
-          setAddressFormError(`Alternate mobile number must be a valid number.`);
-          return;
-        }
-      }
-      if (!line1.trim()) {
-        setAddressFormError('Please enter Address Line 1.');
-        return;
-      }
       if (activeCountryInfo.code !== 'AE' && !pincode.trim()) {
         setAddressFormError(`Please enter ${activeCountryInfo.postalLabel}.`);
         return;
@@ -376,24 +344,29 @@ export const CheckoutModal: React.FC = () => {
         setAddressFormError('Please enter City and State / Province / Region.');
         return;
       }
-      if (!isBillingSame) {
-        if (!billingName.trim()) {
-          setAddressFormError('Please enter billing full name.');
-          return;
-        }
-        const cleanBilling = billingPhone.replace(/\D/g, '').replace(/^0+/, '');
-        if (!cleanBilling || cleanBilling.length < billingCountryInfo.phoneMinDigits || cleanBilling.length > billingCountryInfo.phoneMaxDigits) {
-          setAddressFormError(`Please enter a valid billing mobile number for ${billingCountryInfo.name} (${billingCountryInfo.phoneMinDigits}-${billingCountryInfo.phoneMaxDigits} digits).`);
-          return;
-        }
-        if (!billingAddress.trim()) {
-          setAddressFormError('Please enter billing address line 1.');
-          return;
-        }
-        if (!billingCity.trim() || !billingState.trim()) {
-          setAddressFormError('Please enter billing city and state.');
-          return;
-        }
+    }
+
+    if (!isBillingSame) {
+      if (!billingName.trim()) {
+        setAddressFormError('Please enter billing full name.');
+        return;
+      }
+      const cleanBilling = billingPhone.replace(/\D/g, '').replace(/^0+/, '');
+      if (!cleanBilling || cleanBilling.length < billingCountryInfo.phoneMinDigits || cleanBilling.length > billingCountryInfo.phoneMaxDigits) {
+        setAddressFormError('Please enter a valid billing mobile number.');
+        return;
+      }
+      if (!billingAddress.trim()) {
+        setAddressFormError('Please enter billing complete address.');
+        return;
+      }
+      if (!billingPincode.trim()) {
+        setAddressFormError('Please enter billing postal code/pincode.');
+        return;
+      }
+      if (!billingCity.trim() || !billingState.trim()) {
+        setAddressFormError('Please enter billing city and state.');
+        return;
       }
     }
 
@@ -404,10 +377,11 @@ export const CheckoutModal: React.FC = () => {
       setPaymentMethod(availableGateways[0].id);
     }
 
-    setStep('payment');
+    setStep('review');
   };
 
   const handlePlaceOrder = () => {
+    if (isProcessingPayment) return; // Prevent duplicate order trigger
     setIsProcessingPayment(true);
 
     setTimeout(() => {
@@ -425,11 +399,18 @@ export const CheckoutModal: React.FC = () => {
         ? fullPhone
         : formatE164(billingCountryInfo.dialCode, billingPhone);
 
+      const shippingFee = cartTotalINR > 999 ? 0 : 99;
+      const totalAmountWithShipping = cartTotalINR + shippingFee;
+
       const order = placeOrder({
         items: [...cart],
-        totalAmountINR: cartTotalINR,
+        subtotalINR: cartTotalINR,
+        shippingChargesINR: shippingFee,
+        taxINR: Math.round(cartTotalINR * 0.05),
+        discountINR: 0,
+        totalAmountINR: totalAmountWithShipping,
         currencyCode: currentCurrency.code,
-        convertedTotal: currentCurrency.code === 'INR' ? cartTotalINR : Number((cartTotalINR / currentCurrency.rateToINR).toFixed(2)),
+        convertedTotal: currentCurrency.code === 'INR' ? totalAmountWithShipping : Number((totalAmountWithShipping / currentCurrency.rateToINR).toFixed(2)),
         customer: {
           name,
           email,
@@ -460,9 +441,9 @@ export const CheckoutModal: React.FC = () => {
           billingCountry: isBillingSame ? country : billingCountry,
         },
         paymentMethod: paymentMethod,
-        paymentStatus: isCod ? 'COD_DUE' : 'PAID',
-        trackingStatus: 'ORDER_PLACED',
-        trackingNumber: `HV-${Math.floor(100000 + Math.random() * 900000)}`,
+        paymentStatus: isCod ? 'Awaiting Fulfillment' : 'Paid',
+        trackingStatus: isCod ? 'AWAITING_FULFILLMENT' : 'ORDER_PLACED',
+        trackingNumber: `HV-TRK-${Math.floor(100000 + Math.random() * 900000)}`,
         courierName: isIndia ? 'Delhivery Surface / Shiprocket' : 'DHL Express Worldwide',
         estimatedDeliveryDate: new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0],
       });
@@ -496,7 +477,7 @@ export const CheckoutModal: React.FC = () => {
       clearCart();
       setIsProcessingPayment(false);
       setStep('confirmation');
-    }, 1800);
+    }, 1500);
   };
 
   return (
@@ -510,12 +491,22 @@ export const CheckoutModal: React.FC = () => {
         </button>
 
         {/* Header Steps */}
-        <div className="flex items-center gap-3 border-b border-[var(--border-muted)] pb-4 mb-6 text-xs uppercase tracking-widest font-bold">
-          <span className={step === 'address' ? 'text-[var(--heading-primary)] underline decoration-2' : 'text-[var(--text-muted)]'}>1. Delivery Address</span>
+        <div className="flex items-center gap-2 sm:gap-3 border-b border-[var(--border-muted)] pb-4 mb-6 text-[10px] sm:text-xs uppercase tracking-widest font-bold overflow-x-auto">
+          <span className={step === 'address' ? 'text-[var(--heading-primary)] underline decoration-2 font-black' : 'text-[var(--text-muted)]'}>
+            1. Delivery Address
+          </span>
           <span className="text-[var(--text-muted)]">/</span>
-          <span className={step === 'payment' ? 'text-[var(--heading-primary)] underline decoration-2' : 'text-[var(--text-muted)]'}>2. Payment Method</span>
+          <span className={step === 'review' ? 'text-[var(--heading-primary)] underline decoration-2 font-black' : 'text-[var(--text-muted)]'}>
+            2. Order Review
+          </span>
           <span className="text-[var(--text-muted)]">/</span>
-          <span className={step === 'confirmation' ? 'text-[var(--heading-primary)] underline decoration-2' : 'text-[var(--text-muted)]'}>3. Order Receipt</span>
+          <span className={step === 'payment' ? 'text-[var(--heading-primary)] underline decoration-2 font-black' : 'text-[var(--text-muted)]'}>
+            3. Payment Method
+          </span>
+          <span className="text-[var(--text-muted)]">/</span>
+          <span className={step === 'confirmation' ? 'text-[var(--heading-primary)] underline decoration-2 font-black' : 'text-[var(--text-muted)]'}>
+            4. Order Receipt
+          </span>
         </div>
 
         {/* Step 1: Address Form */}
@@ -1238,10 +1229,157 @@ export const CheckoutModal: React.FC = () => {
                   : 'bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:opacity-95'
               }`}
             >
-              <span>{isBlocked ? 'Shipping Blocked' : 'Continue To Payment'}</span>
+              <span>{isBlocked ? 'Shipping Blocked' : 'Continue To Order Review'}</span>
               <ArrowRight className="w-4 h-4" />
             </button>
           </form>
+        )}
+
+        {/* Step 2: Order Review & Shipping Summary */}
+        {step === 'review' && (
+          <div className="space-y-6">
+            <div className="flex items-center justify-between border-b border-[var(--border-muted)] pb-3">
+              <h3 className="text-xl sm:text-2xl font-serif-luxury font-bold text-[var(--text-primary)]">
+                Order Review & Shipping Summary
+              </h3>
+              <button
+                type="button"
+                onClick={() => setStep('address')}
+                className="text-xs font-bold text-[var(--heading-primary)] hover:underline flex items-center gap-1"
+              >
+                Edit Address
+              </button>
+            </div>
+
+            {/* Address Summary Cards */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 rounded-xl border border-[var(--border-default)] bg-[var(--surface-muted)] space-y-2 text-xs">
+                <div className="flex justify-between items-center">
+                  <span className="font-extrabold uppercase tracking-wider text-[var(--heading-primary)] text-[11px] flex items-center gap-1.5">
+                    <Truck className="w-3.5 h-3.5" /> Shipping Address
+                  </span>
+                  <button
+                    onClick={() => setStep('address')}
+                    className="text-[10px] text-amber-600 dark:text-amber-400 font-bold hover:underline"
+                  >
+                    Edit
+                  </button>
+                </div>
+                <div className="text-[var(--text-primary)] space-y-0.5">
+                  <p className="font-bold text-sm">{name}</p>
+                  <p>{line1}{line2 ? `, ${line2}` : ''}</p>
+                  {landmark && <p className="text-[var(--text-secondary)]">Landmark: {landmark}</p>}
+                  <p>{city}, {state} - {pincode}</p>
+                  <p className="font-semibold">{country} ({activeCountryInfo.flag})</p>
+                  <p className="pt-1 text-[var(--text-secondary)] font-mono">📱 {formatE164(activeCountryInfo.dialCode, phone)}</p>
+                  <p className="text-[var(--text-secondary)] font-mono">✉️ {email}</p>
+                </div>
+              </div>
+
+              <div className="p-4 rounded-xl border border-[var(--border-default)] bg-[var(--surface-muted)] space-y-2 text-xs">
+                <div className="flex justify-between items-center">
+                  <span className="font-extrabold uppercase tracking-wider text-[var(--heading-primary)] text-[11px] flex items-center gap-1.5">
+                    <ShieldCheck className="w-3.5 h-3.5" /> Billing Address
+                  </span>
+                  {!isBillingSame && (
+                    <button
+                      onClick={() => setStep('address')}
+                      className="text-[10px] text-amber-600 dark:text-amber-400 font-bold hover:underline"
+                    >
+                      Edit
+                    </button>
+                  )}
+                </div>
+                {isBillingSame ? (
+                  <p className="text-[var(--text-secondary)] italic">Same as shipping address</p>
+                ) : (
+                  <div className="text-[var(--text-primary)] space-y-0.5">
+                    <p className="font-bold">{billingName}</p>
+                    <p>{billingAddress}{billingLine2 ? `, ${billingLine2}` : ''}</p>
+                    <p>{billingCity}, {billingState} - {billingPincode}</p>
+                    <p className="font-semibold">{billingCountry}</p>
+                    <p className="text-[var(--text-secondary)] font-mono">📱 {formatE164(billingCountryInfo.dialCode, billingPhone)}</p>
+                  </div>
+                )}
+              </div>
+            </div>
+
+            {/* Order Items Breakdown */}
+            <div className="space-y-3">
+              <span className="text-xs font-bold uppercase tracking-wider text-[var(--heading-primary)] block">
+                Products ({cart.reduce((sum, item) => sum + item.quantity, 0)} Items)
+              </span>
+              <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
+                {cart.map((item) => (
+                  <div
+                    key={item.product.id}
+                    className="flex items-center gap-3 p-3 bg-[var(--surface-background)] border border-[var(--border-muted)] rounded-xl"
+                  >
+                    <img
+                      src={item.product.image}
+                      alt={item.product.name}
+                      loading="lazy"
+                      className="w-12 h-12 object-contain rounded bg-white p-1 border border-slate-200 shrink-0"
+                    />
+                    <div className="flex-1 min-w-0">
+                      <h4 className="text-xs font-bold text-[var(--text-primary)] truncate">{item.product.name}</h4>
+                      <p className="text-[11px] text-[var(--text-secondary)]">
+                        {item.product.volume || '100ml'} • Qty: {item.quantity} × {formatPrice(item.product.priceINR)}
+                      </p>
+                    </div>
+                    <span className="text-xs font-bold text-[var(--heading-primary)] shrink-0 font-mono">
+                      {formatPrice(item.product.priceINR * item.quantity)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+            </div>
+
+            {/* Shipping & Tax Calculation Summary */}
+            <div className="p-4 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-default)] space-y-2 text-xs">
+              <div className="flex justify-between text-[var(--text-secondary)]">
+                <span>Items Subtotal:</span>
+                <span className="font-bold text-[var(--text-primary)] font-mono">{formatPrice(cartTotalINR)}</span>
+              </div>
+              <div className="flex justify-between text-[var(--text-secondary)]">
+                <span>Shipping Charges:</span>
+                <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono">
+                  {cartTotalINR > 999 ? 'FREE Express Delivery' : formatPrice(99)}
+                </span>
+              </div>
+              <div className="flex justify-between text-[var(--text-secondary)]">
+                <span>Estimated Taxes (5% GST):</span>
+                <span className="font-bold text-[var(--text-primary)] font-mono">
+                  {formatPrice(Math.round(cartTotalINR * 0.05))} (Included)
+                </span>
+              </div>
+              <div className="flex justify-between text-[var(--text-secondary)] border-t border-[var(--border-muted)] pt-2 font-bold text-sm">
+                <span className="text-[var(--text-primary)]">Grand Total:</span>
+                <span className="text-[var(--heading-primary)] text-base font-black font-mono">
+                  {formatPrice(cartTotalINR > 999 ? cartTotalINR : cartTotalINR + 99)}
+                </span>
+              </div>
+            </div>
+
+            {/* Step Navigation Buttons */}
+            <div className="flex gap-3 pt-2">
+              <button
+                type="button"
+                onClick={() => setStep('address')}
+                className="px-6 py-3 border border-[var(--border-default)] rounded-lg text-xs font-bold uppercase text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
+              >
+                Back to Address
+              </button>
+              <button
+                type="button"
+                onClick={() => setStep('payment')}
+                className="flex-1 bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:opacity-95 transition-all shadow-xl flex items-center justify-center gap-2"
+              >
+                <span>Proceed to Payment Methods</span>
+                <ArrowRight className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
         )}
 
         {/* Step 2: Payment Selection */}
@@ -1341,10 +1479,10 @@ export const CheckoutModal: React.FC = () => {
 
             <div className="flex gap-3">
               <button
-                onClick={() => setStep('address')}
+                onClick={() => setStep('review')}
                 className="px-6 py-3 border border-[var(--border-default)] rounded-lg text-xs font-bold uppercase text-[var(--text-secondary)] hover:text-[var(--text-primary)]"
               >
-                Back
+                Back To Review
               </button>
               <button
                 onClick={handlePlaceOrder}

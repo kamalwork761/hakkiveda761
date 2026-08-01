@@ -1624,10 +1624,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Orders
   const placeOrder = (orderData: Omit<Order, 'id' | 'orderNumber' | 'date'>) => {
     soundManager.play('order_success');
+    const orderNumber = `HV-ORD-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
     const newOrder: Order = {
       ...orderData,
       id: `ord-${Date.now()}`,
-      orderNumber: `HV-${Math.floor(100000 + Math.random() * 900000)}`,
+      orderNumber,
       date: new Date().toISOString().split('T')[0],
     };
     setOrders((prev) => {
@@ -1636,10 +1637,31 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return next;
     });
 
+    // Decrease stock ONLY for confirmed Paid or COD orders
+    if (newOrder.paymentStatus === 'PAID' || newOrder.paymentStatus === 'COD_DUE' || newOrder.paymentStatus === 'Paid' || newOrder.paymentStatus === 'Awaiting Fulfillment') {
+      setProducts((prev) => {
+        const nextProducts = prev.map((p) => {
+          const itemInCart = orderData.items.find((ci) => ci.product.id === p.id);
+          if (itemInCart) {
+            const currentStock = typeof p.stock === 'number' ? p.stock : 100;
+            const updatedStock = Math.max(0, currentStock - itemInCart.quantity);
+            return {
+              ...p,
+              stock: updatedStock,
+              inStock: updatedStock > 0,
+            };
+          }
+          return p;
+        });
+        setStored('products', nextProducts);
+        return nextProducts;
+      });
+    }
+
     // Automatically create real PaymentLog
     const gwId: PaymentGatewayId = (newOrder.paymentMethod as PaymentGatewayId) || 'RAZORPAY';
     const isCod = gwId === 'COD';
-    const status = isCod ? 'PENDING' : 'SUCCESSFUL';
+    const status = isCod ? 'PENDING' : (newOrder.paymentStatus === 'PAID' || newOrder.paymentStatus === 'Paid' ? 'SUCCESSFUL' : 'PENDING');
 
     addPaymentLog({
       orderId: newOrder.id,

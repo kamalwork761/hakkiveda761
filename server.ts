@@ -1320,14 +1320,6 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
 
       const rzp = getRazorpayInstance();
 
-      // Standard ISO currencies natively supported by Razorpay for order creation
-      const RAZORPAY_SUPPORTED_CURRENCIES = new Set([
-        'INR', 'USD', 'EUR', 'GBP', 'SGD', 'AED', 'MYR', 'SAR', 'AUD', 'CAD',
-        'HKD', 'NZD', 'CHF', 'SEK', 'JPY', 'KWD', 'BHD', 'OMR', 'QAR', 'THB',
-        'ZAR', 'RUB', 'MUR', 'NPR', 'BRL', 'MXN', 'DKK', 'NOK', 'PLN', 'CZK',
-        'HUF', 'ILS', 'EGP', 'PHP', 'IDR', 'TRY', 'KRW', 'LKR', 'BDT'
-      ]);
-
       // Load active currencies from database store or fallback to INITIAL_CURRENCIES
       const dbCurrencies = (await getStoreValue<any[]>('currencies')) || INITIAL_CURRENCIES;
 
@@ -1338,79 +1330,79 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
       }
 
       const matchedCurrency = dbCurrencies.find((c: any) => c.code === requestedCurrency) ||
-        INITIAL_CURRENCIES.find((c) => c.code === requestedCurrency);
+        INITIAL_CURRENCIES.find((c: any) => c.code === requestedCurrency);
 
       const rateToINR = matchedCurrency && matchedCurrency.rateToINR ? Number(matchedCurrency.rateToINR) : (requestedCurrency === 'INR' ? 1 : 83.5);
 
-      // Determine display amount (e.g. USD 31.00, SGD 42.00, FJD 54.00, INR 1499)
+      // Determine display amount and currency
       const displayCurrency = requestedCurrency;
       let displayAmount = grandTotalINR;
       if (displayCurrency !== 'INR') {
         displayAmount = Math.round((grandTotalINR / rateToINR) * 100) / 100;
       }
 
-      // Determine charge currency and charge amount for Razorpay
-      let chargeCurrency = displayCurrency;
-      let chargeAmount = displayAmount;
-      let chargeAmountSmallestUnit = Math.round(displayAmount * 100);
+      // Validated charge currency must be the requested international/display currency
+      const validatedChargeCurrency = displayCurrency;
+      const chargeAmount = displayAmount;
 
-      // If requested currency is NOT supported natively by Razorpay (e.g. FJD), fall back to INR charge
-      if (!RAZORPAY_SUPPORTED_CURRENCIES.has(displayCurrency)) {
-        chargeCurrency = 'INR';
-        chargeAmount = grandTotalINR;
-        chargeAmountSmallestUnit = Math.round(grandTotalINR * 100);
+      // Subunit calculation according to ISO currency decimal rules
+      let chargeAmountSubunit: number;
+      const zeroDecimalCurrencies = new Set(['JPY', 'KRW', 'UGX', 'VND', 'CLP', 'PYG', 'RWF']);
+      const threeDecimalCurrencies = new Set(['BHD', 'KWD', 'OMR']);
+
+      if (zeroDecimalCurrencies.has(validatedChargeCurrency)) {
+        chargeAmountSubunit = Math.round(chargeAmount);
+      } else if (threeDecimalCurrencies.has(validatedChargeCurrency)) {
+        chargeAmountSubunit = Math.round(chargeAmount * 1000);
+      } else {
+        chargeAmountSubunit = Math.round(chargeAmount * 100);
       }
 
-      // 7. SAFELY LOG BEFORE CREATING RAZORPAY ORDER
-      console.log(`[Razorpay Order Init] Selected Country: ${customer.country || 'India'}`);
-      console.log(`[Razorpay Order Init] Display Currency: ${displayCurrency}, Display Amount: ${displayAmount}`);
-      console.log(`[Razorpay Order Init] Charge Currency: ${chargeCurrency}, Charge Amount Major: ${chargeAmount}`);
-      console.log(`[Razorpay Order Init] Razorpay Smallest Unit Amount: ${chargeAmountSmallestUnit}`);
+      const selectedCountry = customer.country || (isIndia ? 'India' : 'International');
+
+      // 1. SAFE LOGGING BEFORE CREATING RAZORPAY ORDER
+      console.log('[Razorpay Order Init] Pre-Create Order Payload:', {
+        selectedCountry,
+        requestedDisplayCurrency: displayCurrency,
+        validatedChargeCurrency,
+        chargeAmountMajor: chargeAmount,
+        chargeAmountSubunit,
+      });
 
       const receipt = `rec_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 
       let razorpayOrder;
       try {
         razorpayOrder = await rzp.orders.create({
-          amount: chargeAmountSmallestUnit,
-          currency: chargeCurrency,
+          amount: chargeAmountSubunit,
+          currency: validatedChargeCurrency,
           receipt,
           notes: {
             customer_email: customer.email,
             customer_name: customer.name,
             customer_phone: customer.phone || '',
-            customer_country: customer.country || 'India',
+            customer_country: selectedCountry,
             display_currency: displayCurrency,
             display_amount: displayAmount,
-            charge_currency: chargeCurrency,
+            charge_currency: validatedChargeCurrency,
             charge_amount: chargeAmount,
           },
         });
       } catch (rzpErr: any) {
-        console.warn(`[Razorpay Order Creation Warning] Failed creating order in ${chargeCurrency}: ${rzpErr?.message}. Falling back to INR charge.`);
-        chargeCurrency = 'INR';
-        chargeAmount = grandTotalINR;
-        chargeAmountSmallestUnit = Math.round(grandTotalINR * 100);
-
-        razorpayOrder = await rzp.orders.create({
-          amount: chargeAmountSmallestUnit,
-          currency: 'INR',
-          receipt,
-          notes: {
-            customer_email: customer.email,
-            customer_name: customer.name,
-            customer_phone: customer.phone || '',
-            customer_country: customer.country || 'India',
-            display_currency: displayCurrency,
-            display_amount: displayAmount,
-            charge_currency: 'INR',
-            charge_amount: grandTotalINR,
-            fallback_reason: rzpErr?.message || 'Currency error fallback',
-          },
+        console.error(`[Razorpay Order Creation Error] Failed creating order in ${validatedChargeCurrency}:`, rzpErr?.message || rzpErr);
+        return res.status(400).json({
+          success: false,
+          error: 'This currency cannot currently be charged directly. Please review the alternative charge currency.',
+          details: rzpErr?.message || `Razorpay order creation failed for currency ${validatedChargeCurrency}`,
         });
       }
 
-      console.log(`[Razorpay Order Init] Created Razorpay Order ID: ${razorpayOrder.id} (${razorpayOrder.amount} ${razorpayOrder.currency})`);
+      // SAFE LOGGING AFTER CREATING RAZORPAY ORDER
+      console.log('[Razorpay Order Init] Razorpay Order Response:', {
+        razorpayOrderId: razorpayOrder.id,
+        razorpayCurrency: razorpayOrder.currency,
+        razorpayAmount: razorpayOrder.amount,
+      });
 
       const localOrderId = `ord-${Date.now()}`;
       const orderNumber = `HV-ORD-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
@@ -1432,7 +1424,7 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
         displayAmount,
         displayCurrency,
         chargeAmount: razorpayOrder.amount ? (razorpayOrder.amount / 100) : chargeAmount,
-        chargeCurrency: razorpayOrder.currency || chargeCurrency,
+        chargeCurrency: razorpayOrder.currency || validatedChargeCurrency,
         exchangeRateUsed: rateToINR,
         currencyCode: displayCurrency,
 
@@ -1457,7 +1449,7 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
         displayAmount,
         displayCurrency,
         chargeAmount: razorpayOrder.amount ? (razorpayOrder.amount / 100) : chargeAmount,
-        chargeCurrency: razorpayOrder.currency || chargeCurrency,
+        chargeCurrency: razorpayOrder.currency || validatedChargeCurrency,
         orderId: localOrder.id,
         orderNumber: localOrder.orderNumber,
         grandTotalINR,

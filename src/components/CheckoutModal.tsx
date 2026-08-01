@@ -582,7 +582,22 @@ export const CheckoutModal: React.FC = () => {
     setStep('review');
   };
 
-  const handlePlaceOrder = () => {
+  const loadRazorpayScript = (): Promise<boolean> => {
+    return new Promise((resolve) => {
+      if ((window as any).Razorpay) {
+        resolve(true);
+        return;
+      }
+      const script = document.createElement('script');
+      script.src = 'https://checkout.razorpay.com/v1/checkout.js';
+      script.async = true;
+      script.onload = () => resolve(true);
+      script.onerror = () => resolve(false);
+      document.body.appendChild(script);
+    });
+  };
+
+  const handlePlaceOrder = async () => {
     if (isProcessingPayment) return; // Prevent duplicate order trigger
     validateCartStock();
 
@@ -593,103 +608,164 @@ export const CheckoutModal: React.FC = () => {
     }
 
     setIsProcessingPayment(true);
+    setAddressFormError('');
 
-    setTimeout(() => {
-      const isCod = paymentMethod === 'COD';
+    const fullAddress = line2
+      ? `${line1}, ${line2}${landmark ? `, Landmark: ${landmark}` : ''}`
+      : landmark
+      ? `${line1}, Landmark: ${landmark}`
+      : line1;
+    const fullPhone = formatE164(activeCountryInfo.dialCode, phone);
 
-      const fullAddress = line2 ? `${line1}, ${line2}${landmark ? `, Landmark: ${landmark}` : ''}` : (landmark ? `${line1}, Landmark: ${landmark}` : line1);
-      const fullPhone = formatE164(activeCountryInfo.dialCode, phone);
-      const fullAltPhone = formatE164(activeCountryInfo.dialCode, altPhone);
+    const customerPayload = {
+      name,
+      email,
+      phone: fullPhone,
+      address: fullAddress,
+      line1,
+      line2,
+      landmark,
+      city,
+      state,
+      country,
+      countryCode: activeCountryInfo.code,
+      pincode,
+    };
 
-      const billingFullAddress = isBillingSame
-        ? fullAddress
-        : (billingLine2 ? `${billingAddress}, ${billingLine2}${billingLandmark ? `, Landmark: ${billingLandmark}` : ''}` : (billingLandmark ? `${billingAddress}, Landmark: ${billingLandmark}` : billingAddress));
+    // 1. CASH ON DELIVERY (COD) FLOW
+    if (paymentMethod === 'COD') {
+      if (!isIndia) {
+        alert('Cash on Delivery is available only for shipments within India.');
+        setIsProcessingPayment(false);
+        return;
+      }
 
-      const billingFullPhone = isBillingSame
-        ? fullPhone
-        : formatE164(billingCountryInfo.dialCode, billingPhone);
-
-      const order = placeOrder({
-        items: [...cart],
-        subtotalINR: cartSubtotalINR,
-        shippingChargesINR: shippingFeeINR,
-        taxINR: Math.round(cartTotalINR * 0.05),
-        discountINR: discountAmountINR,
-        totalAmountINR: grandTotalINR,
-        currencyCode: currentCurrency.code,
-        convertedTotal: currentCurrency.code === 'INR' ? grandTotalINR : Number((grandTotalINR / currentCurrency.rateToINR).toFixed(2)),
-        customer: {
-          name,
-          email,
-          phone: fullPhone,
-          phoneCode: activeCountryInfo.dialCode,
-          localPhone: phone,
-          altPhone: fullAltPhone,
-          address: fullAddress,
-          line1,
-          line2,
-          landmark,
-          companyName,
-          taxNumber,
-          city,
-          state,
-          country,
-          countryCode: activeCountryInfo.code,
-          pincode,
-          isBillingSame,
-          billingName: isBillingSame ? name : billingName,
-          billingPhone: billingFullPhone,
-          billingAddress: billingFullAddress,
-          billingLine1: isBillingSame ? line1 : billingAddress,
-          billingLine2: isBillingSame ? line2 : billingLine2,
-          billingCity: isBillingSame ? city : billingCity,
-          billingState: isBillingSame ? state : billingState,
-          billingPincode: isBillingSame ? pincode : billingPincode,
-          billingCountry: isBillingSame ? country : billingCountry,
-        },
-        paymentMethod: paymentMethod,
-        paymentStatus: isCod ? 'Awaiting Fulfillment' : 'Paid',
-        trackingStatus: isCod ? 'AWAITING_FULFILLMENT' : 'ORDER_PLACED',
-        trackingNumber: `HV-TRK-${Math.floor(100000 + Math.random() * 900000)}`,
-        courierName: courierName,
-        estimatedDeliveryDate: new Date(Date.now() + (isIndia ? 5 : 8) * 86400000).toISOString().split('T')[0],
-      });
-
-      // Clear checkout draft upon successful order
       try {
-        localStorage.removeItem('hakkiveda_checkout_draft');
-      } catch (e) {}
+        const res = await fetch('/api/payments/cod/create-order', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: cart.map((i) => ({ productId: i.product.id, quantity: i.quantity })),
+            customer: customerPayload,
+            couponCode: appliedCoupon?.code,
+            currencyCode: 'INR',
+          }),
+        });
 
-      fetch('/api/shiprocket/create-order', {
+        const data = await res.json();
+        if (data.success && data.order) {
+          setCompletedOrder(data.order);
+          clearCart();
+          setStep('confirmation');
+          try {
+            localStorage.removeItem('hakkiveda_checkout_draft');
+          } catch (e) {}
+        } else {
+          alert(data.error || 'Failed to place Cash on Delivery order.');
+        }
+      } catch (err: any) {
+        console.error('[COD Checkout Error]:', err);
+        alert('Network connection error while placing Cash on Delivery order.');
+      } finally {
+        setIsProcessingPayment(false);
+      }
+      return;
+    }
+
+    // 2. PREPAID RAZORPAY SECURE CHECKOUT FLOW
+    try {
+      const scriptLoaded = await loadRazorpayScript();
+      if (!scriptLoaded) {
+        alert('Failed to load Razorpay Checkout SDK. Please check your internet connection.');
+        setIsProcessingPayment(false);
+        return;
+      }
+
+      const createRes = await fetch('/api/payments/razorpay/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ orderId: order.id, orderData: order }),
-      })
-        .then((res) => res.json())
-        .then((srRes) => {
-          if (srRes.success) {
-            setCompletedOrder((prev) =>
-              prev
-                ? {
-                    ...prev,
-                    shiprocketOrderId: srRes.shiprocketOrderId,
-                    shipmentId: srRes.shipmentId,
-                    awbCode: srRes.awbCode || prev.awbCode,
-                    courierName: srRes.courierName || prev.courierName,
-                    trackingUrl: srRes.trackingUrl || prev.trackingUrl,
-                    shipmentStatus: srRes.shipmentStatus || 'MANIFESTED',
-                  }
-                : null
-            );
-          }
-        })
-        .catch((err) => console.error('[Shiprocket Create Order Error]:', err));
+        body: JSON.stringify({
+          items: cart.map((i) => ({ productId: i.product.id, quantity: i.quantity })),
+          customer: customerPayload,
+          couponCode: appliedCoupon?.code,
+          currencyCode: currentCurrency.code,
+        }),
+      });
 
-      setCompletedOrder(order);
-      clearCart();
+      const orderData = await createRes.json();
+      if (!orderData.success) {
+        alert(orderData.error || 'Failed to initiate Razorpay order.');
+        setIsProcessingPayment(false);
+        return;
+      }
+
+      const options = {
+        key: orderData.keyId,
+        amount: orderData.amount,
+        currency: orderData.currency,
+        name: 'HAKKIVEDA Tribal Wellness',
+        description: `Order #${orderData.orderNumber}`,
+        order_id: orderData.razorpayOrderId,
+        prefill: {
+          name: name,
+          email: email,
+          contact: fullPhone,
+        },
+        theme: {
+          color: '#d97706',
+        },
+        handler: async function (response: any) {
+          try {
+            const verifyRes = await fetch('/api/payments/razorpay/verify', {
+              method: 'POST',
+              headers: { 'Content-Type': 'application/json' },
+              body: JSON.stringify({
+                razorpay_payment_id: response.razorpay_payment_id,
+                razorpay_order_id: response.razorpay_order_id,
+                razorpay_signature: response.razorpay_signature,
+                localOrderId: orderData.orderId,
+              }),
+            });
+
+            const verifyData = await verifyRes.json();
+            if (verifyData.success && verifyData.order) {
+              setCompletedOrder(verifyData.order);
+              clearCart();
+              setStep('confirmation');
+              try {
+                localStorage.removeItem('hakkiveda_checkout_draft');
+              } catch (e) {}
+            } else {
+              alert(verifyData.error || 'Payment verification failed on server.');
+            }
+          } catch (vErr) {
+            console.error('[Razorpay Verify Error]:', vErr);
+            alert('Network issue verifying payment. Please contact support with payment ID: ' + response.razorpay_payment_id);
+          } finally {
+            setIsProcessingPayment(false);
+          }
+        },
+        modal: {
+          ondismiss: function () {
+            console.log('[Razorpay Modal] Dismissed by customer');
+            setIsProcessingPayment(false);
+          },
+        },
+      };
+
+      const rzpInstance = new (window as any).Razorpay(options);
+      rzpInstance.on('payment.failed', function (failResp: any) {
+        console.error('[Razorpay Payment Failed]:', failResp.error);
+        alert(`Payment failed: ${failResp.error?.description || failResp.error?.reason || 'Transaction declined'}`);
+        setIsProcessingPayment(false);
+      });
+
+      rzpInstance.open();
+    } catch (err: any) {
+      console.error('[Razorpay Flow Error]:', err);
+      alert('An error occurred initializing payment: ' + (err.message || 'Unknown error'));
       setIsProcessingPayment(false);
-      setStep('confirmation');
-    }, 1500);
+    }
   };
 
   return (

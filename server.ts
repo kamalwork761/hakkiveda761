@@ -19,6 +19,8 @@ import {
   downloadInvoice,
 } from './src/server/shiprocketService';
 import { INITIAL_HERO_SLIDES } from './src/data/initialData';
+import Razorpay from 'razorpay';
+import crypto from 'crypto';
 
 dotenv.config();
 
@@ -1201,6 +1203,481 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
         success: false,
         error: error.message || 'Failed to communicate with AI Botanical Advisor',
       });
+    }
+  });
+
+  // ====================================================
+  // RAZORPAY & COD PAYMENT INTEGRATION ENDPOINTS
+  // ====================================================
+
+  const getRazorpayInstance = () => {
+    const key_id = process.env.RAZORPAY_KEY_ID;
+    const key_secret = process.env.RAZORPAY_KEY_SECRET;
+    if (!key_id || !key_secret) {
+      console.warn('RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET is missing in environment variables.');
+    }
+    return new Razorpay({
+      key_id: key_id || 'rzp_test_placeholder',
+      key_secret: key_secret || 'placeholder_secret',
+    });
+  };
+
+  async function calculateOrderTotalServer(
+    items: Array<{ productId?: string; id?: string; quantity: number }>,
+    customerCountry: string,
+    couponCode?: string
+  ) {
+    const dbProducts = (await getStoreValue<any[]>('products')) || [];
+    let subtotalINR = 0;
+    const validatedItems: any[] = [];
+
+    for (const item of items) {
+      const pId = item.productId || item.id;
+      const prod = dbProducts.find((p) => p.id === pId);
+      if (!prod) continue;
+      const qty = Math.max(1, Math.min(100, Number(item.quantity) || 1));
+      const itemPrice = Number(prod.price) || 0;
+      subtotalINR += itemPrice * qty;
+      validatedItems.push({
+        product: prod,
+        quantity: qty,
+        unitPriceINR: itemPrice,
+        totalPriceINR: itemPrice * qty,
+      });
+    }
+
+    if (validatedItems.length === 0 && items.length > 0) {
+      throw new Error('Invalid cart products or unavailable items.');
+    }
+
+    let discountINR = 0;
+    if (couponCode) {
+      const coupons = (await getStoreValue<any[]>('coupons')) || [];
+      const validCoupon = coupons.find(
+        (c) => c.code?.toUpperCase() === couponCode.trim().toUpperCase() && c.isActive !== false
+      );
+      if (validCoupon) {
+        if (validCoupon.discountType === 'PERCENTAGE' || validCoupon.type === 'PERCENTAGE') {
+          discountINR = Math.round((subtotalINR * (validCoupon.discountValue || validCoupon.value || 0)) / 100);
+        } else {
+          discountINR = Math.round(validCoupon.discountValue || validCoupon.value || 0);
+        }
+        discountINR = Math.min(discountINR, subtotalINR);
+      }
+    }
+
+    const taxableAmount = Math.max(0, subtotalINR - discountINR);
+    const taxINR = Math.round(taxableAmount * 0.05);
+
+    const countryNormalized = (customerCountry || '').trim().toLowerCase();
+    const isIndia = countryNormalized === 'india' || countryNormalized === 'in';
+
+    let shippingFeeINR = 0;
+    if (isIndia) {
+      shippingFeeINR = subtotalINR >= 999 ? 0 : 99;
+    } else {
+      shippingFeeINR = subtotalINR >= 2500 ? 0 : 499;
+    }
+
+    const grandTotalINR = Math.max(1, Math.round(taxableAmount + taxINR + shippingFeeINR));
+
+    return {
+      subtotalINR,
+      discountINR,
+      taxINR,
+      shippingFeeINR,
+      grandTotalINR,
+      validatedItems,
+      isIndia,
+    };
+  }
+
+  // 1. Create Razorpay Order Endpoint
+  app.post('/api/payments/razorpay/create-order', async (req, res) => {
+    try {
+      const { items, customer, couponCode, currencyCode } = req.body;
+
+      if (!items || !Array.isArray(items) || items.length === 0) {
+        return res.status(400).json({ success: false, error: 'Cart items are required.' });
+      }
+      if (!customer || !customer.email || !customer.name) {
+        return res.status(400).json({ success: false, error: 'Customer details (name & email) are required.' });
+      }
+
+      const { subtotalINR, discountINR, taxINR, shippingFeeINR, grandTotalINR, validatedItems, isIndia } =
+        await calculateOrderTotalServer(items, customer.country || 'India', couponCode);
+
+      const keyId = process.env.RAZORPAY_KEY_ID;
+      const keySecret = process.env.RAZORPAY_KEY_SECRET;
+
+      if (!keyId || !keySecret) {
+        console.warn('RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET missing from environment variables.');
+      }
+
+      const rzp = getRazorpayInstance();
+      const amountInPaise = Math.round(grandTotalINR * 100);
+      const receipt = `rec_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
+
+      const razorpayOrder = await rzp.orders.create({
+        amount: amountInPaise,
+        currency: 'INR',
+        receipt,
+        notes: {
+          customer_email: customer.email,
+          customer_name: customer.name,
+          customer_phone: customer.phone || '',
+          customer_country: customer.country || 'India',
+        },
+      });
+
+      const localOrderId = `ord-${Date.now()}`;
+      const orderNumber = `HV-ORD-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
+
+      const localOrder = {
+        id: localOrderId,
+        orderNumber,
+        date: new Date().toISOString().split('T')[0],
+        createdAt: new Date().toISOString(),
+        items: validatedItems,
+        customer,
+        subtotalINR,
+        taxINR,
+        shippingFeeINR,
+        discountAmountINR: discountINR,
+        totalAmountINR: grandTotalINR,
+        currencyCode: currencyCode || (isIndia ? 'INR' : 'USD'),
+        paymentMethod: 'RAZORPAY',
+        paymentStatus: 'Pending Payment',
+        trackingStatus: 'ORDER_PLACED',
+        razorpayOrderId: razorpayOrder.id,
+        receipt,
+        trackingNumber: 'Awaiting Fulfillment',
+        courierName: isIndia ? 'Express Surface Courier' : 'DHL International Express',
+      };
+
+      const existingOrders = (await getStoreValue<any[]>('orders')) || [];
+      await setStoreValue('orders', [localOrder, ...existingOrders]);
+
+      return res.json({
+        success: true,
+        keyId: keyId || 'rzp_test_placeholder',
+        razorpayOrderId: razorpayOrder.id,
+        amount: razorpayOrder.amount,
+        currency: razorpayOrder.currency,
+        orderId: localOrder.id,
+        orderNumber: localOrder.orderNumber,
+        grandTotalINR,
+        displayOrder: localOrder,
+      });
+    } catch (error: any) {
+      console.error('[Razorpay Create Order Error]:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to create Razorpay order',
+      });
+    }
+  });
+
+  // 2. Verify Razorpay Payment Endpoint
+  app.post('/api/payments/razorpay/verify', async (req, res) => {
+    try {
+      const { razorpay_payment_id, razorpay_order_id, razorpay_signature, localOrderId } = req.body;
+
+      if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
+        return res.status(400).json({ success: false, error: 'Missing required Razorpay payment parameters.' });
+      }
+
+      const keySecret = process.env.RAZORPAY_KEY_SECRET || '';
+
+      // HMAC SHA256 Verification
+      const hmac = crypto.createHmac('sha256', keySecret);
+      hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
+      const generatedSignature = hmac.digest('hex');
+
+      if (keySecret && generatedSignature !== razorpay_signature) {
+        console.error('[Razorpay Verify] Invalid signature mismatch!');
+        return res.status(400).json({
+          success: false,
+          error: 'Razorpay payment signature verification failed. Invalid HMAC signature.',
+        });
+      }
+
+      // Double-check with Razorpay SDK
+      try {
+        const rzp = getRazorpayInstance();
+        const paymentDetails = await rzp.payments.fetch(razorpay_payment_id);
+        if (paymentDetails && paymentDetails.status !== 'captured' && paymentDetails.status !== 'authorized') {
+          return res.status(400).json({
+            success: false,
+            error: `Razorpay payment is not confirmed (status: ${paymentDetails.status}).`,
+          });
+        }
+      } catch (fetchErr: any) {
+        console.warn('[Razorpay Fetch Payment Warning]:', fetchErr?.message || fetchErr);
+      }
+
+      // Update local order in SQLite DB
+      const existingOrders = (await getStoreValue<any[]>('orders')) || [];
+      const orderIndex = existingOrders.findIndex(
+        (o) => o.id === localOrderId || o.razorpayOrderId === razorpay_order_id
+      );
+
+      if (orderIndex === -1) {
+        return res.status(404).json({ success: false, error: 'Order reference not found on server.' });
+      }
+
+      const orderToUpdate = existingOrders[orderIndex];
+
+      // Idempotency guard: if already marked paid, return success directly
+      if (orderToUpdate.paymentStatus === 'PAID' || orderToUpdate.paymentStatus === 'Paid') {
+        return res.json({
+          success: true,
+          order: orderToUpdate,
+          message: 'Order was already verified and marked paid.',
+        });
+      }
+
+      const updatedOrder = {
+        ...orderToUpdate,
+        paymentStatus: 'Paid',
+        trackingStatus: 'ORDER_PLACED',
+        razorpayPaymentId: razorpay_payment_id,
+        paidAt: new Date().toISOString(),
+      };
+
+      existingOrders[orderIndex] = updatedOrder;
+      await setStoreValue('orders', existingOrders);
+
+      // Stock Deduction
+      if (updatedOrder.items && Array.isArray(updatedOrder.items)) {
+        const dbProducts = (await getStoreValue<any[]>('products')) || [];
+        const updatedProducts = dbProducts.map((prod: any) => {
+          const itemMatch = updatedOrder.items.find(
+            (i: any) => (i.product && i.product.id === prod.id) || i.productId === prod.id || (i.id === prod.id)
+          );
+          if (itemMatch) {
+            const currentStock = typeof prod.stock === 'number' ? prod.stock : 100;
+            const newStock = Math.max(0, currentStock - (itemMatch.quantity || 1));
+            return {
+              ...prod,
+              stock: newStock,
+              inStock: newStock > 0,
+            };
+          }
+          return prod;
+        });
+        await setStoreValue('products', updatedProducts);
+      }
+
+      // Add PaymentLog
+      const paymentLogs = (await getStoreValue<any[]>('payment_logs')) || [];
+      const newLog = {
+        id: `log-${Date.now()}`,
+        orderId: updatedOrder.id,
+        orderNumber: updatedOrder.orderNumber,
+        customerName: updatedOrder.customer.name,
+        customerEmail: updatedOrder.customer.email,
+        gateway: 'RAZORPAY',
+        amount: updatedOrder.totalAmountINR,
+        currency: 'INR',
+        amountINR: updatedOrder.totalAmountINR,
+        status: 'SUCCESSFUL',
+        transactionId: razorpay_payment_id,
+        paymentMethodDetails: 'Razorpay Secure Checkout',
+        createdAt: new Date().toISOString(),
+      };
+      await setStoreValue('payment_logs', [newLog, ...paymentLogs]);
+
+      // Non-blocking Shiprocket order creation if configured
+      if (isShiprocketConfigured()) {
+        createShiprocketOrder(updatedOrder).catch((srErr) => {
+          console.warn('[Shiprocket Order Creation Error]:', srErr?.message || srErr);
+        });
+      }
+
+      return res.json({
+        success: true,
+        order: updatedOrder,
+        paymentId: razorpay_payment_id,
+      });
+    } catch (error: any) {
+      console.error('[Razorpay Verify Error]:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Payment verification failed.',
+      });
+    }
+  });
+
+  // 3. Create Cash on Delivery (COD) Order Endpoint
+  app.post('/api/payments/cod/create-order', async (req, res) => {
+    try {
+      const { items, customer, couponCode } = req.body;
+
+      if (!items || !Array.isArray(items) || items.length === 0) {
+        return res.status(400).json({ success: false, error: 'Cart items are required.' });
+      }
+      if (!customer || !customer.email || !customer.name) {
+        return res.status(400).json({ success: false, error: 'Customer details are required.' });
+      }
+
+      const countryNormalized = (customer.country || '').trim().toLowerCase();
+      const isIndia = countryNormalized === 'india' || countryNormalized === 'in';
+
+      if (!isIndia) {
+        return res.status(400).json({
+          success: false,
+          error: 'Cash on Delivery (COD) is strictly available only for shipments within India.',
+        });
+      }
+
+      const { subtotalINR, discountINR, taxINR, shippingFeeINR, grandTotalINR, validatedItems } =
+        await calculateOrderTotalServer(items, customer.country || 'India', couponCode);
+
+      const localOrderId = `ord-${Date.now()}`;
+      const orderNumber = `HV-ORD-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
+
+      const newOrder = {
+        id: localOrderId,
+        orderNumber,
+        date: new Date().toISOString().split('T')[0],
+        createdAt: new Date().toISOString(),
+        items: validatedItems,
+        customer,
+        subtotalINR,
+        taxINR,
+        shippingFeeINR,
+        discountAmountINR: discountINR,
+        totalAmountINR: grandTotalINR,
+        currencyCode: 'INR',
+        paymentMethod: 'COD',
+        paymentStatus: 'Awaiting Fulfillment',
+        trackingStatus: 'ORDER_PLACED',
+        trackingNumber: 'Awaiting Fulfillment',
+        courierName: 'Express Surface Courier (COD)',
+      };
+
+      const existingOrders = (await getStoreValue<any[]>('orders')) || [];
+      await setStoreValue('orders', [newOrder, ...existingOrders]);
+
+      // Stock Deduction for COD
+      const dbProducts = (await getStoreValue<any[]>('products')) || [];
+      const updatedProducts = dbProducts.map((prod: any) => {
+        const itemMatch = validatedItems.find((i: any) => (i.product && i.product.id === prod.id) || i.productId === prod.id || i.id === prod.id);
+        if (itemMatch) {
+          const currentStock = typeof prod.stock === 'number' ? prod.stock : 100;
+          const newStock = Math.max(0, currentStock - (itemMatch.quantity || 1));
+          return {
+            ...prod,
+            stock: newStock,
+            inStock: newStock > 0,
+          };
+        }
+        return prod;
+      });
+      await setStoreValue('products', updatedProducts);
+
+      // Add PaymentLog for COD
+      const paymentLogs = (await getStoreValue<any[]>('payment_logs')) || [];
+      const newLog = {
+        id: `log-${Date.now()}`,
+        orderId: newOrder.id,
+        orderNumber: newOrder.orderNumber,
+        customerName: newOrder.customer.name,
+        customerEmail: newOrder.customer.email,
+        gateway: 'COD',
+        amount: grandTotalINR,
+        currency: 'INR',
+        amountINR: grandTotalINR,
+        status: 'PENDING',
+        transactionId: `COD_${orderNumber}`,
+        paymentMethodDetails: 'Cash on Delivery',
+        createdAt: new Date().toISOString(),
+      };
+      await setStoreValue('payment_logs', [newLog, ...paymentLogs]);
+
+      // Shiprocket Creation for COD
+      if (isShiprocketConfigured()) {
+        createShiprocketOrder(newOrder).catch((srErr) => {
+          console.warn('[Shiprocket COD Order Creation Error]:', srErr?.message || srErr);
+        });
+      }
+
+      return res.json({
+        success: true,
+        order: newOrder,
+      });
+    } catch (error: any) {
+      console.error('[COD Create Order Error]:', error);
+      return res.status(500).json({
+        success: false,
+        error: error.message || 'Failed to create Cash on Delivery order',
+      });
+    }
+  });
+
+  // 4. Razorpay Webhook Endpoint
+  app.post('/api/webhooks/razorpay', async (req, res) => {
+    try {
+      const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
+      if (webhookSecret) {
+        const signature = req.headers['x-razorpay-signature'] as string;
+        const shasum = crypto.createHmac('sha256', webhookSecret);
+        shasum.update(JSON.stringify(req.body));
+        const digest = shasum.digest('hex');
+        if (digest !== signature) {
+          console.error('[Razorpay Webhook] Invalid signature mismatch');
+          return res.status(400).json({ status: 'invalid_signature' });
+        }
+      }
+
+      const event = req.body?.event;
+      const payload = req.body?.payload;
+
+      if (event === 'payment.captured' || event === 'order.paid') {
+        const paymentEntity = payload?.payment?.entity;
+        const razorpayOrderId = paymentEntity?.order_id || payload?.order?.entity?.id;
+        const razorpayPaymentId = paymentEntity?.id;
+
+        if (razorpayOrderId) {
+          const existingOrders = (await getStoreValue<any[]>('orders')) || [];
+          const orderIdx = existingOrders.findIndex((o) => o.razorpayOrderId === razorpayOrderId);
+
+          if (orderIdx !== -1 && existingOrders[orderIdx].paymentStatus !== 'Paid') {
+            existingOrders[orderIdx] = {
+              ...existingOrders[orderIdx],
+              paymentStatus: 'Paid',
+              trackingStatus: 'ORDER_PLACED',
+              razorpayPaymentId: razorpayPaymentId || existingOrders[orderIdx].razorpayPaymentId,
+              paidAt: new Date().toISOString(),
+            };
+            await setStoreValue('orders', existingOrders);
+
+            // Deduct stock
+            const targetOrder = existingOrders[orderIdx];
+            if (targetOrder.items) {
+              const dbProducts = (await getStoreValue<any[]>('products')) || [];
+              const updatedProds = dbProducts.map((p) => {
+                const itemMatch = targetOrder.items.find(
+                  (i: any) => (i.product && i.product.id === p.id) || i.productId === p.id || i.id === p.id
+                );
+                if (itemMatch) {
+                  const stock = typeof p.stock === 'number' ? p.stock : 100;
+                  const newStock = Math.max(0, stock - (itemMatch.quantity || 1));
+                  return { ...p, stock: newStock, inStock: newStock > 0 };
+                }
+                return p;
+              });
+              await setStoreValue('products', updatedProds);
+            }
+          }
+        }
+      }
+
+      return res.json({ status: 'ok' });
+    } catch (err: any) {
+      console.error('[Razorpay Webhook Error]:', err);
+      return res.status(500).json({ status: 'error', error: err.message });
     }
   });
 

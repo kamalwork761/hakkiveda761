@@ -603,9 +603,9 @@ export const INITIAL_SITE_SETTINGS: SiteSettings = {
   footerAbout: 'Blend of Hakki-Pikki Tribe & Ayurveda. Handcrafted in small batches with 42 wild mountain herbs slow-cooked over woodfire in copper cauldrons for 21 days.',
   footerCopyright: '© 2026 HAKKIVEDA Herbal Enterprises. All Rights Reserved. Door No. 574, V.P. Bore, Hunsur, Mysore.',
 
-  seoTitle: 'HAKKIVEDA | 42 Mountain Herbs Tribal Hair Oil & Ayurveda',
-  seoDescription: 'Handcrafted in Mysore with 42 wild mountain herbs by the Hakki-Pikki tribe.',
-  seoKeywords: 'hair oil, ayurveda, tribal hair oil, hair growth, hakkiveda, mysore',
+  seoTitle: 'HAKKIVEDA | Authentic Hakki-Pikki Tribal Ayurvedic Hair Care',
+  seoDescription: 'Discover authentic Hakki-Pikki tribal Ayurvedic hair care from HAKKIVEDA. Shop 108 Herbs Hair Oil, Herbal Shampoo, Baldness Powder and premium natural wellness products with worldwide shipping.',
+  seoKeywords: 'HAKKIVEDA, Adivasi Hair Oil, 108 Herbs Hair Oil, Hakki Pikki Tribe, Ayurvedic Hair Oil, Herbal Hair Growth, Natural Hair Care, Herbal Shampoo, Hair Fall Solution, Ayurvedic Wellness',
   maintenanceMode: false,
 
   freeShippingThresholdINR: 1500,
@@ -1546,8 +1546,8 @@ export const INITIAL_BRAND_IDENTITY: BrandIdentityConfig = {
   socialTwitter: 'https://x.com/hakkiveda',
 
   // 8. Browser & PWA Branding
-  browserTitle: 'HAKKIVEDA | Ancestral Hakki-Pikki Tribal Hair Care',
-  themeColor: '#0B1D13',
+  browserTitle: 'HAKKIVEDA | Authentic Hakki-Pikki Tribal Ayurvedic Hair Care',
+  themeColor: '#0E3B2E',
   pwaIcon192: '',
   pwaIcon512: '',
 

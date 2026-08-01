@@ -51,6 +51,7 @@ export const CheckoutModal: React.FC = () => {
     paymentGateways,
     codRules,
     marketGateways,
+    addOrder,
     placeOrder,
     clearCart,
     products,
@@ -654,6 +655,7 @@ export const CheckoutModal: React.FC = () => {
 
         const data = await res.json();
         if (data.success && data.order) {
+          addOrder(data.order);
           setCompletedOrder(data.order);
           clearCart();
           setStep('confirmation');
@@ -729,6 +731,7 @@ export const CheckoutModal: React.FC = () => {
 
             const verifyData = await verifyRes.json();
             if (verifyData.success && verifyData.order) {
+              addOrder(verifyData.order);
               setCompletedOrder(verifyData.order);
               clearCart();
               setStep('confirmation');

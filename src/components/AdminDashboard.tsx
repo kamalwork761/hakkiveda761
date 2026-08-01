@@ -279,7 +279,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
       o.paymentStatus === 'PENDING' ||
       o.paymentStatus === 'COD_DUE' ||
       o.paymentStatus === 'Awaiting Fulfillment' ||
+      o.paymentStatus === 'COD Confirmed' ||
+      o.paymentStatus === 'Pending Fulfillment' ||
       o.trackingStatus === 'ORDER_PLACED' ||
+      o.trackingStatus === 'Pending Fulfillment' ||
+      o.trackingStatus === 'AWAITING_FULFILLMENT' ||
       o.trackingStatus === 'Pending Payment'
   );
   const paidOrders = orders.filter((o) => o.paymentStatus === 'PAID' || o.paymentStatus === 'Paid' || o.paymentStatus === 'SUCCESSFUL');

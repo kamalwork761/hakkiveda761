@@ -202,6 +202,8 @@ interface StoreContextType {
 
   // Orders
   orders: Order[];
+  addOrder: (newOrder: Order) => void;
+  refreshOrders: () => Promise<Order[] | undefined>;
   placeOrder: (orderData: Omit<Order, 'id' | 'orderNumber' | 'date'>) => Order;
   updateOrderStatus: (orderId: string, status: Order['trackingStatus'], trackingNumber?: string, courier?: string) => void;
   updateOrderDetails: (orderId: string, updates: Partial<Order>) => void;
@@ -1647,8 +1649,31 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   // Orders
-  const placeOrder = (orderData: Omit<Order, 'id' | 'orderNumber' | 'date'>) => {
+  const addOrder = (newOrder: Order) => {
     soundManager.play('order_success');
+    setOrders((prev) => {
+      const filtered = prev.filter((o) => o.id !== newOrder.id && o.orderNumber !== newOrder.orderNumber);
+      const next = [newOrder, ...filtered];
+      setStored('orders', next);
+      return next;
+    });
+  };
+
+  const refreshOrders = async (): Promise<Order[] | undefined> => {
+    try {
+      const res = await fetch('/api/store/orders');
+      const json = await res.json();
+      if (json.success && Array.isArray(json.data || json.value)) {
+        const fetchedOrders = json.data || json.value;
+        setOrders(fetchedOrders);
+        return fetchedOrders;
+      }
+    } catch (e) {
+      console.error('[StoreContext] Error refreshing orders:', e);
+    }
+  };
+
+  const placeOrder = (orderData: Omit<Order, 'id' | 'orderNumber' | 'date'>) => {
     const orderNumber = `HV-ORD-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
     const newOrder: Order = {
       ...orderData,
@@ -1656,11 +1681,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       orderNumber,
       date: new Date().toISOString().split('T')[0],
     };
-    setOrders((prev) => {
-      const next = [newOrder, ...prev];
-      setStored('orders', next);
-      return next;
-    });
+    addOrder(newOrder);
 
     // Decrease stock ONLY for confirmed Paid or COD orders
     if (newOrder.paymentStatus === 'PAID' || newOrder.paymentStatus === 'COD_DUE' || newOrder.paymentStatus === 'Paid' || newOrder.paymentStatus === 'Awaiting Fulfillment') {
@@ -2582,6 +2603,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         toggleWishlist,
         isInWishlist,
         orders,
+        addOrder,
+        refreshOrders,
         placeOrder,
         updateOrderStatus,
         updateOrderDetails,

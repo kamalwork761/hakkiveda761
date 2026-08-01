@@ -1561,8 +1561,8 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
         totalAmountINR: grandTotalINR,
         currencyCode: 'INR',
         paymentMethod: 'COD',
-        paymentStatus: 'Awaiting Fulfillment',
-        trackingStatus: 'ORDER_PLACED',
+        paymentStatus: 'COD Confirmed',
+        trackingStatus: 'Pending Fulfillment',
         trackingNumber: 'Awaiting Fulfillment',
         courierName: 'Express Surface Courier (COD)',
       };

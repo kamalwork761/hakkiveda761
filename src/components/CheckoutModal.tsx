@@ -62,7 +62,9 @@ export const CheckoutModal: React.FC = () => {
     removeCoupon,
   } = useStore();
 
-  const [step, setStep] = useState<'address' | 'review' | 'payment' | 'confirmation'>('address');
+  const [step, setStep] = useState<'address' | 'review' | 'payment' | 'processing' | 'confirmation'>('address');
+  const [processingPhase, setProcessingPhase] = useState<'idle' | 'submitting' | 'verifying' | 'success-animation' | 'receipt'>('idle');
+  const [processingText, setProcessingText] = useState<string>('');
 
   // Customer form state
   const [name, setName] = useState('');
@@ -203,6 +205,24 @@ export const CheckoutModal: React.FC = () => {
     billingState,
   ]);
 
+  const resetCheckoutState = () => {
+    setStep('address');
+    setCompletedOrder(null);
+    setIsProcessingPayment(false);
+    setProcessingPhase('idle');
+    setProcessingText('');
+    setAddressFormError('');
+    setStockWarnings([]);
+    setCouponFeedback(null);
+    setCheckoutCouponInput('');
+  };
+
+  const handleCloseModal = () => {
+    if (isProcessingPayment) return; // Do not close modal while payment or verification is actively processing
+    setIsCheckoutOpen(false);
+    resetCheckoutState();
+  };
+
   // Lock body scroll and synchronize country state with StoreContext live selectedCountry
   useEffect(() => {
     if (isCheckoutOpen) {
@@ -211,6 +231,10 @@ export const CheckoutModal: React.FC = () => {
         const matched = getCountryDetails(selectedCountry.name);
         setCountry(matched.name);
         setBillingCountry(matched.name);
+      }
+      // If opening checkout modal and an order was previously completed or in confirmation/processing, reset to start a brand new checkout session
+      if (completedOrder || step === 'confirmation' || step === 'processing') {
+        resetCheckoutState();
       }
     } else {
       document.body.style.overflow = '';
@@ -636,10 +660,16 @@ export const CheckoutModal: React.FC = () => {
     // 1. CASH ON DELIVERY (COD) FLOW
     if (paymentMethod === 'COD') {
       if (!isIndia) {
-        alert('Cash on Delivery is available only for shipments within India.');
+        setAddressFormError('Cash on Delivery is available only for shipments within India.');
         setIsProcessingPayment(false);
         return;
       }
+
+      setStep('processing');
+      setProcessingPhase('submitting');
+      setProcessingText('Confirming your order…');
+
+      const startTime = Date.now();
 
       try {
         const res = await fetch('/api/payments/cod/create-order', {
@@ -654,20 +684,39 @@ export const CheckoutModal: React.FC = () => {
         });
 
         const data = await res.json();
+
+        // Enforce smooth display timing (~1.2s minimum for processing text)
+        const elapsed = Date.now() - startTime;
+        if (elapsed < 1200) {
+          await new Promise((resolve) => setTimeout(resolve, 1200 - elapsed));
+        }
+
         if (data.success && data.order) {
           addOrder(data.order);
           setCompletedOrder(data.order);
           clearCart();
-          setStep('confirmation');
           try {
             localStorage.removeItem('hakkiveda_checkout_draft');
           } catch (e) {}
+
+          // Show animated success check (~1.0s)
+          setProcessingPhase('success-animation');
+          setProcessingText('Order Confirmed');
+          await new Promise((resolve) => setTimeout(resolve, 1000));
+
+          // Reveal receipt
+          setStep('confirmation');
+          setProcessingPhase('receipt');
         } else {
-          alert(data.error || 'Failed to place Cash on Delivery order.');
+          setStep('payment');
+          setProcessingPhase('idle');
+          setAddressFormError(data.error || 'Failed to place Cash on Delivery order.');
         }
       } catch (err: any) {
         console.error('[COD Checkout Error]:', err);
-        alert('Network connection error while placing Cash on Delivery order.');
+        setStep('payment');
+        setProcessingPhase('idle');
+        setAddressFormError('Network connection error while placing Cash on Delivery order.');
       } finally {
         setIsProcessingPayment(false);
       }
@@ -678,7 +727,7 @@ export const CheckoutModal: React.FC = () => {
     try {
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
-        alert('Failed to load Razorpay Checkout SDK. Please check your internet connection.');
+        setAddressFormError('Failed to load Razorpay Checkout SDK. Please check your internet connection.');
         setIsProcessingPayment(false);
         return;
       }
@@ -696,7 +745,7 @@ export const CheckoutModal: React.FC = () => {
 
       const orderData = await createRes.json();
       if (!orderData.success) {
-        alert(orderData.error || 'Failed to initiate Razorpay order.');
+        setAddressFormError(orderData.error || 'Failed to initiate Razorpay order.');
         setIsProcessingPayment(false);
         return;
       }
@@ -717,6 +766,13 @@ export const CheckoutModal: React.FC = () => {
           color: '#d97706',
         },
         handler: async function (response: any) {
+          // Customer authorized payment in Razorpay popup -> show payment verification screen
+          setStep('processing');
+          setProcessingPhase('verifying');
+          setProcessingText('Verifying your payment…');
+
+          const verifyStartTime = Date.now();
+
           try {
             const verifyRes = await fetch('/api/payments/razorpay/verify', {
               method: 'POST',
@@ -730,20 +786,39 @@ export const CheckoutModal: React.FC = () => {
             });
 
             const verifyData = await verifyRes.json();
+
+            // Enforce smooth display timing (~1.2s minimum for verification text)
+            const elapsed = Date.now() - verifyStartTime;
+            if (elapsed < 1200) {
+              await new Promise((resolve) => setTimeout(resolve, 1200 - elapsed));
+            }
+
             if (verifyData.success && verifyData.order) {
               addOrder(verifyData.order);
               setCompletedOrder(verifyData.order);
               clearCart();
-              setStep('confirmation');
               try {
                 localStorage.removeItem('hakkiveda_checkout_draft');
               } catch (e) {}
+
+              // Show animated success check (~1.0s)
+              setProcessingPhase('success-animation');
+              setProcessingText('Payment Successful');
+              await new Promise((resolve) => setTimeout(resolve, 1000));
+
+              // Reveal receipt
+              setStep('confirmation');
+              setProcessingPhase('receipt');
             } else {
-              alert(verifyData.error || 'Payment verification failed on server.');
+              setStep('payment');
+              setProcessingPhase('idle');
+              setAddressFormError(verifyData.error || 'Payment verification failed on server.');
             }
           } catch (vErr) {
             console.error('[Razorpay Verify Error]:', vErr);
-            alert('Network issue verifying payment. Please contact support with payment ID: ' + response.razorpay_payment_id);
+            setStep('payment');
+            setProcessingPhase('idle');
+            setAddressFormError('Network issue verifying payment. Please contact support with payment ID: ' + response.razorpay_payment_id);
           } finally {
             setIsProcessingPayment(false);
           }
@@ -759,7 +834,7 @@ export const CheckoutModal: React.FC = () => {
       const rzpInstance = new (window as any).Razorpay(options);
       rzpInstance.on('payment.failed', function (failResp: any) {
         console.error('[Razorpay Payment Failed]:', failResp.error);
-        alert(`Payment failed: ${failResp.error?.description || failResp.error?.reason || 'Transaction declined'}`);
+        setAddressFormError(`Payment failed: ${failResp.error?.description || failResp.error?.reason || 'Transaction declined'}`);
         setIsProcessingPayment(false);
       });
 
@@ -789,15 +864,18 @@ export const CheckoutModal: React.FC = () => {
               3. Payment Method
             </span>
             <span className="text-[var(--text-muted)]">/</span>
-            <span className={step === 'confirmation' ? 'text-[var(--heading-primary)] underline decoration-2 font-black' : 'text-[var(--text-muted)]'}>
+            <span className={step === 'confirmation' || step === 'processing' ? 'text-[var(--heading-primary)] underline decoration-2 font-black' : 'text-[var(--text-muted)]'}>
               4. Order Receipt
             </span>
           </div>
 
           <button
             type="button"
-            onClick={() => setIsCheckoutOpen(false)}
-            className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-800/80 dark:bg-black/80 text-white hover:bg-amber-600 transition-all flex items-center justify-center shrink-0 shadow-lg cursor-pointer"
+            onClick={handleCloseModal}
+            disabled={isProcessingPayment}
+            className={`w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-slate-800/80 dark:bg-black/80 text-white hover:bg-amber-600 transition-all flex items-center justify-center shrink-0 shadow-lg ${
+              isProcessingPayment ? 'opacity-50 cursor-not-allowed' : 'cursor-pointer'
+            }`}
             aria-label="Close Checkout Modal"
           >
             <X className="w-4 h-4 sm:w-5 sm:h-5" />
@@ -1758,6 +1836,13 @@ export const CheckoutModal: React.FC = () => {
               Select Payment Method
             </h3>
 
+            {/* Error banner if payment/verification failed */}
+            {addressFormError && (
+              <div className="p-4 bg-rose-50 dark:bg-rose-950/70 border border-rose-300 dark:border-rose-500/50 rounded-xl text-xs font-bold text-rose-800 dark:text-rose-200 animate-in fade-in duration-200">
+                ⚠️ {addressFormError}
+              </div>
+            )}
+
             {/* Policy Callout - No COD warning for international! */}
             {isIndia ? (
               <div className="p-4 bg-[var(--surface-muted)] border border-[var(--border-default)] rounded-xl text-xs space-y-1">
@@ -1878,6 +1963,53 @@ export const CheckoutModal: React.FC = () => {
           </div>
         )}
 
+        {/* Step Processing & Verification Animation */}
+        {step === 'processing' && (
+          <div className="py-12 sm:py-16 px-4 flex flex-col items-center justify-center text-center space-y-6 animate-in fade-in zoom-in-95 duration-300 min-h-[350px]">
+            {processingPhase === 'submitting' || processingPhase === 'verifying' ? (
+              <>
+                {/* Animated Metallic Gold Ring Loader */}
+                <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
+                  <div className="absolute inset-0 rounded-full bg-[var(--brand-gold)]/10 blur-xl motion-safe:animate-pulse" />
+                  <div className="absolute inset-0 rounded-full border-4 border-amber-500/20 dark:border-amber-400/20" />
+                  <div className="absolute inset-0 rounded-full border-4 border-t-[var(--brand-gold)] border-r-[var(--brand-gold)]/80 border-b-transparent border-l-transparent motion-safe:animate-spin shadow-[0_0_20px_rgba(217,119,6,0.3)]" />
+                  <div className="w-12 h-12 rounded-full bg-[var(--surface-elevated)] border border-[var(--brand-gold)]/40 flex items-center justify-center text-[var(--brand-gold)] font-serif font-bold text-sm shadow-inner motion-safe:animate-pulse">
+                    HV
+                  </div>
+                </div>
+
+                <div className="space-y-2 max-w-sm">
+                  <h3 className="text-xl sm:text-2xl font-serif-luxury font-bold text-[var(--heading-primary)] tracking-wide">
+                    {processingText || (processingPhase === 'submitting' ? 'Confirming your order…' : 'Verifying your payment…')}
+                  </h3>
+                  <p className="text-xs text-[var(--text-secondary)] font-sans">
+                    Please wait while we securely process and verify your request with the server. Do not refresh or close this window.
+                  </p>
+                </div>
+              </>
+            ) : processingPhase === 'success-animation' ? (
+              <>
+                {/* Animated Green Check Circle */}
+                <div className="relative w-24 h-24 sm:w-28 sm:h-28 flex items-center justify-center">
+                  <div className="absolute inset-0 rounded-full bg-emerald-500/20 motion-safe:animate-ping opacity-60" />
+                  <div className="relative w-20 h-20 sm:w-24 sm:h-24 rounded-full bg-gradient-to-tr from-emerald-600 to-emerald-400 text-white flex items-center justify-center shadow-[0_0_30px_rgba(16,185,129,0.5)] motion-safe:animate-in motion-safe:zoom-in-75 duration-300">
+                    <CheckCircle2 className="w-12 h-12 sm:w-14 sm:h-14 text-white stroke-[2.5]" />
+                  </div>
+                </div>
+
+                <div className="space-y-2 max-w-sm">
+                  <h3 className="text-xl sm:text-2xl font-serif-luxury font-bold text-emerald-600 dark:text-emerald-400 tracking-wide">
+                    {processingText || 'Order Confirmed'}
+                  </h3>
+                  <p className="text-xs text-[var(--text-secondary)] font-sans">
+                    Your order was verified successfully. Preparing your receipt…
+                  </p>
+                </div>
+              </>
+            ) : null}
+          </div>
+        )}
+
         {/* Step 3: Receipt & Tracking */}
         {step === 'confirmation' && completedOrder && (
           <div className="text-center space-y-6 py-4 animate-in fade-in duration-500">
@@ -1919,8 +2051,8 @@ export const CheckoutModal: React.FC = () => {
             </div>
 
             <button
-              onClick={() => setIsCheckoutOpen(false)}
-              className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-8 py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-white transition-all shadow-xl"
+              onClick={handleCloseModal}
+              className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-8 py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-white transition-all shadow-xl cursor-pointer"
             >
               Continue Shopping
             </button>

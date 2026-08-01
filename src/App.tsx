@@ -141,7 +141,7 @@ export function AppContent() {
     setCurrentPath(path);
   };
 
-  const isAdminRoute = currentPath === '/admin' || currentPath === '/admin/login';
+  const isAdminRoute = currentPath.startsWith('/admin');
 
   if (isAdminRoute) {
     if (adminAuthenticated) {

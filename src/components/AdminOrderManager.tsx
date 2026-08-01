@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useEffect } from 'react';
 import { formatAdminINR, formatOriginalAmount } from '../utils/adminCurrency';
 import {
   Search,
@@ -31,6 +31,8 @@ interface AdminOrderManagerProps {
   setSelectedOrder: (order: Order) => void;
   formatPrice: (priceINR: number) => string;
   showToast: (msg: string) => void;
+  presetFilter?: { filter?: string; paymentStatus?: string; paymentMethod?: string; market?: string } | null;
+  onClearPresetFilter?: () => void;
 }
 
 const ALL_STATUSES = [
@@ -59,6 +61,8 @@ export const AdminOrderManager: React.FC<AdminOrderManagerProps> = ({
   setSelectedOrder,
   formatPrice,
   showToast,
+  presetFilter,
+  onClearPresetFilter,
 }) => {
   // Search & Filter State
   const [searchQuery, setSearchQuery] = useState('');
@@ -67,6 +71,53 @@ export const AdminOrderManager: React.FC<AdminOrderManagerProps> = ({
   const [filterStatus, setFilterStatus] = useState('ALL');
   const [filterDate, setFilterDate] = useState('');
   const [filterCourier, setFilterCourier] = useState('ALL');
+
+  // Preset Filter State (from Dashboard Cards or URL)
+  const [activePreset, setActivePreset] = useState<{
+    filter?: string;
+    paymentStatus?: string;
+    paymentMethod?: string;
+    market?: string;
+  } | null>(() => {
+    if (presetFilter) return presetFilter;
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const filter = params.get('filter') || undefined;
+      const paymentStatus = params.get('paymentStatus') || undefined;
+      const paymentMethod = params.get('paymentMethod') || undefined;
+      const market = params.get('market') || undefined;
+      if (filter || paymentStatus || paymentMethod || market) {
+        return { filter, paymentStatus, paymentMethod, market };
+      }
+    }
+    return null;
+  });
+
+  // Sync state if parent presetFilter prop changes
+  useEffect(() => {
+    if (presetFilter !== undefined) {
+      setActivePreset(presetFilter);
+    }
+  }, [presetFilter]);
+
+  // Sync with browser navigation
+  useEffect(() => {
+    const handleUrlSync = () => {
+      const params = new URLSearchParams(window.location.search);
+      const filter = params.get('filter') || undefined;
+      const paymentStatus = params.get('paymentStatus') || undefined;
+      const paymentMethod = params.get('paymentMethod') || undefined;
+      const market = params.get('market') || undefined;
+      if (filter || paymentStatus || paymentMethod || market) {
+        setActivePreset({ filter, paymentStatus, paymentMethod, market });
+      } else {
+        setActivePreset(null);
+      }
+    };
+
+    window.addEventListener('popstate', handleUrlSync);
+    return () => window.removeEventListener('popstate', handleUrlSync);
+  }, []);
 
   // Pagination State
   const [currentPage, setCurrentPage] = useState(1);
@@ -89,8 +140,26 @@ export const AdminOrderManager: React.FC<AdminOrderManagerProps> = ({
     return Array.from(set).sort();
   }, [orders]);
 
-  // Search & Filter Logic
+  // Helper for preset title badge
+  const getPresetLabel = (preset: { filter?: string; paymentStatus?: string; paymentMethod?: string; market?: string }) => {
+    if (preset.filter === 'today') return "Today's Orders";
+    if (preset.filter === 'revenue_today') return "Revenue Today (Paid & Confirmed)";
+    if (preset.filter === 'revenue_month') return "Revenue This Month";
+    if (preset.filter === 'revenue_all') return "Total Revenue (All Time)";
+    if (preset.paymentStatus === 'pending') return "Pending Payment & Fulfillment";
+    if (preset.paymentStatus === 'paid') return "Paid Orders (Excluding Pending COD)";
+    if (preset.paymentStatus === 'refunded') return "Refunded Orders";
+    if (preset.paymentStatus === 'settled') return "Settled / Paid Sales";
+    if (preset.paymentMethod === 'cod') return "COD Payment Method Orders";
+    if (preset.market === 'international') return "International Market Orders";
+    return "Custom Filter Preset";
+  };
+
+  // Search & Filter Logic with strict non-mixing boundary checks
   const filteredOrders = useMemo(() => {
+    const todayDateStr = new Date().toISOString().split('T')[0];
+    const currentMonthStr = todayDateStr.substring(0, 7);
+
     return orders.filter((order) => {
       // Search: Order ID, Customer Name, Phone, Email, Tracking Number / AWB
       if (searchQuery.trim()) {
@@ -108,9 +177,98 @@ export const AdminOrderManager: React.FC<AdminOrderManagerProps> = ({
         }
       }
 
+      // Active Preset Filter (from Dashboard Cards or Query Parameters)
+      if (activePreset) {
+        const { filter, paymentStatus, paymentMethod, market } = activePreset;
+
+        // Card 1: TODAY'S ORDERS
+        if (filter === 'today') {
+          const isToday = order.date && (order.date === todayDateStr || order.date.startsWith(todayDateStr));
+          if (!isToday) return false;
+        }
+
+        // Card 6: REVENUE TODAY
+        if (filter === 'revenue_today') {
+          const isToday = order.date && (order.date === todayDateStr || order.date.startsWith(todayDateStr));
+          const pStatus = (order.paymentStatus || '').toUpperCase();
+          const pMethod = (order.paymentMethod || '').toUpperCase();
+          const isPaidOrCod = pStatus === 'PAID' || pStatus === 'SUCCESSFUL' || pMethod === 'COD';
+          if (!isToday || !isPaidOrCod) return false;
+        }
+
+        // Card 7: REVENUE THIS MONTH
+        if (filter === 'revenue_month') {
+          const isThisMonth = order.date && order.date.startsWith(currentMonthStr);
+          const pStatus = (order.paymentStatus || '').toUpperCase();
+          const pMethod = (order.paymentMethod || '').toUpperCase();
+          const isPaidOrCod = pStatus === 'PAID' || pStatus === 'SUCCESSFUL' || pMethod === 'COD';
+          if (!isThisMonth || !isPaidOrCod) return false;
+        }
+
+        // Card 8: TOTAL REVENUE
+        if (filter === 'revenue_all') {
+          const pStatus = (order.paymentStatus || '').toUpperCase();
+          const pMethod = (order.paymentMethod || '').toUpperCase();
+          const isPaidOrCod = pStatus === 'PAID' || pStatus === 'SUCCESSFUL' || pMethod === 'COD';
+          if (!isPaidOrCod) return false;
+        }
+
+        // Card 2: PENDING ORDERS
+        if (paymentStatus === 'pending') {
+          const pStatus = (order.paymentStatus || '').toUpperCase();
+          const tStatus = (order.trackingStatus || '').toUpperCase();
+          const isPending =
+            pStatus === 'PENDING' ||
+            pStatus === 'COD_DUE' ||
+            pStatus === 'AWAITING FULFILLMENT' ||
+            pStatus === 'PENDING PAYMENT' ||
+            pStatus === 'PENDING FULFILLMENT' ||
+            tStatus === 'ORDER_PLACED' ||
+            tStatus === 'PENDING FULFILLMENT' ||
+            tStatus === 'AWAITING_FULFILLMENT' ||
+            tStatus === 'PENDING PAYMENT';
+          if (!isPending) return false;
+        }
+
+        // Card 3: PAID ORDERS
+        // "paymentStatus = Paid, exclude COD unless COD has a separate confirmed-paid state"
+        if (paymentStatus === 'paid') {
+          const pStatus = (order.paymentStatus || '').toUpperCase();
+          const pMethod = (order.paymentMethod || '').toUpperCase();
+          const isPaid = pStatus === 'PAID' || pStatus === 'SUCCESSFUL';
+          const isCodPending = pMethod === 'COD' && pStatus !== 'PAID' && pStatus !== 'SUCCESSFUL';
+          if (!isPaid || isCodPending) return false;
+        }
+
+        // Card 9: REFUND TOTALS
+        if (paymentStatus === 'refunded') {
+          const pStatus = (order.paymentStatus || '').toUpperCase();
+          if (pStatus !== 'REFUNDED') return false;
+        }
+
+        // Card 10: SETTLEMENT TOTALS
+        if (paymentStatus === 'settled') {
+          const pStatus = (order.paymentStatus || '').toUpperCase();
+          if (pStatus !== 'PAID' && pStatus !== 'SUCCESSFUL') return false;
+        }
+
+        // Card 4: COD ORDERS
+        if (paymentMethod === 'cod') {
+          const pMethod = (order.paymentMethod || '').toUpperCase();
+          if (pMethod !== 'COD') return false;
+        }
+
+        // Card 5: INTERNATIONAL ORDERS
+        if (market === 'international') {
+          const country = (order.customer?.country || '').trim().toLowerCase();
+          const isIndia = country === '' || country === 'india' || country === 'in';
+          if (isIndia) return false;
+        }
+      }
+
       // Filter: Country
       if (filterCountry !== 'ALL') {
-        if (order.customer?.country?.toLowerCase() !== filterCountry.toLowerCase()) {
+        if ((order.customer?.country || '').toLowerCase() !== filterCountry.toLowerCase()) {
           return false;
         }
       }
@@ -155,7 +313,7 @@ export const AdminOrderManager: React.FC<AdminOrderManagerProps> = ({
 
       return true;
     });
-  }, [orders, searchQuery, filterCountry, filterPayment, filterStatus, filterDate, filterCourier]);
+  }, [orders, searchQuery, activePreset, filterCountry, filterPayment, filterStatus, filterDate, filterCourier]);
 
   // Reset pagination when filters change
   const totalPages = Math.ceil(filteredOrders.length / pageSize) || 1;
@@ -171,6 +329,12 @@ export const AdminOrderManager: React.FC<AdminOrderManagerProps> = ({
     setFilterStatus('ALL');
     setFilterDate('');
     setFilterCourier('ALL');
+    setActivePreset(null);
+    if (onClearPresetFilter) {
+      onClearPresetFilter();
+    } else if (typeof window !== 'undefined') {
+      window.history.pushState({}, '', '/admin/orders');
+    }
     setCurrentPage(1);
   };
 
@@ -191,6 +355,25 @@ export const AdminOrderManager: React.FC<AdminOrderManagerProps> = ({
           <span>Total Live Orders: {orders.length}</span>
         </div>
       </div>
+
+      {/* Active Preset Filter Banner */}
+      {activePreset && (
+        <div className="bg-amber-950/80 border border-amber-500/40 p-3.5 px-4 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs font-bold text-amber-200 shadow-md">
+          <div className="flex items-center gap-2">
+            <Filter className="w-4 h-4 text-amber-400" />
+            <span>
+              Active Filter: <strong className="text-white font-mono">{getPresetLabel(activePreset)}</strong> ({filteredOrders.length} matching order{filteredOrders.length === 1 ? '' : 's'})
+            </span>
+          </div>
+          <button
+            onClick={handleResetFilters}
+            className="px-3 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-500/30 rounded-lg text-[11px] uppercase font-bold flex items-center gap-1.5 transition-all"
+          >
+            <XCircle className="w-3.5 h-3.5" />
+            <span>Clear Active Filter</span>
+          </button>
+        </div>
+      )}
 
       {/* Search & Filter Controls Toolbar */}
       <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-4 rounded-2xl space-y-3.5 shadow-lg">

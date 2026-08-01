@@ -37,6 +37,7 @@ import {
   Truck,
   Eye,
   AlertTriangle,
+  XCircle,
   Megaphone,
   Globe,
   Users,
@@ -217,7 +218,79 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
     | 'contact'
     | 'footer'
     | 'settings'
-  >('overview');
+  >(() => {
+    if (typeof window !== 'undefined') {
+      const pathname = window.location.pathname;
+      const search = window.location.search;
+      if (
+        pathname.includes('/admin/orders') ||
+        search.includes('filter=') ||
+        search.includes('paymentStatus=') ||
+        search.includes('paymentMethod=') ||
+        search.includes('market=')
+      ) {
+        return 'orders';
+      }
+      if (pathname.includes('/admin/inventory')) {
+        return 'inventory';
+      }
+    }
+    return 'overview';
+  });
+
+  // Preset Filters State for Order Manager & Inventory Tab
+  const [orderPresetFilter, setOrderPresetFilter] = useState<{
+    filter?: string;
+    paymentStatus?: string;
+    paymentMethod?: string;
+    market?: string;
+  } | null>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      const filter = params.get('filter') || undefined;
+      const paymentStatus = params.get('paymentStatus') || undefined;
+      const paymentMethod = params.get('paymentMethod') || undefined;
+      const market = params.get('market') || undefined;
+      if (filter || paymentStatus || paymentMethod || market) {
+        return { filter, paymentStatus, paymentMethod, market };
+      }
+    }
+    return null;
+  });
+
+  const [inventoryFilter, setInventoryFilter] = useState<'ALL' | 'low_stock'>(() => {
+    if (typeof window !== 'undefined') {
+      const params = new URLSearchParams(window.location.search);
+      if (params.get('filter') === 'low_stock') return 'low_stock';
+    }
+    return 'ALL';
+  });
+
+  const handleDashboardCardNavigate = (
+    tab: 'orders' | 'inventory' | 'payments',
+    params?: { filter?: string; paymentStatus?: string; paymentMethod?: string; market?: string }
+  ) => {
+    setActiveTab(tab as any);
+
+    const query = new URLSearchParams();
+    if (params?.filter) query.set('filter', params.filter);
+    if (params?.paymentStatus) query.set('paymentStatus', params.paymentStatus);
+    if (params?.paymentMethod) query.set('paymentMethod', params.paymentMethod);
+    if (params?.market) query.set('market', params.market);
+
+    const queryString = query.toString();
+    const targetPath = `/admin/${tab}${queryString ? `?${queryString}` : ''}`;
+
+    if (typeof window !== 'undefined') {
+      window.history.pushState({ tab, params }, '', targetPath);
+    }
+
+    if (tab === 'orders') {
+      setOrderPresetFilter(params || null);
+    } else if (tab === 'inventory') {
+      setInventoryFilter(params?.filter === 'low_stock' ? 'low_stock' : 'ALL');
+    }
+  };
 
   // Selected Order for Details Modal
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
@@ -270,32 +343,75 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
   const [countryPage, setCountryPage] = useState<number>(1);
   const COUNTRIES_PER_PAGE = 20;
 
-  // Analytics Metrics for Dashboard Cards (Requirement 7)
+  // Analytics Metrics for Dashboard Cards
   const todayDateStr = new Date().toISOString().split('T')[0];
   const currentMonthStr = todayDateStr.substring(0, 7);
 
   const todaysOrders = orders.filter((o) => o.date === todayDateStr || o.date?.startsWith(todayDateStr));
-  const pendingOrders = orders.filter(
-    (o) =>
-      o.paymentStatus === 'PENDING' ||
-      o.paymentStatus === 'COD_DUE' ||
-      o.paymentStatus === 'Awaiting Fulfillment' ||
-      o.paymentStatus === 'COD Confirmed' ||
-      o.paymentStatus === 'Pending Fulfillment' ||
-      o.trackingStatus === 'ORDER_PLACED' ||
-      o.trackingStatus === 'Pending Fulfillment' ||
-      o.trackingStatus === 'AWAITING_FULFILLMENT' ||
-      o.trackingStatus === 'Pending Payment'
-  );
-  const paidOrders = orders.filter((o) => o.paymentStatus === 'PAID' || o.paymentStatus === 'Paid' || o.paymentStatus === 'SUCCESSFUL');
-  const codOrders = orders.filter((o) => o.paymentMethod === 'COD');
-  const internationalOrders = orders.filter((o) => o.customer?.country && o.customer.country !== 'India' && o.customer.country !== 'IN');
-  const revenueToday = todaysOrders.reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
-  const revenueThisMonth = orders.filter((o) => o.date?.startsWith(currentMonthStr)).reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
-  const totalRevenue = orders.reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
+  const pendingOrders = orders.filter((o) => {
+    const pStatus = (o.paymentStatus || '').toUpperCase();
+    const tStatus = (o.trackingStatus || '').toUpperCase();
+    return (
+      pStatus === 'PENDING' ||
+      pStatus === 'COD_DUE' ||
+      pStatus === 'AWAITING FULFILLMENT' ||
+      pStatus === 'PENDING PAYMENT' ||
+      pStatus === 'PENDING FULFILLMENT' ||
+      tStatus === 'ORDER_PLACED' ||
+      tStatus === 'PENDING FULFILLMENT' ||
+      tStatus === 'AWAITING_FULFILLMENT' ||
+      tStatus === 'PENDING PAYMENT'
+    );
+  });
+
+  const paidOrders = orders.filter((o) => {
+    const pStatus = (o.paymentStatus || '').toUpperCase();
+    const pMethod = (o.paymentMethod || '').toUpperCase();
+    const isPaid = pStatus === 'PAID' || pStatus === 'SUCCESSFUL';
+    const isCodPending = pMethod === 'COD' && pStatus !== 'PAID' && pStatus !== 'SUCCESSFUL';
+    return isPaid && !isCodPending;
+  });
+
+  const codOrders = orders.filter((o) => (o.paymentMethod || '').toUpperCase() === 'COD');
+
+  const internationalOrders = orders.filter((o) => {
+    const c = (o.customer?.country || '').trim().toLowerCase();
+    return c !== '' && c !== 'india' && c !== 'in';
+  });
+
+  const revenueTodayOrders = orders.filter((o) => {
+    const isToday = o.date && (o.date === todayDateStr || o.date.startsWith(todayDateStr));
+    const pStatus = (o.paymentStatus || '').toUpperCase();
+    const pMethod = (o.paymentMethod || '').toUpperCase();
+    const isPaidOrCod = pStatus === 'PAID' || pStatus === 'SUCCESSFUL' || pMethod === 'COD';
+    return isToday && isPaidOrCod;
+  });
+  const revenueToday = revenueTodayOrders.reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
+
+  const revenueThisMonthOrders = orders.filter((o) => {
+    const isThisMonth = o.date && o.date.startsWith(currentMonthStr);
+    const pStatus = (o.paymentStatus || '').toUpperCase();
+    const pMethod = (o.paymentMethod || '').toUpperCase();
+    const isPaidOrCod = pStatus === 'PAID' || pStatus === 'SUCCESSFUL' || pMethod === 'COD';
+    return isThisMonth && isPaidOrCod;
+  });
+  const revenueThisMonth = revenueThisMonthOrders.reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
+
+  const totalRevenueOrders = orders.filter((o) => {
+    const pStatus = (o.paymentStatus || '').toUpperCase();
+    const pMethod = (o.paymentMethod || '').toUpperCase();
+    return pStatus === 'PAID' || pStatus === 'SUCCESSFUL' || pMethod === 'COD';
+  });
+  const totalRevenue = totalRevenueOrders.reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
+
   const refundTotals = paymentLogs.filter((l) => l.status === 'REFUNDED').reduce((acc, l) => acc + (l.amountINR || 0), 0) +
-    orders.filter((o) => o.paymentStatus === 'REFUNDED').reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
-  const settlementTotals = orders.filter((o) => o.paymentStatus === 'PAID' || o.paymentStatus === 'Paid' || o.paymentStatus === 'SUCCESSFUL').reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
+    orders.filter((o) => (o.paymentStatus || '').toUpperCase() === 'REFUNDED').reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
+
+  const settlementTotals = orders.filter((o) => {
+    const pStatus = (o.paymentStatus || '').toUpperCase();
+    return pStatus === 'PAID' || pStatus === 'SUCCESSFUL';
+  }).reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
+
   const lowStockProducts = products.filter((p) => (typeof p.stock === 'number' ? p.stock : 100) < 10 || p.inStock === false);
 
   const [isAddingProduct, setIsAddingProduct] = useState(false);
@@ -764,7 +880,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             {/* Top Stat Cards for Requirement 7 */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div
-                onClick={() => setActiveTab('orders')}
+                onClick={() => handleDashboardCardNavigate('orders', { filter: 'today' })}
                 className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/30 p-5 rounded-2xl cursor-pointer hover:border-[var(--brand-gold)] hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
@@ -782,7 +898,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               </div>
 
               <div
-                onClick={() => setActiveTab('orders')}
+                onClick={() => handleDashboardCardNavigate('orders', { paymentStatus: 'pending' })}
                 className="bg-[var(--brand-primary-dark)] border border-amber-500/30 p-5 rounded-2xl cursor-pointer hover:border-amber-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
@@ -800,7 +916,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               </div>
 
               <div
-                onClick={() => setActiveTab('orders')}
+                onClick={() => handleDashboardCardNavigate('orders', { paymentStatus: 'paid' })}
                 className="bg-[var(--brand-primary-dark)] border border-emerald-500/30 p-5 rounded-2xl cursor-pointer hover:border-emerald-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
@@ -818,7 +934,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               </div>
 
               <div
-                onClick={() => setActiveTab('orders')}
+                onClick={() => handleDashboardCardNavigate('orders', { paymentMethod: 'cod' })}
                 className="bg-[var(--brand-primary-dark)] border border-cyan-500/30 p-5 rounded-2xl cursor-pointer hover:border-cyan-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
@@ -836,7 +952,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               </div>
 
               <div
-                onClick={() => setActiveTab('orders')}
+                onClick={() => handleDashboardCardNavigate('orders', { market: 'international' })}
                 className="bg-[var(--brand-primary-dark)] border border-indigo-500/30 p-5 rounded-2xl cursor-pointer hover:border-indigo-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
@@ -854,7 +970,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               </div>
 
               <div
-                onClick={() => setActiveTab('orders')}
+                onClick={() => handleDashboardCardNavigate('orders', { filter: 'revenue_today' })}
                 className="bg-[var(--brand-primary-dark)] border border-emerald-500/30 p-5 rounded-2xl cursor-pointer hover:border-emerald-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
@@ -872,7 +988,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               </div>
 
               <div
-                onClick={() => setActiveTab('orders')}
+                onClick={() => handleDashboardCardNavigate('orders', { filter: 'revenue_month' })}
                 className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/30 p-5 rounded-2xl cursor-pointer hover:border-[var(--brand-gold)] hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
@@ -890,7 +1006,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               </div>
 
               <div
-                onClick={() => setActiveTab('orders')}
+                onClick={() => handleDashboardCardNavigate('orders', { filter: 'revenue_all' })}
                 className="bg-[var(--brand-primary-dark)] border border-cyan-500/30 p-5 rounded-2xl cursor-pointer hover:border-cyan-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
@@ -908,7 +1024,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               </div>
 
               <div
-                onClick={() => setActiveTab('payments')}
+                onClick={() => handleDashboardCardNavigate('orders', { paymentStatus: 'refunded' })}
                 className="bg-[var(--brand-primary-dark)] border border-purple-500/30 p-5 rounded-2xl cursor-pointer hover:border-purple-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
@@ -926,7 +1042,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               </div>
 
               <div
-                onClick={() => setActiveTab('payments')}
+                onClick={() => handleDashboardCardNavigate('orders', { paymentStatus: 'settled' })}
                 className="bg-[var(--brand-primary-dark)] border border-amber-500/30 p-5 rounded-2xl cursor-pointer hover:border-amber-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
@@ -944,7 +1060,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               </div>
 
               <div
-                onClick={() => setActiveTab('products')}
+                onClick={() => handleDashboardCardNavigate('inventory', { filter: 'low_stock' })}
                 className="bg-[var(--brand-primary-dark)] border border-rose-500/30 p-5 rounded-2xl cursor-pointer hover:border-rose-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
@@ -1283,66 +1399,101 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
         )}
 
         {/* Tab 3: Inventory & SKU */}
-        {activeTab === 'inventory' && (
-          <div className="space-y-6 animate-in fade-in">
-            <div>
-              <h1 className="text-2xl font-bold font-serif-luxury text-slate-100">Inventory & Stock SKU</h1>
-              <p className="text-xs text-slate-300">Update stock counts, SKUs, and availability status.</p>
-            </div>
+        {activeTab === 'inventory' && (() => {
+          const inventoryProducts = products.filter((p) => {
+            if (inventoryFilter === 'low_stock') {
+              return (typeof p.stock === 'number' ? p.stock : 100) < 10 || p.inStock === false;
+            }
+            return true;
+          });
 
-            <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl overflow-x-auto p-4">
-              <table className="w-full text-left text-xs font-sans">
-                <thead className="text-[10px] uppercase text-[var(--brand-gold)] border-b border-white/10">
-                  <tr>
-                    <th className="py-2 px-3">SKU</th>
-                    <th className="py-2 px-3">Product Name</th>
-                    <th className="py-2 px-3">Stock Units</th>
-                    <th className="py-2 px-3">Status</th>
-                    <th className="py-2 px-3">Quick Adjust</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-white/5">
-                  {products.map((p) => (
-                    <tr key={p.id}>
-                      <td className="py-3 px-3 font-mono text-[var(--brand-gold)]">{p.sku}</td>
-                      <td className="py-3 px-3 font-bold">{p.name}</td>
-                      <td className="py-3 px-3 font-mono">{p.stock}</td>
-                      <td className="py-3 px-3">
-                        {p.stock > 10 ? (
-                          <span className="text-emerald-400 font-bold text-[10px] bg-emerald-950/60 px-2 py-0.5 rounded">In Stock</span>
-                        ) : p.stock > 0 ? (
-                          <span className="text-amber-400 font-bold text-[10px] bg-amber-950/60 px-2 py-0.5 rounded">Low Stock</span>
-                        ) : (
-                          <span className="text-rose-400 font-bold text-[10px] bg-rose-950/60 px-2 py-0.5 rounded">Out of Stock</span>
-                        )}
-                      </td>
-                      <td className="py-3 px-3 flex items-center gap-2">
-                        <button
-                          onClick={() => {
-                            updateProduct(p.id, { stock: Math.max(0, p.stock - 10) });
-                            showToast('Stock decreased');
-                          }}
-                          className="bg-white/10 hover:bg-white/20 px-2 py-1 rounded text-[10px] font-bold"
-                        >
-                          -10
-                        </button>
-                        <button
-                          onClick={() => {
-                            updateProduct(p.id, { stock: p.stock + 50 });
-                            showToast('Stock added');
-                          }}
-                          className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] hover:bg-white px-2 py-1 rounded text-[10px] font-bold"
-                        >
-                          +50
-                        </button>
-                      </td>
+          return (
+            <div className="space-y-6 animate-in fade-in">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
+                <div>
+                  <h1 className="text-2xl font-bold font-serif-luxury text-slate-100">Inventory & Stock SKU</h1>
+                  <p className="text-xs text-slate-300">Update stock counts, SKUs, and availability status.</p>
+                </div>
+                <div className="flex items-center gap-2 text-xs font-mono font-bold text-[var(--brand-gold)] bg-[var(--brand-primary-deep)] border border-[var(--brand-gold)]/30 px-3.5 py-2 rounded-xl">
+                  <span>Showing SKUs: {inventoryProducts.length} of {products.length}</span>
+                </div>
+              </div>
+
+              {inventoryFilter === 'low_stock' && (
+                <div className="bg-rose-950/80 border border-rose-500/40 p-3.5 px-4 rounded-xl flex flex-wrap items-center justify-between gap-3 text-xs font-bold text-rose-200 shadow-md">
+                  <div className="flex items-center gap-2">
+                    <AlertTriangle className="w-4 h-4 text-rose-400" />
+                    <span>
+                      Active Inventory Filter: <strong className="text-white font-mono">Low Stock & Out of Stock SKUs</strong> ({inventoryProducts.length} item{inventoryProducts.length === 1 ? '' : 's'})
+                    </span>
+                  </div>
+                  <button
+                    onClick={() => {
+                      setInventoryFilter('ALL');
+                      if (typeof window !== 'undefined') window.history.pushState({}, '', '/admin/inventory');
+                    }}
+                    className="px-3 py-1.5 bg-white/10 hover:bg-white/20 text-white rounded-lg text-[11px] uppercase font-bold flex items-center gap-1 transition-all"
+                  >
+                    <XCircle className="w-3.5 h-3.5" />
+                    <span>Clear Filter (Show All SKUs)</span>
+                  </button>
+                </div>
+              )}
+
+              <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl overflow-x-auto p-4 shadow-lg">
+                <table className="w-full text-left text-xs font-sans">
+                  <thead className="text-[10px] uppercase text-[var(--brand-gold)] border-b border-white/10">
+                    <tr>
+                      <th className="py-2 px-3">SKU</th>
+                      <th className="py-2 px-3">Product Name</th>
+                      <th className="py-2 px-3">Stock Units</th>
+                      <th className="py-2 px-3">Status</th>
+                      <th className="py-2 px-3">Quick Adjust</th>
                     </tr>
-                  ))}
-                </tbody>
-              </table>
+                  </thead>
+                  <tbody className="divide-y divide-white/5">
+                    {inventoryProducts.map((p) => (
+                      <tr key={p.id}>
+                        <td className="py-3 px-3 font-mono text-[var(--brand-gold)]">{p.sku}</td>
+                        <td className="py-3 px-3 font-bold">{p.name}</td>
+                        <td className="py-3 px-3 font-mono">{p.stock}</td>
+                        <td className="py-3 px-3">
+                          {p.stock > 10 ? (
+                            <span className="text-emerald-400 font-bold text-[10px] bg-emerald-950/60 px-2 py-0.5 rounded">In Stock</span>
+                          ) : p.stock > 0 ? (
+                            <span className="text-amber-400 font-bold text-[10px] bg-amber-950/60 px-2 py-0.5 rounded">Low Stock</span>
+                          ) : (
+                            <span className="text-rose-400 font-bold text-[10px] bg-rose-950/60 px-2 py-0.5 rounded">Out of Stock</span>
+                          )}
+                        </td>
+                        <td className="py-3 px-3 flex items-center gap-2">
+                          <button
+                            onClick={() => {
+                              updateProduct(p.id, { stock: Math.max(0, p.stock - 10) });
+                              showToast('Stock decreased');
+                            }}
+                            className="bg-white/10 hover:bg-white/20 px-2 py-1 rounded text-[10px] font-bold"
+                          >
+                            -10
+                          </button>
+                          <button
+                            onClick={() => {
+                              updateProduct(p.id, { stock: p.stock + 50 });
+                              showToast('Stock added');
+                            }}
+                            className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] hover:bg-white px-2 py-1 rounded text-[10px] font-bold"
+                          >
+                            +50
+                          </button>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
             </div>
-          </div>
-        )}
+          );
+        })()}
 
         {/* Tab 4: Categories */}
         {activeTab === 'categories' && (
@@ -1458,6 +1609,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             setSelectedOrder={setSelectedOrder}
             formatPrice={formatAdminINR}
             showToast={showToast}
+            presetFilter={orderPresetFilter}
+            onClearPresetFilter={() => {
+              setOrderPresetFilter(null);
+              if (typeof window !== 'undefined') window.history.pushState({}, '', '/admin/orders');
+            }}
           />
         )}
 

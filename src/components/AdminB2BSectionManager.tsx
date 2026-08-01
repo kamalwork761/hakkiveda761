@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { formatAdminINR } from '../utils/adminCurrency';
 import {
   Building2,
   Save,
@@ -792,7 +793,7 @@ export const AdminB2BSectionManager: React.FC = () => {
                         {prod.name}
                       </h4>
                       <p className="text-[10px] text-slate-400 truncate mt-0.5">
-                        {prod.category} • {formatPrice(prod.priceINR)}
+                        {prod.category} • {formatAdminINR(prod.priceINR)}
                       </p>
                     </div>
 

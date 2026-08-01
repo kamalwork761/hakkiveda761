@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { formatAdminINR, formatOriginalAmount } from '../utils/adminCurrency';
 import html2pdf from 'html2pdf.js';
 import jsPDF from 'jspdf';
 import autoTable from 'jspdf-autotable';
@@ -1400,14 +1401,40 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
 
                   <div className="text-right">
                     <p className="font-mono text-slate-300">
-                      {formatPrice(item.product.priceINR)} × {item.quantity}
+                      {formatAdminINR(item.product.priceINR)} × {item.quantity}
                     </p>
                     <p className="font-mono font-bold text-sm text-[var(--brand-gold)]">
-                      {formatPrice(item.product.priceINR * item.quantity)}
+                      {formatAdminINR(item.product.priceINR * item.quantity)}
                     </p>
                   </div>
                 </div>
               ))}
+            </div>
+          </div>
+
+          {/* Multi-Currency Settlement Accounting Card */}
+          <div className="bg-[var(--brand-primary-deep)] border border-white/10 p-5 rounded-2xl space-y-3">
+            <div className="flex items-center gap-2 text-[var(--brand-gold)] font-bold text-xs uppercase tracking-wider">
+              <CreditCard className="w-4 h-4" />
+              <span>Currency Settlement & Reporting</span>
+            </div>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+              <div className="bg-black/20 p-3 rounded-xl border border-white/5 space-y-1">
+                <span className="text-slate-400 block text-[10px] font-bold uppercase">Original Amount</span>
+                <span className="font-bold text-white text-sm font-mono block">{formatOriginalAmount(order)}</span>
+              </div>
+              <div className="bg-black/20 p-3 rounded-xl border border-white/5 space-y-1">
+                <span className="text-slate-400 block text-[10px] font-bold uppercase">Reporting Amount</span>
+                <span className="font-bold text-emerald-400 text-sm font-mono block">{formatAdminINR(finalTotal)}</span>
+              </div>
+              <div className="bg-black/20 p-3 rounded-xl border border-white/5 space-y-1">
+                <span className="text-slate-400 block text-[10px] font-bold uppercase">Payment Currency</span>
+                <span className="font-bold text-amber-300 text-sm font-mono block">{order.displayCurrency || order.chargeCurrency || order.currencyCode || 'INR'}</span>
+              </div>
+              <div className="bg-black/20 p-3 rounded-xl border border-white/5 space-y-1">
+                <span className="text-slate-400 block text-[10px] font-bold uppercase">Settlement Currency</span>
+                <span className="font-bold text-cyan-300 text-sm font-mono block">INR (₹)</span>
+              </div>
             </div>
           </div>
 
@@ -1416,25 +1443,25 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
             <h3 className="text-xs font-bold text-[var(--brand-gold)] uppercase tracking-wider mb-2">Financial Breakdown</h3>
             <div className="flex justify-between text-slate-300">
               <span>Subtotal:</span>
-              <span className="font-mono">{formatPrice(subtotal)}</span>
+              <span className="font-mono">{formatAdminINR(subtotal)}</span>
             </div>
             {discount > 0 && (
               <div className="flex justify-between text-emerald-400">
                 <span>Discount / Coupon Applied:</span>
-                <span className="font-mono">- {formatPrice(discount)}</span>
+                <span className="font-mono">- {formatAdminINR(discount)}</span>
               </div>
             )}
             <div className="flex justify-between text-slate-300">
               <span>Shipping Charges:</span>
-              <span className="font-mono">{shippingCharges === 0 ? 'FREE Express' : formatPrice(shippingCharges)}</span>
+              <span className="font-mono">{shippingCharges === 0 ? 'FREE Express' : formatAdminINR(shippingCharges)}</span>
             </div>
             <div className="flex justify-between text-slate-400 text-[11px]">
               <span>Tax / GST (18% Included):</span>
-              <span className="font-mono">{formatPrice(taxGST)}</span>
+              <span className="font-mono">{formatAdminINR(taxGST)}</span>
             </div>
             <div className="flex justify-between font-bold text-sm text-[var(--brand-gold)] border-t border-white/10 pt-3 mt-2">
-              <span>Total Amount Paid:</span>
-              <span className="font-mono text-base">{formatPrice(finalTotal)}</span>
+              <span>Total Amount Paid (INR Reporting):</span>
+              <span className="font-mono text-base">{formatAdminINR(finalTotal)}</span>
             </div>
           </div>
 

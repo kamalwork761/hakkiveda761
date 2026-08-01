@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { formatAdminINR } from '../utils/adminCurrency';
 import {
   Film,
   Plus,
@@ -288,7 +289,7 @@ export const AdminShoppableReelsManager: React.FC<AdminShoppableReelsManagerProp
                       {product && (
                         <div className="text-xs text-amber-800 font-semibold flex items-center gap-1.5 pt-0.5">
                           <ShoppingBag className="w-3.5 h-3.5" />
-                          <span>Linked: {product.name} ({formatPrice(product.priceINR)})</span>
+                          <span>Linked: {product.name} ({formatAdminINR(product.priceINR)})</span>
                         </div>
                       )}
                     </div>
@@ -483,7 +484,7 @@ export const AdminShoppableReelsManager: React.FC<AdminShoppableReelsManagerProp
                 >
                   {products.map((p) => (
                     <option key={p.id} value={p.id}>
-                      {p.name} — {formatPrice(p.priceINR)}
+                      {p.name} — {formatAdminINR(p.priceINR)}
                     </option>
                   ))}
                 </select>

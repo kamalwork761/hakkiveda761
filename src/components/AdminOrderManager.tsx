@@ -1,4 +1,5 @@
 import React, { useState, useMemo } from 'react';
+import { formatAdminINR, formatOriginalAmount } from '../utils/adminCurrency';
 import {
   Search,
   Filter,
@@ -357,9 +358,16 @@ export const AdminOrderManager: React.FC<AdminOrderManagerProps> = ({
                     </span>
                   </div>
                   <div className="flex items-center gap-3">
-                    <span className="font-mono font-black text-sm text-white">
-                      {formatPrice(o.totalAmountINR)}
-                    </span>
+                    <div className="text-right">
+                      <span className="font-mono font-black text-sm text-emerald-400 block">
+                        {formatAdminINR(o.totalAmountINR)}
+                      </span>
+                      {o.currencyCode && o.currencyCode !== 'INR' && (
+                        <span className="text-[10px] text-slate-400 font-mono block">
+                          Original: {formatOriginalAmount(o)}
+                        </span>
+                      )}
+                    </div>
                     <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase ${
                       o.paymentStatus === 'PAID' || o.paymentStatus === 'Paid' ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/30' :
                       o.paymentStatus === 'REFUNDED' ? 'bg-purple-950 text-purple-300 border border-purple-500/30' :

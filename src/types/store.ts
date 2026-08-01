@@ -178,6 +178,12 @@ export interface Order {
   pickupScheduledDate?: string;
   labelUrl?: string;
   invoiceUrl?: string;
+  displayAmount?: number;
+  displayCurrency?: string;
+  chargeAmount?: number;
+  chargeCurrency?: string;
+  exchangeRateUsed?: number;
+  settlementCurrency?: string;
   stockRestored?: boolean;
 }
 

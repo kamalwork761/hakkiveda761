@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { uploadFileToServer } from '../utils/upload';
+import { formatAdminINR, formatOriginalAmount } from '../utils/adminCurrency';
 import { AdminProductImageManager } from './AdminProductImageManager';
 import { AdminCategoryManager } from './AdminCategoryManager';
 import { AdminHeroSliderManager } from './AdminHeroSliderManager';
@@ -291,6 +292,10 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
   const internationalOrders = orders.filter((o) => o.customer?.country && o.customer.country !== 'India' && o.customer.country !== 'IN');
   const revenueToday = todaysOrders.reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
   const revenueThisMonth = orders.filter((o) => o.date?.startsWith(currentMonthStr)).reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
+  const totalRevenue = orders.reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
+  const refundTotals = paymentLogs.filter((l) => l.status === 'REFUNDED').reduce((acc, l) => acc + (l.amountINR || 0), 0) +
+    orders.filter((o) => o.paymentStatus === 'REFUNDED').reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
+  const settlementTotals = orders.filter((o) => o.paymentStatus === 'PAID' || o.paymentStatus === 'Paid' || o.paymentStatus === 'SUCCESSFUL').reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
   const lowStockProducts = products.filter((p) => (typeof p.stock === 'number' ? p.stock : 100) < 10 || p.inStock === false);
 
   const [isAddingProduct, setIsAddingProduct] = useState(false);
@@ -855,11 +860,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                 <div>
                   <div className="flex items-center justify-between">
                     <div className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">
-                      Revenue Today
+                      Revenue Today (INR)
                     </div>
                     <DollarSign className="w-4 h-4 text-emerald-400" />
                   </div>
-                  <div className="text-2xl font-bold font-mono text-white mt-1">{formatPrice(revenueToday)}</div>
+                  <div className="text-2xl font-bold font-mono text-white mt-1">{formatAdminINR(revenueToday)}</div>
                 </div>
                 <div className="text-[10px] text-emerald-400 group-hover:underline font-bold mt-3">
                   Today's Sales →
@@ -873,14 +878,68 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                 <div>
                   <div className="flex items-center justify-between">
                     <div className="text-[10px] uppercase tracking-widest text-[var(--brand-gold)] font-bold">
-                      Revenue This Month
+                      Revenue This Month (INR)
                     </div>
                     <DollarSign className="w-4 h-4 text-[var(--brand-gold)]" />
                   </div>
-                  <div className="text-2xl font-bold font-mono text-white mt-1">{formatPrice(revenueThisMonth)}</div>
+                  <div className="text-2xl font-bold font-mono text-white mt-1">{formatAdminINR(revenueThisMonth)}</div>
                 </div>
                 <div className="text-[10px] text-[var(--brand-gold)] group-hover:underline font-bold mt-3">
                   Monthly Total →
+                </div>
+              </div>
+
+              <div
+                onClick={() => setActiveTab('orders')}
+                className="bg-[var(--brand-primary-dark)] border border-cyan-500/30 p-5 rounded-2xl cursor-pointer hover:border-cyan-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-[10px] uppercase tracking-widest text-cyan-400 font-bold">
+                      Total Revenue (INR)
+                    </div>
+                    <DollarSign className="w-4 h-4 text-cyan-400" />
+                  </div>
+                  <div className="text-2xl font-bold font-mono text-white mt-1">{formatAdminINR(totalRevenue)}</div>
+                </div>
+                <div className="text-[10px] text-cyan-400 group-hover:underline font-bold mt-3">
+                  All Time Gross →
+                </div>
+              </div>
+
+              <div
+                onClick={() => setActiveTab('payments')}
+                className="bg-[var(--brand-primary-dark)] border border-purple-500/30 p-5 rounded-2xl cursor-pointer hover:border-purple-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-[10px] uppercase tracking-widest text-purple-400 font-bold">
+                      Refund Totals (INR)
+                    </div>
+                    <CreditCard className="w-4 h-4 text-purple-400" />
+                  </div>
+                  <div className="text-2xl font-bold font-mono text-white mt-1">{formatAdminINR(refundTotals)}</div>
+                </div>
+                <div className="text-[10px] text-purple-400 group-hover:underline font-bold mt-3">
+                  View Refunds →
+                </div>
+              </div>
+
+              <div
+                onClick={() => setActiveTab('payments')}
+                className="bg-[var(--brand-primary-dark)] border border-amber-500/30 p-5 rounded-2xl cursor-pointer hover:border-amber-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
+              >
+                <div>
+                  <div className="flex items-center justify-between">
+                    <div className="text-[10px] uppercase tracking-widest text-amber-400 font-bold">
+                      Settlement Totals (INR)
+                    </div>
+                    <CheckCircle className="w-4 h-4 text-amber-400" />
+                  </div>
+                  <div className="text-2xl font-bold font-mono text-white mt-1">{formatAdminINR(settlementTotals)}</div>
+                </div>
+                <div className="text-[10px] text-amber-400 group-hover:underline font-bold mt-3">
+                  Settled Sales →
                 </div>
               </div>
 
@@ -948,7 +1007,12 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                             <span className="font-bold text-white block">{o.customer.name}</span>
                             <span className="text-[10px] text-slate-400 block">{o.customer.email}</span>
                           </td>
-                          <td className="py-3 px-3 font-mono font-bold text-white">{formatPrice(o.totalAmountINR)}</td>
+                          <td className="py-3 px-3 font-mono">
+                            <div className="font-bold text-white">{formatAdminINR(o.totalAmountINR)}</div>
+                            {o.currencyCode && o.currencyCode !== 'INR' && (
+                              <div className="text-[10px] text-slate-400 font-normal">{formatOriginalAmount(o)}</div>
+                            )}
+                          </td>
                           <td className="py-3 px-3">
                             <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
                               o.trackingStatus === 'DELIVERED' ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/30' :
@@ -1094,7 +1158,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                     <div className="flex-1 space-y-1">
                       <h4 className="text-sm font-bold text-slate-100 line-clamp-1">{p.name}</h4>
                       <p className="text-[10px] text-[var(--brand-gold)] uppercase font-semibold">{p.category}</p>
-                      <p className="text-xs font-mono font-bold">{formatPrice(p.priceINR)}</p>
+                      <p className="text-xs font-mono font-bold">{formatAdminINR(p.priceINR)}</p>
                       <div className="text-[10px] text-slate-400">SKU: {p.sku} • Stock: {p.stock}</div>
                       <div className="flex items-center gap-3 pt-1">
                         <button
@@ -1392,7 +1456,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             orders={orders}
             updateOrderStatus={updateOrderStatus}
             setSelectedOrder={setSelectedOrder}
-            formatPrice={formatPrice}
+            formatPrice={formatAdminINR}
             showToast={showToast}
           />
         )}
@@ -1578,7 +1642,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                             </td>
 
                             <td className="p-4">
-                              <div className="font-bold text-white">{formatPrice(totalSpent)}</div>
+                              <div className="font-bold text-white">{formatAdminINR(totalSpent)}</div>
                               <div className="text-[10px] text-slate-400">{custOrders.length} Completed Orders</div>
                             </td>
 

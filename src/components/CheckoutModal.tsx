@@ -39,6 +39,8 @@ export const CheckoutModal: React.FC = () => {
     isCheckoutOpen,
     setIsCheckoutOpen,
     cart,
+    cartSubtotalINR,
+    discountAmountINR,
     cartTotalINR,
     formatPrice,
     currentCurrency,
@@ -51,6 +53,12 @@ export const CheckoutModal: React.FC = () => {
     marketGateways,
     placeOrder,
     clearCart,
+    products,
+    updateCartQuantity,
+    removeFromCart,
+    appliedCoupon,
+    applyCoupon,
+    removeCoupon,
   } = useStore();
 
   const [step, setStep] = useState<'address' | 'review' | 'payment' | 'confirmation'>('address');
@@ -101,6 +109,98 @@ export const CheckoutModal: React.FC = () => {
     codAllowed: boolean;
     message: string;
   }>({ checked: false, serviceable: true, couriers: [], codAllowed: true, message: '' });
+
+  // Stock Validation & Coupon Review state
+  const [stockWarnings, setStockWarnings] = useState<string[]>([]);
+  const [checkoutCouponInput, setCheckoutCouponInput] = useState('');
+  const [couponFeedback, setCouponFeedback] = useState<{ success: boolean; message: string } | null>(null);
+
+  // Restore draft on initial load
+  useEffect(() => {
+    try {
+      const savedDraft = localStorage.getItem('hakkiveda_checkout_draft');
+      if (savedDraft) {
+        const d = JSON.parse(savedDraft);
+        if (d.name) setName(d.name);
+        if (d.email) setEmail(d.email);
+        if (d.phone) setPhone(d.phone);
+        if (d.altPhone) setAltPhone(d.altPhone);
+        if (d.line1) setLine1(d.line1);
+        if (d.line2) setLine2(d.line2);
+        if (d.landmark) setLandmark(d.landmark);
+        if (d.companyName) setCompanyName(d.companyName);
+        if (d.taxNumber) setTaxNumber(d.taxNumber);
+        if (d.city) setCity(d.city);
+        if (d.state) setState(d.state);
+        if (d.pincode) setPincode(d.pincode);
+        if (typeof d.isBillingSame === 'boolean') setIsBillingSame(d.isBillingSame);
+        if (d.billingName) setBillingName(d.billingName);
+        if (d.billingPhone) setBillingPhone(d.billingPhone);
+        if (d.billingAddress) setBillingAddress(d.billingAddress);
+        if (d.billingLine2) setBillingLine2(d.billingLine2);
+        if (d.billingLandmark) setBillingLandmark(d.billingLandmark);
+        if (d.billingPincode) setBillingPincode(d.billingPincode);
+        if (d.billingCity) setBillingCity(d.billingCity);
+        if (d.billingState) setBillingState(d.billingState);
+      }
+    } catch (e) {}
+  }, []);
+
+  // Auto save draft as customer types
+  useEffect(() => {
+    if (name || email || phone || line1 || pincode) {
+      try {
+        localStorage.setItem(
+          'hakkiveda_checkout_draft',
+          JSON.stringify({
+            name,
+            email,
+            phone,
+            altPhone,
+            line1,
+            line2,
+            landmark,
+            companyName,
+            taxNumber,
+            city,
+            state,
+            pincode,
+            isBillingSame,
+            billingName,
+            billingPhone,
+            billingAddress,
+            billingLine2,
+            billingLandmark,
+            billingPincode,
+            billingCity,
+            billingState,
+          })
+        );
+      } catch (e) {}
+    }
+  }, [
+    name,
+    email,
+    phone,
+    altPhone,
+    line1,
+    line2,
+    landmark,
+    companyName,
+    taxNumber,
+    city,
+    state,
+    pincode,
+    isBillingSame,
+    billingName,
+    billingPhone,
+    billingAddress,
+    billingLine2,
+    billingLandmark,
+    billingPincode,
+    billingCity,
+    billingState,
+  ]);
 
   // Lock body scroll and synchronize country state with StoreContext live selectedCountry
   useEffect(() => {
@@ -315,6 +415,51 @@ export const CheckoutModal: React.FC = () => {
 
   const isCodAllowed = isIndia && (codRules?.enabled !== false) && isCodWithinLimits;
 
+  // Dynamic Shipping & Grand Total Calculation
+  const isFreeShipping = isIndia ? cartTotalINR >= 999 : cartTotalINR >= 2500;
+  const shippingFeeINR = isFreeShipping ? 0 : isIndia ? 99 : 499;
+  const grandTotalINR = cartTotalINR + shippingFeeINR;
+
+  const courierName = isIndia
+    ? pincodeStatus.couriers.length > 0
+      ? pincodeStatus.couriers.join(', ')
+      : 'Delhivery / Shiprocket / Bluedart'
+    : 'DHL Express / FedEx Worldwide';
+
+  const estimatedDelivery = isIndia ? '3–5 Business Days' : '5–8 Business Days';
+
+  // Live stock validator
+  const validateCartStock = (): boolean => {
+    const warnings: string[] = [];
+    let cartAdjusted = false;
+
+    cart.forEach((item) => {
+      const prod = products.find((p) => p.id === item.product.id);
+      const avail = prod && prod.inStock !== false ? (typeof prod.stock === 'number' ? prod.stock : 100) : 0;
+
+      if (avail <= 0) {
+        warnings.push(`"${item.product.name}" is currently out of stock and was removed from your cart.`);
+        removeFromCart(item.product.id);
+        cartAdjusted = true;
+      } else if (item.quantity > avail) {
+        warnings.push(`Only ${avail} items left for "${item.product.name}". Cart quantity was updated automatically.`);
+        updateCartQuantity(item.product.id, avail);
+        cartAdjusted = true;
+      }
+    });
+
+    setStockWarnings(warnings);
+    return !cartAdjusted;
+  };
+
+  const handleApplyCheckoutCoupon = (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!checkoutCouponInput.trim()) return;
+    const res = applyCoupon(checkoutCouponInput);
+    setCouponFeedback({ success: res.success, message: res.message });
+    if (res.success) setCheckoutCouponInput('');
+  };
+
   // Address Validation
   const validateEmail = (val: string) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val.trim());
 
@@ -412,11 +557,20 @@ export const CheckoutModal: React.FC = () => {
       setPaymentMethod(availableGateways[0].id);
     }
 
+    validateCartStock();
     setStep('review');
   };
 
   const handlePlaceOrder = () => {
     if (isProcessingPayment) return; // Prevent duplicate order trigger
+    validateCartStock();
+
+    if (cart.length === 0) {
+      setAddressFormError('Your cart is empty. Please add items to proceed.');
+      setStep('address');
+      return;
+    }
+
     setIsProcessingPayment(true);
 
     setTimeout(() => {
@@ -434,18 +588,15 @@ export const CheckoutModal: React.FC = () => {
         ? fullPhone
         : formatE164(billingCountryInfo.dialCode, billingPhone);
 
-      const shippingFee = cartTotalINR > 999 ? 0 : 99;
-      const totalAmountWithShipping = cartTotalINR + shippingFee;
-
       const order = placeOrder({
         items: [...cart],
-        subtotalINR: cartTotalINR,
-        shippingChargesINR: shippingFee,
+        subtotalINR: cartSubtotalINR,
+        shippingChargesINR: shippingFeeINR,
         taxINR: Math.round(cartTotalINR * 0.05),
-        discountINR: 0,
-        totalAmountINR: totalAmountWithShipping,
+        discountINR: discountAmountINR,
+        totalAmountINR: grandTotalINR,
         currencyCode: currentCurrency.code,
-        convertedTotal: currentCurrency.code === 'INR' ? totalAmountWithShipping : Number((totalAmountWithShipping / currentCurrency.rateToINR).toFixed(2)),
+        convertedTotal: currentCurrency.code === 'INR' ? grandTotalINR : Number((grandTotalINR / currentCurrency.rateToINR).toFixed(2)),
         customer: {
           name,
           email,
@@ -479,9 +630,14 @@ export const CheckoutModal: React.FC = () => {
         paymentStatus: isCod ? 'Awaiting Fulfillment' : 'Paid',
         trackingStatus: isCod ? 'AWAITING_FULFILLMENT' : 'ORDER_PLACED',
         trackingNumber: `HV-TRK-${Math.floor(100000 + Math.random() * 900000)}`,
-        courierName: isIndia ? 'Delhivery Surface / Shiprocket' : 'DHL Express Worldwide',
-        estimatedDeliveryDate: new Date(Date.now() + 5 * 86400000).toISOString().split('T')[0],
+        courierName: courierName,
+        estimatedDeliveryDate: new Date(Date.now() + (isIndia ? 5 : 8) * 86400000).toISOString().split('T')[0],
       });
+
+      // Clear checkout draft upon successful order
+      try {
+        localStorage.removeItem('hakkiveda_checkout_draft');
+      } catch (e) {}
 
       fetch('/api/shiprocket/create-order', {
         method: 'POST',
@@ -1292,6 +1448,18 @@ export const CheckoutModal: React.FC = () => {
               </button>
             </div>
 
+            {/* Stock Warnings Banner */}
+            {stockWarnings.length > 0 && (
+              <div className="p-4 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-500/50 rounded-xl text-xs text-amber-800 dark:text-amber-200 space-y-1.5">
+                <span className="font-bold flex items-center gap-1.5 text-amber-700 dark:text-amber-300">
+                  ⚠️ Inventory Notice
+                </span>
+                {stockWarnings.map((w, idx) => (
+                  <p key={idx}>• {w}</p>
+                ))}
+              </div>
+            )}
+
             {/* Address Summary Cards */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div className="p-4 rounded-xl border border-[var(--border-default)] bg-[var(--surface-muted)] space-y-2 text-xs">
@@ -1345,6 +1513,60 @@ export const CheckoutModal: React.FC = () => {
               </div>
             </div>
 
+            {/* Courier & Delivery Estimate */}
+            <div className="p-3.5 rounded-xl border border-[var(--border-default)] bg-[var(--surface-muted)] text-xs flex flex-col sm:flex-row justify-between sm:items-center gap-2">
+              <div>
+                <span className="font-bold text-[var(--heading-primary)] block">Estimated Logistics & Courier:</span>
+                <span className="text-[var(--text-secondary)]">{courierName}</span>
+              </div>
+              <div className="text-left sm:text-right">
+                <span className="font-bold text-emerald-600 dark:text-emerald-400 block">Est. Delivery Time:</span>
+                <span className="text-[var(--text-primary)] font-semibold">{estimatedDelivery}</span>
+              </div>
+            </div>
+
+            {/* Coupon Application Box */}
+            <div className="p-4 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-default)] space-y-2.5 text-xs">
+              <span className="font-bold uppercase tracking-wider text-[var(--heading-primary)] block text-[11px]">
+                Have a Promo Code or Coupon?
+              </span>
+              {appliedCoupon ? (
+                <div className="flex items-center justify-between p-2.5 rounded-lg bg-emerald-50 dark:bg-emerald-950/40 border border-emerald-300 dark:border-emerald-500/30 text-emerald-800 dark:text-emerald-200">
+                  <div>
+                    <span className="font-mono font-bold uppercase">{appliedCoupon.code}</span>
+                    <span className="ml-2 text-[11px]">({appliedCoupon.discountPercentage}% OFF Applied)</span>
+                  </div>
+                  <button
+                    onClick={removeCoupon}
+                    className="text-[10px] uppercase font-extrabold text-rose-600 dark:text-rose-400 hover:underline"
+                  >
+                    Remove
+                  </button>
+                </div>
+              ) : (
+                <form onSubmit={handleApplyCheckoutCoupon} className="flex gap-2">
+                  <input
+                    type="text"
+                    value={checkoutCouponInput}
+                    onChange={(e) => setCheckoutCouponInput(e.target.value)}
+                    placeholder="Enter Coupon Code (e.g. VEDA10, FESTIVE15)"
+                    className="flex-1 px-3 py-2 border border-[var(--border-default)] rounded-lg bg-[var(--surface-background)] text-[var(--text-primary)] uppercase text-xs focus:ring-1 focus:ring-[var(--border-strong)]"
+                  />
+                  <button
+                    type="submit"
+                    className="px-4 py-2 bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] font-bold rounded-lg uppercase tracking-wider text-[11px] hover:opacity-90"
+                  >
+                    Apply
+                  </button>
+                </form>
+              )}
+              {couponFeedback && (
+                <p className={`text-[11px] font-medium ${couponFeedback.success ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                  {couponFeedback.message}
+                </p>
+              )}
+            </div>
+
             {/* Order Items Breakdown */}
             <div className="space-y-3">
               <span className="text-xs font-bold uppercase tracking-wider text-[var(--heading-primary)] block">
@@ -1380,12 +1602,18 @@ export const CheckoutModal: React.FC = () => {
             <div className="p-4 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-default)] space-y-2 text-xs">
               <div className="flex justify-between text-[var(--text-secondary)]">
                 <span>Items Subtotal:</span>
-                <span className="font-bold text-[var(--text-primary)] font-mono">{formatPrice(cartTotalINR)}</span>
+                <span className="font-bold text-[var(--text-primary)] font-mono">{formatPrice(cartSubtotalINR)}</span>
               </div>
+              {discountAmountINR > 0 && (
+                <div className="flex justify-between text-emerald-600 dark:text-emerald-400">
+                  <span>Coupon Discount ({appliedCoupon?.code}):</span>
+                  <span className="font-bold font-mono">- {formatPrice(discountAmountINR)}</span>
+                </div>
+              )}
               <div className="flex justify-between text-[var(--text-secondary)]">
                 <span>Shipping Charges:</span>
                 <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono">
-                  {cartTotalINR > 999 ? 'FREE Express Delivery' : formatPrice(99)}
+                  {isFreeShipping ? 'FREE Express Shipping' : formatPrice(shippingFeeINR)}
                 </span>
               </div>
               <div className="flex justify-between text-[var(--text-secondary)]">
@@ -1394,10 +1622,10 @@ export const CheckoutModal: React.FC = () => {
                   {formatPrice(Math.round(cartTotalINR * 0.05))} (Included)
                 </span>
               </div>
-              <div className="flex justify-between text-[var(--text-secondary)] border-t border-[var(--border-muted)] pt-2 font-bold text-sm">
+              <div className="flex justify-between text-[var(--text-primary)] border-t border-[var(--border-muted)] pt-2 font-bold text-sm">
                 <span className="text-[var(--text-primary)]">Grand Total:</span>
                 <span className="text-[var(--heading-primary)] text-base font-black font-mono">
-                  {formatPrice(cartTotalINR > 999 ? cartTotalINR : cartTotalINR + 99)}
+                  {formatPrice(grandTotalINR)}
                 </span>
               </div>
             </div>
@@ -1513,8 +1741,8 @@ export const CheckoutModal: React.FC = () => {
                 ))}
               </div>
               <div className="flex justify-between text-[var(--text-primary)] border-t border-[var(--border-muted)] pt-2 font-bold">
-                <span>Total Amount:</span>
-                <span className="font-bold text-[var(--heading-primary)] text-sm">{formatPrice(cartTotalINR)}</span>
+                <span>Grand Total Amount:</span>
+                <span className="font-bold text-[var(--heading-primary)] text-sm">{formatPrice(grandTotalINR)}</span>
               </div>
             </div>
 
@@ -1535,18 +1763,18 @@ export const CheckoutModal: React.FC = () => {
                 ) : (
                   <span>
                     {paymentMethod === 'STRIPE'
-                      ? `PAY ${formatPrice(cartTotalINR)} VIA STRIPE`
+                      ? `PAY ${formatPrice(grandTotalINR)} VIA STRIPE`
                       : paymentMethod === 'PAYPAL'
-                      ? `PAY ${formatPrice(cartTotalINR)} VIA PAYPAL`
+                      ? `PAY ${formatPrice(grandTotalINR)} VIA PAYPAL`
                       : paymentMethod === 'RAZORPAY'
-                      ? `PAY ${formatPrice(cartTotalINR)} VIA RAZORPAY`
+                      ? `PAY ${formatPrice(grandTotalINR)} VIA RAZORPAY`
                       : paymentMethod === 'PHONEPE'
-                      ? `PAY ${formatPrice(cartTotalINR)} VIA PHONEPE`
+                      ? `PAY ${formatPrice(grandTotalINR)} VIA PHONEPE`
                       : paymentMethod === 'UPI'
-                      ? `PAY ${formatPrice(cartTotalINR)} VIA INSTANT UPI`
+                      ? `PAY ${formatPrice(grandTotalINR)} VIA INSTANT UPI`
                       : paymentMethod === 'COD'
                       ? 'PLACE CASH ON DELIVERY ORDER'
-                      : `PAY ${formatPrice(cartTotalINR)}`}
+                      : `PAY ${formatPrice(grandTotalINR)}`}
                   </span>
                 )}
               </button>

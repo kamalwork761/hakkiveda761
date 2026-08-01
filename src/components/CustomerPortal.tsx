@@ -64,6 +64,8 @@ export const CustomerPortal: React.FC = () => {
     setIsCartOpen,
     setIsQuizOpen,
     playSound,
+    selectedCountry,
+    currentCurrency,
   } = useStore();
 
   // Auth Forms State
@@ -367,7 +369,7 @@ ORDERED ITEMS:
 ${order.items
   .map(
     (item, idx) =>
-      `${idx + 1}. ${item.product.name} x ${item.quantity} = ₹${item.product.priceINR * item.quantity}`
+      `${idx + 1}. ${item.product.name} x ${item.quantity} = ${formatPrice(item.product.priceINR * item.quantity)}`
   )
   .join('\n')}
 
@@ -1323,13 +1325,13 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                         <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10">
                           <label className="block font-bold text-slate-400 mb-1">Country</label>
                           <span className="font-bold text-white text-sm block">
-                            {currentUser.preferences?.country || 'India 🇮🇳'}
+                            {selectedCountry?.flag} {selectedCountry?.name}
                           </span>
                         </div>
                         <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10">
                           <label className="block font-bold text-slate-400 mb-1">Currency</label>
                           <span className="font-bold text-[var(--brand-gold)] text-sm block">
-                            {currentUser.preferences?.currency || 'INR (₹)'}
+                            {currentCurrency?.code} ({currentCurrency?.symbol})
                           </span>
                         </div>
                         <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10">

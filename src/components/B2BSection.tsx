@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Building2,
   Globe,
@@ -64,16 +64,23 @@ export const B2BSection: React.FC = () => {
     products,
     formatPrice,
     openQuickView,
+    selectedCountry,
   } = useStore();
 
   const [companyName, setCompanyName] = useState('');
   const [contactName, setContactName] = useState('');
   const [email, setEmail] = useState('');
   const [phone, setPhone] = useState('');
-  const [country, setCountry] = useState('Singapore');
+  const [country, setCountry] = useState(selectedCountry?.name || 'India');
   const [estimatedVolume, setEstimatedVolume] = useState('500 - 1,000 Bottles / Month');
   const [message, setMessage] = useState('');
   const [submitted, setSubmitted] = useState(false);
+
+  useEffect(() => {
+    if (selectedCountry?.name) {
+      setCountry(selectedCountry.name);
+    }
+  }, [selectedCountry?.name]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();

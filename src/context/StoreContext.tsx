@@ -1047,8 +1047,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   // Currencies, Markets & Countries
-  const [currencies, setCurrencies] = useState<Currency[]>(() => getStored('currencies', INITIAL_CURRENCIES));
-  const [currentCurrency, setCurrentCurrency] = useState<Currency>(() => getStored('current_currency', INITIAL_CURRENCIES[0]));
+  const [currencies, setCurrencies] = useState<Currency[]>(() => {
+    const stored = getStored<Currency[]>('currencies', INITIAL_CURRENCIES);
+    if (!Array.isArray(stored) || stored.length === 0) return INITIAL_CURRENCIES;
+    const map = new Map<string, Currency>();
+    INITIAL_CURRENCIES.forEach((c) => map.set(c.code, c));
+    stored.forEach((c) => map.set(c.code, { ...map.get(c.code), ...c }));
+    return Array.from(map.values());
+  });
+
   const [markets, setMarkets] = useState<Market[]>(() => getStored('markets', INITIAL_MARKETS));
   const [countries, setCountries] = useState<CountrySetting[]>(() => {
     const stored = getStored('countries', INITIAL_COUNTRIES);
@@ -1059,7 +1066,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return stored;
   });
 
-  // Selected Country Persistence & Modal
+  // Selected Country Persistence & Modal (Single Global Source of Truth)
   const [selectedCountry, setSelectedCountry] = useState<CountryItem>(() => {
     const stored = localStorage.getItem('hakkiveda_selected_country');
     if (stored) {
@@ -1075,19 +1082,29 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const [isCountryModalOpen, setIsCountryModalOpen] = useState(false);
 
+  // Helper to find currency object for a given currency code
+  const resolveCurrencyForCode = (code: string, activeCurrencies: Currency[]): Currency => {
+    const found =
+      activeCurrencies.find((c) => c.code === code) ||
+      INITIAL_CURRENCIES.find((c) => c.code === code);
+    if (found) return found;
+    return (
+      activeCurrencies.find((c) => c.code === 'USD') ||
+      INITIAL_CURRENCIES.find((c) => c.code === 'USD') ||
+      INITIAL_CURRENCIES[0]
+    );
+  };
+
+  const [currentCurrency, setCurrentCurrency] = useState<Currency>(() =>
+    resolveCurrencyForCode(selectedCountry.currencyCode, INITIAL_CURRENCIES)
+  );
+
   const currentMarket = markets.find((m) => m.currencyCode === currentCurrency.code) || markets[0];
 
   const setCurrencyByCode = (code: string) => {
-    const found = currencies.find((c) => c.code === code);
-    if (found) {
-      setCurrentCurrency(found);
-      setStored('current_currency', found);
-    } else {
-      // Default to USD if currency code not directly in currencies array
-      const usdCurrency = currencies.find((c) => c.code === 'USD') || INITIAL_CURRENCIES[8];
-      setCurrentCurrency(usdCurrency);
-      setStored('current_currency', usdCurrency);
-    }
+    const active = resolveCurrencyForCode(code, currencies);
+    setCurrentCurrency(active);
+    setStored('current_currency', active);
   };
 
   const selectCountry = (country: CountryItem) => {
@@ -1096,15 +1113,19 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
       localStorage.setItem('hakkiveda_selected_country', JSON.stringify(country));
     } catch (_) {}
-    setCurrencyByCode(country.currencyCode);
+    const active = resolveCurrencyForCode(country.currencyCode, currencies);
+    setCurrentCurrency(active);
+    setStored('current_currency', active);
   };
 
-  // Sync currency with selected country on mount
+  // Keep currency strictly synchronized with selected country at all times
   useEffect(() => {
     if (selectedCountry?.currencyCode) {
-      setCurrencyByCode(selectedCountry.currencyCode);
+      const active = resolveCurrencyForCode(selectedCountry.currencyCode, currencies);
+      setCurrentCurrency(active);
+      setStored('current_currency', active);
     }
-  }, []);
+  }, [selectedCountry?.code, selectedCountry?.currencyCode, currencies]);
 
   const updateCurrencyRate = (code: string, newRateToINR: number) => {
     setCurrencies((prev) => {
@@ -1465,8 +1486,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           if (d.video_popup_config) setVideoPopupConfig(d.video_popup_config);
           if (Array.isArray(d.shoppable_reels)) setShoppableReels(d.shoppable_reels);
           if (Array.isArray(d.nav_links)) setNavLinks(d.nav_links);
-          if (Array.isArray(d.currencies)) setCurrencies(d.currencies);
-          if (d.current_currency) setCurrentCurrency(d.current_currency);
+          if (Array.isArray(d.currencies)) {
+            const map = new Map<string, Currency>();
+            INITIAL_CURRENCIES.forEach((c) => map.set(c.code, c));
+            d.currencies.forEach((c: Currency) => map.set(c.code, { ...map.get(c.code), ...c }));
+            setCurrencies(Array.from(map.values()));
+          }
           if (Array.isArray(d.markets)) setMarkets(d.markets);
           if (Array.isArray(d.countries)) setCountries(d.countries);
           if (Array.isArray(d.payment_gateways)) setPaymentGateways(d.payment_gateways);

@@ -7,6 +7,7 @@ import { ProductGrid } from './components/ProductGrid';
 import { Footer } from './components/Footer';
 import { WhatsAppButton } from './components/WhatsAppButton';
 import { AmbientSoundControl } from './components/AmbientSoundControl';
+import { SeoSchemaInjector } from './components/SeoSchemaInjector';
 
 // Dynamic / Lazy-loaded Below-the-fold sections
 const BeforeAfterSlider = lazy(() => import('./components/BeforeAfterSlider').then(m => ({ default: m.BeforeAfterSlider })));
@@ -145,6 +146,9 @@ export function AppContent() {
 
   return (
     <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-text)] flex flex-col font-sans selection:bg-[var(--brand-gold)] selection:text-[var(--color-button-text)] transition-colors duration-300">
+      {/* Schema.org Structured Data Injector */}
+      <SeoSchemaInjector />
+
       {/* Customer Header */}
       <Header selectedCategory={selectedCategory} onSelectCategory={handleSelectCategory} />
 

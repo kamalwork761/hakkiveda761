@@ -148,7 +148,8 @@ export const BestSellersCarousel: React.FC = () => {
             return (
               <div
                 key={product.id}
-                className="w-[78vw] sm:w-[42vw] md:w-[30%] lg:w-[calc(25%-18px)] flex-shrink-0 snap-start bg-white text-slate-900 rounded-2xl overflow-hidden border border-white/10 shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col group"
+                onClick={() => openQuickView(product)}
+                className="w-[78vw] sm:w-[42vw] md:w-[30%] lg:w-[calc(25%-18px)] flex-shrink-0 snap-start bg-white text-slate-900 rounded-2xl overflow-hidden border border-white/10 shadow-lg hover:shadow-2xl active:scale-[0.99] transition-all duration-300 flex flex-col group cursor-pointer"
               >
                 {/* Product Image Box */}
                 <div className="relative aspect-square w-full overflow-hidden bg-slate-100">

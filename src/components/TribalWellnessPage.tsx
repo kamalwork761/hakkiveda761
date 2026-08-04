@@ -1,18 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import {
-  Sparkles,
   ShoppingBag,
   Star,
   Heart,
   Eye,
   Check,
   ChevronDown,
-  ShieldCheck,
-  Feather,
   HelpCircle,
-  Award,
-  AlertTriangle,
-  BookOpen,
+  Feather,
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { Product } from '../types/store';
@@ -93,46 +88,29 @@ export const TribalWellnessPage: React.FC<TribalWellnessPageProps> = ({ onNaviga
         </div>
       )}
 
-      {/* 1. HERO BANNER */}
+      {/* 1. HERO BANNER (Breadcrumb + Pure Artwork) */}
       {pageConfig ? (
         <CategoryHeroBanner
           config={pageConfig}
           fallbackTitle="Tribal Wellness & Bundles"
-          fallbackDescription="Complete multi-step hair rehabilitation systems and ancestral herbal wellness bundles crafted according to Hakki-Pikki tribal wisdom passed down through generations in Karnataka forests."
           onNavigateHome={onNavigateHome}
-          badgeTag="Ancestral Holistic Regimens"
         />
       ) : null}
 
-      {/* 2. EDUCATIONAL INTRO SECTION */}
-      <section className="py-10 bg-white/5 border-b border-white/10 px-4 sm:px-8">
-        <div className="max-w-4xl mx-auto text-center space-y-3">
-          <span className="text-[var(--brand-gold)] text-xs font-bold uppercase tracking-widest">
-            The 90-Day Lunar Cycle Principle
-          </span>
-          <h2 className="text-2xl font-serif-luxury font-bold text-slate-100">
-            Why Tribal Ayurveda Emphasizes Multi-Step Care
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">
-            In Hakki-Pikki traditional wisdom, isolated treatments are secondary to a holistic 3-stage regimen: cleansing clogged sebum with mountain herbs, nourishing hair bulbs with copper-cooked oils, and fortifying thinning patches with active botanical lepas.
-          </p>
-        </div>
-      </section>
-
-      {/* 3. PRODUCT GRID SECTION */}
-      <section className="py-12 sm:py-16 px-4 sm:px-8 lg:px-12 max-w-7xl mx-auto">
+      {/* 2. PRODUCTS SECTION */}
+      <section className="py-10 sm:py-14 px-4 sm:px-8 lg:px-12 max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-4 border-b border-white/10 gap-4">
           <div>
             <h2 className="text-2xl sm:text-3xl font-serif-luxury font-bold text-slate-100">
-              Active Tribal Wellness Systems
+              Tribal Wellness Products
             </h2>
             <p className="text-xs text-slate-300 mt-1 font-sans">
-              Showing all {wellnessProducts.length} holistic wellness bundles and kits
+              Showing all {wellnessProducts.length} authentic multi-step Adivasi regrowth systems and holistic bundles
             </p>
           </div>
           <div className="text-xs font-sans text-[var(--brand-gold)] font-bold flex items-center gap-2">
             <Feather className="w-4 h-4" />
-            <span>Includes Free Brass Head Massager Tool</span>
+            <span>Ancestral Mysore Regimens</span>
           </div>
         </div>
 
@@ -147,21 +125,23 @@ export const TribalWellnessPage: React.FC<TribalWellnessPageProps> = ({ onNaviga
             return (
               <div
                 key={product.id}
-                className="bg-white text-slate-900 rounded-2xl overflow-hidden border border-slate-200 shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col group"
+                onClick={() => openQuickView(product)}
+                className="bg-white text-slate-900 rounded-2xl overflow-hidden border border-slate-200 shadow-md hover:shadow-2xl active:scale-[0.99] transition-all duration-300 flex flex-col group cursor-pointer"
               >
-                {/* Image */}
+                {/* Product Image */}
                 <div className="relative aspect-square w-full overflow-hidden bg-slate-100">
                   <img
                     src={product.image}
                     alt={product.name}
                     loading="lazy"
+                    decoding="async"
                     width={320}
                     height={320}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
 
                   {/* Badges */}
-                  <div className="absolute top-3 left-3 flex flex-col gap-1 z-10">
+                  <div className="absolute top-3 left-3 flex flex-col gap-1 z-10 pointer-events-none">
                     <span className="bg-[#1E2D3B] text-[var(--brand-gold)] text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border border-[var(--brand-gold)]/30 shadow-md">
                       {product.category}
                     </span>
@@ -172,7 +152,7 @@ export const TribalWellnessPage: React.FC<TribalWellnessPageProps> = ({ onNaviga
                     )}
                   </div>
 
-                  {/* Wishlist */}
+                  {/* Wishlist Button */}
                   <button
                     type="button"
                     onClick={(e) => {
@@ -190,16 +170,12 @@ export const TribalWellnessPage: React.FC<TribalWellnessPageProps> = ({ onNaviga
                     <Heart className={`w-4 h-4 ${inWishlist ? 'fill-current' : ''}`} />
                   </button>
 
-                  {/* Quick View Hover */}
-                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
-                    <button
-                      type="button"
-                      onClick={() => openQuickView(product)}
-                      className="bg-white/95 hover:bg-white text-slate-900 font-bold text-xs px-4 py-2 rounded-full flex items-center gap-2 shadow-lg transition-transform hover:scale-105 cursor-pointer"
-                    >
+                  {/* Quick View Indicator Overlay */}
+                  <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
+                    <span className="bg-white/95 text-slate-900 font-bold text-xs px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
                       <Eye className="w-4 h-4 text-[#1E2D3B]" />
                       <span>Quick View</span>
-                    </button>
+                    </span>
                   </div>
                 </div>
 
@@ -213,10 +189,7 @@ export const TribalWellnessPage: React.FC<TribalWellnessPageProps> = ({ onNaviga
                       {product.volume && <span>{product.volume}</span>}
                     </div>
 
-                    <h3
-                      onClick={() => openQuickView(product)}
-                      className="font-serif-luxury font-bold text-sm sm:text-base text-slate-900 line-clamp-2 hover:text-[#1E2D3B] cursor-pointer transition-colors leading-snug"
-                    >
+                    <h3 className="font-serif-luxury font-bold text-sm sm:text-base text-slate-900 line-clamp-2 hover:text-[#1E2D3B] transition-colors leading-snug">
                       {product.name}
                     </h3>
 
@@ -244,7 +217,7 @@ export const TribalWellnessPage: React.FC<TribalWellnessPageProps> = ({ onNaviga
                       <button
                         type="button"
                         onClick={(e) => handleAddToCart(e, product)}
-                        className="w-full py-2 px-2 bg-[#1E2D3B] hover:bg-[#111A24] text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                        className="w-full py-2 px-2 bg-[#1E2D3B] hover:bg-[#111A24] text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-sm active:scale-95"
                       >
                         <ShoppingBag className="w-3.5 h-3.5" />
                         <span>Add</span>
@@ -252,7 +225,7 @@ export const TribalWellnessPage: React.FC<TribalWellnessPageProps> = ({ onNaviga
                       <button
                         type="button"
                         onClick={(e) => handleBuyNow(e, product)}
-                        className="w-full py-2 px-2 bg-[var(--brand-gold)] hover:bg-[#b8891e] text-[#1E2D3B] rounded-lg text-xs font-bold flex items-center justify-center cursor-pointer transition-colors"
+                        className="w-full py-2 px-2 bg-[var(--brand-gold)] hover:bg-[#b8891e] text-[#1E2D3B] rounded-lg text-xs font-bold flex items-center justify-center cursor-pointer transition-colors shadow-sm active:scale-95"
                       >
                         Buy Now
                       </button>
@@ -265,27 +238,64 @@ export const TribalWellnessPage: React.FC<TribalWellnessPageProps> = ({ onNaviga
         </div>
       </section>
 
-      {/* 4. SAFETY AND PRECAUTION NOTES */}
-      <section className="py-10 px-4 sm:px-8 max-w-4xl mx-auto">
-        <div className="bg-amber-500/10 border border-amber-500/30 rounded-2xl p-6 flex flex-col sm:flex-row items-start gap-4">
-          <AlertTriangle className="w-6 h-6 text-amber-400 shrink-0 mt-0.5" />
-          <div className="space-y-1.5 text-xs text-slate-300 font-sans leading-relaxed">
-            <p className="font-bold text-amber-300 text-sm font-serif-luxury">
-              Safety & Precaution Notice
-            </p>
-            <p>
-              HAKKIVEDA products are traditional Adivasi botanical formulations handcrafted with mountain herbs and virgin cold-pressed oils. Individual results may vary depending on scalp health, age, genetic hair traits, and consistent usage. Always perform a 24-hour patch test before full application. Avoid direct contact with eyes. Discontinue if redness or discomfort occurs.
-            </p>
+      {/* 3. REVIEWS SECTION */}
+      <section className="py-12 bg-white/5 border-t border-b border-white/10 px-4 sm:px-8">
+        <div className="max-w-7xl mx-auto space-y-8">
+          <div className="text-center max-w-xl mx-auto">
+            <span className="text-[var(--brand-gold)] text-xs font-bold uppercase tracking-widest">
+              Verified Buyer Results
+            </span>
+            <h2 className="text-2xl sm:text-3xl font-serif-luxury font-bold text-slate-100 mt-1">
+              Trusted for Complete Hair Regrowth Systems
+            </h2>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="bg-[#1E2D3B] p-6 rounded-2xl border border-white/10 space-y-3">
+              <div className="flex items-center text-amber-400 gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-current" />
+                ))}
+              </div>
+              <p className="text-xs text-slate-200 italic leading-relaxed">
+                "The 3-step wellness bundle was worth every rupee. My bald patches started filling with fine baby hairs by week 6."
+              </p>
+              <p className="text-xs font-bold text-[var(--brand-gold)]">— Ramesh K., Hyderabad</p>
+            </div>
+
+            <div className="bg-[#1E2D3B] p-6 rounded-2xl border border-white/10 space-y-3">
+              <div className="flex items-center text-amber-400 gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-current" />
+                ))}
+              </div>
+              <p className="text-xs text-slate-200 italic leading-relaxed">
+                "Loved the free brass massager tool and authentic smell of herbs. Great savings on the combo pack."
+              </p>
+              <p className="text-xs font-bold text-[var(--brand-gold)]">— Priya V., Pune</p>
+            </div>
+
+            <div className="bg-[#1E2D3B] p-6 rounded-2xl border border-white/10 space-y-3">
+              <div className="flex items-center text-amber-400 gap-1">
+                {[...Array(5)].map((_, i) => (
+                  <Star key={i} className="w-4 h-4 fill-current" />
+                ))}
+              </div>
+              <p className="text-xs text-slate-200 italic leading-relaxed">
+                "Received in Canada in 4 days. Exceptional quality and true Hakki-Pikki tribal heritage."
+              </p>
+              <p className="text-xs font-bold text-[var(--brand-gold)]">— Sanjay N., Toronto</p>
+            </div>
           </div>
         </div>
       </section>
 
-      {/* 5. TRIBAL WELLNESS FAQ */}
+      {/* 4. FAQ SECTION */}
       <section className="py-12 sm:py-16 px-4 sm:px-8 max-w-4xl mx-auto space-y-6">
         <div className="flex items-center gap-2">
           <HelpCircle className="w-5 h-5 text-[var(--brand-gold)]" />
           <h2 className="text-xl sm:text-2xl font-serif-luxury font-bold text-slate-100">
-            Tribal Wellness Frequently Asked Questions
+            Frequently Asked Questions
           </h2>
         </div>
 
@@ -303,7 +313,11 @@ export const TribalWellnessPage: React.FC<TribalWellnessPageProps> = ({ onNaviga
                   className="w-full text-left p-4 sm:p-5 flex items-center justify-between text-sm font-serif-luxury font-bold text-slate-100 hover:text-[var(--brand-gold)] cursor-pointer"
                 >
                   <span>{faq.q}</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isOpen ? 'rotate-180 text-[var(--brand-gold)]' : ''}`} />
+                  <ChevronDown
+                    className={`w-4 h-4 transition-transform duration-300 ${
+                      isOpen ? 'rotate-180 text-[var(--brand-gold)]' : ''
+                    }`}
+                  />
                 </button>
                 {isOpen && (
                   <div className="px-4 pb-5 sm:px-5 text-xs text-slate-300 leading-relaxed font-sans border-t border-white/5 pt-3">

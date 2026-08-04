@@ -1,18 +1,13 @@
 import React, { useState, useMemo } from 'react';
 import {
-  Sparkles,
   ShoppingBag,
   Star,
   Heart,
   Eye,
   Check,
   ChevronDown,
-  ArrowRight,
-  ShieldCheck,
-  Droplet,
-  Feather,
   HelpCircle,
-  Award,
+  Feather,
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { Product } from '../types/store';
@@ -31,7 +26,6 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
     toggleWishlist,
     isInWishlist,
     openQuickView,
-    setIsQuizOpen,
     playSound,
   } = useStore();
 
@@ -101,26 +95,24 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
         </div>
       )}
 
-      {/* 1. HERO BANNER */}
+      {/* 1. HERO BANNER (Breadcrumb + Pure Artwork) */}
       {pageConfig ? (
         <CategoryHeroBanner
           config={pageConfig}
           fallbackTitle="Hair Care Formulations"
-          fallbackDescription="100% authentic Hakki-Pikki tribal hair oils, scalp cleansers, and follicle activation serums slow-brewed in copper cauldrons with 108 wild mountain herbs harvested from Mysore forest valleys."
           onNavigateHome={onNavigateHome}
-          badgeTag="Adivasi Hair Restoration Legacy"
         />
       ) : null}
 
-      {/* 2. PRODUCT GRID SECTION */}
-      <section className="py-12 sm:py-16 px-4 sm:px-8 lg:px-12 max-w-7xl mx-auto">
+      {/* 2. PRODUCTS SECTION */}
+      <section className="py-10 sm:py-14 px-4 sm:px-8 lg:px-12 max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-4 border-b border-white/10 gap-4">
           <div>
             <h2 className="text-2xl sm:text-3xl font-serif-luxury font-bold text-slate-100">
-              Active Hair Care Formulations
+              Hair Care Products
             </h2>
             <p className="text-xs text-slate-300 mt-1 font-sans">
-              Showing all {hairCareProducts.length} authentic hair regrowth and scalp care products
+              Showing all {hairCareProducts.length} authentic hair regrowth and scalp care formulations
             </p>
           </div>
           <div className="text-xs font-sans text-[var(--brand-gold)] font-bold flex items-center gap-2">
@@ -140,7 +132,8 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
             return (
               <div
                 key={product.id}
-                className="bg-white text-slate-900 rounded-2xl overflow-hidden border border-slate-200 shadow-md hover:shadow-2xl transition-all duration-300 flex flex-col group"
+                onClick={() => openQuickView(product)}
+                className="bg-white text-slate-900 rounded-2xl overflow-hidden border border-slate-200 shadow-md hover:shadow-2xl active:scale-[0.99] transition-all duration-300 flex flex-col group cursor-pointer"
               >
                 {/* Product Image */}
                 <div className="relative aspect-square w-full overflow-hidden bg-slate-100">
@@ -148,13 +141,14 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
                     src={product.image}
                     alt={product.name}
                     loading="lazy"
+                    decoding="async"
                     width={320}
                     height={320}
                     className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
                   />
 
                   {/* Badges */}
-                  <div className="absolute top-3 left-3 flex flex-col gap-1 z-10">
+                  <div className="absolute top-3 left-3 flex flex-col gap-1 z-10 pointer-events-none">
                     <span className="bg-[#123F2B] text-[var(--brand-gold)] text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border border-[var(--brand-gold)]/30 shadow-md">
                       {product.category}
                     </span>
@@ -165,7 +159,7 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
                     )}
                   </div>
 
-                  {/* Wishlist */}
+                  {/* Wishlist Button */}
                   <button
                     type="button"
                     onClick={(e) => {
@@ -183,16 +177,12 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
                     <Heart className={`w-4 h-4 ${inWishlist ? 'fill-current' : ''}`} />
                   </button>
 
-                  {/* Quick View Hover */}
-                  <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
-                    <button
-                      type="button"
-                      onClick={() => openQuickView(product)}
-                      className="bg-white/95 hover:bg-white text-slate-900 font-bold text-xs px-4 py-2 rounded-full flex items-center gap-2 shadow-lg transition-transform hover:scale-105 cursor-pointer"
-                    >
+                  {/* Quick View Indicator Overlay */}
+                  <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
+                    <span className="bg-white/95 text-slate-900 font-bold text-xs px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
                       <Eye className="w-4 h-4 text-[#123F2B]" />
                       <span>Quick View</span>
-                    </button>
+                    </span>
                   </div>
                 </div>
 
@@ -206,10 +196,7 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
                       {product.volume && <span>{product.volume}</span>}
                     </div>
 
-                    <h3
-                      onClick={() => openQuickView(product)}
-                      className="font-serif-luxury font-bold text-sm sm:text-base text-slate-900 line-clamp-2 hover:text-[#123F2B] cursor-pointer transition-colors leading-snug"
-                    >
+                    <h3 className="font-serif-luxury font-bold text-sm sm:text-base text-slate-900 line-clamp-2 hover:text-[#123F2B] transition-colors leading-snug">
                       {product.name}
                     </h3>
 
@@ -237,7 +224,7 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
                       <button
                         type="button"
                         onClick={(e) => handleAddToCart(e, product)}
-                        className="w-full py-2 px-2 bg-[#123F2B] hover:bg-[#0E281C] text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-colors"
+                        className="w-full py-2 px-2 bg-[#123F2B] hover:bg-[#0E281C] text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-sm active:scale-95"
                       >
                         <ShoppingBag className="w-3.5 h-3.5" />
                         <span>Add</span>
@@ -245,7 +232,7 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
                       <button
                         type="button"
                         onClick={(e) => handleBuyNow(e, product)}
-                        className="w-full py-2 px-2 bg-[var(--brand-gold)] hover:bg-[#b8891e] text-[#123F2B] rounded-lg text-xs font-bold flex items-center justify-center cursor-pointer transition-colors"
+                        className="w-full py-2 px-2 bg-[var(--brand-gold)] hover:bg-[#b8891e] text-[#123F2B] rounded-lg text-xs font-bold flex items-center justify-center cursor-pointer transition-colors shadow-sm active:scale-95"
                       >
                         Buy Now
                       </button>
@@ -258,82 +245,12 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
         </div>
       </section>
 
-      {/* 3. AI HAIR QUIZ CTA BANNER */}
-      <section className="py-12 bg-gradient-to-r from-[#123F2B] to-[#081811] border-y border-white/10 px-4 sm:px-8">
-        <div className="max-w-5xl mx-auto rounded-3xl bg-white/5 border border-white/15 p-8 sm:p-10 flex flex-col md:flex-row items-center justify-between gap-6">
-          <div className="space-y-2 text-center md:text-left">
-            <span className="text-[var(--brand-gold)] text-xs font-bold uppercase tracking-widest flex items-center justify-center md:justify-start gap-1.5">
-              <Sparkles className="w-4 h-4" />
-              <span>Customized Scalp Analysis</span>
-            </span>
-            <h3 className="text-2xl sm:text-3xl font-serif-luxury font-bold text-slate-100">
-              Unsure Which Formula Fits Your Scalp?
-            </h3>
-            <p className="text-xs sm:text-sm text-slate-300 max-w-xl font-sans">
-              Take our 60-second AI Hair Quiz to get a personalized 3-step Adivasi regrowth ritual tailored to your exact hair loss pattern and scalp condition.
-            </p>
-          </div>
-          <button
-            type="button"
-            onClick={() => {
-              playSound('nav_click');
-              setIsQuizOpen(true);
-            }}
-            className="px-6 py-3.5 bg-[var(--brand-gold)] hover:bg-[#b8891e] text-[#123F2B] font-sans text-xs font-extrabold uppercase tracking-wider rounded-xl shadow-lg hover:shadow-2xl transition-all cursor-pointer shrink-0 flex items-center gap-2"
-          >
-            <span>Start AI Analysis</span>
-            <ArrowRight className="w-4 h-4" />
-          </button>
-        </div>
-      </section>
-
-      {/* 4. HAIR CARE ROUTINE / HOW-TO-USE */}
-      <section className="py-12 sm:py-16 px-4 sm:px-8 lg:px-12 max-w-7xl mx-auto">
-        <div className="text-center max-w-2xl mx-auto mb-12">
-          <span className="text-[var(--brand-gold)] font-sans text-xs uppercase tracking-[0.2em] font-bold">
-            Sacred Tribal Regimen
-          </span>
-          <h2 className="text-2xl sm:text-4xl font-serif-luxury font-bold text-slate-100 mt-2">
-            The 3-Step Hair Regrowth Routine
-          </h2>
-          <p className="text-xs sm:text-sm text-slate-300 mt-2 font-sans">
-            Follow this ancestral Mysore tribal ritual 3 times a week for maximum follicle stimulation and root density.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-3 relative overflow-hidden">
-            <span className="text-3xl font-serif-luxury font-extrabold text-[var(--brand-gold)]">01</span>
-            <h3 className="text-lg font-serif-luxury font-bold text-slate-100">Deep Scalp Oiling</h3>
-            <p className="text-xs text-slate-300 leading-relaxed font-sans">
-              Warm 10-15ml of HAKKIVEDA 108 Herbs Hair Oil in your palms. Apply onto dry scalp using fingertips in gentle circular motions. Leave overnight or for at least 2 hours.
-            </p>
-          </div>
-
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-3 relative overflow-hidden">
-            <span className="text-3xl font-serif-luxury font-extrabold text-[var(--brand-gold)]">02</span>
-            <h3 className="text-lg font-serif-luxury font-bold text-slate-100">Herbal Scalp Cleansing</h3>
-            <p className="text-xs text-slate-300 leading-relaxed font-sans">
-              Dilute a coin-sized amount of 42 Mountain Herbs Shampoo with water. Massage into damp scalp for 2 minutes to lift impurities without stripping natural scalp lipids. Rinse thoroughly.
-            </p>
-          </div>
-
-          <div className="bg-white/5 border border-white/10 rounded-2xl p-6 space-y-3 relative overflow-hidden">
-            <span className="text-3xl font-serif-luxury font-extrabold text-[var(--brand-gold)]">03</span>
-            <h3 className="text-lg font-serif-luxury font-bold text-slate-100">Daily Follicle Drops</h3>
-            <p className="text-xs text-slate-300 leading-relaxed font-sans">
-              Apply 1 full dropper of Root Density Follicle Serum directly onto thinning areas daily. Non-greasy leave-in formula shields roots against DHT and environmental damage.
-            </p>
-          </div>
-        </div>
-      </section>
-
-      {/* 5. CUSTOMER RESULTS / REVIEWS SUMMARY */}
+      {/* 3. REVIEWS SECTION */}
       <section className="py-12 bg-white/5 border-t border-b border-white/10 px-4 sm:px-8">
         <div className="max-w-7xl mx-auto space-y-8">
           <div className="text-center max-w-xl mx-auto">
             <span className="text-[var(--brand-gold)] text-xs font-bold uppercase tracking-widest">
-              Verified Buyer Results
+              Verified Customer Reviews
             </span>
             <h2 className="text-2xl sm:text-3xl font-serif-luxury font-bold text-slate-100 mt-1">
               Trusted by 50,000+ Customers Worldwide
@@ -380,12 +297,12 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
         </div>
       </section>
 
-      {/* 6. HAIR CARE FAQ */}
+      {/* 4. FAQ SECTION */}
       <section className="py-12 sm:py-16 px-4 sm:px-8 max-w-4xl mx-auto space-y-6">
         <div className="flex items-center gap-2">
           <HelpCircle className="w-5 h-5 text-[var(--brand-gold)]" />
           <h2 className="text-xl sm:text-2xl font-serif-luxury font-bold text-slate-100">
-            Hair Care Frequently Asked Questions
+            Frequently Asked Questions
           </h2>
         </div>
 
@@ -403,7 +320,11 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
                   className="w-full text-left p-4 sm:p-5 flex items-center justify-between text-sm font-serif-luxury font-bold text-slate-100 hover:text-[var(--brand-gold)] cursor-pointer"
                 >
                   <span>{faq.q}</span>
-                  <ChevronDown className={`w-4 h-4 transition-transform duration-300 ${isOpen ? 'rotate-180 text-[var(--brand-gold)]' : ''}`} />
+                  <ChevronDown
+                    className={`w-4 h-4 transition-transform duration-300 ${
+                      isOpen ? 'rotate-180 text-[var(--brand-gold)]' : ''
+                    }`}
+                  />
                 </button>
                 {isOpen && (
                   <div className="px-4 pb-5 sm:px-5 text-xs text-slate-300 leading-relaxed font-sans border-t border-white/5 pt-3">

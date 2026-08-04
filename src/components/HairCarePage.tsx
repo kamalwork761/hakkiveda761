@@ -24,6 +24,7 @@ interface HairCarePageProps {
 export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) => {
   const {
     products,
+    categoryPages,
     formatPrice,
     addToCart,
     toggleWishlist,
@@ -32,6 +33,8 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
     setIsQuizOpen,
     playSound,
   } = useStore();
+
+  const pageConfig = categoryPages?.find((c) => c.id === 'hair-care');
 
   const [addedToast, setAddedToast] = useState<string | null>(null);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
@@ -125,11 +128,12 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
               </div>
 
               <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif-luxury font-bold text-slate-100 leading-tight">
-                Hair Care Formulations
+                {pageConfig?.title || 'Hair Care Formulations'}
               </h1>
 
               <p className="text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed font-sans">
-                100% authentic Hakki-Pikki tribal hair oils, scalp cleansers, and follicle activation serums slow-brewed in copper cauldrons with 108 wild mountain herbs harvested from Mysore forest valleys.
+                {pageConfig?.shortDescription ||
+                  '100% authentic Hakki-Pikki tribal hair oils, scalp cleansers, and follicle activation serums slow-brewed in copper cauldrons with 108 wild mountain herbs harvested from Mysore forest valleys.'}
               </p>
 
               {/* Badges */}
@@ -152,14 +156,30 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
             {/* Right Hero Image Card */}
             <div className="lg:col-span-5 relative">
               <div className="relative aspect-[4/3] sm:aspect-[16/10] lg:aspect-square rounded-3xl overflow-hidden border border-white/20 shadow-2xl">
-                <img
-                  src="/images/hakkiveda_108_oil_gold.jpg"
-                  alt="HAKKIVEDA Hair Care Formulations"
-                  width={600}
-                  height={600}
-                  className="w-full h-full object-cover"
+                {pageConfig?.heroVideo ? (
+                  <video
+                    src={pageConfig.heroVideo}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <img
+                    src={pageConfig?.desktopHeroImage || '/images/hakkiveda_108_oil_gold.jpg'}
+                    alt={pageConfig?.title || 'HAKKIVEDA Hair Care Formulations'}
+                    width={600}
+                    height={600}
+                    className="w-full h-full object-cover"
+                  />
+                )}
+                <div
+                  className="absolute inset-0 bg-gradient-to-t from-[#0E281C]/90 via-transparent to-transparent"
+                  style={{
+                    opacity: pageConfig?.heroOverlayOpacity !== undefined ? pageConfig.heroOverlayOpacity / 100 : 0.4,
+                  }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#0E281C]/90 via-transparent to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4 p-4 rounded-2xl bg-[#123F2B]/90 border border-white/15 backdrop-blur-md">
                   <p className="text-xs font-serif-luxury font-bold text-white">
                     108 Wild Mountain Herbs Formula

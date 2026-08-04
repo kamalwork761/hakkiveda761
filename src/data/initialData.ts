@@ -25,6 +25,7 @@ import {
   B2BSectionConfig,
   VideoPopupConfig,
   ShoppableReel,
+  CategoryPageConfig,
 } from '../types/store';
 import {
   WORLD_COUNTRIES,
@@ -1670,5 +1671,221 @@ export const INITIAL_SHOPPABLE_REELS: ShoppableReel[] = [
     active: true,
     sortOrder: 4,
   },
+];
+
+export const INITIAL_CATEGORY_PAGES: CategoryPageConfig[] = [
+  {
+    id: 'hair-care',
+    slug: 'hair-care',
+    categoryName: 'Hair Care',
+    enabled: true,
+    title: 'Hair Care Formulations',
+    shortDescription: '100% authentic Adivasi herbal hair oils, follicle growth drops, and root activation serums.',
+    cardImage: '/images/hakkiveda_108_oil_gold.jpg',
+    cardCtaText: 'Shop Hair Care',
+    desktopHeroImage: '/images/hakkiveda_108_oil_gold.jpg',
+    mobileHeroImage: '/images/hakkiveda_108_oil_gold.jpg',
+    heroVideo: '',
+    heroOverlayOpacity: 60,
+    heroTextColor: '#FFFFFF',
+    ctaText: 'Explore Hair Care',
+    ctaLink: '#products',
+    displayOrder: 1,
+    seoTitle: 'Hair Care Formulations | Adivasi Hair Oils & Serums - HAKKIVEDA',
+    seoDescription: 'Shop authentic Hakki-Pikki Adivasi Hair Care formulations. 108 Mountain Herbs Hair Oil, 42 Herbs Shampoo, and Root Density Serums. Free express worldwide shipping.',
+    ogImage: '/images/hakkiveda_108_oil_gold.jpg',
+    sections: [
+      {
+        id: 'routine-1',
+        type: 'routine',
+        title: '3-Step Tribal Hair Regrowth Ritual',
+        subtitle: 'Ancient application process passed down through generations',
+        enabled: true,
+        displayOrder: 1,
+        items: [
+          { q: 'Step 1: Scalp Activation', a: 'Warm 5-10ml of 108 Herbs Oil between palms and gently massage into scalp for 10 minutes.' },
+          { q: 'Step 2: Overnight Absorption', a: 'Leave overnight or at least 2 hours to allow cold-pressed herbs to nourish follicles.' },
+          { q: 'Step 3: Gentle Cleansing', a: 'Wash off with 42 Herbs Herbal Shampoo using lukewarm water.' }
+        ]
+      },
+      {
+        id: 'quiz-1',
+        type: 'quiz',
+        title: 'Find Your Hair Density Formula',
+        subtitle: 'Take our 60-second AI Ayurvedic Hair Assessment',
+        enabled: true,
+        displayOrder: 2
+      },
+      {
+        id: 'reviews-1',
+        type: 'reviews',
+        title: 'Real Regrowth Results',
+        subtitle: 'Verified customer experiences from around the world',
+        enabled: true,
+        displayOrder: 3
+      },
+      {
+        id: 'faq-1',
+        type: 'faq',
+        title: 'Frequently Asked Questions',
+        enabled: true,
+        displayOrder: 4,
+        items: [
+          { q: 'How soon can I expect visible hair growth and reduced hair fall?', a: 'Most customers notice a dramatic reduction in hair fall and root breakage within 14 to 21 days of consistent 3x weekly oiling and shampooing. Dormant follicle reactivation and baby hair sprouting typically appear within 45 to 60 days.' },
+          { q: 'Is HAKKIVEDA Hair Care safe for color-treated or bleached hair?', a: 'Yes, 100%! All our hair care products are sulfate-free, paraben-free, and formulated with 100% cold-pressed virgin oils that preserve color vibrance while restoring moisture lost during chemical treatments.' },
+          { q: 'How often should I apply the 108 Herbs Hair Oil?', a: 'For optimal scalp stimulation, apply 10-15ml of warm oil 3 times a week. Massage thoroughly into dry scalp for 5 minutes and leave it on overnight or for at least 2 hours before washing.' },
+          { q: 'Do I need to wash out the Root Density Follicle Serum?', a: 'No! The Root Density Serum is a lightweight, non-greasy aqueous formula designed to be left on the scalp daily. Apply 1 full dropper onto scalp sections and leave it in.' }
+        ]
+      },
+      {
+        id: 'safety-1',
+        type: 'safety',
+        title: 'Precautions & Storage',
+        subtitle: 'Store in a cool dry place away from direct sunlight. Perform patch test prior to first use.',
+        enabled: true,
+        displayOrder: 5
+      }
+    ]
+  },
+  {
+    id: 'skin-care',
+    slug: 'skin-care',
+    categoryName: 'Skin Care',
+    enabled: true,
+    title: 'Skin Care & Lepas',
+    shortDescription: 'Traditional forest botanical muds, skin detox pastes and restorative herbal lepas.',
+    cardImage: '/images/hakkiveda_baldness_powder.jpg',
+    cardCtaText: 'Shop Skin Care',
+    desktopHeroImage: '/images/hakkiveda_baldness_powder.jpg',
+    mobileHeroImage: '/images/hakkiveda_baldness_powder.jpg',
+    heroVideo: '',
+    heroOverlayOpacity: 60,
+    heroTextColor: '#FFFFFF',
+    ctaText: 'Discover Skin Care',
+    ctaLink: '#products',
+    displayOrder: 2,
+    seoTitle: 'Skin Care & Lepas | Forest Botanical Muds - HAKKIVEDA',
+    seoDescription: 'Discover authentic Adivasi Skin Care and herbal Lepas. Forest-harvested mud packs, neem powders, and restorative clay masks handcrafted in Mysore.',
+    ogImage: '/images/hakkiveda_baldness_powder.jpg',
+    sections: [
+      {
+        id: 'routine-2',
+        type: 'routine',
+        title: 'Ayurvedic Skin & Scalp Detox Routine',
+        subtitle: 'Pure forest clay and herbal paste application',
+        enabled: true,
+        displayOrder: 1,
+        items: [
+          { q: 'Step 1: Preparation', a: 'Mix 2 tablespoons of Lepa powder with warm water or herbal oil to form a smooth paste.' },
+          { q: 'Step 2: Application', a: 'Apply evenly on target skin or bald scalp areas avoiding immediate eye area.' },
+          { q: 'Step 3: Rinse', a: 'Allow to set for 15-20 minutes and wash off with lukewarm water or clarifying shampoo.' }
+        ]
+      },
+      {
+        id: 'quiz-2',
+        type: 'quiz',
+        title: 'Get Personalized Herbal Advice',
+        subtitle: 'Take our 60-second AI Ayurvedic Assessment',
+        enabled: true,
+        displayOrder: 2
+      },
+      {
+        id: 'reviews-2',
+        type: 'reviews',
+        title: 'Customer Radiance & Regrowth Stories',
+        enabled: true,
+        displayOrder: 3
+      },
+      {
+        id: 'faq-2',
+        type: 'faq',
+        title: 'Frequently Asked Questions',
+        enabled: true,
+        displayOrder: 4,
+        items: [
+          { q: 'What is an Adivasi Lepa and how is it used?', a: 'Lepa is a traditional Adivasi paste made by mixing finely ground wild herbs, clay, and botanicals with water, hydrosol, or oil. It is applied topically to detoxify, soothe, and nourish the skin or scalp.' },
+          { q: 'Is the Lepa suitable for sensitive skin or facial use?', a: 'Yes, our Lepas are 100% natural and free from chemical fillers. We recommend performing a 24-hour patch test behind the ear or inner wrist prior to full facial or scalp application.' },
+          { q: 'How often should I apply the Skin Care Lepa?', a: 'Apply 2 to 3 times a week for optimal deep cleansing and skin barrier replenishment. Leave on for 15-20 minutes until semi-dry, then rinse with lukewarm water.' }
+        ]
+      },
+      {
+        id: 'safety-2',
+        type: 'safety',
+        title: 'Safety Guidelines',
+        subtitle: 'For external use only. Discontinue if redness occurs.',
+        enabled: true,
+        displayOrder: 5
+      }
+    ]
+  },
+  {
+    id: 'tribal-wellness',
+    slug: 'tribal-wellness',
+    categoryName: 'Tribal Wellness',
+    enabled: true,
+    title: 'Tribal Wellness & Regrowth Combos',
+    shortDescription: 'Holistic 90-day regrowth kits, wellness combos, and ancestral herbal therapies.',
+    cardImage: '/images/hakkiveda_oil_couple_herbs.jpg',
+    cardCtaText: 'Shop Tribal Wellness',
+    desktopHeroImage: '/images/hakkiveda_oil_couple_herbs.jpg',
+    mobileHeroImage: '/images/hakkiveda_oil_couple_herbs.jpg',
+    heroVideo: '',
+    heroOverlayOpacity: 60,
+    heroTextColor: '#FFFFFF',
+    ctaText: 'Explore Regrowth Kits',
+    ctaLink: '#products',
+    displayOrder: 3,
+    seoTitle: 'Tribal Wellness & Regrowth Combos | Adivasi Kits - HAKKIVEDA',
+    seoDescription: 'Explore 90-day ancestral Hair Care and Tribal Wellness kits. Complete Adivasi regrowth systems handcrafted in Mysore with 108 mountain herbs.',
+    ogImage: '/images/hakkiveda_oil_couple_herbs.jpg',
+    sections: [
+      {
+        id: 'routine-3',
+        type: 'routine',
+        title: '90-Day Regrowth System Protocol',
+        subtitle: 'Complete internal & scalp wellness regimen',
+        enabled: true,
+        displayOrder: 1,
+        items: [
+          { q: 'Months 1-3 Regimen', a: 'Combine 3x weekly hair oiling, bi-weekly powder mask detox, and daily scalp stimulation for maximum follicular reactivation.' }
+        ]
+      },
+      {
+        id: 'quiz-3',
+        type: 'quiz',
+        title: 'Find Your Regrowth System',
+        subtitle: 'Find out which 90-day bundle matches your needs best',
+        enabled: true,
+        displayOrder: 2
+      },
+      {
+        id: 'reviews-3',
+        type: 'reviews',
+        title: 'Transformation Testimonials',
+        enabled: true,
+        displayOrder: 3
+      },
+      {
+        id: 'faq-3',
+        type: 'faq',
+        title: 'Wellness Kit Questions',
+        enabled: true,
+        displayOrder: 4,
+        items: [
+          { q: 'What is included in the Tribal Wellness Regrowth Kit?', a: 'The complete kit includes 1x HAKKIVEDA 108 Herbs Hair Oil (200ml), 1x Herbal Baldness Care Powder (150g), 1x 42 Herbs Shampoo (250ml), plus a complimentary handcrafted brass head massager tool.' },
+          { q: 'Why is a 90-day regimen recommended for tribal remedies?', a: 'Hair growth follows natural 90-day follicular cycles. The Hakki-Pikki tribe traditional regimen aligns with 3 lunar cycles to allow deep botanical lipid absorption, scalp detoxification, and new root sprouting.' },
+          { q: 'Are there any dietary or lifestyle guidelines during the regimen?', a: 'For best results, maintain good hydration, avoid washing hair with scalding hot water, and allow hair to air-dry naturally after applying the shampoo and oil.' }
+        ]
+      },
+      {
+        id: 'safety-3',
+        type: 'safety',
+        title: 'Quality Guarantee',
+        subtitle: '100% natural ingredients, zero synthetic mineral oils or parabens.',
+        enabled: true,
+        displayOrder: 5
+      }
+    ]
+  }
 ];
 

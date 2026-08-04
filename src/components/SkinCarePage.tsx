@@ -23,6 +23,7 @@ interface SkinCarePageProps {
 export const SkinCarePage: React.FC<SkinCarePageProps> = ({ onNavigateHome }) => {
   const {
     products,
+    categoryPages,
     formatPrice,
     addToCart,
     toggleWishlist,
@@ -30,6 +31,8 @@ export const SkinCarePage: React.FC<SkinCarePageProps> = ({ onNavigateHome }) =>
     openQuickView,
     playSound,
   } = useStore();
+
+  const pageConfig = categoryPages?.find((c) => c.id === 'skin-care');
 
   const [addedToast, setAddedToast] = useState<string | null>(null);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
@@ -117,11 +120,12 @@ export const SkinCarePage: React.FC<SkinCarePageProps> = ({ onNavigateHome }) =>
               </div>
 
               <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif-luxury font-bold text-slate-100 leading-tight">
-                Skin Care & Herbal Lepas
+                {pageConfig?.title || 'Skin Care & Herbal Lepas'}
               </h1>
 
               <p className="text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed font-sans">
-                Authentic Adivasi herbal powders, detoxifying clay masks, and restorative skin lepas prepared from wild-harvested Neem, Multani Mitti, and Devadaru tree resins.
+                {pageConfig?.shortDescription ||
+                  'Authentic Adivasi herbal powders, detoxifying clay masks, and restorative skin lepas prepared from wild-harvested Neem, Multani Mitti, and Devadaru tree resins.'}
               </p>
 
               {/* Badges */}
@@ -140,14 +144,30 @@ export const SkinCarePage: React.FC<SkinCarePageProps> = ({ onNavigateHome }) =>
             {/* Right Hero Image */}
             <div className="lg:col-span-5 relative">
               <div className="relative aspect-[4/3] sm:aspect-[16/10] lg:aspect-square rounded-3xl overflow-hidden border border-white/20 shadow-2xl">
-                <img
-                  src="/images/hakkiveda_baldness_powder.jpg"
-                  alt="HAKKIVEDA Skin Care & Lepas"
-                  width={600}
-                  height={600}
-                  className="w-full h-full object-cover"
+                {pageConfig?.heroVideo ? (
+                  <video
+                    src={pageConfig.heroVideo}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <img
+                    src={pageConfig?.desktopHeroImage || '/images/hakkiveda_baldness_powder.jpg'}
+                    alt={pageConfig?.title || 'HAKKIVEDA Skin Care & Lepas'}
+                    width={600}
+                    height={600}
+                    className="w-full h-full object-cover"
+                  />
+                )}
+                <div
+                  className="absolute inset-0 bg-gradient-to-t from-[#14231E]/90 via-transparent to-transparent"
+                  style={{
+                    opacity: pageConfig?.heroOverlayOpacity !== undefined ? pageConfig.heroOverlayOpacity / 100 : 0.4,
+                  }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#14231E]/90 via-transparent to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4 p-4 rounded-2xl bg-[#1C362C]/90 border border-white/15 backdrop-blur-md">
                   <p className="text-xs font-serif-luxury font-bold text-white">
                     Natural Adivasi Herbal Lepa

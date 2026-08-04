@@ -12,6 +12,7 @@ export interface Product {
   name: string;
   category: string;
   primaryCategory?: 'hair-care' | 'skin-care' | 'tribal-wellness' | string;
+  subcategory?: string;
   subtitle: string;
   priceINR: number;
   originalPriceINR?: number;
@@ -855,5 +856,49 @@ export interface ShiprocketSettings {
   codFeeINR: number;
   codMinAmountINR: number;
   codMaxAmountINR: number;
+}
+
+export interface CategoryPageSectionItem {
+  id?: string;
+  q?: string;
+  a?: string;
+  title?: string;
+  desc?: string;
+  author?: string;
+  rating?: number;
+}
+
+export interface CategoryPageSection {
+  id: string;
+  type: 'routine' | 'quiz' | 'reviews' | 'faq' | 'safety' | 'story' | 'custom' | string;
+  title: string;
+  subtitle?: string;
+  content?: string;
+  enabled: boolean;
+  displayOrder: number;
+  items?: CategoryPageSectionItem[];
+}
+
+export interface CategoryPageConfig {
+  id: string; // 'hair-care' | 'skin-care' | 'tribal-wellness'
+  slug: string; // 'hair-care' | 'skin-care' | 'tribal-wellness'
+  categoryName: string; // e.g. "Hair Care"
+  enabled: boolean;
+  title: string;
+  shortDescription: string;
+  cardImage: string;
+  cardCtaText: string;
+  desktopHeroImage: string;
+  mobileHeroImage: string;
+  heroVideo?: string;
+  heroOverlayOpacity: number; // 0 to 100
+  heroTextColor: string;
+  ctaText: string;
+  ctaLink: string;
+  displayOrder: number;
+  seoTitle: string;
+  seoDescription: string;
+  ogImage: string;
+  sections: CategoryPageSection[];
 }
 

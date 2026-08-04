@@ -27,6 +27,7 @@ import {
   INITIAL_B2B_SECTION_CONFIG,
   INITIAL_VIDEO_POPUP_CONFIG,
   INITIAL_SHOPPABLE_REELS,
+  INITIAL_CATEGORY_PAGES,
 } from '../data/initialData';
 
 const dbDir = process.env.DB_DIR || path.join(process.cwd(), 'data');
@@ -144,6 +145,8 @@ export async function getDb() {
       b2b_section_config: INITIAL_B2B_SECTION_CONFIG,
       video_popup_config: INITIAL_VIDEO_POPUP_CONFIG,
       shoppable_reels: INITIAL_SHOPPABLE_REELS,
+      category_pages: INITIAL_CATEGORY_PAGES,
+      max_bestsellers_count: 8,
       seeded: true,
     };
 

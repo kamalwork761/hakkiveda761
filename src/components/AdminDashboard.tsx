@@ -17,6 +17,7 @@ import { AdminVideoPopupManager } from './AdminVideoPopupManager';
 import { AdminShoppableReelsManager } from './AdminShoppableReelsManager';
 import { AdminShiprocketManager } from './AdminShiprocketManager';
 import { AdminOrderManager } from './AdminOrderManager';
+import { AdminCategoryPageManager } from './AdminCategoryPageManager';
 import {
   Lock,
   LayoutDashboard,
@@ -196,6 +197,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
     | 'products'
     | 'inventory'
     | 'categories'
+    | 'category_pages'
     | 'announcement'
     | 'hero'
     | 'nav'
@@ -647,6 +649,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <div className="pt-3 pb-1 text-[9px] uppercase tracking-widest text-[var(--brand-gold)]/70 font-bold px-3">
               Website & Content
             </div>
+            <button
+              onClick={() => setActiveTab('category_pages')}
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
+                activeTab === 'category_pages' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
+              }`}
+            >
+              <Layers className="w-4 h-4 text-amber-300" />
+              <span>Category Pages</span>
+            </button>
             <button
               onClick={() => setActiveTab('announcement')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
@@ -1262,6 +1273,57 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                       className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
                     />
                   </div>
+                  <div>
+                    <label className="block text-amber-300 font-bold mb-1">Primary Dedicated Category *</label>
+                    <select
+                      value={prodForm.primaryCategory || 'hair-care'}
+                      onChange={(e) => setProdForm({ ...prodForm, primaryCategory: e.target.value as any })}
+                      className="w-full bg-[var(--brand-primary-deep)] border border-amber-500/50 p-2.5 rounded-lg text-amber-300 font-bold"
+                    >
+                      <option value="hair-care">Hair Care (/hair-care)</option>
+                      <option value="skin-care">Skin Care (/skin-care)</option>
+                      <option value="tribal-wellness">Tribal Wellness (/tribal-wellness)</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-slate-300 font-bold mb-1">Subcategory (Optional)</label>
+                    <input
+                      type="text"
+                      value={prodForm.subcategory || ''}
+                      onChange={(e) => setProdForm({ ...prodForm, subcategory: e.target.value })}
+                      placeholder="e.g. Oils, Cleansers, Elixirs"
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                    />
+                  </div>
+                  <div>
+                    <label className="block text-slate-300 font-bold mb-1">Display Order</label>
+                    <input
+                      type="number"
+                      value={prodForm.displayOrder || 1}
+                      onChange={(e) => setProdForm({ ...prodForm, displayOrder: Number(e.target.value) })}
+                      className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                    />
+                  </div>
+                  <div className="sm:col-span-2 flex items-center gap-6 pt-2">
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={prodForm.isBestseller || false}
+                        onChange={(e) => setProdForm({ ...prodForm, isBestseller: e.target.checked })}
+                        className="accent-[var(--brand-gold)] w-4 h-4"
+                      />
+                      <span className="font-bold text-amber-300">Feature in Best Sellers</span>
+                    </label>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={prodForm.inStock !== false}
+                        onChange={(e) => setProdForm({ ...prodForm, inStock: e.target.checked })}
+                        className="accent-[var(--brand-gold)] w-4 h-4"
+                      />
+                      <span className="font-bold text-slate-300">Active / Available</span>
+                    </label>
+                  </div>
                   <div className="sm:col-span-2 pt-2">
                     <AdminProductImageManager
                       images={[prodForm.image, ...(prodForm.additionalImages || [])].filter(Boolean)}
@@ -1383,6 +1445,60 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                           onChange={(e) => setEditingProduct({ ...editingProduct, stock: Number(e.target.value) })}
                           className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
                         />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-2 border-t border-white/10">
+                      <div>
+                        <label className="block text-amber-300 font-bold mb-1">Primary Category *</label>
+                        <select
+                          value={editingProduct.primaryCategory || 'hair-care'}
+                          onChange={(e) => setEditingProduct({ ...editingProduct, primaryCategory: e.target.value as any })}
+                          className="w-full bg-[var(--brand-primary-deep)] border border-amber-500/50 p-2.5 rounded-lg text-amber-300 font-bold"
+                        >
+                          <option value="hair-care">Hair Care (/hair-care)</option>
+                          <option value="skin-care">Skin Care (/skin-care)</option>
+                          <option value="tribal-wellness">Tribal Wellness (/tribal-wellness)</option>
+                        </select>
+                      </div>
+                      <div>
+                        <label className="block text-slate-300 font-bold mb-1">Subcategory (Optional)</label>
+                        <input
+                          type="text"
+                          value={editingProduct.subcategory || ''}
+                          onChange={(e) => setEditingProduct({ ...editingProduct, subcategory: e.target.value })}
+                          placeholder="e.g. Oils, Serums, Powders"
+                          className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-slate-300 font-bold mb-1">Display Order</label>
+                        <input
+                          type="number"
+                          value={editingProduct.displayOrder || 1}
+                          onChange={(e) => setEditingProduct({ ...editingProduct, displayOrder: Number(e.target.value) })}
+                          className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100"
+                        />
+                      </div>
+                      <div className="flex items-center gap-4 pt-4">
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={editingProduct.isBestseller || false}
+                            onChange={(e) => setEditingProduct({ ...editingProduct, isBestseller: e.target.checked })}
+                            className="accent-[var(--brand-gold)] w-4 h-4"
+                          />
+                          <span className="font-bold text-amber-300">Best Seller</span>
+                        </label>
+                        <label className="flex items-center gap-2 cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={editingProduct.inStock !== false}
+                            onChange={(e) => setEditingProduct({ ...editingProduct, inStock: e.target.checked })}
+                            className="accent-[var(--brand-gold)] w-4 h-4"
+                          />
+                          <span className="font-bold text-slate-300">Active</span>
+                        </label>
                       </div>
                     </div>
 
@@ -1531,6 +1647,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               setActiveTab('products');
             }}
           />
+        )}
+
+        {/* Tab 4.5: Category Pages Manager */}
+        {activeTab === 'category_pages' && (
+          <AdminCategoryPageManager />
         )}
 
         {/* Tab 5: Announcement Bar */}

@@ -33,6 +33,7 @@ import {
   VideoPopupConfig,
   ShoppableReel,
   ShiprocketSettings,
+  CategoryPageConfig,
 } from '../types/store';
 import {
   INITIAL_CURRENCIES,
@@ -63,6 +64,7 @@ import {
   INITIAL_B2B_SECTION_CONFIG,
   INITIAL_VIDEO_POPUP_CONFIG,
   INITIAL_SHOPPABLE_REELS,
+  INITIAL_CATEGORY_PAGES,
 } from '../data/initialData';
 import { hashPassword, DEFAULT_ADMIN_EMAIL, DEFAULT_ADMIN_PASSWORD_PLAIN } from '../utils/auth';
 import { idbGet, idbSet, idbClear } from '../utils/idbStorage';
@@ -318,6 +320,15 @@ interface StoreContextType {
   // Shiprocket Settings Manager
   shiprocketSettings: ShiprocketSettings;
   updateShiprocketSettings: (partial: Partial<ShiprocketSettings>) => void;
+
+  // Category Page Manager
+  categoryPages: CategoryPageConfig[];
+  updateCategoryPage: (id: string, partial: Partial<CategoryPageConfig>) => Promise<boolean>;
+  reorderCategoryPages: (newList: CategoryPageConfig[]) => Promise<boolean>;
+  
+  // Best Sellers Settings
+  maxBestSellersCount: number;
+  updateMaxBestSellersCount: (count: number) => Promise<boolean>;
 
   dbSyncStatus: 'loading' | 'synced' | 'saving' | 'error';
   serverSaveError: string | null;
@@ -695,6 +706,40 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [shoppableReels, setShoppableReels] = useState<ShoppableReel[]>(() =>
     getStored('shoppable_reels', INITIAL_SHOPPABLE_REELS)
   );
+
+  // Category Pages State & Handlers
+  const [categoryPages, setCategoryPages] = useState<CategoryPageConfig[]>(() =>
+    getStored('category_pages', INITIAL_CATEGORY_PAGES)
+  );
+
+  const [maxBestSellersCount, setMaxBestSellersCount] = useState<number>(() =>
+    getStored('max_bestsellers_count', 8)
+  );
+
+  const updateCategoryPage = async (id: string, partial: Partial<CategoryPageConfig>): Promise<boolean> => {
+    const next = categoryPages.map((c) => (c.id === id ? { ...c, ...partial } : c));
+    setCategoryPages(next);
+    try {
+      localStorage.setItem('hakkiveda_category_pages', JSON.stringify(next));
+    } catch (_) {}
+    return await setStored('category_pages', next);
+  };
+
+  const reorderCategoryPages = async (newList: CategoryPageConfig[]): Promise<boolean> => {
+    setCategoryPages(newList);
+    try {
+      localStorage.setItem('hakkiveda_category_pages', JSON.stringify(newList));
+    } catch (_) {}
+    return await setStored('category_pages', newList);
+  };
+
+  const updateMaxBestSellersCount = async (count: number): Promise<boolean> => {
+    setMaxBestSellersCount(count);
+    try {
+      localStorage.setItem('hakkiveda_max_bestsellers_count', JSON.stringify(count));
+    } catch (_) {}
+    return await setStored('max_bestsellers_count', count);
+  };
 
   const addShoppableReel = async (newReel: Omit<ShoppableReel, 'id'>): Promise<boolean> => {
     const reel: ShoppableReel = {
@@ -1500,6 +1545,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           if (d.cod_rules) setCodRules(d.cod_rules);
           if (Array.isArray(d.market_gateways)) setMarketGateways(d.market_gateways);
           if (Array.isArray(d.payment_logs)) setPaymentLogs(d.payment_logs);
+          if (Array.isArray(d.category_pages)) setCategoryPages(d.category_pages);
+          if (typeof d.max_bestsellers_count === 'number') setMaxBestSellersCount(d.max_bestsellers_count);
 
           setDbSyncStatus('synced');
         }
@@ -2710,6 +2757,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         refundPaymentLog,
         shiprocketSettings,
         updateShiprocketSettings,
+        categoryPages,
+        updateCategoryPage,
+        reorderCategoryPages,
+        maxBestSellersCount,
+        updateMaxBestSellersCount,
         dbSyncStatus,
         serverSaveError,
         resetToDefaults,

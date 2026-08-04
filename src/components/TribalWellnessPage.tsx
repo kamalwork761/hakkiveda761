@@ -24,6 +24,7 @@ interface TribalWellnessPageProps {
 export const TribalWellnessPage: React.FC<TribalWellnessPageProps> = ({ onNavigateHome }) => {
   const {
     products,
+    categoryPages,
     formatPrice,
     addToCart,
     toggleWishlist,
@@ -31,6 +32,8 @@ export const TribalWellnessPage: React.FC<TribalWellnessPageProps> = ({ onNaviga
     openQuickView,
     playSound,
   } = useStore();
+
+  const pageConfig = categoryPages?.find((c) => c.id === 'tribal-wellness');
 
   const [addedToast, setAddedToast] = useState<string | null>(null);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
@@ -117,11 +120,12 @@ export const TribalWellnessPage: React.FC<TribalWellnessPageProps> = ({ onNaviga
               </div>
 
               <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif-luxury font-bold text-slate-100 leading-tight">
-                Tribal Wellness & Bundles
+                {pageConfig?.title || 'Tribal Wellness & Bundles'}
               </h1>
 
               <p className="text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed font-sans">
-                Complete multi-step hair rehabilitation systems and ancestral herbal wellness bundles crafted according to Hakki-Pikki tribal wisdom passed down through generations in Karnataka forests.
+                {pageConfig?.shortDescription ||
+                  'Complete multi-step hair rehabilitation systems and ancestral herbal wellness bundles crafted according to Hakki-Pikki tribal wisdom passed down through generations in Karnataka forests.'}
               </p>
 
               {/* Badges */}
@@ -140,14 +144,30 @@ export const TribalWellnessPage: React.FC<TribalWellnessPageProps> = ({ onNaviga
             {/* Right Hero Image */}
             <div className="lg:col-span-5 relative">
               <div className="relative aspect-[4/3] sm:aspect-[16/10] lg:aspect-square rounded-3xl overflow-hidden border border-white/20 shadow-2xl">
-                <img
-                  src="/images/hakkiveda_oil_couple_herbs.jpg"
-                  alt="HAKKIVEDA Tribal Wellness Bundles"
-                  width={600}
-                  height={600}
-                  className="w-full h-full object-cover"
+                {pageConfig?.heroVideo ? (
+                  <video
+                    src={pageConfig.heroVideo}
+                    autoPlay
+                    loop
+                    muted
+                    playsInline
+                    className="w-full h-full object-cover"
+                  />
+                ) : (
+                  <img
+                    src={pageConfig?.desktopHeroImage || '/images/hakkiveda_oil_couple_herbs.jpg'}
+                    alt={pageConfig?.title || 'HAKKIVEDA Tribal Wellness Bundles'}
+                    width={600}
+                    height={600}
+                    className="w-full h-full object-cover"
+                  />
+                )}
+                <div
+                  className="absolute inset-0 bg-gradient-to-t from-[#111A24]/90 via-transparent to-transparent"
+                  style={{
+                    opacity: pageConfig?.heroOverlayOpacity !== undefined ? pageConfig.heroOverlayOpacity / 100 : 0.4,
+                  }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-[#111A24]/90 via-transparent to-transparent" />
                 <div className="absolute bottom-4 left-4 right-4 p-4 rounded-2xl bg-[#1E2D3B]/90 border border-white/15 backdrop-blur-md">
                   <p className="text-xs font-serif-luxury font-bold text-white">
                     Complete Hair & Scalp Care Bundle

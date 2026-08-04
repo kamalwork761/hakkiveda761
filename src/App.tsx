@@ -3,6 +3,8 @@ import { StoreProvider, useStore } from './context/StoreContext';
 import { Header } from './components/Header';
 import { HeroSlider } from './components/HeroSlider';
 import { CategorySection } from './components/CategorySection';
+import { BestSellersCarousel } from './components/BestSellersCarousel';
+import { CategoryLandingPage } from './components/CategoryLandingPage';
 import { ProductGrid } from './components/ProductGrid';
 import { Footer } from './components/Footer';
 import { WhatsAppButton } from './components/WhatsAppButton';
@@ -171,6 +173,8 @@ export function AppContent() {
     );
   }
 
+  const isCategoryRoute = currentPath === '/hair-care' || currentPath === '/skin-care' || currentPath === '/tribal-wellness';
+
   return (
     <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-text)] flex flex-col font-sans selection:bg-[var(--brand-gold)] selection:text-[var(--color-button-text)] transition-colors duration-300">
       {/* Schema.org Structured Data Injector */}
@@ -180,43 +184,55 @@ export function AppContent() {
       <Header selectedCategory={selectedCategory} onSelectCategory={handleSelectCategory} />
 
       <main className="flex-1">
-        {/* Hero Slider */}
-        <HeroSlider />
+        {isCategoryRoute ? (
+          <CategoryLandingPage
+            categoryPath={currentPath}
+            onReturnHome={() => navigate('/')}
+          />
+        ) : (
+          <>
+            {/* Hero Slider */}
+            <HeroSlider />
 
-        {/* Categories Section */}
-        <CategorySection
-          selectedCategory={selectedCategory}
-          onSelectCategory={(catName) => handleSelectCategory(catName, true)}
-        />
+            {/* Shop by Category Section */}
+            <CategorySection
+              selectedCategory={selectedCategory}
+              onSelectCategory={(catName) => handleSelectCategory(catName, true)}
+            />
 
-        {/* Product Grid */}
-        <ProductGrid
-          selectedCategory={selectedCategory}
-          onSelectCategory={(catName) => handleSelectCategory(catName, false)}
-        />
+            {/* Our Best Sellers Carousel */}
+            <BestSellersCarousel />
 
-        <Suspense fallback={<SectionSkeleton />}>
-          {/* Before & After Interactive Comparison */}
-          <BeforeAfterSlider />
+            {/* Product Grid */}
+            <ProductGrid
+              selectedCategory={selectedCategory}
+              onSelectCategory={(catName) => handleSelectCategory(catName, false)}
+            />
 
-          {/* Brand Lore Story */}
-          <BrandStory />
+            <Suspense fallback={<SectionSkeleton />}>
+              {/* Before & After Interactive Comparison */}
+              <BeforeAfterSlider />
 
-          {/* Video Testimonials */}
-          <VideoTestimonials />
+              {/* Brand Lore Story */}
+              <BrandStory />
 
-          {/* Shoppable Video Reels */}
-          <ShoppableReelsSection onSelectProduct={openQuickView} />
+              {/* Video Testimonials */}
+              <VideoTestimonials />
 
-          {/* Customer Reviews */}
-          <CustomerReviews />
+              {/* Shoppable Video Reels */}
+              <ShoppableReelsSection onSelectProduct={openQuickView} />
 
-          {/* Blog & Tribal Journal */}
-          <BlogSection />
+              {/* Customer Reviews */}
+              <CustomerReviews />
 
-          {/* B2B Wholesale Export */}
-          <B2BSection />
-        </Suspense>
+              {/* Blog & Tribal Journal */}
+              <BlogSection />
+
+              {/* B2B Wholesale Export */}
+              <B2BSection />
+            </Suspense>
+          </>
+        )}
       </main>
 
       {/* Customer Footer */}

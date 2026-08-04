@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { Product } from '../types/store';
+import { CategoryHeroBanner } from './CategoryHeroBanner';
 
 interface TribalWellnessPageProps {
   onNavigateHome: () => void;
@@ -93,94 +94,15 @@ export const TribalWellnessPage: React.FC<TribalWellnessPageProps> = ({ onNaviga
       )}
 
       {/* 1. HERO BANNER */}
-      <section className="relative bg-gradient-to-b from-[#1E2D3B] via-[#111A24] to-[#0A1017] border-b border-white/10 pt-8 pb-14 px-4 sm:px-8 lg:px-12 overflow-hidden">
-        {/* Glow */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-amber-500/10 blur-[120px] rounded-full pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto">
-          {/* Breadcrumbs */}
-          <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-2 text-xs text-slate-300 font-sans">
-            <button
-              type="button"
-              onClick={onNavigateHome}
-              className="hover:text-[var(--brand-gold)] transition-colors cursor-pointer"
-            >
-              Home
-            </button>
-            <span>/</span>
-            <span className="text-[var(--brand-gold)] font-bold">Tribal Wellness</span>
-          </nav>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            {/* Left Hero Content */}
-            <div className="lg:col-span-7 space-y-5">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-extrabold font-sans uppercase tracking-widest shadow-inner">
-                <BookOpen className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
-                <span>Ancestral Holistic Regimens</span>
-              </div>
-
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif-luxury font-bold text-slate-100 leading-tight">
-                {pageConfig?.title || 'Tribal Wellness & Bundles'}
-              </h1>
-
-              <p className="text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed font-sans">
-                {pageConfig?.shortDescription ||
-                  'Complete multi-step hair rehabilitation systems and ancestral herbal wellness bundles crafted according to Hakki-Pikki tribal wisdom passed down through generations in Karnataka forests.'}
-              </p>
-
-              {/* Badges */}
-              <div className="pt-2 flex flex-wrap gap-4 text-xs font-sans text-slate-200">
-                <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
-                  <ShieldCheck className="w-4 h-4 text-[var(--brand-gold)]" />
-                  <span>Comprehensive 3-Step System</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
-                  <Award className="w-4 h-4 text-[var(--brand-gold)]" />
-                  <span>Free Brass Head Massager Included</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Hero Image */}
-            <div className="lg:col-span-5 relative">
-              <div className="relative aspect-[4/3] sm:aspect-[16/10] lg:aspect-square rounded-3xl overflow-hidden border border-white/20 shadow-2xl">
-                {pageConfig?.heroVideo ? (
-                  <video
-                    src={pageConfig.heroVideo}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <img
-                    src={pageConfig?.desktopHeroImage || '/images/hakkiveda_oil_couple_herbs.jpg'}
-                    alt={pageConfig?.title || 'HAKKIVEDA Tribal Wellness Bundles'}
-                    width={600}
-                    height={600}
-                    className="w-full h-full object-cover"
-                  />
-                )}
-                <div
-                  className="absolute inset-0 bg-gradient-to-t from-[#111A24]/90 via-transparent to-transparent"
-                  style={{
-                    opacity: pageConfig?.heroOverlayOpacity !== undefined ? pageConfig.heroOverlayOpacity / 100 : 0.4,
-                  }}
-                />
-                <div className="absolute bottom-4 left-4 right-4 p-4 rounded-2xl bg-[#1E2D3B]/90 border border-white/15 backdrop-blur-md">
-                  <p className="text-xs font-serif-luxury font-bold text-white">
-                    Complete Hair & Scalp Care Bundle
-                  </p>
-                  <p className="text-[11px] text-slate-300 font-sans mt-0.5">
-                    Save 15% with complete 90-day Adivasi regrowth systems
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {pageConfig ? (
+        <CategoryHeroBanner
+          config={pageConfig}
+          fallbackTitle="Tribal Wellness & Bundles"
+          fallbackDescription="Complete multi-step hair rehabilitation systems and ancestral herbal wellness bundles crafted according to Hakki-Pikki tribal wisdom passed down through generations in Karnataka forests."
+          onNavigateHome={onNavigateHome}
+          badgeTag="Ancestral Holistic Regimens"
+        />
+      ) : null}
 
       {/* 2. EDUCATIONAL INTRO SECTION */}
       <section className="py-10 bg-white/5 border-b border-white/10 px-4 sm:px-8">

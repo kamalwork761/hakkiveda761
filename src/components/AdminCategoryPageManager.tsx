@@ -377,6 +377,67 @@ export const AdminCategoryPageManager: React.FC = () => {
                 </div>
               </div>
 
+              {/* Hero Image Fit & Focal Point */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-gray-100">
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Image Fit Mode</label>
+                  <select
+                    value={activeConfig.heroObjectFit || 'cover'}
+                    onChange={(e) => handleFieldChange('heroObjectFit', e.target.value)}
+                    className="w-full text-xs p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-800"
+                  >
+                    <option value="cover">Cover (Fill container smoothly)</option>
+                    <option value="contain">Contain (Show 100% full image without cropping)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Hero Focal Point / Position</label>
+                  <select
+                    value={activeConfig.heroFocalPoint || 'center'}
+                    onChange={(e) => handleFieldChange('heroFocalPoint', e.target.value)}
+                    className="w-full text-xs p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-800"
+                  >
+                    <option value="center">Center Center</option>
+                    <option value="left">Left Center</option>
+                    <option value="right">Right Center</option>
+                    <option value="top">Center Top</option>
+                    <option value="bottom">Center Bottom</option>
+                  </select>
+                </div>
+              </div>
+
+              {/* Desktop & Mobile Heights */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-gray-100">
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Desktop Hero Height</label>
+                  <select
+                    value={activeConfig.heroHeightDesktop || '600px'}
+                    onChange={(e) => handleFieldChange('heroHeightDesktop', e.target.value)}
+                    className="w-full text-xs p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-800"
+                  >
+                    <option value="550px">550px (Compact Desktop)</option>
+                    <option value="600px">600px (Standard Desktop - Recommended)</option>
+                    <option value="650px">650px (Tall Desktop)</option>
+                    <option value="700px">700px (Max Immersive Desktop)</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-gray-700 mb-1">Mobile Hero Height</label>
+                  <select
+                    value={activeConfig.heroHeightMobile || '480px'}
+                    onChange={(e) => handleFieldChange('heroHeightMobile', e.target.value)}
+                    className="w-full text-xs p-2.5 border border-gray-300 rounded-lg focus:ring-2 focus:ring-emerald-800"
+                  >
+                    <option value="380px">380px (Compact Mobile)</option>
+                    <option value="420px">420px (Medium Mobile)</option>
+                    <option value="480px">480px (Standard Mobile - Recommended)</option>
+                    <option value="540px">540px (Tall Mobile)</option>
+                  </select>
+                </div>
+              </div>
+
               {/* Overlay Opacity & Text Color */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-3 border-t border-gray-100">
                 <div>
@@ -685,7 +746,12 @@ export const AdminCategoryPageManager: React.FC = () => {
               ) : (
                 <div className="space-y-4 pb-6">
                   {/* Hero Banner Preview */}
-                  <div className="relative h-48 overflow-hidden flex items-center justify-center p-4 text-center">
+                  <div
+                    className="relative w-full overflow-hidden flex items-center justify-center p-4 text-center transition-all duration-300"
+                    style={{
+                      height: previewDevice === 'mobile' ? '240px' : previewDevice === 'tablet' ? '300px' : '360px',
+                    }}
+                  >
                     {/* Background media */}
                     {activeConfig.heroVideo ? (
                       <video
@@ -693,7 +759,11 @@ export const AdminCategoryPageManager: React.FC = () => {
                         autoPlay
                         loop
                         muted
-                        className="absolute inset-0 w-full h-full object-cover"
+                        className="absolute inset-0 w-full h-full"
+                        style={{
+                          objectFit: (activeConfig.heroObjectFit as any) || 'cover',
+                          objectPosition: activeConfig.heroFocalPoint || 'center',
+                        }}
                       />
                     ) : (
                       <img
@@ -703,7 +773,11 @@ export const AdminCategoryPageManager: React.FC = () => {
                             : activeConfig.desktopHeroImage
                         }
                         alt="Hero background"
-                        className="absolute inset-0 w-full h-full object-cover"
+                        className="absolute inset-0 w-full h-full"
+                        style={{
+                          objectFit: (activeConfig.heroObjectFit as any) || 'cover',
+                          objectPosition: activeConfig.heroFocalPoint || 'center',
+                        }}
                       />
                     )}
 

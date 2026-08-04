@@ -891,6 +891,10 @@ export interface CategoryPageConfig {
   desktopHeroImage: string;
   mobileHeroImage: string;
   heroVideo?: string;
+  heroFocalPoint?: 'center' | 'left' | 'right' | 'top' | 'bottom';
+  heroObjectFit?: 'cover' | 'contain';
+  heroHeightDesktop?: string;
+  heroHeightMobile?: string;
   heroOverlayOpacity: number; // 0 to 100
   heroTextColor: string;
   ctaText: string;

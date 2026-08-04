@@ -16,6 +16,7 @@ import {
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { Product } from '../types/store';
+import { CategoryHeroBanner } from './CategoryHeroBanner';
 
 interface HairCarePageProps {
   onNavigateHome: () => void;
@@ -101,98 +102,15 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
       )}
 
       {/* 1. HERO BANNER */}
-      <section className="relative bg-gradient-to-b from-[#123F2B] via-[#0E281C] to-[#081811] border-b border-white/10 pt-8 pb-14 px-4 sm:px-8 lg:px-12 overflow-hidden">
-        {/* Preloaded Background Glow */}
-        <div className="absolute top-0 right-0 w-96 h-96 bg-[var(--brand-gold)]/10 blur-[120px] rounded-full pointer-events-none" />
-
-        <div className="max-w-7xl mx-auto">
-          {/* Breadcrumbs */}
-          <nav aria-label="Breadcrumb" className="mb-6 flex items-center gap-2 text-xs text-slate-300 font-sans">
-            <button
-              type="button"
-              onClick={onNavigateHome}
-              className="hover:text-[var(--brand-gold)] transition-colors cursor-pointer"
-            >
-              Home
-            </button>
-            <span>/</span>
-            <span className="text-[var(--brand-gold)] font-bold">Hair Care</span>
-          </nav>
-
-          <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-center">
-            {/* Left Hero Content */}
-            <div className="lg:col-span-7 space-y-5">
-              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-[var(--brand-gold)]/15 border border-[var(--brand-gold)]/30 text-[var(--brand-gold)] text-xs font-extrabold font-sans uppercase tracking-widest shadow-inner">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>Adivasi Hair Restoration Legacy</span>
-              </div>
-
-              <h1 className="text-3xl sm:text-5xl lg:text-6xl font-serif-luxury font-bold text-slate-100 leading-tight">
-                {pageConfig?.title || 'Hair Care Formulations'}
-              </h1>
-
-              <p className="text-sm sm:text-base text-slate-300 max-w-2xl leading-relaxed font-sans">
-                {pageConfig?.shortDescription ||
-                  '100% authentic Hakki-Pikki tribal hair oils, scalp cleansers, and follicle activation serums slow-brewed in copper cauldrons with 108 wild mountain herbs harvested from Mysore forest valleys.'}
-              </p>
-
-              {/* Badges */}
-              <div className="pt-2 flex flex-wrap gap-4 text-xs font-sans text-slate-200">
-                <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
-                  <ShieldCheck className="w-4 h-4 text-[var(--brand-gold)]" />
-                  <span>100% Herbal & Chemical-Free</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
-                  <Droplet className="w-4 h-4 text-[var(--brand-gold)]" />
-                  <span>Copper Cauldron Slow Brewed</span>
-                </div>
-                <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3 py-1.5 rounded-lg">
-                  <Award className="w-4 h-4 text-[var(--brand-gold)]" />
-                  <span>Authentic Mysore Heritage</span>
-                </div>
-              </div>
-            </div>
-
-            {/* Right Hero Image Card */}
-            <div className="lg:col-span-5 relative">
-              <div className="relative aspect-[4/3] sm:aspect-[16/10] lg:aspect-square rounded-3xl overflow-hidden border border-white/20 shadow-2xl">
-                {pageConfig?.heroVideo ? (
-                  <video
-                    src={pageConfig.heroVideo}
-                    autoPlay
-                    loop
-                    muted
-                    playsInline
-                    className="w-full h-full object-cover"
-                  />
-                ) : (
-                  <img
-                    src={pageConfig?.desktopHeroImage || '/images/hakkiveda_108_oil_gold.jpg'}
-                    alt={pageConfig?.title || 'HAKKIVEDA Hair Care Formulations'}
-                    width={600}
-                    height={600}
-                    className="w-full h-full object-cover"
-                  />
-                )}
-                <div
-                  className="absolute inset-0 bg-gradient-to-t from-[#0E281C]/90 via-transparent to-transparent"
-                  style={{
-                    opacity: pageConfig?.heroOverlayOpacity !== undefined ? pageConfig.heroOverlayOpacity / 100 : 0.4,
-                  }}
-                />
-                <div className="absolute bottom-4 left-4 right-4 p-4 rounded-2xl bg-[#123F2B]/90 border border-white/15 backdrop-blur-md">
-                  <p className="text-xs font-serif-luxury font-bold text-white">
-                    108 Wild Mountain Herbs Formula
-                  </p>
-                  <p className="text-[11px] text-slate-300 font-sans mt-0.5">
-                    Reactivates dormant hair roots & halts severe hair fall
-                  </p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      {pageConfig ? (
+        <CategoryHeroBanner
+          config={pageConfig}
+          fallbackTitle="Hair Care Formulations"
+          fallbackDescription="100% authentic Hakki-Pikki tribal hair oils, scalp cleansers, and follicle activation serums slow-brewed in copper cauldrons with 108 wild mountain herbs harvested from Mysore forest valleys."
+          onNavigateHome={onNavigateHome}
+          badgeTag="Adivasi Hair Restoration Legacy"
+        />
+      ) : null}
 
       {/* 2. PRODUCT GRID SECTION */}
       <section className="py-12 sm:py-16 px-4 sm:px-8 lg:px-12 max-w-7xl mx-auto">

@@ -8,12 +8,7 @@ import {
   ChevronDown,
   HelpCircle,
   Feather,
-  Sparkles,
-  Clock,
-  ArrowRight,
-  CheckCircle2,
   Search,
-  SlidersHorizontal,
   ArrowUpDown,
   Filter,
   RotateCcw,
@@ -64,7 +59,6 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
     isInWishlist,
     openQuickView,
     playSound,
-    setIsQuizOpen,
   } = useStore();
 
   const [addedToast, setAddedToast] = useState<string | null>(null);
@@ -196,67 +190,7 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
         onNavigateHome={onNavigateHome}
       />
 
-      {/* 2. AI HAIR QUIZ BANNER */}
-      <section className="px-4 sm:px-8 lg:px-12 max-w-7xl mx-auto pt-8 pb-2">
-        <div className="bg-gradient-to-br from-[#123F2B] via-[#0E281C] to-[#081F13] border-2 border-[var(--brand-gold)]/40 rounded-3xl p-6 sm:p-8 lg:p-10 shadow-2xl relative overflow-hidden flex flex-col md:flex-row items-center justify-between gap-8 group">
-          {/* Background Ambient Glows */}
-          <div className="absolute top-0 right-0 w-96 h-96 bg-[var(--brand-gold)]/10 rounded-full blur-3xl pointer-events-none -mr-20 -mt-20" />
-          <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none -ml-20 -mb-20" />
-
-          {/* Left Text Content */}
-          <div className="relative z-10 flex-1 space-y-4 text-left">
-            <div className="inline-flex items-center gap-2 bg-[#1A4B35] border border-[var(--brand-gold)]/50 px-3.5 py-1.5 rounded-full text-[11px] font-extrabold tracking-widest text-[var(--brand-gold)] uppercase shadow-inner">
-              <Sparkles className="w-3.5 h-3.5 text-[var(--brand-gold)] animate-pulse" />
-              <span>PERSONALIZED HAIR CARE</span>
-            </div>
-
-            <h2 className="text-2xl sm:text-3xl lg:text-4xl font-serif-luxury font-bold text-amber-50 leading-tight">
-              Find the Right HAKKIVEDA Ritual for Your Hair
-            </h2>
-
-            <p className="text-sm sm:text-base text-emerald-100/90 font-sans max-w-2xl leading-relaxed">
-              Answer a few quick questions about your scalp, hair type and concerns to receive a personalized HAKKIVEDA product recommendation.
-            </p>
-
-            <div className="pt-2 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-              <button
-                type="button"
-                onClick={() => {
-                  playSound('nav_click');
-                  setIsQuizOpen(true);
-                }}
-                className="w-full sm:w-auto bg-[var(--brand-gold)] hover:bg-[#c49f2f] active:scale-95 text-[#0E281C] font-sans text-xs sm:text-sm font-extrabold px-7 py-3.5 rounded-xl shadow-lg transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer border border-amber-200/50"
-              >
-                <Sparkles className="w-4 h-4 fill-current" />
-                <span>START AI HAIR QUIZ</span>
-                <ArrowRight className="w-4 h-4 ml-1" />
-              </button>
-
-              <div className="flex items-center gap-2 text-xs text-amber-200/90 font-medium">
-                <Clock className="w-4 h-4 text-[var(--brand-gold)]" />
-                <span>Takes less than 2 minutes</span>
-              </div>
-            </div>
-          </div>
-
-          {/* Right Visual Image */}
-          <div className="relative z-10 w-full md:w-72 lg:w-80 shrink-0 aspect-[4/3] md:aspect-square rounded-2xl overflow-hidden border-2 border-[var(--brand-gold)]/40 shadow-xl bg-black/30 group-hover:border-[var(--brand-gold)] transition-colors">
-            <img
-              src="/images/hakkiveda_108_herbs_infographic.jpg"
-              alt="HAKKIVEDA Personalized AI Hair Care"
-              className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-            />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#0E281C]/90 via-transparent to-transparent flex items-end p-4">
-              <span className="text-[11px] font-bold text-[var(--brand-gold)] flex items-center gap-1.5 bg-[#0E281C]/90 px-3 py-1 rounded-full border border-[var(--brand-gold)]/40 backdrop-blur-md">
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
-                100% Tailored Formulation
-              </span>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* 3. PRODUCTS SECTION (HEADER, SEARCH, FILTERS & SORT) */}
+      {/* 2. PRODUCTS SECTION (HEADER, SEARCH, FILTERS & SORT) */}
       <section className="py-10 sm:py-14 px-4 sm:px-8 lg:px-12 max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-4 border-b border-white/10 gap-4">
           <div>

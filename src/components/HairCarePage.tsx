@@ -12,14 +12,47 @@ import {
   Clock,
   ArrowRight,
   CheckCircle2,
+  Search,
+  SlidersHorizontal,
+  ArrowUpDown,
+  Filter,
+  RotateCcw,
+  PackageX,
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
-import { Product } from '../types/store';
+import { Product, CategoryPageConfig } from '../types/store';
 import { CategoryHeroBanner } from './CategoryHeroBanner';
 
 interface HairCarePageProps {
   onNavigateHome: () => void;
 }
+
+const DEFAULT_HAIR_CARE_CONFIG: CategoryPageConfig = {
+  id: 'hair-care',
+  slug: 'hair-care',
+  categoryName: 'Hair Care',
+  enabled: true,
+  title: 'Hair Care Formulations',
+  shortDescription: '100% authentic Adivasi herbal hair oils, follicle growth drops, and root activation serums.',
+  cardImage: '/images/hakkiveda_108_oil_gold.jpg',
+  cardCtaText: 'Shop Hair Care',
+  desktopHeroImage: '/images/hakkiveda_108_oil_gold.jpg',
+  mobileHeroImage: '/images/hakkiveda_108_oil_gold.jpg',
+  heroVideo: '',
+  heroFocalPoint: 'center',
+  heroObjectFit: 'cover',
+  heroHeightDesktop: '600px',
+  heroHeightMobile: '480px',
+  heroOverlayOpacity: 60,
+  heroTextColor: '#FFFFFF',
+  ctaText: 'Explore Hair Care',
+  ctaLink: '#products',
+  displayOrder: 1,
+  seoTitle: 'Hair Care Formulations | Adivasi Hair Oils & Serums - HAKKIVEDA',
+  seoDescription: 'Shop authentic Hakki-Pikki Adivasi Hair Care formulations. 108 Mountain Herbs Hair Oil, 42 Herbs Shampoo, and Root Density Serums. Free express worldwide shipping.',
+  ogImage: '/images/hakkiveda_108_oil_gold.jpg',
+  sections: [],
+};
 
 export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) => {
   const {
@@ -34,26 +67,69 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
     setIsQuizOpen,
   } = useStore();
 
-  const pageConfig = categoryPages?.find((c) => c.id === 'hair-care');
-
   const [addedToast, setAddedToast] = useState<string | null>(null);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
+  const [searchQuery, setSearchQuery] = useState<string>('');
+  const [inStockOnly, setInStockOnly] = useState<boolean>(false);
+  const [sortBy, setSortBy] = useState<'bestseller' | 'price-asc' | 'price-desc' | 'rating' | 'name'>('bestseller');
 
-  // Filter ONLY active Hair Care products
+  // Safeguard: Page Config with Fallback
+  const pageConfig = useMemo(() => {
+    if (!categoryPages || !Array.isArray(categoryPages)) return DEFAULT_HAIR_CARE_CONFIG;
+    const found = categoryPages.find((c) => c.id === 'hair-care');
+    return found || DEFAULT_HAIR_CARE_CONFIG;
+  }, [categoryPages]);
+
+  // Filter & Sort Hair Care products with full safeguards
   const hairCareProducts = useMemo(() => {
-    return products.filter((p) => {
+    if (!products || !Array.isArray(products)) return [];
+
+    let result = products.filter((p) => {
+      if (!p) return false;
       const isHairCat =
         p.primaryCategory === 'hair-care' ||
         p.category === 'Hair Oils & Elixirs' ||
         p.category === 'Herbal Cleansers' ||
         p.category === 'Follicle Serums' ||
-        p.name.toLowerCase().includes('hair') ||
-        p.name.toLowerCase().includes('oil') ||
-        p.name.toLowerCase().includes('shampoo') ||
-        p.name.toLowerCase().includes('serum');
-      return isHairCat && p.inStock !== false;
-    }).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
-  }, [products]);
+        (p.name && (
+          p.name.toLowerCase().includes('hair') ||
+          p.name.toLowerCase().includes('oil') ||
+          p.name.toLowerCase().includes('shampoo') ||
+          p.name.toLowerCase().includes('serum')
+        ));
+      return isHairCat;
+    });
+
+    // 1. Search query filter
+    if (searchQuery.trim()) {
+      const q = searchQuery.toLowerCase().trim();
+      result = result.filter(
+        (p) =>
+          (p.name && p.name.toLowerCase().includes(q)) ||
+          (p.subtitle && p.subtitle.toLowerCase().includes(q)) ||
+          (p.description && p.description.toLowerCase().includes(q)) ||
+          (p.category && p.category.toLowerCase().includes(q)) ||
+          (p.ingredients && p.ingredients.some((ing) => ing.toLowerCase().includes(q)))
+      );
+    }
+
+    // 2. In-stock filter
+    if (inStockOnly) {
+      result = result.filter((p) => p.inStock !== false);
+    }
+
+    // 3. Sorting
+    return [...result].sort((a, b) => {
+      if (sortBy === 'price-asc') return (a.priceINR || 0) - (b.priceINR || 0);
+      if (sortBy === 'price-desc') return (b.priceINR || 0) - (a.priceINR || 0);
+      if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
+      if (sortBy === 'name') return (a.name || '').localeCompare(b.name || '');
+      // default: bestseller & displayOrder
+      if (a.isBestseller && !b.isBestseller) return -1;
+      if (!a.isBestseller && b.isBestseller) return 1;
+      return (a.displayOrder || 0) - (b.displayOrder || 0);
+    });
+  }, [products, searchQuery, inStockOnly, sortBy]);
 
   const handleAddToCart = (e: React.MouseEvent, product: Product) => {
     e.stopPropagation();
@@ -90,6 +166,19 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
     },
   ];
 
+  // Safeguard: Loading State
+  if (!products) {
+    return (
+      <div className="min-h-screen bg-[#0E281C] text-white flex items-center justify-center p-8">
+        <div className="bg-[#123F2B] border border-emerald-800 rounded-3xl p-8 max-w-md w-full text-center space-y-4 animate-pulse">
+          <div className="w-12 h-12 bg-emerald-700/50 rounded-full mx-auto" />
+          <div className="h-6 bg-emerald-700/50 rounded-lg w-3/4 mx-auto" />
+          <div className="h-4 bg-emerald-700/50 rounded-lg w-1/2 mx-auto" />
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-[#0E281C] text-white selection:bg-[var(--brand-gold)] selection:text-[#0E281C]">
       {/* Toast Notification */}
@@ -101,13 +190,11 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
       )}
 
       {/* 1. HERO BANNER (Breadcrumb + Pure Artwork) */}
-      {pageConfig ? (
-        <CategoryHeroBanner
-          config={pageConfig}
-          fallbackTitle="Hair Care Formulations"
-          onNavigateHome={onNavigateHome}
-        />
-      ) : null}
+      <CategoryHeroBanner
+        config={pageConfig}
+        fallbackTitle="Hair Care Formulations"
+        onNavigateHome={onNavigateHome}
+      />
 
       {/* 2. AI HAIR QUIZ BANNER */}
       <section className="px-4 sm:px-8 lg:px-12 max-w-7xl mx-auto pt-8 pb-2">
@@ -169,15 +256,15 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
         </div>
       </section>
 
-      {/* 3. PRODUCTS SECTION */}
+      {/* 3. PRODUCTS SECTION (HEADER, SEARCH, FILTERS & SORT) */}
       <section className="py-10 sm:py-14 px-4 sm:px-8 lg:px-12 max-w-7xl mx-auto">
         <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-4 border-b border-white/10 gap-4">
           <div>
             <h2 className="text-2xl sm:text-3xl font-serif-luxury font-bold text-slate-100">
-              Hair Care Products
+              Hair Care Formulations
             </h2>
             <p className="text-xs text-slate-300 mt-1 font-sans">
-              Showing all {hairCareProducts.length} authentic hair regrowth and scalp care formulations
+              Showing {hairCareProducts.length} authentic hair regrowth and scalp care formulations
             </p>
           </div>
           <div className="text-xs font-sans text-[var(--brand-gold)] font-bold flex items-center gap-2">
@@ -186,131 +273,228 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
           </div>
         </div>
 
-        {/* Responsive Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-          {hairCareProducts.map((product) => {
-            const inWishlist = isInWishlist(product.id);
-            const discountPct = product.originalPriceINR
-              ? Math.round(((product.originalPriceINR - product.priceINR) / product.originalPriceINR) * 100)
-              : 0;
-
-            return (
-              <div
-                key={product.id}
-                onClick={() => openQuickView(product)}
-                className="bg-white text-slate-900 rounded-2xl overflow-hidden border border-slate-200 shadow-md hover:shadow-2xl active:scale-[0.99] transition-all duration-300 flex flex-col group cursor-pointer"
+        {/* SEARCH, IN-STOCK FILTER & SORT CONTROL BAR */}
+        <div className="mb-8 bg-[#123F2B] p-4 rounded-2xl border border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 shadow-lg">
+          {/* Search Bar Input */}
+          <div className="relative w-full md:w-80">
+            <Search className="w-4 h-4 text-emerald-300 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
+            <input
+              type="text"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+              placeholder="Search oil, serum, shampoo..."
+              className="w-full bg-[#0E281C] text-xs text-white placeholder-slate-400 pl-10 pr-8 py-2.5 rounded-xl border border-white/10 focus:outline-none focus:border-[var(--brand-gold)] transition-colors"
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery('')}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs text-slate-400 hover:text-white"
               >
-                {/* Product Image */}
-                <div className="relative aspect-square w-full overflow-hidden bg-slate-100">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    loading="lazy"
-                    decoding="async"
-                    width={320}
-                    height={320}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
+                ✕
+              </button>
+            )}
+          </div>
 
-                  {/* Badges */}
-                  <div className="absolute top-3 left-3 flex flex-col gap-1 z-10 pointer-events-none">
-                    <span className="bg-[#123F2B] text-[var(--brand-gold)] text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border border-[var(--brand-gold)]/30 shadow-md">
-                      {product.category}
-                    </span>
-                    {discountPct > 0 && (
-                      <span className="bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
-                        {discountPct}% OFF
-                      </span>
-                    )}
-                  </div>
+          {/* Filter Controls: In-Stock Toggle & Sort By */}
+          <div className="flex flex-wrap items-center gap-3 w-full md:w-auto justify-between md:justify-end">
+            {/* In-Stock Filter */}
+            <label className="inline-flex items-center gap-2 bg-[#0E281C] px-3.5 py-2 rounded-xl border border-white/10 text-xs font-bold text-slate-200 cursor-pointer hover:border-emerald-600 transition-colors select-none">
+              <input
+                type="checkbox"
+                checked={inStockOnly}
+                onChange={(e) => setInStockOnly(e.target.checked)}
+                className="rounded text-emerald-600 focus:ring-0 w-3.5 h-3.5 accent-emerald-600 cursor-pointer"
+              />
+              <Filter className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
+              <span>In Stock Only</span>
+            </label>
 
-                  {/* Wishlist Button */}
-                  <button
-                    type="button"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      playSound('wishlist_toggle');
-                      toggleWishlist(product.id);
-                    }}
-                    className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-all shadow-md z-10 cursor-pointer ${
-                      inWishlist
-                        ? 'bg-rose-500 text-white'
-                        : 'bg-black/40 text-white hover:bg-white hover:text-rose-500'
-                    }`}
-                    aria-label={`Wishlist ${product.name}`}
-                  >
-                    <Heart className={`w-4 h-4 ${inWishlist ? 'fill-current' : ''}`} />
-                  </button>
+            {/* Sort Control Dropdown */}
+            <div className="flex items-center gap-2 bg-[#0E281C] px-3.5 py-2 rounded-xl border border-white/10 text-xs font-bold text-slate-200">
+              <ArrowUpDown className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
+              <span className="text-slate-400 font-normal">Sort:</span>
+              <select
+                value={sortBy}
+                onChange={(e) => setSortBy(e.target.value as any)}
+                className="bg-transparent text-xs text-white font-bold focus:outline-none cursor-pointer pr-1"
+              >
+                <option value="bestseller" className="bg-[#0E281C] text-white">Bestsellers</option>
+                <option value="price-asc" className="bg-[#0E281C] text-white">Price: Low to High</option>
+                <option value="price-desc" className="bg-[#0E281C] text-white">Price: High to Low</option>
+                <option value="rating" className="bg-[#0E281C] text-white">Top Rated</option>
+                <option value="name" className="bg-[#0E281C] text-white">Alphabetical</option>
+              </select>
+            </div>
 
-                  {/* Quick View Indicator Overlay */}
-                  <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
-                    <span className="bg-white/95 text-slate-900 font-bold text-xs px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
-                      <Eye className="w-4 h-4 text-[#123F2B]" />
-                      <span>Quick View</span>
-                    </span>
-                  </div>
-                </div>
+            {/* Reset Filters button if any active */}
+            {(searchQuery || inStockOnly || sortBy !== 'bestseller') && (
+              <button
+                onClick={() => {
+                  setSearchQuery('');
+                  setInStockOnly(false);
+                  setSortBy('bestseller');
+                }}
+                className="p-2 bg-[#0E281C] hover:bg-emerald-900 text-slate-300 hover:text-white rounded-xl border border-white/10 text-xs flex items-center gap-1 transition-colors cursor-pointer"
+                title="Reset Filters"
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Reset</span>
+              </button>
+            )}
+          </div>
+        </div>
 
-                {/* Details */}
-                <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
-                  <div>
-                    <div className="flex items-center justify-between text-[11px] text-slate-500 font-sans mb-1">
-                      <span className="font-semibold text-[#123F2B] uppercase tracking-wider">
+        {/* EMPTY STATE SAFEGUARD */}
+        {hairCareProducts.length === 0 ? (
+          <div className="bg-[#123F2B]/60 border-2 border-dashed border-white/15 rounded-3xl p-12 text-center space-y-4 max-w-xl mx-auto my-8">
+            <div className="w-16 h-16 bg-[#0E281C] text-[var(--brand-gold)] rounded-full flex items-center justify-center mx-auto border border-white/10 shadow-lg">
+              <PackageX className="w-8 h-8" />
+            </div>
+            <h3 className="text-xl font-serif-luxury font-bold text-slate-100">
+              No Hair Care Formulations Found
+            </h3>
+            <p className="text-xs text-slate-300 max-w-md mx-auto leading-relaxed font-sans">
+              No products matched your search "{searchQuery}" or current filters. Try resetting your search or filter options.
+            </p>
+            <button
+              onClick={() => {
+                setSearchQuery('');
+                setInStockOnly(false);
+                setSortBy('bestseller');
+              }}
+              className="bg-[var(--brand-gold)] hover:bg-[#c49f2f] text-[#0E281C] font-extrabold text-xs px-6 py-2.5 rounded-xl transition-all shadow-md inline-flex items-center gap-2 cursor-pointer"
+            >
+              <RotateCcw className="w-4 h-4" />
+              <span>Reset Search & Filters</span>
+            </button>
+          </div>
+        ) : (
+          /* Responsive Product Cards Grid */
+          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {hairCareProducts.map((product) => {
+              const inWishlist = isInWishlist(product.id);
+              const discountPct = product.originalPriceINR
+                ? Math.round(((product.originalPriceINR - product.priceINR) / product.originalPriceINR) * 100)
+                : 0;
+
+              return (
+                <div
+                  key={product.id}
+                  onClick={() => openQuickView(product)}
+                  className="bg-white text-slate-900 rounded-2xl overflow-hidden border border-slate-200 shadow-md hover:shadow-2xl active:scale-[0.99] transition-all duration-300 flex flex-col group cursor-pointer"
+                >
+                  {/* Product Image */}
+                  <div className="relative aspect-square w-full overflow-hidden bg-slate-100">
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      loading="lazy"
+                      decoding="async"
+                      width={320}
+                      height={320}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+
+                    {/* Badges */}
+                    <div className="absolute top-3 left-3 flex flex-col gap-1 z-10 pointer-events-none">
+                      <span className="bg-[#123F2B] text-[var(--brand-gold)] text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border border-[var(--brand-gold)]/30 shadow-md">
                         {product.category}
                       </span>
-                      {product.volume && <span>{product.volume}</span>}
-                    </div>
-
-                    <h3 className="font-serif-luxury font-bold text-sm sm:text-base text-slate-900 line-clamp-2 hover:text-[#123F2B] transition-colors leading-snug">
-                      {product.name}
-                    </h3>
-
-                    <div className="flex items-center gap-1.5 mt-2">
-                      <Star className="w-3.5 h-3.5 fill-current text-amber-500" />
-                      <span className="text-xs font-bold text-slate-800">{product.rating}</span>
-                      <span className="text-[11px] text-slate-400">({product.reviewsCount})</span>
-                    </div>
-                  </div>
-
-                  {/* Pricing & Actions */}
-                  <div className="pt-2 border-t border-slate-100 space-y-3">
-                    <div className="flex items-baseline gap-2">
-                      <span className="text-base font-extrabold text-[#123F2B]">
-                        {formatPrice(product.priceINR)}
-                      </span>
-                      {product.originalPriceINR && product.originalPriceINR > product.priceINR && (
-                        <span className="text-xs text-slate-400 line-through">
-                          {formatPrice(product.originalPriceINR)}
+                      {discountPct > 0 && (
+                        <span className="bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
+                          {discountPct}% OFF
                         </span>
                       )}
                     </div>
 
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={(e) => handleAddToCart(e, product)}
-                        className="w-full py-2 px-2 bg-[#123F2B] hover:bg-[#0E281C] text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-sm active:scale-95"
-                      >
-                        <ShoppingBag className="w-3.5 h-3.5" />
-                        <span>Add</span>
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => handleBuyNow(e, product)}
-                        className="w-full py-2 px-2 bg-[var(--brand-gold)] hover:bg-[#b8891e] text-[#123F2B] rounded-lg text-xs font-bold flex items-center justify-center cursor-pointer transition-colors shadow-sm active:scale-95"
-                      >
-                        Buy Now
-                      </button>
+                    {/* Wishlist Button */}
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        playSound('wishlist_toggle');
+                        toggleWishlist(product.id);
+                      }}
+                      className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-all shadow-md z-10 cursor-pointer ${
+                        inWishlist
+                          ? 'bg-rose-500 text-white'
+                          : 'bg-black/40 text-white hover:bg-white hover:text-rose-500'
+                      }`}
+                      aria-label={`Wishlist ${product.name}`}
+                    >
+                      <Heart className={`w-4 h-4 ${inWishlist ? 'fill-current' : ''}`} />
+                    </button>
+
+                    {/* Quick View Indicator Overlay */}
+                    <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
+                      <span className="bg-white/95 text-slate-900 font-bold text-xs px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
+                        <Eye className="w-4 h-4 text-[#123F2B]" />
+                        <span>Quick View</span>
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Details */}
+                  <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
+                    <div>
+                      <div className="flex items-center justify-between text-[11px] text-slate-500 font-sans mb-1">
+                        <span className="font-semibold text-[#123F2B] uppercase tracking-wider">
+                          {product.category}
+                        </span>
+                        {product.volume && <span>{product.volume}</span>}
+                      </div>
+
+                      <h3 className="font-serif-luxury font-bold text-sm sm:text-base text-slate-900 line-clamp-2 hover:text-[#123F2B] transition-colors leading-snug">
+                        {product.name}
+                      </h3>
+
+                      <div className="flex items-center gap-1.5 mt-2">
+                        <Star className="w-3.5 h-3.5 fill-current text-amber-500" />
+                        <span className="text-xs font-bold text-slate-800">{product.rating}</span>
+                        <span className="text-[11px] text-slate-400">({product.reviewsCount})</span>
+                      </div>
+                    </div>
+
+                    {/* Pricing & Actions */}
+                    <div className="pt-2 border-t border-slate-100 space-y-3">
+                      <div className="flex items-baseline gap-2">
+                        <span className="text-base font-extrabold text-[#123F2B]">
+                          {formatPrice(product.priceINR)}
+                        </span>
+                        {product.originalPriceINR && product.originalPriceINR > product.priceINR && (
+                          <span className="text-xs text-slate-400 line-through">
+                            {formatPrice(product.originalPriceINR)}
+                          </span>
+                        )}
+                      </div>
+
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={(e) => handleAddToCart(e, product)}
+                          className="w-full py-2 px-2 bg-[#123F2B] hover:bg-[#0E281C] text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-sm active:scale-95"
+                        >
+                          <ShoppingBag className="w-3.5 h-3.5" />
+                          <span>Add</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => handleBuyNow(e, product)}
+                          className="w-full py-2 px-2 bg-[var(--brand-gold)] hover:bg-[#b8891e] text-[#123F2B] rounded-lg text-xs font-bold flex items-center justify-center cursor-pointer transition-colors shadow-sm active:scale-95"
+                        >
+                          Buy Now
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        )}
       </section>
 
-      {/* 3. REVIEWS SECTION */}
+      {/* 4. REVIEWS SECTION */}
       <section className="py-12 bg-white/5 border-t border-b border-white/10 px-4 sm:px-8">
         <div className="max-w-7xl mx-auto space-y-8">
           <div className="text-center max-w-xl mx-auto">
@@ -362,7 +546,7 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
         </div>
       </section>
 
-      {/* 4. FAQ SECTION */}
+      {/* 5. FAQ SECTION */}
       <section className="py-12 sm:py-16 px-4 sm:px-8 max-w-4xl mx-auto space-y-6">
         <div className="flex items-center gap-2">
           <HelpCircle className="w-5 h-5 text-[var(--brand-gold)]" />
@@ -404,3 +588,4 @@ export const HairCarePage: React.FC<HairCarePageProps> = ({ onNavigateHome }) =>
     </div>
   );
 };
+

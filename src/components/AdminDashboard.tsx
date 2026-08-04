@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { uploadFileToServer } from '../utils/upload';
 import { formatAdminINR, formatOriginalAmount } from '../utils/adminCurrency';
 import { AdminProductImageManager } from './AdminProductImageManager';
@@ -292,6 +292,38 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
     }
   };
 
+  // Sync state with browser Back/Forward navigation
+  useEffect(() => {
+    const handlePopState = () => {
+      if (typeof window === 'undefined') return;
+      const pathname = window.location.pathname;
+      const params = new URLSearchParams(window.location.search);
+      const filter = params.get('filter') || undefined;
+      const paymentStatus = params.get('paymentStatus') || undefined;
+      const paymentMethod = params.get('paymentMethod') || undefined;
+      const market = params.get('market') || undefined;
+
+      if (pathname.includes('/admin/orders') || filter || paymentStatus || paymentMethod || market) {
+        setActiveTab('orders');
+        if (filter || paymentStatus || paymentMethod || market) {
+          setOrderPresetFilter({ filter, paymentStatus, paymentMethod, market });
+        } else {
+          setOrderPresetFilter(null);
+        }
+      } else if (pathname.includes('/admin/inventory')) {
+        setActiveTab('inventory');
+        setInventoryFilter(filter === 'low_stock' ? 'low_stock' : 'ALL');
+      } else {
+        setActiveTab('overview');
+        setOrderPresetFilter(null);
+        setInventoryFilter('ALL');
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
   // Selected Order for Details Modal
   const [selectedOrder, setSelectedOrder] = useState<Order | null>(null);
 
@@ -347,70 +379,66 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
   const todayDateStr = new Date().toISOString().split('T')[0];
   const currentMonthStr = todayDateStr.substring(0, 7);
 
-  const todaysOrders = orders.filter((o) => o.date === todayDateStr || o.date?.startsWith(todayDateStr));
-  const pendingOrders = orders.filter((o) => {
-    const pStatus = (o.paymentStatus || '').toUpperCase();
-    const tStatus = (o.trackingStatus || '').toUpperCase();
+  const isTodayOrder = (o: Order) =>
+    !!(o.date && (o.date === todayDateStr || o.date.startsWith(todayDateStr)));
+
+  const isThisMonthOrder = (o: Order) =>
+    !!(o.date && o.date.startsWith(currentMonthStr));
+
+  const isPaidOrder = (o: Order) => {
+    const pStatus = (o.paymentStatus || '').trim().toUpperCase();
+    return pStatus === 'PAID' || pStatus === 'SUCCESSFUL' || pStatus === 'COMPLETED';
+  };
+
+  const isPendingOrder = (o: Order) => {
+    if (isPaidOrder(o)) return false;
+    const pStatus = (o.paymentStatus || '').trim().toUpperCase();
+    const tStatus = (o.trackingStatus || '').trim().toUpperCase();
     return (
       pStatus === 'PENDING' ||
-      pStatus === 'COD_DUE' ||
-      pStatus === 'AWAITING FULFILLMENT' ||
       pStatus === 'PENDING PAYMENT' ||
+      pStatus === 'AWAITING PAYMENT' ||
+      pStatus === 'COD_DUE' ||
+      pStatus === 'COD PENDING' ||
       pStatus === 'PENDING FULFILLMENT' ||
+      pStatus === 'AWAITING FULFILLMENT' ||
+      pStatus === 'PAYMENT FAILED' ||
+      pStatus === 'FAILED' ||
       tStatus === 'ORDER_PLACED' ||
       tStatus === 'PENDING FULFILLMENT' ||
       tStatus === 'AWAITING_FULFILLMENT' ||
       tStatus === 'PENDING PAYMENT'
     );
-  });
+  };
 
-  const paidOrders = orders.filter((o) => {
-    const pStatus = (o.paymentStatus || '').toUpperCase();
-    const pMethod = (o.paymentMethod || '').toUpperCase();
-    const isPaid = pStatus === 'PAID' || pStatus === 'SUCCESSFUL';
-    const isCodPending = pMethod === 'COD' && pStatus !== 'PAID' && pStatus !== 'SUCCESSFUL';
-    return isPaid && !isCodPending;
-  });
+  const isCodOrder = (o: Order) => (o.paymentMethod || '').trim().toUpperCase() === 'COD';
 
-  const codOrders = orders.filter((o) => (o.paymentMethod || '').toUpperCase() === 'COD');
-
-  const internationalOrders = orders.filter((o) => {
+  const isInternationalOrder = (o: Order) => {
     const c = (o.customer?.country || '').trim().toLowerCase();
-    return c !== '' && c !== 'india' && c !== 'in';
-  });
+    const cc = (o.customer?.countryCode || o.currencyCode || '').trim().toUpperCase();
+    const isDomestic = c === 'india' || c === 'in' || cc === 'IN';
+    return c !== '' && !isDomestic;
+  };
 
-  const revenueTodayOrders = orders.filter((o) => {
-    const isToday = o.date && (o.date === todayDateStr || o.date.startsWith(todayDateStr));
-    const pStatus = (o.paymentStatus || '').toUpperCase();
-    const pMethod = (o.paymentMethod || '').toUpperCase();
-    const isPaidOrCod = pStatus === 'PAID' || pStatus === 'SUCCESSFUL' || pMethod === 'COD';
-    return isToday && isPaidOrCod;
-  });
+  const todaysOrders = orders.filter(isTodayOrder);
+  const pendingOrders = orders.filter(isPendingOrder);
+  const paidOrders = orders.filter(isPaidOrder);
+  const codOrders = orders.filter(isCodOrder);
+  const internationalOrders = orders.filter(isInternationalOrder);
+
+  const revenueTodayOrders = orders.filter((o) => isTodayOrder(o) && (isPaidOrder(o) || isCodOrder(o)));
   const revenueToday = revenueTodayOrders.reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
 
-  const revenueThisMonthOrders = orders.filter((o) => {
-    const isThisMonth = o.date && o.date.startsWith(currentMonthStr);
-    const pStatus = (o.paymentStatus || '').toUpperCase();
-    const pMethod = (o.paymentMethod || '').toUpperCase();
-    const isPaidOrCod = pStatus === 'PAID' || pStatus === 'SUCCESSFUL' || pMethod === 'COD';
-    return isThisMonth && isPaidOrCod;
-  });
+  const revenueThisMonthOrders = orders.filter((o) => isThisMonthOrder(o) && (isPaidOrder(o) || isCodOrder(o)));
   const revenueThisMonth = revenueThisMonthOrders.reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
 
-  const totalRevenueOrders = orders.filter((o) => {
-    const pStatus = (o.paymentStatus || '').toUpperCase();
-    const pMethod = (o.paymentMethod || '').toUpperCase();
-    return pStatus === 'PAID' || pStatus === 'SUCCESSFUL' || pMethod === 'COD';
-  });
+  const totalRevenueOrders = orders.filter((o) => isPaidOrder(o) || isCodOrder(o));
   const totalRevenue = totalRevenueOrders.reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
 
   const refundTotals = paymentLogs.filter((l) => l.status === 'REFUNDED').reduce((acc, l) => acc + (l.amountINR || 0), 0) +
-    orders.filter((o) => (o.paymentStatus || '').toUpperCase() === 'REFUNDED').reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
+    orders.filter((o) => (o.paymentStatus || '').trim().toUpperCase() === 'REFUNDED').reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
 
-  const settlementTotals = orders.filter((o) => {
-    const pStatus = (o.paymentStatus || '').toUpperCase();
-    return pStatus === 'PAID' || pStatus === 'SUCCESSFUL';
-  }).reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
+  const settlementTotals = orders.filter(isPaidOrder).reduce((acc, o) => acc + (o.totalAmountINR || 0), 0);
 
   const lowStockProducts = products.filter((p) => (typeof p.stock === 'number' ? p.stock : 100) < 10 || p.inStock === false);
 

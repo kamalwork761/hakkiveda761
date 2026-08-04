@@ -160,6 +160,47 @@ export const AdminOrderManager: React.FC<AdminOrderManagerProps> = ({
     const todayDateStr = new Date().toISOString().split('T')[0];
     const currentMonthStr = todayDateStr.substring(0, 7);
 
+    const checkToday = (o: Order) =>
+      !!(o.date && (o.date === todayDateStr || o.date.startsWith(todayDateStr)));
+
+    const checkThisMonth = (o: Order) =>
+      !!(o.date && o.date.startsWith(currentMonthStr));
+
+    const checkPaid = (o: Order) => {
+      const pStatus = (o.paymentStatus || '').trim().toUpperCase();
+      return pStatus === 'PAID' || pStatus === 'SUCCESSFUL' || pStatus === 'COMPLETED';
+    };
+
+    const checkPending = (o: Order) => {
+      if (checkPaid(o)) return false;
+      const pStatus = (o.paymentStatus || '').trim().toUpperCase();
+      const tStatus = (o.trackingStatus || '').trim().toUpperCase();
+      return (
+        pStatus === 'PENDING' ||
+        pStatus === 'PENDING PAYMENT' ||
+        pStatus === 'AWAITING PAYMENT' ||
+        pStatus === 'COD_DUE' ||
+        pStatus === 'COD PENDING' ||
+        pStatus === 'PENDING FULFILLMENT' ||
+        pStatus === 'AWAITING FULFILLMENT' ||
+        pStatus === 'PAYMENT FAILED' ||
+        pStatus === 'FAILED' ||
+        tStatus === 'ORDER_PLACED' ||
+        tStatus === 'PENDING FULFILLMENT' ||
+        tStatus === 'AWAITING_FULFILLMENT' ||
+        tStatus === 'PENDING PAYMENT'
+      );
+    };
+
+    const checkCod = (o: Order) => (o.paymentMethod || '').trim().toUpperCase() === 'COD';
+
+    const checkInternational = (o: Order) => {
+      const c = (o.customer?.country || '').trim().toLowerCase();
+      const cc = (o.customer?.countryCode || o.currencyCode || '').trim().toUpperCase();
+      const isDomestic = c === 'india' || c === 'in' || cc === 'IN';
+      return c !== '' && !isDomestic;
+    };
+
     return orders.filter((order) => {
       // Search: Order ID, Customer Name, Phone, Email, Tracking Number / AWB
       if (searchQuery.trim()) {
@@ -183,86 +224,53 @@ export const AdminOrderManager: React.FC<AdminOrderManagerProps> = ({
 
         // Card 1: TODAY'S ORDERS
         if (filter === 'today') {
-          const isToday = order.date && (order.date === todayDateStr || order.date.startsWith(todayDateStr));
-          if (!isToday) return false;
+          if (!checkToday(order)) return false;
         }
 
         // Card 6: REVENUE TODAY
         if (filter === 'revenue_today') {
-          const isToday = order.date && (order.date === todayDateStr || order.date.startsWith(todayDateStr));
-          const pStatus = (order.paymentStatus || '').toUpperCase();
-          const pMethod = (order.paymentMethod || '').toUpperCase();
-          const isPaidOrCod = pStatus === 'PAID' || pStatus === 'SUCCESSFUL' || pMethod === 'COD';
-          if (!isToday || !isPaidOrCod) return false;
+          if (!checkToday(order) || !(checkPaid(order) || checkCod(order))) return false;
         }
 
         // Card 7: REVENUE THIS MONTH
         if (filter === 'revenue_month') {
-          const isThisMonth = order.date && order.date.startsWith(currentMonthStr);
-          const pStatus = (order.paymentStatus || '').toUpperCase();
-          const pMethod = (order.paymentMethod || '').toUpperCase();
-          const isPaidOrCod = pStatus === 'PAID' || pStatus === 'SUCCESSFUL' || pMethod === 'COD';
-          if (!isThisMonth || !isPaidOrCod) return false;
+          if (!checkThisMonth(order) || !(checkPaid(order) || checkCod(order))) return false;
         }
 
         // Card 8: TOTAL REVENUE
         if (filter === 'revenue_all') {
-          const pStatus = (order.paymentStatus || '').toUpperCase();
-          const pMethod = (order.paymentMethod || '').toUpperCase();
-          const isPaidOrCod = pStatus === 'PAID' || pStatus === 'SUCCESSFUL' || pMethod === 'COD';
-          if (!isPaidOrCod) return false;
+          if (!(checkPaid(order) || checkCod(order))) return false;
         }
 
         // Card 2: PENDING ORDERS
         if (paymentStatus === 'pending') {
-          const pStatus = (order.paymentStatus || '').toUpperCase();
-          const tStatus = (order.trackingStatus || '').toUpperCase();
-          const isPending =
-            pStatus === 'PENDING' ||
-            pStatus === 'COD_DUE' ||
-            pStatus === 'AWAITING FULFILLMENT' ||
-            pStatus === 'PENDING PAYMENT' ||
-            pStatus === 'PENDING FULFILLMENT' ||
-            tStatus === 'ORDER_PLACED' ||
-            tStatus === 'PENDING FULFILLMENT' ||
-            tStatus === 'AWAITING_FULFILLMENT' ||
-            tStatus === 'PENDING PAYMENT';
-          if (!isPending) return false;
+          if (!checkPending(order)) return false;
         }
 
         // Card 3: PAID ORDERS
-        // "paymentStatus = Paid, exclude COD unless COD has a separate confirmed-paid state"
         if (paymentStatus === 'paid') {
-          const pStatus = (order.paymentStatus || '').toUpperCase();
-          const pMethod = (order.paymentMethod || '').toUpperCase();
-          const isPaid = pStatus === 'PAID' || pStatus === 'SUCCESSFUL';
-          const isCodPending = pMethod === 'COD' && pStatus !== 'PAID' && pStatus !== 'SUCCESSFUL';
-          if (!isPaid || isCodPending) return false;
+          if (!checkPaid(order)) return false;
         }
 
         // Card 9: REFUND TOTALS
         if (paymentStatus === 'refunded') {
-          const pStatus = (order.paymentStatus || '').toUpperCase();
+          const pStatus = (order.paymentStatus || '').trim().toUpperCase();
           if (pStatus !== 'REFUNDED') return false;
         }
 
         // Card 10: SETTLEMENT TOTALS
         if (paymentStatus === 'settled') {
-          const pStatus = (order.paymentStatus || '').toUpperCase();
-          if (pStatus !== 'PAID' && pStatus !== 'SUCCESSFUL') return false;
+          if (!checkPaid(order)) return false;
         }
 
         // Card 4: COD ORDERS
         if (paymentMethod === 'cod') {
-          const pMethod = (order.paymentMethod || '').toUpperCase();
-          if (pMethod !== 'COD') return false;
+          if (!checkCod(order)) return false;
         }
 
         // Card 5: INTERNATIONAL ORDERS
         if (market === 'international') {
-          const country = (order.customer?.country || '').trim().toLowerCase();
-          const isIndia = country === '' || country === 'india' || country === 'in';
-          if (isIndia) return false;
+          if (!checkInternational(order)) return false;
         }
       }
 

@@ -48,13 +48,23 @@ const HOMEPAGE_CATEGORIES: CategoryCardItem[] = [
 ];
 
 export const CategorySection: React.FC<CategorySectionProps> = ({ onSelectCategory }) => {
-  const { categories, playSound } = useStore();
+  const { categories, categoryPages, playSound } = useStore();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   // Mouse drag state
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+
+  // Helper to append a timestamp cache-buster to prevent browser stale image caching
+  const getFreshImageUrl = (url: string) => {
+    if (!url) return url;
+    if (url.startsWith('data:') || url.startsWith('blob:')) return url;
+    const baseUrl = url.split('?')[0];
+    const existingParam = url.match(/[?&]v=(\d+)/);
+    const version = existingParam ? existingParam[1] : Date.now();
+    return `${baseUrl}?v=${version}`;
+  };
 
   const handleScroll = (direction: 'left' | 'right') => {
     if (!scrollContainerRef.current) return;
@@ -165,12 +175,19 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ onSelectCatego
           }`}
         >
           {HOMEPAGE_CATEGORIES.map((cat) => {
-            // Check if admin updated category image in database
-            const matchedDbCat = categories.find(
-              (c) => c.name.toLowerCase().includes(cat.name.toLowerCase()) ||
-                     c.slug?.toLowerCase() === cat.id
+            // Priority: categoryPages config -> DB category -> static fallback
+            const matchedPage = categoryPages?.find(
+              (cp) => cp.id === cat.id || cp.slug === cat.id
             );
-            const imageSrc = matchedDbCat?.image || cat.image;
+            const matchedDbCat = categories.find(
+              (c) => c.slug?.toLowerCase() === cat.id || c.name.toLowerCase().includes(cat.name.toLowerCase())
+            );
+
+            const rawImage = matchedPage?.cardImage || matchedDbCat?.image || cat.image;
+            const imageSrc = getFreshImageUrl(rawImage);
+            const cardTitle = matchedPage?.categoryName || matchedDbCat?.name || cat.name;
+            const cardDescription = matchedPage?.shortDescription || matchedDbCat?.description || cat.description;
+            const ctaText = matchedPage?.cardCtaText || cat.ctaText;
 
             return (
               <div
@@ -190,7 +207,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ onSelectCatego
                 <div className="h-52 sm:h-60 overflow-hidden relative w-full bg-slate-100">
                   <img
                     src={imageSrc}
-                    alt={cat.name}
+                    alt={cardTitle}
                     loading="lazy"
                     width={400}
                     height={300}
@@ -210,18 +227,18 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ onSelectCatego
                 <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4 bg-white">
                   <div>
                     <h3 className="text-xl font-serif-luxury font-bold text-[#123F2B] group-hover:text-[#B8891E] transition-colors flex items-center justify-between">
-                      <span>{cat.name}</span>
+                      <span>{cardTitle}</span>
                       <ArrowRight className="w-5 h-5 text-[#123F2B] group-hover:text-[#B8891E] -translate-x-1 group-hover:translate-x-0 transition-all shrink-0" />
                     </h3>
                     <p className="text-xs leading-relaxed text-[#405B4A] mt-2 line-clamp-3">
-                      {cat.description}
+                      {cardDescription}
                     </p>
                   </div>
 
                   {/* CTA Button */}
                   <div className="pt-2">
                     <div className="w-full py-2.5 px-4 bg-[#123F2B] group-hover:bg-[#B8891E] text-white group-hover:text-[#123F2B] rounded-xl text-xs font-bold font-sans uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md">
-                      <span>{cat.ctaText}</span>
+                      <span>{ctaText}</span>
                       <ArrowRight className="w-4 h-4" />
                     </div>
                   </div>

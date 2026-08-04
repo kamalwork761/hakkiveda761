@@ -36,6 +36,7 @@ export const AdminCategoryPageManager: React.FC = () => {
   const [saving, setSaving] = useState<boolean>(false);
   const [saveSuccess, setSaveSuccess] = useState<boolean>(false);
   const [uploadingField, setUploadingField] = useState<string | null>(null);
+  const [notification, setNotification] = useState<{ message: string; type: 'success' | 'error' } | null>(null);
 
   // Active page config
   const activeConfig = categoryPages.find((c) => c.id === selectedCatId) || categoryPages[0];
@@ -56,25 +57,73 @@ export const AdminCategoryPageManager: React.FC = () => {
     const file = e.target.files?.[0];
     if (!file) return;
 
+    if (!file.type.startsWith('image/')) {
+      setNotification({
+        type: 'error',
+        message: 'Please select a valid image file (JPG, PNG, WEBP, GIF).',
+      });
+      return;
+    }
+
     try {
-      setUploadingField(fieldName);
+      setUploadingField(fieldName as string);
       const url = await uploadFileToServer(file);
-      handleFieldChange(fieldName, url);
+
+      // Requirement 4 & 5: Ensure image URL has cache-busting timestamp parameter
+      const timestamp = Date.now();
+      const freshUrl = url.includes('?') ? `${url}&v=${timestamp}` : `${url}?v=${timestamp}`;
+
+      handleFieldChange(fieldName, freshUrl);
+      setNotification({
+        type: 'success',
+        message: `Successfully uploaded "${file.name}"! Image preview updated instantly.`,
+      });
     } catch (err: any) {
-      alert(`Upload failed: ${err.message || 'Unknown error'}`);
+      // Requirement 3: Display error message on upload failure
+      setNotification({
+        type: 'error',
+        message: `Upload failed: ${err.message || 'Error uploading image to server.'}`,
+      });
     } finally {
       setUploadingField(null);
+      e.target.value = '';
     }
   };
 
   const handleSave = async () => {
     setSaving(true);
+    setNotification(null);
     try {
-      await updateCategoryPage(activeConfig.id, activeConfig);
-      setSaveSuccess(true);
-      setTimeout(() => setSaveSuccess(false), 2500);
+      const timestamp = Date.now();
+      // Ensure activeConfig cardImage has fresh timestamp parameter if present
+      let finalCardImage = activeConfig.cardImage;
+      if (finalCardImage && !finalCardImage.startsWith('data:')) {
+        const cleanUrl = finalCardImage.split('?')[0];
+        finalCardImage = `${cleanUrl}?v=${timestamp}`;
+      }
+
+      const updatedConfig: CategoryPageConfig = {
+        ...activeConfig,
+        cardImage: finalCardImage || activeConfig.cardImage,
+      };
+
+      const success = await updateCategoryPage(activeConfig.id, updatedConfig);
+      
+      if (success !== false) {
+        setSaveSuccess(true);
+        setNotification({
+          type: 'success',
+          message: `Homepage Category Card image & page configuration saved successfully to database!`,
+        });
+        setTimeout(() => setSaveSuccess(false), 3000);
+      } else {
+        throw new Error('Failed to update database');
+      }
     } catch (err: any) {
-      alert(`Save failed: ${err.message || 'Error saving category page'}`);
+      setNotification({
+        type: 'error',
+        message: `Save failed: ${err.message || 'Error saving category page'}`,
+      });
     } finally {
       setSaving(false);
     }
@@ -169,6 +218,32 @@ export const AdminCategoryPageManager: React.FC = () => {
           </button>
         </div>
       </div>
+
+      {/* Top Notification Toast / Banner */}
+      {notification && (
+        <div
+          className={`p-4 rounded-xl text-xs font-bold flex items-center justify-between shadow-md transition-all ${
+            notification.type === 'success'
+              ? 'bg-emerald-950/90 text-emerald-200 border-2 border-emerald-500/50'
+              : 'bg-rose-950/90 text-rose-200 border-2 border-rose-500/50'
+          }`}
+        >
+          <div className="flex items-center gap-2">
+            {notification.type === 'success' ? (
+              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+            ) : (
+              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+            )}
+            <span>{notification.message}</span>
+          </div>
+          <button
+            onClick={() => setNotification(null)}
+            className="text-xs opacity-75 hover:opacity-100 font-extrabold ml-4 cursor-pointer"
+          >
+            ✕
+          </button>
+        </div>
+      )}
 
       {/* Category Tabs & Status */}
       <div className="flex flex-wrap items-center justify-between gap-3 bg-emerald-900/5 p-2 rounded-xl border border-emerald-900/10">
@@ -502,30 +577,70 @@ export const AdminCategoryPageManager: React.FC = () => {
 
           {/* TAB 3: HOMEPAGE CARD */}
           {activeTab === 'cards' && (
-            <div className="bg-white p-6 rounded-2xl border border-gray-200 space-y-4 shadow-sm">
-              <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
-                <Sliders className="w-4 h-4 text-emerald-800" /> Homepage "Shop by Category" Card
-              </h3>
+            <div className="bg-white p-6 rounded-2xl border border-gray-200 space-y-5 shadow-sm">
+              <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                <div>
+                  <h3 className="text-sm font-bold text-gray-900 flex items-center gap-2">
+                    <Sliders className="w-4 h-4 text-emerald-800" /> Homepage "Shop by Category" Card Manager
+                  </h3>
+                  <p className="text-xs text-gray-500 mt-0.5">
+                    Upload and manage the card image & button text displayed in the "Shop by Category" grid on the main homepage.
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="bg-amber-500 hover:bg-amber-600 text-gray-950 font-bold px-4 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow transition cursor-pointer"
+                >
+                  <Save className="w-3.5 h-3.5" />
+                  <span>{saving ? 'Saving...' : 'Save Card Image'}</span>
+                </button>
+              </div>
 
-              <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">Homepage Card Image</label>
-                <div className="flex items-center gap-3">
-                  {activeConfig.cardImage && (
-                    <img
-                      src={activeConfig.cardImage}
-                      alt="Card Preview"
-                      className="w-16 h-16 object-cover rounded-lg border border-gray-200"
-                    />
+              {/* Card Image Upload & URL Field */}
+              <div className="space-y-2">
+                <label className="block text-xs font-bold text-gray-700">
+                  Homepage Card Image <span className="text-rose-500">*</span>
+                </label>
+                <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-gray-50 p-3 rounded-xl border border-gray-200">
+                  {activeConfig.cardImage ? (
+                    <div className="relative w-20 h-20 rounded-lg overflow-hidden border border-gray-300 bg-white shrink-0 group">
+                      <img
+                        src={activeConfig.cardImage}
+                        alt="Card Preview"
+                        className="w-full h-full object-cover"
+                      />
+                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-[10px] text-white font-bold">
+                        Live Preview
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="w-20 h-20 rounded-lg border-2 border-dashed border-gray-300 flex items-center justify-center text-gray-400 shrink-0 bg-white">
+                      <ImageIcon className="w-6 h-6" />
+                    </div>
                   )}
-                  <input
-                    type="text"
-                    value={activeConfig.cardImage}
-                    onChange={(e) => handleFieldChange('cardImage', e.target.value)}
-                    className="flex-1 text-xs p-2 border border-gray-300 rounded-lg"
-                  />
-                  <label className="bg-emerald-900 hover:bg-emerald-950 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer">
-                    <Upload className="w-3.5 h-3.5" />
-                    <span>Upload</span>
+
+                  <div className="flex-1 space-y-2">
+                    <input
+                      type="text"
+                      value={activeConfig.cardImage || ''}
+                      onChange={(e) => handleFieldChange('cardImage', e.target.value)}
+                      placeholder="/images/hakkiveda_108_oil_gold.jpg or https://..."
+                      className="w-full text-xs p-2.5 bg-white border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-800"
+                    />
+                    <p className="text-[10px] text-gray-500 font-mono">
+                      Recommended aspect ratio: 4:3 or 16:9 (High Resolution JPG/PNG/WEBP)
+                    </p>
+                  </div>
+
+                  <label className="bg-emerald-900 hover:bg-emerald-950 text-white px-4 py-2.5 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer shrink-0 transition shadow">
+                    {uploadingField === 'cardImage' ? (
+                      <span className="animate-spin text-white">⏳</span>
+                    ) : (
+                      <Upload className="w-4 h-4 text-amber-300" />
+                    )}
+                    <span>{uploadingField === 'cardImage' ? 'Uploading...' : 'Upload Image'}</span>
                     <input
                       type="file"
                       accept="image/*"
@@ -536,15 +651,33 @@ export const AdminCategoryPageManager: React.FC = () => {
                 </div>
               </div>
 
+              {/* Card CTA Text */}
               <div>
-                <label className="block text-xs font-bold text-gray-700 mb-1">Homepage Card CTA Button Text</label>
+                <label className="block text-xs font-bold text-gray-700 mb-1">
+                  Homepage Card CTA Button Text
+                </label>
                 <input
                   type="text"
-                  value={activeConfig.cardCtaText}
+                  value={activeConfig.cardCtaText || ''}
                   onChange={(e) => handleFieldChange('cardCtaText', e.target.value)}
-                  className="w-full text-xs p-2 border border-gray-300 rounded-lg"
-                  placeholder="Shop Hair Care"
+                  className="w-full text-xs p-2.5 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-emerald-800"
+                  placeholder="e.g. Shop Hair Care"
                 />
+              </div>
+
+              {/* Save Prompt Info */}
+              <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 flex items-center justify-between text-xs text-amber-900">
+                <span className="font-medium">
+                  ✨ Image changes reflect in the Live Preview instantly. Click <strong>Save Card Image</strong> to persist permanently to the database.
+                </span>
+                <button
+                  type="button"
+                  onClick={handleSave}
+                  disabled={saving}
+                  className="bg-emerald-800 hover:bg-emerald-900 text-white font-bold px-3 py-1.5 rounded-lg text-xs shrink-0 cursor-pointer"
+                >
+                  Save & Sync DB
+                </button>
               </div>
             </div>
           )}
@@ -722,6 +855,62 @@ export const AdminCategoryPageManager: React.FC = () => {
                 >
                   <Smartphone className="w-3.5 h-3.5" />
                 </button>
+              </div>
+            </div>
+
+            {/* Homepage Category Card Live Preview */}
+            <div
+              className={`p-4 bg-[#123F2B] rounded-xl border-2 transition-all ${
+                activeTab === 'cards' ? 'border-amber-400 shadow-xl' : 'border-emerald-800/80'
+              }`}
+            >
+              <div className="flex items-center justify-between border-b border-emerald-800 pb-2 mb-3">
+                <span className="text-amber-300 font-bold text-xs uppercase tracking-wider flex items-center gap-1.5">
+                  <Sparkles className="w-3.5 h-3.5 text-amber-400" />
+                  Homepage Category Card Live Preview
+                </span>
+                <span className="text-[10px] font-mono text-emerald-300 bg-emerald-950 px-2 py-0.5 rounded border border-emerald-700">
+                  Live Sync
+                </span>
+              </div>
+
+              <div className="bg-white rounded-2xl overflow-hidden border border-gray-200 shadow-xl max-w-[280px] mx-auto text-slate-900">
+                <div className="h-40 overflow-hidden relative w-full bg-gray-100">
+                  {activeConfig.cardImage ? (
+                    <img
+                      key={activeConfig.cardImage}
+                      src={activeConfig.cardImage}
+                      alt={activeConfig.categoryName}
+                      className="w-full h-full object-cover transition-all"
+                    />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-gray-400 font-medium text-xs">
+                      No card image set
+                    </div>
+                  )}
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-80" />
+                  <div className="absolute top-2.5 left-2.5 z-10">
+                    <span className="bg-[#123F2B]/90 text-[var(--brand-gold,#D4AF37)] text-[9px] font-extrabold px-2 py-0.5 rounded-full border border-amber-400/40 shadow">
+                      Botanical Category
+                    </span>
+                  </div>
+                </div>
+
+                <div className="p-3.5 space-y-2 bg-white">
+                  <h3 className="text-sm font-serif font-bold text-[#123F2B] flex items-center justify-between">
+                    <span>{activeConfig.categoryName || 'Category Name'}</span>
+                    <span className="text-[11px] text-[#B8891E] font-sans font-bold">&rarr;</span>
+                  </h3>
+                  <p className="text-[10px] text-[#405B4A] line-clamp-2 leading-relaxed">
+                    {activeConfig.shortDescription || 'Authentic herbal hair & skincare formulations.'}
+                  </p>
+
+                  <div className="pt-1">
+                    <div className="w-full py-1.5 bg-[#123F2B] text-white rounded-lg text-[10px] font-bold uppercase tracking-wider text-center shadow">
+                      {activeConfig.cardCtaText || 'Shop Category'}
+                    </div>
+                  </div>
+                </div>
               </div>
             </div>
 

@@ -5,7 +5,7 @@ import { HeroSlider } from './components/HeroSlider';
 import { CategorySection } from './components/CategorySection';
 import { BestSellersCarousel } from './components/BestSellersCarousel';
 import { CategoryLandingPage } from './components/CategoryLandingPage';
-import { ProductGrid } from './components/ProductGrid';
+import { HomepageQuizBanner } from './components/HomepageQuizBanner';
 import { Footer } from './components/Footer';
 import { WhatsAppButton } from './components/WhatsAppButton';
 import { AmbientSoundControl } from './components/AmbientSoundControl';
@@ -203,11 +203,8 @@ export function AppContent() {
             {/* Our Best Sellers Carousel */}
             <BestSellersCarousel />
 
-            {/* Product Grid */}
-            <ProductGrid
-              selectedCategory={selectedCategory}
-              onSelectCategory={(catName) => handleSelectCategory(catName, false)}
-            />
+            {/* AI Hair Quiz Banner */}
+            <HomepageQuizBanner />
 
             <Suspense fallback={<SectionSkeleton />}>
               {/* Before & After Interactive Comparison */}

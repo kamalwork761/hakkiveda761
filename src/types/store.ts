@@ -11,6 +11,7 @@ export interface Product {
   id: string;
   name: string;
   category: string;
+  primaryCategory?: 'hair-care' | 'skin-care' | 'tribal-wellness' | string;
   subtitle: string;
   priceINR: number;
   originalPriceINR?: number;
@@ -26,8 +27,10 @@ export interface Product {
   stock: number;
   sku: string;
   isBestseller: boolean;
+  featuredBestSeller?: boolean;
   isNew: boolean;
   inStock: boolean;
+  displayOrder?: number;
 }
 
 export interface Category {

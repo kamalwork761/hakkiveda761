@@ -58,7 +58,25 @@ export const SeoSchemaInjector: React.FC = () => {
     let pageDesc = siteSettings.seoDescription || 'Discover authentic Hakki-Pikki tribal Ayurvedic hair care from HAKKIVEDA. Shop 108 Herbs Hair Oil, Herbal Shampoo, Baldness Powder and premium natural wellness products with worldwide shipping.';
     let pageKeywords = siteSettings.seoKeywords || 'HAKKIVEDA, Adivasi Hair Oil, 108 Herbs Hair Oil, Hakki Pikki Tribe, Ayurvedic Hair Oil, Herbal Hair Growth, Natural Hair Care, Herbal Shampoo, Hair Fall Solution, Ayurvedic Wellness';
     let pageImage = logoUrl;
-    let canonicalUrl = `${siteUrl}${window.location.pathname}${window.location.search}`;
+    const pathname = window.location.pathname;
+    let canonicalUrl = `${siteUrl}${pathname}${window.location.search}`;
+
+    if (pathname === '/hair-care') {
+      pageTitle = 'Hair Care Formulations | Adivasi Hair Oils & Serums - HAKKIVEDA';
+      pageDesc = 'Shop authentic Hakki-Pikki Adivasi Hair Care formulations. 108 Mountain Herbs Hair Oil, 42 Herbs Shampoo, and Root Density Serums. Free express worldwide shipping.';
+      pageImage = `${siteUrl}/images/hakkiveda_108_oil_gold.jpg`;
+      canonicalUrl = `${siteUrl}/hair-care`;
+    } else if (pathname === '/skin-care') {
+      pageTitle = 'Skin Care & Lepas | Forest Botanical Muds - HAKKIVEDA';
+      pageDesc = 'Discover authentic Adivasi Skin Care and herbal Lepas. Forest-harvested mud packs, neem powders, and restorative clay masks handcrafted in Mysore.';
+      pageImage = `${siteUrl}/images/hakkiveda_baldness_powder.jpg`;
+      canonicalUrl = `${siteUrl}/skin-care`;
+    } else if (pathname === '/tribal-wellness') {
+      pageTitle = 'Tribal Wellness & Regrowth Combos | Adivasi Kits - HAKKIVEDA';
+      pageDesc = 'Explore 90-day ancestral Hair Care and Tribal Wellness kits. Complete Adivasi regrowth systems handcrafted in Mysore with 108 mountain herbs.';
+      pageImage = `${siteUrl}/images/hakkiveda_oil_couple_herbs.jpg`;
+      canonicalUrl = `${siteUrl}/tribal-wellness`;
+    }
 
     if (quickViewProduct) {
       pageTitle = `${quickViewProduct.name} | HAKKIVEDA Hakki-Pikki Tribal Hair Care`;
@@ -334,12 +352,41 @@ export const SeoSchemaInjector: React.FC = () => {
           name: 'Home',
           item: siteUrl,
         },
-        {
-          '@type': 'ListItem',
-          position: 2,
-          name: 'Herbal Collections',
-          item: `${siteUrl}/#products`,
-        },
+        ...(pathname === '/hair-care'
+          ? [
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Hair Care Formulations',
+                item: `${siteUrl}/hair-care`,
+              },
+            ]
+          : pathname === '/skin-care'
+          ? [
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Skin Care & Lepas',
+                item: `${siteUrl}/skin-care`,
+              },
+            ]
+          : pathname === '/tribal-wellness'
+          ? [
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Tribal Wellness & Bundles',
+                item: `${siteUrl}/tribal-wellness`,
+              },
+            ]
+          : [
+              {
+                '@type': 'ListItem',
+                position: 2,
+                name: 'Herbal Collections',
+                item: `${siteUrl}/#products`,
+              },
+            ]),
         ...(quickViewProduct
           ? [
               {
@@ -352,6 +399,35 @@ export const SeoSchemaInjector: React.FC = () => {
           : []),
       ],
     };
+
+    // CollectionPage Schema for category routes
+    const collectionSchema = (pathname === '/hair-care' || pathname === '/skin-care' || pathname === '/tribal-wellness')
+      ? {
+          '@context': 'https://schema.org',
+          '@type': 'CollectionPage',
+          '@id': `${siteUrl}${pathname}`,
+          url: `${siteUrl}${pathname}`,
+          name: pageTitle,
+          description: pageDesc,
+          image: pageImage,
+          mainEntity: {
+            '@type': 'ItemList',
+            itemListElement: products
+              .filter((p) => {
+                if (pathname === '/hair-care') return p.primaryCategory === 'hair-care' || p.category.includes('Hair') || p.category.includes('Cleanser') || p.category.includes('Serum');
+                if (pathname === '/skin-care') return p.primaryCategory === 'skin-care' || p.category.includes('Mask') || p.category.includes('Lepa');
+                if (pathname === '/tribal-wellness') return p.primaryCategory === 'tribal-wellness' || p.category.includes('Wellness') || p.category.includes('Combo');
+                return true;
+              })
+              .map((p, idx) => ({
+                '@type': 'ListItem',
+                position: idx + 1,
+                url: `${siteUrl}/#product-${p.id}`,
+                name: p.name,
+              })),
+          },
+        }
+      : null;
 
     // 7. FAQPage Schema
     const faqData = [
@@ -519,6 +595,7 @@ export const SeoSchemaInjector: React.FC = () => {
       brandSchema,
       localBusinessSchema,
       breadcrumbSchema,
+      ...(collectionSchema ? [collectionSchema] : []),
       faqSchema,
       aiQuizSchema,
       b2bSchema,

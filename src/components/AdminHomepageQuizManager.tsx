@@ -2,7 +2,6 @@ import React, { useState, useEffect } from 'react';
 import { useStore } from '../context/StoreContext';
 import { uploadFileToServer } from '../utils/upload';
 import {
-  Sparkles,
   Upload,
   Save,
   Eye,
@@ -14,9 +13,8 @@ import {
   ToggleRight,
   Bot,
   ArrowRight,
-  Clock,
-  ShieldCheck,
   RotateCcw,
+  Layout,
 } from 'lucide-react';
 import { HomepageQuizBannerConfig } from '../types/store';
 
@@ -37,10 +35,7 @@ export const AdminHomepageQuizManager: React.FC<AdminHomepageQuizManagerProps> =
       'Answer a few quick questions about your hair type, scalp condition and concerns to receive personalized HAKKIVEDA product recommendations.',
     ctaText: 'START AI HAIR QUIZ',
     ctaAction: 'OPEN_QUIZ',
-    imageFit: 'contain',
-    desktopFocalPoint: 'center',
-    mobileFocalPoint: 'center',
-    imageAlignment: 'center',
+    buttonPosition: 'bottom-left',
   });
 
   const [isSaving, setIsSaving] = useState(false);
@@ -126,12 +121,33 @@ export const AdminHomepageQuizManager: React.FC<AdminHomepageQuizManagerProps> =
         'Answer a few quick questions about your hair type, scalp condition and concerns to receive personalized HAKKIVEDA product recommendations.',
       ctaText: 'START AI HAIR QUIZ',
       ctaAction: 'OPEN_QUIZ',
-      imageFit: 'contain',
-      desktopFocalPoint: 'center',
-      mobileFocalPoint: 'center',
-      imageAlignment: 'center',
+      buttonPosition: 'bottom-left',
     });
     showToast('Form reset to default values.', 'info');
+  };
+
+  const getOverlayPosClass = (pos?: string) => {
+    switch (pos) {
+      case 'bottom-center':
+        return 'items-end justify-center';
+      case 'bottom-right':
+        return 'items-end justify-end';
+      case 'center-left':
+        return 'items-center justify-start';
+      case 'center':
+        return 'items-center justify-center';
+      case 'center-right':
+        return 'items-center justify-end';
+      case 'top-left':
+        return 'items-start justify-start';
+      case 'top-center':
+        return 'items-start justify-center';
+      case 'top-right':
+        return 'items-start justify-end';
+      case 'bottom-left':
+      default:
+        return 'items-end justify-start';
+    }
   };
 
   return (
@@ -143,10 +159,10 @@ export const AdminHomepageQuizManager: React.FC<AdminHomepageQuizManagerProps> =
             Homepage Content Management
           </span>
           <h1 className="text-2xl sm:text-3xl font-bold font-serif-luxury text-slate-100">
-            Homepage AI Hair Quiz
+            Homepage AI Hair Quiz Banner
           </h1>
           <p className="text-xs text-slate-300 font-sans mt-1">
-            Customize the AI Hair Quiz banner displayed on the main homepage.
+            Upload full-width desktop & mobile banner artwork and position the "START AI HAIR QUIZ" CTA button overlay.
           </p>
         </div>
 
@@ -190,7 +206,7 @@ export const AdminHomepageQuizManager: React.FC<AdminHomepageQuizManagerProps> =
                   Banner Display Status
                 </h3>
                 <p className="text-xs text-slate-400 font-sans mt-0.5">
-                  Toggle to enable or hide the AI Hair Quiz banner on the main homepage.
+                  Toggle to enable or hide the AI Hair Quiz hero banner on the main homepage.
                 </p>
               </div>
 
@@ -218,20 +234,20 @@ export const AdminHomepageQuizManager: React.FC<AdminHomepageQuizManagerProps> =
             </div>
           </div>
 
-          {/* Banner Images Section */}
+          {/* Banner Artwork Section */}
           <div className="bg-[var(--brand-primary-deep)] border border-white/10 rounded-2xl p-5 space-y-5 shadow-md">
             <h3 className="text-sm font-bold font-serif-luxury text-slate-100 border-b border-white/10 pb-3 flex items-center gap-2">
               <ImageIcon className="w-4 h-4 text-[var(--brand-gold)]" />
-              <span>Banner Images</span>
+              <span>Full Width Banner Artwork</span>
             </h3>
 
-            {/* Desktop Image Upload (1920x700) */}
+            {/* Desktop Image Upload */}
             <div className="space-y-2">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-slate-300">
-                  Desktop Banner Image <span className="text-[var(--brand-gold)]">(1920 × 700)</span>
+                  Desktop Banner Image <span className="text-[var(--brand-gold)]">(Full Width / 1920 × 700)</span>
                 </label>
-                <span className="text-[10px] text-slate-400 font-sans">Recommended size: 1920×700px</span>
+                <span className="text-[10px] text-slate-400 font-sans">100% width responsive</span>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
@@ -245,7 +261,7 @@ export const AdminHomepageQuizManager: React.FC<AdminHomepageQuizManagerProps> =
 
                 <label className="bg-[var(--brand-gold)]/20 hover:bg-[var(--brand-gold)] text-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/40 px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-all shrink-0">
                   <Upload className="w-4 h-4" />
-                  <span>{uploadingDesktop ? 'Uploading...' : 'Upload Desktop (1920×700)'}</span>
+                  <span>{uploadingDesktop ? 'Uploading...' : 'Upload Desktop Artwork'}</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -256,26 +272,26 @@ export const AdminHomepageQuizManager: React.FC<AdminHomepageQuizManagerProps> =
               </div>
 
               {form.desktopBanner && (
-                <div className="relative h-28 rounded-xl overflow-hidden border border-white/15 bg-black/40">
+                <div className="relative rounded-xl overflow-hidden border border-white/15 bg-black/40">
                   <img
                     src={form.desktopBanner}
-                    alt="Desktop Preview"
-                    className="w-full h-full object-cover"
+                    alt="Desktop Banner Artwork"
+                    className="w-full h-auto max-h-48 object-contain"
                   />
                   <span className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-md text-[10px] text-white px-2 py-0.5 rounded font-sans border border-white/20">
-                    Desktop Aspect Ratio
+                    Desktop Full Artwork
                   </span>
                 </div>
               )}
             </div>
 
-            {/* Mobile Image Upload (1080x1350) */}
+            {/* Mobile Image Upload */}
             <div className="space-y-2 pt-3 border-t border-white/10">
               <div className="flex items-center justify-between">
                 <label className="text-xs font-bold text-slate-300">
-                  Mobile Banner Image <span className="text-[var(--brand-gold)]">(1080 × 1350)</span>
+                  Mobile Banner Image <span className="text-[var(--brand-gold)]">(Mobile Artwork / 1080 × 1350)</span>
                 </label>
-                <span className="text-[10px] text-slate-400 font-sans">Recommended size: 1080×1350px</span>
+                <span className="text-[10px] text-slate-400 font-sans">Mobile viewport background</span>
               </div>
 
               <div className="flex flex-col sm:flex-row gap-3 items-stretch sm:items-center">
@@ -289,7 +305,7 @@ export const AdminHomepageQuizManager: React.FC<AdminHomepageQuizManagerProps> =
 
                 <label className="bg-[var(--brand-gold)]/20 hover:bg-[var(--brand-gold)] text-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/40 px-4 py-2 rounded-xl text-xs font-bold flex items-center justify-center gap-2 cursor-pointer transition-all shrink-0">
                   <Upload className="w-4 h-4" />
-                  <span>{uploadingMobile ? 'Uploading...' : 'Upload Mobile (1080×1350)'}</span>
+                  <span>{uploadingMobile ? 'Uploading...' : 'Upload Mobile Artwork'}</span>
                   <input
                     type="file"
                     accept="image/*"
@@ -300,157 +316,25 @@ export const AdminHomepageQuizManager: React.FC<AdminHomepageQuizManagerProps> =
               </div>
 
               {form.mobileBanner && (
-                <div className="relative h-28 rounded-xl overflow-hidden border border-white/15 bg-black/40">
+                <div className="relative rounded-xl overflow-hidden border border-white/15 bg-black/40">
                   <img
                     src={form.mobileBanner}
-                    alt="Mobile Preview"
-                    className="w-full h-full object-cover"
+                    alt="Mobile Banner Artwork"
+                    className="w-full h-auto max-h-48 object-contain"
                   />
                   <span className="absolute bottom-2 left-2 bg-black/70 backdrop-blur-md text-[10px] text-white px-2 py-0.5 rounded font-sans border border-white/20">
-                    Mobile Aspect Ratio
+                    Mobile Full Artwork
                   </span>
                 </div>
               )}
             </div>
           </div>
 
-          {/* Image Display Options Section */}
+          {/* CTA Button & Overlay Position Section */}
           <div className="bg-[var(--brand-primary-deep)] border border-white/10 rounded-2xl p-5 space-y-4 shadow-md">
-            <h3 className="text-sm font-bold font-serif-luxury text-slate-100 border-b border-white/10 pb-3 flex items-center justify-between">
-              <span>Image Display & Sizing Controls</span>
-              <span className="text-[10px] bg-[var(--brand-gold)]/20 text-[var(--brand-gold)] px-2 py-0.5 rounded font-sans uppercase font-bold">
-                Default: Full Image / Contain
-              </span>
-            </h3>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              {/* Image Fit Mode */}
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
-                  Image Display Mode
-                </label>
-                <select
-                  value={form.imageFit || 'contain'}
-                  onChange={(e) => handleChange('imageFit', e.target.value)}
-                  className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)] font-sans"
-                >
-                  <option value="contain">Full Image / Contain (No Cropping - Recommended)</option>
-                  <option value="cover">Crop / Cover (Fill Box)</option>
-                </select>
-                <span className="text-[10px] text-slate-400 block mt-1">
-                  "Full Image / Contain" displays the entire artwork without cutting text or products.
-                </span>
-              </div>
-
-              {/* Image Alignment */}
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
-                  Image Column Alignment
-                </label>
-                <select
-                  value={form.imageAlignment || 'center'}
-                  onChange={(e) => handleChange('imageAlignment', e.target.value)}
-                  className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)] font-sans"
-                >
-                  <option value="center">Center Aligned</option>
-                  <option value="left">Left Aligned</option>
-                  <option value="right">Right Aligned</option>
-                </select>
-              </div>
-
-              {/* Desktop Focal Point */}
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
-                  Desktop Image Focal Point
-                </label>
-                <select
-                  value={form.desktopFocalPoint || 'center'}
-                  onChange={(e) => handleChange('desktopFocalPoint', e.target.value)}
-                  className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)] font-sans"
-                >
-                  <option value="center">Center</option>
-                  <option value="top">Top</option>
-                  <option value="bottom">Bottom</option>
-                  <option value="left">Left</option>
-                  <option value="right">Right</option>
-                </select>
-              </div>
-
-              {/* Mobile Focal Point */}
-              <div>
-                <label className="block text-xs font-bold text-slate-300 mb-1">
-                  Mobile Image Focal Point
-                </label>
-                <select
-                  value={form.mobileFocalPoint || 'center'}
-                  onChange={(e) => handleChange('mobileFocalPoint', e.target.value)}
-                  className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)] font-sans"
-                >
-                  <option value="center">Center</option>
-                  <option value="top">Top</option>
-                  <option value="bottom">Bottom</option>
-                  <option value="left">Left</option>
-                  <option value="right">Right</option>
-                </select>
-              </div>
-            </div>
-          </div>
-
-          {/* Text Content Section */}
-          <div className="bg-[var(--brand-primary-deep)] border border-white/10 rounded-2xl p-5 space-y-4 shadow-md">
-            <h3 className="text-sm font-bold font-serif-luxury text-slate-100 border-b border-white/10 pb-3">
-              Banner Text & Messaging
-            </h3>
-
-            {/* Subheading / Eyebrow */}
-            <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1">
-                Subheading / Eyebrow Tag
-              </label>
-              <input
-                type="text"
-                value={form.subheading}
-                onChange={(e) => handleChange('subheading', e.target.value)}
-                placeholder="e.g. PERSONALIZED HAIR ANALYSIS"
-                className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)] font-sans"
-              />
-            </div>
-
-            {/* Heading */}
-            <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1">
-                Main Banner Heading *
-              </label>
-              <input
-                type="text"
-                required
-                value={form.heading}
-                onChange={(e) => handleChange('heading', e.target.value)}
-                placeholder="e.g. Find the Right HAKKIVEDA Hair Ritual"
-                className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)] font-sans font-bold"
-              />
-            </div>
-
-            {/* Description */}
-            <div>
-              <label className="block text-xs font-bold text-slate-300 mb-1">
-                Description / Details *
-              </label>
-              <textarea
-                rows={3}
-                required
-                value={form.description}
-                onChange={(e) => handleChange('description', e.target.value)}
-                placeholder="e.g. Answer a few questions about your hair, scalp and concerns to receive personalized product recommendations."
-                className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)] font-sans"
-              />
-            </div>
-          </div>
-
-          {/* CTA Action & Button Section */}
-          <div className="bg-[var(--brand-primary-deep)] border border-white/10 rounded-2xl p-5 space-y-4 shadow-md">
-            <h3 className="text-sm font-bold font-serif-luxury text-slate-100 border-b border-white/10 pb-3">
-              Button & CTA Action
+            <h3 className="text-sm font-bold font-serif-luxury text-slate-100 border-b border-white/10 pb-3 flex items-center gap-2">
+              <Layout className="w-4 h-4 text-[var(--brand-gold)]" />
+              <span>CTA Overlay Button & Position</span>
             </h3>
 
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
@@ -469,20 +353,28 @@ export const AdminHomepageQuizManager: React.FC<AdminHomepageQuizManagerProps> =
                 />
               </div>
 
-              {/* CTA Button Action */}
+              {/* Overlay Position */}
               <div>
                 <label className="block text-xs font-bold text-slate-300 mb-1">
-                  CTA Button Action
+                  CTA Button Overlay Position
                 </label>
                 <select
-                  value={form.ctaAction}
-                  onChange={(e) => handleChange('ctaAction', e.target.value)}
+                  value={form.buttonPosition || 'bottom-left'}
+                  onChange={(e) => handleChange('buttonPosition', e.target.value)}
                   className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)] font-sans"
                 >
-                  <option value="OPEN_QUIZ">Open existing AI Hair Quiz (Modal)</option>
+                  <option value="bottom-left">Bottom Left (Default)</option>
+                  <option value="bottom-center">Bottom Center</option>
+                  <option value="bottom-right">Bottom Right</option>
+                  <option value="center-left">Center Left</option>
+                  <option value="center">Center</option>
+                  <option value="center-right">Center Right</option>
+                  <option value="top-left">Top Left</option>
+                  <option value="top-center">Top Center</option>
+                  <option value="top-right">Top Right</option>
                 </select>
                 <span className="text-[10px] text-slate-400 block mt-1">
-                  Clicking button opens the existing AI Hair Quiz diagnostic engine.
+                  Positions the button overlay relative to the full banner artwork.
                 </span>
               </div>
             </div>
@@ -496,7 +388,7 @@ export const AdminHomepageQuizManager: React.FC<AdminHomepageQuizManagerProps> =
               className="w-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] py-3.5 rounded-2xl font-bold hover:bg-white transition-all shadow-xl text-sm flex items-center justify-center gap-2 cursor-pointer disabled:opacity-50"
             >
               <CheckCircle2 className="w-5 h-5" />
-              <span>{isSaving ? 'Saving Changes...' : 'Save & Update Homepage'}</span>
+              <span>{isSaving ? 'Saving Changes...' : 'Save & Update Homepage Banner'}</span>
             </button>
           </div>
         </div>
@@ -550,72 +442,34 @@ export const AdminHomepageQuizManager: React.FC<AdminHomepageQuizManagerProps> =
                 previewDevice === 'mobile' ? 'max-w-xs' : 'w-full'
               }`}
             >
-              <div className="relative bg-gradient-to-br from-[#123F2B] via-[#0E281C] to-[#0A1F16] text-white rounded-2xl overflow-hidden border border-[var(--brand-gold)]/40 p-4 sm:p-5 space-y-4 shadow-xl">
-                {/* Glow */}
-                <div className="absolute top-0 right-0 w-40 h-40 bg-[var(--brand-gold)]/10 rounded-full blur-2xl pointer-events-none" />
+              <div className="relative w-full rounded-2xl overflow-hidden border border-[var(--brand-gold)]/40 shadow-xl bg-[#0E281C] group">
+                <img
+                  src={
+                    previewDevice === 'mobile'
+                      ? form.mobileBanner || form.desktopBanner || '/images/hakkiveda_108_oil_gold.jpg'
+                      : form.desktopBanner || '/images/hakkiveda_108_oil_gold.jpg'
+                  }
+                  alt="Preview"
+                  className="w-full h-auto block object-contain rounded-2xl"
+                />
 
-                {/* Subheading */}
-                {form.subheading && (
-                  <div className="inline-flex items-center gap-1.5 bg-[#0E281C]/80 px-2.5 py-1 rounded-full border border-[var(--brand-gold)]/40">
-                    <Sparkles className="w-3 h-3 text-[var(--brand-gold)]" />
-                    <span className="text-[9px] font-extrabold uppercase tracking-wider text-[var(--brand-gold)] font-sans">
-                      {form.subheading}
-                    </span>
-                  </div>
-                )}
-
-                {/* Heading */}
-                <h4 className="text-base sm:text-lg font-serif-luxury font-bold text-slate-100 leading-snug">
-                  {form.heading || 'Find the Right HAKKIVEDA Hair Ritual'}
-                </h4>
-
-                {/* Description */}
-                <p className="text-xs text-slate-300 leading-relaxed font-sans">
-                  {form.description || 'Answer a few questions for personalized product recommendations.'}
-                </p>
-
-                {/* CTA Button */}
-                <div className="pt-1">
-                  <div className="bg-[var(--brand-gold)] text-[#0E281C] font-extrabold text-xs px-4 py-2.5 rounded-xl flex items-center justify-center gap-2 shadow-md">
-                    <Bot className="w-4 h-4" />
+                {/* Overlay CTA Button */}
+                <div
+                  className={`absolute inset-0 p-3 sm:p-4 flex pointer-events-none ${getOverlayPosClass(
+                    form.buttonPosition
+                  )}`}
+                >
+                  <div className="bg-[var(--brand-gold)] text-[#0E281C] font-extrabold text-[11px] sm:text-xs px-4 py-2 rounded-xl flex items-center gap-2 shadow-xl border border-white/20">
+                    <Bot className="w-3.5 h-3.5" />
                     <span>{form.ctaText || 'START AI HAIR QUIZ'}</span>
                     <ArrowRight className="w-3.5 h-3.5" />
                   </div>
-                </div>
-
-                {/* Image Preview inside Card */}
-                <div className="relative rounded-xl overflow-hidden border border-[var(--brand-gold)]/30 mt-2 p-1.5 bg-black/40 flex items-center justify-center">
-                  <img
-                    src={
-                      previewDevice === 'mobile'
-                        ? form.mobileBanner || form.desktopBanner || '/images/hakkiveda_108_oil_gold.jpg'
-                        : form.desktopBanner || '/images/hakkiveda_108_oil_gold.jpg'
-                    }
-                    alt="Preview"
-                    style={{
-                      objectPosition:
-                        previewDevice === 'mobile'
-                          ? form.mobileFocalPoint || 'center'
-                          : form.desktopFocalPoint || 'center',
-                    }}
-                    className={`w-full h-auto max-h-48 ${
-                      form.imageFit === 'cover' ? 'object-cover' : 'object-contain'
-                    } rounded-lg`}
-                  />
-                  <div className="absolute bottom-2 left-2 bg-[#0E281C]/90 backdrop-blur-md px-2 py-0.5 rounded text-[9px] text-[var(--brand-gold)] font-serif border border-white/10 pointer-events-none">
-                    {previewDevice === 'mobile' ? 'Mobile View' : 'Desktop View'} ({form.imageFit === 'cover' ? 'Crop/Cover' : 'Full Image/Contain'})
-                  </div>
-                </div>
-
-                <div className="flex items-center gap-2 text-[10px] text-slate-400 border-t border-white/10 pt-2 font-sans">
-                  <ShieldCheck className="w-3 h-3 text-emerald-400 shrink-0" />
-                  <span>100% Hakki-Pikki Herbal Formulations</span>
                 </div>
               </div>
             </div>
 
             <p className="text-[11px] text-slate-400 font-sans text-center">
-              Changes reflect immediately on the homepage upon clicking "Save Banner Settings".
+              Changes reflect immediately on the homepage upon clicking "Save & Update Homepage Banner".
             </p>
           </div>
         </div>
@@ -623,3 +477,4 @@ export const AdminHomepageQuizManager: React.FC<AdminHomepageQuizManagerProps> =
     </div>
   );
 };
+

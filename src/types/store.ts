@@ -819,6 +819,7 @@ export interface HomepageQuizBannerConfig {
   desktopFocalPoint?: string;
   mobileFocalPoint?: string;
   imageAlignment?: 'center' | 'left' | 'right';
+  buttonPosition?: 'bottom-left' | 'bottom-center' | 'bottom-right' | 'center-left' | 'center' | 'center-right' | 'top-left' | 'top-center' | 'top-right' | string;
 }
 
 export type VideoPopupFrequency = 'ONCE_PER_SESSION' | 'EVERY_3_DAYS' | 'EVERY_7_DAYS' | 'ALWAYS' | 'DISABLED';

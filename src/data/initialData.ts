@@ -1599,6 +1599,7 @@ export const INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG: HomepageQuizBannerConfig = {
   desktopFocalPoint: 'center',
   mobileFocalPoint: 'center',
   imageAlignment: 'center',
+  buttonPosition: 'bottom-left',
 };
 
 export const INITIAL_VIDEO_POPUP_CONFIG: VideoPopupConfig = {

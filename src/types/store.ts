@@ -804,6 +804,19 @@ export interface B2BSectionConfig {
   theme: B2BSectionTheme;
 }
 
+export interface HomepageQuizBannerConfig {
+  enabled: boolean;
+  desktopBanner: string;
+  desktopBannerFilename?: string;
+  mobileBanner: string;
+  mobileBannerFilename?: string;
+  heading: string;
+  subheading: string;
+  description: string;
+  ctaText: string;
+  ctaAction: 'OPEN_QUIZ' | string;
+}
+
 export type VideoPopupFrequency = 'ONCE_PER_SESSION' | 'EVERY_3_DAYS' | 'EVERY_7_DAYS' | 'ALWAYS' | 'DISABLED';
 
 export interface VideoPopupConfig {

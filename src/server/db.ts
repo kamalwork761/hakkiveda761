@@ -28,6 +28,7 @@ import {
   INITIAL_VIDEO_POPUP_CONFIG,
   INITIAL_SHOPPABLE_REELS,
   INITIAL_CATEGORY_PAGES,
+  INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG,
 } from '../data/initialData';
 
 const dbDir = process.env.DB_DIR || path.join(process.cwd(), 'data');
@@ -146,6 +147,7 @@ export async function getDb() {
       video_popup_config: INITIAL_VIDEO_POPUP_CONFIG,
       shoppable_reels: INITIAL_SHOPPABLE_REELS,
       category_pages: INITIAL_CATEGORY_PAGES,
+      homepage_quiz_banner_config: INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG,
       max_bestsellers_count: 8,
       seeded: true,
     };
@@ -162,7 +164,10 @@ export async function getDb() {
 
 export async function getStoreValue<T = any>(key: string): Promise<T | null> {
   const store = loadMemoryFromDisk();
-  if (!(key in store)) return null;
+  if (!(key in store)) {
+    if (key === 'homepage_quiz_banner_config') return INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG as unknown as T;
+    return null;
+  }
   return store[key] as T;
 }
 

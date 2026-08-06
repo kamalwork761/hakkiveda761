@@ -34,6 +34,7 @@ import {
   ShoppableReel,
   ShiprocketSettings,
   CategoryPageConfig,
+  HomepageQuizBannerConfig,
 } from '../types/store';
 import {
   INITIAL_CURRENCIES,
@@ -65,6 +66,7 @@ import {
   INITIAL_VIDEO_POPUP_CONFIG,
   INITIAL_SHOPPABLE_REELS,
   INITIAL_CATEGORY_PAGES,
+  INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG,
 } from '../data/initialData';
 import { hashPassword, DEFAULT_ADMIN_EMAIL, DEFAULT_ADMIN_PASSWORD_PLAIN } from '../utils/auth';
 import { idbGet, idbSet, idbClear } from '../utils/idbStorage';
@@ -125,6 +127,10 @@ interface StoreContextType {
   // Promotional Video Popup Configuration
   videoPopupConfig: VideoPopupConfig;
   updateVideoPopupConfig: (updater: Partial<VideoPopupConfig> | ((prev: VideoPopupConfig) => VideoPopupConfig)) => Promise<boolean>;
+
+  // Homepage AI Hair Quiz Banner Configuration
+  homepageQuizBannerConfig: HomepageQuizBannerConfig;
+  updateHomepageQuizBannerConfig: (updater: Partial<HomepageQuizBannerConfig> | ((prev: HomepageQuizBannerConfig) => HomepageQuizBannerConfig)) => Promise<boolean>;
 
   // Shoppable Video Reels
   shoppableReels: ShoppableReel[];
@@ -700,6 +706,27 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       localStorage.setItem('hakkiveda_video_popup_config', JSON.stringify(next));
     } catch (_) {}
     return await setStored('video_popup_config', next);
+  };
+
+  // Homepage AI Hair Quiz Banner Config State & Functions
+  const [homepageQuizBannerConfig, setHomepageQuizBannerConfig] = useState<HomepageQuizBannerConfig>(() =>
+    getStored('homepage_quiz_banner_config', INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG)
+  );
+
+  const updateHomepageQuizBannerConfig = async (
+    updater: Partial<HomepageQuizBannerConfig> | ((prev: HomepageQuizBannerConfig) => HomepageQuizBannerConfig)
+  ): Promise<boolean> => {
+    let next: HomepageQuizBannerConfig;
+    if (typeof updater === 'function') {
+      next = updater(homepageQuizBannerConfig);
+    } else {
+      next = { ...homepageQuizBannerConfig, ...updater };
+    }
+    setHomepageQuizBannerConfig(next);
+    try {
+      localStorage.setItem('hakkiveda_homepage_quiz_banner_config', JSON.stringify(next));
+    } catch (_) {}
+    return await setStored('homepage_quiz_banner_config', next);
   };
 
   // Shoppable Video Reels State & Functions
@@ -2697,6 +2724,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         updateB2BSectionConfig,
         videoPopupConfig,
         updateVideoPopupConfig,
+        homepageQuizBannerConfig,
+        updateHomepageQuizBannerConfig,
         shoppableReels,
         addShoppableReel,
         updateShoppableReel,

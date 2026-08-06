@@ -3,12 +3,35 @@ import { Sparkles, Clock, ArrowRight, Bot, ShieldCheck } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
 export const HomepageQuizBanner: React.FC = () => {
-  const { setIsQuizOpen, playSound } = useStore();
+  const { homepageQuizBannerConfig, setIsQuizOpen, playSound } = useStore();
+
+  if (homepageQuizBannerConfig && !homepageQuizBannerConfig.enabled) {
+    return null;
+  }
+
+  const config = homepageQuizBannerConfig || {
+    enabled: true,
+    desktopBanner: '/images/hakkiveda_108_oil_gold.jpg',
+    mobileBanner: '/images/hakkiveda_108_oil_gold.jpg',
+    heading: 'Find the Right HAKKIVEDA Hair Ritual',
+    subheading: 'PERSONALIZED HAIR ANALYSIS',
+    description:
+      'Answer a few quick questions about your hair type, scalp condition and concerns to receive personalized HAKKIVEDA product recommendations.',
+    ctaText: 'START AI HAIR QUIZ',
+    ctaAction: 'OPEN_QUIZ',
+  };
 
   const handleStartQuiz = () => {
     playSound('nav_click');
-    setIsQuizOpen(true);
+    if (config.ctaAction === 'OPEN_QUIZ' || !config.ctaAction) {
+      setIsQuizOpen(true);
+    } else {
+      setIsQuizOpen(true);
+    }
   };
+
+  const desktopImg = config.desktopBanner || '/images/hakkiveda_108_oil_gold.jpg';
+  const mobileImg = config.mobileBanner || desktopImg;
 
   return (
     <section className="py-8 sm:py-12 px-4 sm:px-8 max-w-7xl mx-auto">
@@ -21,21 +44,23 @@ export const HomepageQuizBanner: React.FC = () => {
           {/* Left Text & Action Column (7 cols on desktop) */}
           <div className="lg:col-span-7 space-y-5 sm:space-y-6">
             {/* Eyebrow */}
-            <div className="inline-flex items-center gap-2 bg-[#0E281C]/80 px-3.5 py-1.5 rounded-full border border-[var(--brand-gold)]/40 shadow-sm">
-              <Sparkles className="w-4 h-4 text-[var(--brand-gold)]" />
-              <span className="text-[11px] font-extrabold uppercase tracking-widest text-[var(--brand-gold)] font-sans">
-                PERSONALIZED HAIR ANALYSIS
-              </span>
-            </div>
+            {config.subheading && (
+              <div className="inline-flex items-center gap-2 bg-[#0E281C]/80 px-3.5 py-1.5 rounded-full border border-[var(--brand-gold)]/40 shadow-sm">
+                <Sparkles className="w-4 h-4 text-[var(--brand-gold)]" />
+                <span className="text-[11px] font-extrabold uppercase tracking-widest text-[var(--brand-gold)] font-sans">
+                  {config.subheading}
+                </span>
+              </div>
+            )}
 
             {/* Heading */}
             <h2 className="text-2xl sm:text-3xl lg:text-4xl font-serif-luxury font-bold text-slate-100 leading-tight">
-              Find the Right HAKKIVEDA Hair Ritual
+              {config.heading}
             </h2>
 
             {/* Description */}
             <p className="text-sm sm:text-base text-slate-200 leading-relaxed font-sans max-w-2xl">
-              Answer a few quick questions about your hair type, scalp condition and concerns to receive personalized HAKKIVEDA product recommendations.
+              {config.description}
             </p>
 
             {/* CTA & Time Indicator */}
@@ -46,7 +71,7 @@ export const HomepageQuizBanner: React.FC = () => {
                 className="w-full sm:w-auto bg-[var(--brand-gold)] hover:bg-[#c49f2f] text-[#0E281C] font-extrabold text-sm sm:text-base px-8 py-4 rounded-2xl transition-all shadow-xl hover:shadow-2xl hover:scale-[1.02] active:scale-[0.98] flex items-center justify-center gap-3 cursor-pointer group"
               >
                 <Bot className="w-5 h-5 text-[#0E281C]" />
-                <span>START AI HAIR QUIZ</span>
+                <span>{config.ctaText || 'START AI HAIR QUIZ'}</span>
                 <ArrowRight className="w-5 h-5 text-[#0E281C] group-hover:translate-x-1 transition-transform" />
               </button>
 
@@ -72,15 +97,18 @@ export const HomepageQuizBanner: React.FC = () => {
           {/* Right Image/Artwork Column (5 cols on desktop) */}
           <div className="lg:col-span-5 relative flex justify-center">
             <div className="relative w-full max-w-md aspect-4/3 sm:aspect-square lg:aspect-4/3 rounded-2xl overflow-hidden border-2 border-[var(--brand-gold)]/40 shadow-2xl group">
-              <img
-                src="/images/hakkiveda_108_oil_gold.jpg"
-                alt="HAKKIVEDA AI Hair Analysis Ritual"
-                loading="lazy"
-                decoding="async"
-                width={600}
-                height={450}
-                className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-              />
+              <picture>
+                <source media="(min-width: 1024px)" srcSet={desktopImg} />
+                <img
+                  src={mobileImg}
+                  alt={config.heading || 'HAKKIVEDA AI Hair Analysis Ritual'}
+                  loading="lazy"
+                  decoding="async"
+                  width={600}
+                  height={450}
+                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                />
+              </picture>
               <div className="absolute inset-0 bg-gradient-to-t from-[#0E281C]/80 via-transparent to-transparent" />
               <div className="absolute bottom-4 left-4 right-4 bg-[#0E281C]/90 backdrop-blur-md p-3 rounded-xl border border-white/10 flex items-center justify-between text-xs">
                 <span className="font-serif font-bold text-[var(--brand-gold)]">

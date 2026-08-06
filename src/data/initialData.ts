@@ -26,6 +26,7 @@ import {
   VideoPopupConfig,
   ShoppableReel,
   CategoryPageConfig,
+  HomepageQuizBannerConfig,
 } from '../types/store';
 import {
   WORLD_COUNTRIES,
@@ -1583,6 +1584,17 @@ export const INITIAL_B2B_SECTION_CONFIG: B2BSectionConfig = {
     textColor: '#f8fafc',
     buttonColor: '#d4af37',
   },
+};
+
+export const INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG: HomepageQuizBannerConfig = {
+  enabled: true,
+  desktopBanner: '/images/hakkiveda_108_oil_gold.jpg',
+  mobileBanner: '/images/hakkiveda_108_oil_gold.jpg',
+  heading: 'Find the Right HAKKIVEDA Hair Ritual',
+  subheading: 'PERSONALIZED HAIR ANALYSIS',
+  description: 'Answer a few quick questions about your hair type, scalp condition and concerns to receive personalized HAKKIVEDA product recommendations.',
+  ctaText: 'START AI HAIR QUIZ',
+  ctaAction: 'OPEN_QUIZ',
 };
 
 export const INITIAL_VIDEO_POPUP_CONFIG: VideoPopupConfig = {

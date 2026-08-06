@@ -10,6 +10,7 @@ import { AdminBeforeAfterManager } from './AdminBeforeAfterManager';
 import { AdminVideoTestimonialsManager } from './AdminVideoTestimonialsManager';
 import { AdminBlogManager } from './AdminBlogManager';
 import { AdminQuizManager } from './AdminQuizManager';
+import { AdminHomepageQuizManager } from './AdminHomepageQuizManager';
 import { AdminBrandManager } from './AdminBrandManager';
 import { AdminFooterManager } from './AdminFooterManager';
 import { AdminB2BSectionManager } from './AdminB2BSectionManager';
@@ -37,6 +38,7 @@ import {
   CheckCircle2,
   Truck,
   Eye,
+  Bot,
   AlertTriangle,
   XCircle,
   Megaphone,
@@ -211,6 +213,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
     | 'videos'
     | 'blogs'
     | 'quiz'
+    | 'homepage_quiz'
     | 'media'
     | 'currency'
     | 'payments'
@@ -747,6 +750,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             >
               <HelpCircle className="w-4 h-4" />
               <span>AI Quiz Questions</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('homepage_quiz')}
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
+                activeTab === 'homepage_quiz' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
+              }`}
+            >
+              <Bot className="w-4 h-4" />
+              <span>Homepage AI Hair Quiz</span>
             </button>
             <button
               onClick={() => setActiveTab('media')}
@@ -1749,6 +1761,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
 
         {/* AI Quiz Questions Module */}
         {activeTab === 'quiz' && <AdminQuizManager showToast={showToast} />}
+
+        {/* Homepage AI Hair Quiz Banner Manager */}
+        {activeTab === 'homepage_quiz' && <AdminHomepageQuizManager showToast={showToast} />}
 
         {/* Tab 8: Orders & Tracking */}
         {activeTab === 'orders' && (

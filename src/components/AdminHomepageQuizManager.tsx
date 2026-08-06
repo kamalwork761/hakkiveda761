@@ -37,6 +37,10 @@ export const AdminHomepageQuizManager: React.FC<AdminHomepageQuizManagerProps> =
       'Answer a few quick questions about your hair type, scalp condition and concerns to receive personalized HAKKIVEDA product recommendations.',
     ctaText: 'START AI HAIR QUIZ',
     ctaAction: 'OPEN_QUIZ',
+    imageFit: 'contain',
+    desktopFocalPoint: 'center',
+    mobileFocalPoint: 'center',
+    imageAlignment: 'center',
   });
 
   const [isSaving, setIsSaving] = useState(false);
@@ -122,6 +126,10 @@ export const AdminHomepageQuizManager: React.FC<AdminHomepageQuizManagerProps> =
         'Answer a few quick questions about your hair type, scalp condition and concerns to receive personalized HAKKIVEDA product recommendations.',
       ctaText: 'START AI HAIR QUIZ',
       ctaAction: 'OPEN_QUIZ',
+      imageFit: 'contain',
+      desktopFocalPoint: 'center',
+      mobileFocalPoint: 'center',
+      imageAlignment: 'center',
     });
     showToast('Form reset to default values.', 'info');
   };
@@ -303,6 +311,88 @@ export const AdminHomepageQuizManager: React.FC<AdminHomepageQuizManagerProps> =
                   </span>
                 </div>
               )}
+            </div>
+          </div>
+
+          {/* Image Display Options Section */}
+          <div className="bg-[var(--brand-primary-deep)] border border-white/10 rounded-2xl p-5 space-y-4 shadow-md">
+            <h3 className="text-sm font-bold font-serif-luxury text-slate-100 border-b border-white/10 pb-3 flex items-center justify-between">
+              <span>Image Display & Sizing Controls</span>
+              <span className="text-[10px] bg-[var(--brand-gold)]/20 text-[var(--brand-gold)] px-2 py-0.5 rounded font-sans uppercase font-bold">
+                Default: Full Image / Contain
+              </span>
+            </h3>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* Image Fit Mode */}
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  Image Display Mode
+                </label>
+                <select
+                  value={form.imageFit || 'contain'}
+                  onChange={(e) => handleChange('imageFit', e.target.value)}
+                  className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)] font-sans"
+                >
+                  <option value="contain">Full Image / Contain (No Cropping - Recommended)</option>
+                  <option value="cover">Crop / Cover (Fill Box)</option>
+                </select>
+                <span className="text-[10px] text-slate-400 block mt-1">
+                  "Full Image / Contain" displays the entire artwork without cutting text or products.
+                </span>
+              </div>
+
+              {/* Image Alignment */}
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  Image Column Alignment
+                </label>
+                <select
+                  value={form.imageAlignment || 'center'}
+                  onChange={(e) => handleChange('imageAlignment', e.target.value)}
+                  className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)] font-sans"
+                >
+                  <option value="center">Center Aligned</option>
+                  <option value="left">Left Aligned</option>
+                  <option value="right">Right Aligned</option>
+                </select>
+              </div>
+
+              {/* Desktop Focal Point */}
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  Desktop Image Focal Point
+                </label>
+                <select
+                  value={form.desktopFocalPoint || 'center'}
+                  onChange={(e) => handleChange('desktopFocalPoint', e.target.value)}
+                  className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)] font-sans"
+                >
+                  <option value="center">Center</option>
+                  <option value="top">Top</option>
+                  <option value="bottom">Bottom</option>
+                  <option value="left">Left</option>
+                  <option value="right">Right</option>
+                </select>
+              </div>
+
+              {/* Mobile Focal Point */}
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  Mobile Image Focal Point
+                </label>
+                <select
+                  value={form.mobileFocalPoint || 'center'}
+                  onChange={(e) => handleChange('mobileFocalPoint', e.target.value)}
+                  className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)] font-sans"
+                >
+                  <option value="center">Center</option>
+                  <option value="top">Top</option>
+                  <option value="bottom">Bottom</option>
+                  <option value="left">Left</option>
+                  <option value="right">Right</option>
+                </select>
+              </div>
             </div>
           </div>
 
@@ -494,7 +584,7 @@ export const AdminHomepageQuizManager: React.FC<AdminHomepageQuizManagerProps> =
                 </div>
 
                 {/* Image Preview inside Card */}
-                <div className="relative h-32 rounded-xl overflow-hidden border border-[var(--brand-gold)]/30 mt-2">
+                <div className="relative rounded-xl overflow-hidden border border-[var(--brand-gold)]/30 mt-2 p-1.5 bg-black/40 flex items-center justify-center">
                   <img
                     src={
                       previewDevice === 'mobile'
@@ -502,10 +592,18 @@ export const AdminHomepageQuizManager: React.FC<AdminHomepageQuizManagerProps> =
                         : form.desktopBanner || '/images/hakkiveda_108_oil_gold.jpg'
                     }
                     alt="Preview"
-                    className="w-full h-full object-cover"
+                    style={{
+                      objectPosition:
+                        previewDevice === 'mobile'
+                          ? form.mobileFocalPoint || 'center'
+                          : form.desktopFocalPoint || 'center',
+                    }}
+                    className={`w-full h-auto max-h-48 ${
+                      form.imageFit === 'cover' ? 'object-cover' : 'object-contain'
+                    } rounded-lg`}
                   />
-                  <div className="absolute bottom-2 left-2 bg-[#0E281C]/90 backdrop-blur-md px-2 py-0.5 rounded text-[9px] text-[var(--brand-gold)] font-serif border border-white/10">
-                    {previewDevice === 'mobile' ? 'Mobile View (1080×1350)' : 'Desktop View (1920×700)'}
+                  <div className="absolute bottom-2 left-2 bg-[#0E281C]/90 backdrop-blur-md px-2 py-0.5 rounded text-[9px] text-[var(--brand-gold)] font-serif border border-white/10 pointer-events-none">
+                    {previewDevice === 'mobile' ? 'Mobile View' : 'Desktop View'} ({form.imageFit === 'cover' ? 'Crop/Cover' : 'Full Image/Contain'})
                   </div>
                 </div>
 

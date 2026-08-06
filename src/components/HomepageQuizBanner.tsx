@@ -19,6 +19,10 @@ export const HomepageQuizBanner: React.FC = () => {
       'Answer a few quick questions about your hair type, scalp condition and concerns to receive personalized HAKKIVEDA product recommendations.',
     ctaText: 'START AI HAIR QUIZ',
     ctaAction: 'OPEN_QUIZ',
+    imageFit: 'contain',
+    desktopFocalPoint: 'center',
+    mobileFocalPoint: 'center',
+    imageAlignment: 'center',
   };
 
   const handleStartQuiz = () => {
@@ -33,10 +37,18 @@ export const HomepageQuizBanner: React.FC = () => {
   const desktopImg = config.desktopBanner || '/images/hakkiveda_108_oil_gold.jpg';
   const mobileImg = config.mobileBanner || desktopImg;
 
+  const imageFitClass = config.imageFit === 'cover' ? 'object-cover' : 'object-contain';
+  const alignClass =
+    config.imageAlignment === 'left'
+      ? 'justify-start'
+      : config.imageAlignment === 'right'
+      ? 'justify-end'
+      : 'justify-center';
+
   return (
     <section className="py-8 sm:py-12 px-4 sm:px-8 max-w-7xl mx-auto">
       <div className="relative bg-gradient-to-br from-[#123F2B] via-[#0E281C] to-[#0A1F16] text-white rounded-3xl overflow-hidden border border-[var(--brand-gold)]/30 shadow-2xl">
-        {/* Subtle Ambient Background Decorative Glow */}
+        {/* Ambient Decorative Background Glows */}
         <div className="absolute top-0 right-1/4 w-96 h-96 bg-[var(--brand-gold)]/10 rounded-full blur-3xl pointer-events-none" />
         <div className="absolute bottom-0 left-0 w-80 h-80 bg-emerald-500/10 rounded-full blur-3xl pointer-events-none" />
 
@@ -94,23 +106,26 @@ export const HomepageQuizBanner: React.FC = () => {
             </div>
           </div>
 
-          {/* Right Image/Artwork Column (5 cols on desktop) */}
-          <div className="lg:col-span-5 relative flex justify-center">
-            <div className="relative w-full max-w-md aspect-4/3 sm:aspect-square lg:aspect-4/3 rounded-2xl overflow-hidden border-2 border-[var(--brand-gold)]/40 shadow-2xl group">
-              <picture>
+          {/* Right Image Column (5 cols on desktop) */}
+          <div className={`lg:col-span-5 relative flex ${alignClass} items-center w-full`}>
+            <div className="relative w-full rounded-2xl overflow-hidden border-2 border-[var(--brand-gold)]/40 bg-black/40 shadow-2xl p-2 sm:p-3 flex items-center justify-center group">
+              <picture className="w-full flex justify-center">
                 <source media="(min-width: 1024px)" srcSet={desktopImg} />
                 <img
                   src={mobileImg}
                   alt={config.heading || 'HAKKIVEDA AI Hair Analysis Ritual'}
                   loading="lazy"
                   decoding="async"
-                  width={600}
-                  height={450}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  width={1080}
+                  height={1350}
+                  style={{
+                    objectPosition: config.desktopFocalPoint || 'center',
+                  }}
+                  className={`w-full h-auto max-h-[480px] lg:max-h-[550px] ${imageFitClass} rounded-xl transition-transform duration-700 group-hover:scale-[1.01]`}
                 />
               </picture>
-              <div className="absolute inset-0 bg-gradient-to-t from-[#0E281C]/80 via-transparent to-transparent" />
-              <div className="absolute bottom-4 left-4 right-4 bg-[#0E281C]/90 backdrop-blur-md p-3 rounded-xl border border-white/10 flex items-center justify-between text-xs">
+
+              <div className="absolute bottom-4 left-4 right-4 bg-[#0E281C]/90 backdrop-blur-md p-2.5 sm:p-3 rounded-xl border border-white/10 flex items-center justify-between text-xs pointer-events-none">
                 <span className="font-serif font-bold text-[var(--brand-gold)]">
                   Adivasi Herbal Prescription
                 </span>

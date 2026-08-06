@@ -815,6 +815,10 @@ export interface HomepageQuizBannerConfig {
   description: string;
   ctaText: string;
   ctaAction: 'OPEN_QUIZ' | string;
+  imageFit?: 'contain' | 'cover';
+  desktopFocalPoint?: string;
+  mobileFocalPoint?: string;
+  imageAlignment?: 'center' | 'left' | 'right';
 }
 
 export type VideoPopupFrequency = 'ONCE_PER_SESSION' | 'EVERY_3_DAYS' | 'EVERY_7_DAYS' | 'ALWAYS' | 'DISABLED';

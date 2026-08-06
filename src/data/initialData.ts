@@ -1595,6 +1595,10 @@ export const INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG: HomepageQuizBannerConfig = {
   description: 'Answer a few quick questions about your hair type, scalp condition and concerns to receive personalized HAKKIVEDA product recommendations.',
   ctaText: 'START AI HAIR QUIZ',
   ctaAction: 'OPEN_QUIZ',
+  imageFit: 'contain',
+  desktopFocalPoint: 'center',
+  mobileFocalPoint: 'center',
+  imageAlignment: 'center',
 };
 
 export const INITIAL_VIDEO_POPUP_CONFIG: VideoPopupConfig = {

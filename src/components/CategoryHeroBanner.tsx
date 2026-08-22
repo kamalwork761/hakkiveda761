@@ -14,67 +14,35 @@ export const CategoryHeroBanner: React.FC<CategoryHeroBannerProps> = ({
   fallbackTitle,
   onNavigateHome,
 }) => {
-  const heightDesktop = config.heroHeightDesktop || '520px';
-  const heightMobile = config.heroHeightMobile || '320px';
-  const objectFit = config.heroObjectFit || 'contain';
-  const focalPoint = config.heroFocalPoint || 'center';
-
-  const getObjectPosition = (pos: string) => {
-    switch (pos) {
-      case 'left':
-        return 'left center';
-      case 'right':
-        return 'right center';
-      case 'top':
-        return 'center top';
-      case 'bottom':
-        return 'center bottom';
-      case 'center':
-      default:
-        return 'center center';
-    }
-  };
-
   const desktopImg = config.desktopHeroImage || '/images/hakkiveda_108_oil_gold.jpg';
-  const mobileImg = config.mobileHeroImage || desktopImg;
+  const mobileImg =
+    config.mobileHeroImage && config.mobileHeroImage.trim() !== ''
+      ? config.mobileHeroImage
+      : desktopImg;
 
   return (
-    <section className="w-full bg-[#081811] pt-6 pb-4 sm:pt-8 sm:pb-6 px-4 sm:px-8 lg:px-12">
-      <div className="max-w-7xl mx-auto space-y-4">
-        {/* Breadcrumb Navigation */}
-        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs text-slate-300 font-sans px-1">
+    <section className="w-full bg-[#FAF8F2] dark:bg-[#081811] pt-4 pb-2 sm:pt-6 sm:pb-4 px-4 sm:px-8 lg:px-12 transition-colors duration-300">
+      <div className="max-w-7xl mx-auto space-y-3 sm:space-y-4">
+        {/* High-Contrast Breadcrumb Navigation */}
+        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-sans px-1 select-none">
           <button
             type="button"
             onClick={onNavigateHome}
-            className="hover:text-[var(--brand-gold)] transition-colors cursor-pointer"
+            className="text-[#5F6B63] dark:text-white/90 hover:text-[#123F2A] dark:hover:text-[#E4C86A] font-semibold transition-colors cursor-pointer"
           >
             Home
           </button>
-          <span>/</span>
-          <span className="text-[var(--brand-gold)] font-bold">
+          <span className="text-[#C9A84E] font-bold select-none">/</span>
+          <span className="text-[#123F2A] dark:text-[#E4C86A] font-bold">
             {config.categoryName || config.title || fallbackTitle}
           </span>
         </nav>
 
-        {/* HERO CONTAINER - PURE ARTWORK ONLY, NO HTML OVERLAYS */}
+        {/* HERO CONTAINER - PURE ARTWORK ONLY, ADAPTING NATURALLY TO IMAGE ASPECT RATIO */}
         <div
-          className={`hero-banner-container-${config.id} relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-white/15 bg-[#0A1A12] flex items-center justify-center transition-all duration-300`}
+          id={`category-hero-container-${config.id}`}
+          className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-md sm:shadow-lg border border-[#E5D8B5] dark:border-white/15 bg-white dark:bg-[#0A1A12] flex items-center justify-center transition-all duration-300"
         >
-          {/* Responsive Heights */}
-          <style>{`
-            .hero-banner-container-${config.id} {
-              height: ${heightMobile};
-              min-height: ${heightMobile};
-            }
-            @media (min-width: 768px) {
-              .hero-banner-container-${config.id} {
-                height: ${heightDesktop} !important;
-                min-height: ${heightDesktop} !important;
-              }
-            }
-          `}</style>
-
-          {/* Media Player or Responsive Image Artwork */}
           {config.heroVideo ? (
             <video
               src={config.heroVideo}
@@ -82,26 +50,26 @@ export const CategoryHeroBanner: React.FC<CategoryHeroBannerProps> = ({
               loop
               muted
               playsInline
-              className="w-full h-full"
-              style={{
-                objectFit: objectFit as any,
-                objectPosition: getObjectPosition(focalPoint),
-              }}
+              className="w-full h-auto block rounded-2xl sm:rounded-3xl"
             />
           ) : (
-            <picture className="w-full h-full block">
-              {/* Mobile Hero Artwork */}
-              <source media="(max-width: 767px)" srcSet={mobileImg} />
-              {/* Desktop Hero Artwork */}
+            <picture className="w-full block">
+              {/* Mobile Hero Artwork (if defined and different from desktop) */}
+              {mobileImg !== desktopImg && (
+                <source media="(max-width: 767px)" srcSet={mobileImg} />
+              )}
+              {/* Desktop / Responsive Hero Artwork */}
               <img
                 src={desktopImg}
                 alt={config.seoTitle || config.title || fallbackTitle}
-                loading="lazy"
+                loading="eager"
                 decoding="async"
-                className="w-full h-full transition-all duration-300"
+                className="w-full h-auto block object-contain rounded-2xl sm:rounded-3xl"
                 style={{
-                  objectFit: objectFit as any,
-                  objectPosition: getObjectPosition(focalPoint),
+                  width: '100%',
+                  height: 'auto',
+                  maxHeight: 'none',
+                  display: 'block',
                 }}
               />
             </picture>
@@ -111,3 +79,4 @@ export const CategoryHeroBanner: React.FC<CategoryHeroBannerProps> = ({
     </section>
   );
 };
+

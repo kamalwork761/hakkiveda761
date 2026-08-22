@@ -198,11 +198,12 @@ export const B2BSection: React.FC = () => {
             <div className="shrink-0 w-full sm:w-auto">
               <button
                 type="button"
+                id="homepage-b2b-submit-enquiry-btn"
                 onClick={handleNavigateToEnquiry}
-                className="w-full sm:w-auto bg-[#123F2A] hover:bg-[#0B2F20] text-white px-8 py-4 rounded-xl font-sans text-xs sm:text-sm font-bold uppercase tracking-[0.18em] transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-3 cursor-pointer"
+                className="b2b-submit-btn w-full sm:w-auto bg-[#123F2A] hover:bg-[#0B2F20] text-white !text-white px-8 py-4 rounded-xl font-sans text-xs sm:text-sm font-bold uppercase tracking-[0.18em] transition-all shadow-md hover:shadow-lg flex items-center justify-center gap-3 cursor-pointer"
               >
                 <Building2 className="w-4 h-4 text-[#C9A84E] shrink-0" />
-                <span>Submit B2B Enquiry</span>
+                <span className="text-white !text-white font-bold tracking-wider">Submit B2B Enquiry</span>
                 <ArrowRight className="w-4 h-4 text-[#C9A84E] shrink-0" />
               </button>
             </div>

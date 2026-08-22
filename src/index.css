@@ -973,11 +973,26 @@
   -webkit-text-fill-color: #37463D !important;
 }
 
-#b2b .text-slate-100,
-#b2b .text-slate-200,
-#b2b .text-slate-300,
-#b2b .text-white:not(button *):not(.bg-\[\#123F2A\] *) {
+#b2b .text-slate-100:not(button):not(button *),
+#b2b .text-slate-200:not(button):not(button *),
+#b2b .text-slate-300:not(button):not(button *),
+#b2b .text-white:not(button):not(button *) {
   color: #123F2A !important;
+}
+
+#b2b button,
+#b2b button *,
+#b2b .b2b-submit-btn,
+#b2b .b2b-submit-btn * {
+  color: #FFFFFF !important;
+  -webkit-text-fill-color: #FFFFFF !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+#b2b button svg,
+#b2b .b2b-submit-btn svg {
+  color: #C9A84E !important;
 }
 
 .b2b-gold-accent {

@@ -358,7 +358,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
       )}
 
       {/* Main Header Container */}
-      <div className="bg-[var(--brand-primary-dark)]/95 backdrop-blur-md border-b border-[var(--brand-gold)]/20 px-3 sm:px-8 py-2.5 sm:py-3.5 flex items-center justify-between shadow-2xl relative">
+      <div className="bg-[var(--brand-primary-dark)]/95 backdrop-blur-md border-b border-[var(--brand-gold)]/20 px-3 sm:px-8 py-2 sm:py-2.5 flex items-center justify-between shadow-2xl relative">
         {/* Brand Logo & Wordmark */}
         <a href="#" className="flex items-center gap-2.5 sm:gap-3.5 group min-w-0 shrink">
           {uploadedLogoUrl && !logoLoadError ? (
@@ -370,7 +370,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
                 <img
                   src={uploadedLogoUrl}
                   alt={brandIdentity?.brandName || siteSettings?.companyName || 'HAKKIVEDA Header Logo'}
-                  className="h-[38px] max-h-[38px] sm:h-[48px] sm:max-h-[48px] w-auto max-w-[110px] sm:max-w-[160px] object-contain transition-transform duration-300 group-hover:scale-105"
+                  className="h-[44px] max-h-[44px] max-w-[44px] sm:h-[50px] sm:max-h-[50px] sm:max-w-[50px] lg:h-[58px] lg:max-h-[58px] lg:max-w-[58px] w-auto object-contain transition-transform duration-300 group-hover:scale-105"
                   style={{ objectFit: 'contain' }}
                   onError={() => setLogoLoadError(true)}
                   loading="eager"
@@ -379,8 +379,8 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
               </picture>
             </div>
           ) : (
-            <div className="w-8 h-8 sm:w-9 sm:h-9 border-2 border-[var(--brand-gold,#D4AF37)] flex items-center justify-center rotate-45 group-hover:bg-[var(--brand-gold,#D4AF37)] transition-all duration-500 shadow-lg shrink-0">
-              <span className="-rotate-45 font-bold font-brand text-[var(--brand-gold,#D4AF37)] group-hover:text-[#123F2A] text-xs sm:text-sm tracking-tighter">
+            <div className="w-9 h-9 sm:w-11 sm:h-11 lg:w-12 lg:h-12 border-2 border-[var(--brand-gold,#D4AF37)] flex items-center justify-center rotate-45 group-hover:bg-[var(--brand-gold,#D4AF37)] transition-all duration-500 shadow-lg shrink-0">
+              <span className="-rotate-45 font-bold font-brand text-[var(--brand-gold,#D4AF37)] group-hover:text-[#123F2A] text-xs sm:text-sm lg:text-base tracking-tighter">
                 {brandIdentity?.brandInitials || siteSettings?.logoInitials || 'HV'}
               </span>
             </div>

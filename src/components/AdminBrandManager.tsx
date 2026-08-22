@@ -454,11 +454,11 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
                           <img
                             src={formData.headerHvLogo}
                             alt="Logo"
-                            className="h-[38px] sm:h-[48px] max-h-[48px] w-auto object-contain shrink-0"
+                            className="h-[44px] sm:h-[50px] lg:h-[58px] max-h-[58px] max-w-[58px] w-auto object-contain shrink-0"
                           />
                         ) : (
-                          <div className="w-8 h-8 border-2 border-[var(--brand-gold)] flex items-center justify-center rotate-45 shrink-0">
-                            <span className="-rotate-45 font-bold font-brand text-[var(--brand-gold)] text-xs">
+                          <div className="w-8 h-8 sm:w-10 sm:h-10 lg:w-11 lg:h-11 border-2 border-[var(--brand-gold)] flex items-center justify-center rotate-45 shrink-0">
+                            <span className="-rotate-45 font-bold font-brand text-[var(--brand-gold)] text-xs sm:text-sm">
                               {formData.brandInitials || 'HV'}
                             </span>
                           </div>
@@ -529,7 +529,7 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
                         <strong className="text-white">Recommended:</strong> Transparent PNG or WebP.
                       </p>
                       <p className="text-slate-400 text-[10px]">
-                        Desktop display: ~48px height • Mobile display: ~38px height (width: auto, preserved transparency, no distortion).
+                        Desktop: 58px height (max 58px width) • Tablet: 50px • Mobile: 44px (width: auto, preserved transparency, no distortion).
                       </p>
                     </div>
                   </div>

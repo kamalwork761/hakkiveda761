@@ -1398,61 +1398,148 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                       )}
 
                       {/* Desktop Positioning Grid */}
-                      <div className="border-t border-white/10 pt-2 space-y-2">
-                        <div className="text-[11px] font-bold text-slate-200 flex items-center gap-1.5">
-                          <Monitor className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
-                          <span>Desktop Positioning & Depth</span>
+                      <div className="border-t border-white/10 pt-2 space-y-3">
+                        <div className="text-[11px] font-bold text-slate-200 flex items-center justify-between">
+                          <div className="flex items-center gap-1.5">
+                            <Monitor className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
+                            <span>Desktop Positioning & Depth</span>
+                          </div>
+                          <span className="text-[10px] text-slate-400 font-normal">
+                            Move Y Offset UP (negative) or DOWN (positive) to align transparent subject
+                          </span>
                         </div>
-                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 bg-black/20 p-3 rounded-lg border border-white/5">
+                          {/* Desktop Position X */}
                           <div>
-                            <label className="block text-slate-400 text-[10px]">Position X ({desktopPosX}%)</label>
-                            <input
-                              type="range"
-                              min="0"
-                              max="100"
-                              value={desktopPosX}
-                              onChange={(e) => setDesktopPosX(Number(e.target.value))}
-                              className="w-full accent-[var(--brand-gold)]"
-                            />
+                            <div className="flex items-center justify-between text-slate-300 text-[10px] mb-1">
+                              <span className="font-semibold">Position X</span>
+                              <span className="font-mono text-[var(--brand-gold)]">{desktopPosX}%</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                value={desktopPosX}
+                                onChange={(e) => setDesktopPosX(Number(e.target.value))}
+                                className="w-full accent-[var(--brand-gold)] cursor-pointer"
+                              />
+                              <input
+                                type="number"
+                                min="0"
+                                max="100"
+                                value={desktopPosX}
+                                onChange={(e) => setDesktopPosX(e.target.value === '' ? 0 : Number(e.target.value))}
+                                className="w-14 bg-[var(--brand-primary-dark)] border border-white/20 px-1 py-1 rounded text-slate-100 text-xs font-mono text-center"
+                              />
+                            </div>
                           </div>
+
+                          {/* Desktop Width */}
                           <div>
-                            <label className="block text-slate-400 text-[10px]">Width ({desktopWidth}px)</label>
-                            <input
-                              type="number"
-                              min="150"
-                              max="1000"
-                              value={desktopWidth}
-                              onChange={(e) => setDesktopWidth(Number(e.target.value))}
-                              className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-1.5 rounded text-slate-100 text-xs"
-                            />
+                            <div className="flex items-center justify-between text-slate-300 text-[10px] mb-1">
+                              <span className="font-semibold">Width (200-900px)</span>
+                              <span className="font-mono text-[var(--brand-gold)]">{desktopWidth}px</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <input
+                                type="range"
+                                min="200"
+                                max="900"
+                                value={desktopWidth}
+                                onChange={(e) => setDesktopWidth(Number(e.target.value))}
+                                className="w-full accent-[var(--brand-gold)] cursor-pointer"
+                              />
+                              <input
+                                type="number"
+                                min="100"
+                                max="1200"
+                                value={desktopWidth}
+                                onChange={(e) => setDesktopWidth(e.target.value === '' ? 0 : Number(e.target.value))}
+                                className="w-16 bg-[var(--brand-primary-dark)] border border-white/20 px-1 py-1 rounded text-slate-100 text-xs font-mono text-center"
+                              />
+                            </div>
                           </div>
+
+                          {/* Bottom Overflow */}
                           <div>
-                            <label className="block text-slate-400 text-[10px]">Bottom Overflow ({desktopBottomOverflow}px)</label>
-                            <input
-                              type="number"
-                              min="0"
-                              max="300"
-                              value={desktopBottomOverflow}
-                              onChange={(e) => setDesktopBottomOverflow(Number(e.target.value))}
-                              className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-1.5 rounded text-slate-100 text-xs"
-                            />
+                            <div className="flex items-center justify-between text-slate-300 text-[10px] mb-1">
+                              <span className="font-semibold">Bottom Overflow (0-500px)</span>
+                              <span className="font-mono text-[var(--brand-gold)]">{desktopBottomOverflow}px</span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <input
+                                type="range"
+                                min="0"
+                                max="500"
+                                value={desktopBottomOverflow}
+                                onChange={(e) => setDesktopBottomOverflow(Number(e.target.value))}
+                                className="w-full accent-[var(--brand-gold)] cursor-pointer"
+                              />
+                              <input
+                                type="number"
+                                min="0"
+                                max="500"
+                                value={desktopBottomOverflow}
+                                onChange={(e) => setDesktopBottomOverflow(e.target.value === '' ? 0 : Number(e.target.value))}
+                                className="w-16 bg-[var(--brand-primary-dark)] border border-white/20 px-1 py-1 rounded text-slate-100 text-xs font-mono text-center"
+                              />
+                            </div>
                           </div>
+
+                          {/* Desktop Y Offset (-600px to +600px) */}
                           <div>
-                            <label className="block text-slate-400 text-[10px]">Y Offset ({desktopPosY}px)</label>
-                            <input
-                              type="number"
-                              min="-100"
-                              max="100"
-                              value={desktopPosY}
-                              onChange={(e) => setDesktopPosY(Number(e.target.value))}
-                              className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-1.5 rounded text-slate-100 text-xs"
-                            />
+                            <div className="flex items-center justify-between text-slate-300 text-[10px] mb-1">
+                              <span className="font-semibold">Y Offset (-600 to +600px)</span>
+                              <span className={`font-mono font-bold ${desktopPosY < 0 ? 'text-cyan-300' : desktopPosY > 0 ? 'text-amber-300' : 'text-slate-300'}`}>
+                                {desktopPosY > 0 ? `+${desktopPosY}` : desktopPosY}px
+                              </span>
+                            </div>
+                            <div className="flex items-center gap-1.5">
+                              <input
+                                type="range"
+                                min="-600"
+                                max="600"
+                                step="1"
+                                value={desktopPosY}
+                                onChange={(e) => setDesktopPosY(Number(e.target.value))}
+                                className="w-full accent-[var(--brand-gold)] cursor-pointer"
+                              />
+                              <input
+                                type="number"
+                                min="-600"
+                                max="600"
+                                step="1"
+                                value={desktopPosY}
+                                onChange={(e) => setDesktopPosY(e.target.value === '' ? 0 : Number(e.target.value))}
+                                className="w-16 bg-[var(--brand-primary-dark)] border border-white/20 px-1 py-1 rounded text-slate-100 text-xs font-mono text-center"
+                              />
+                            </div>
                           </div>
+                        </div>
+
+                        {/* Quick Y-Offset Presets for Desktop */}
+                        <div className="flex flex-wrap items-center gap-1 text-[10px]">
+                          <span className="text-slate-400 mr-1">Quick Y Offset Presets:</span>
+                          {[-400, -300, -250, -200, -150, -100, 0, 50, 100, 200].map((val) => (
+                            <button
+                              key={val}
+                              type="button"
+                              onClick={() => setDesktopPosY(val)}
+                              className={`px-2 py-0.5 rounded text-[10px] font-mono transition-all ${
+                                desktopPosY === val
+                                  ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold shadow-sm'
+                                  : 'bg-white/5 hover:bg-white/15 text-slate-300 border border-white/10'
+                              }`}
+                            >
+                              {val > 0 ? `+${val}` : val}px
+                            </button>
+                          ))}
                         </div>
                       </div>
 
                       {/* Mobile Positioning Grid */}
-                      <div className="border-t border-white/10 pt-2 space-y-2">
+                      <div className="border-t border-white/10 pt-2 space-y-3">
                         <div className="flex items-center justify-between">
                           <div className="text-[11px] font-bold text-slate-200 flex items-center gap-1.5">
                             <Smartphone className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
@@ -1470,50 +1557,134 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                         </div>
 
                         {!disableMobileOverflow && (
-                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
-                            <div>
-                              <label className="block text-slate-400 text-[10px]">Mobile X ({mobilePosX}%)</label>
-                              <input
-                                type="range"
-                                min="0"
-                                max="100"
-                                value={mobilePosX}
-                                onChange={(e) => setMobilePosX(Number(e.target.value))}
-                                className="w-full accent-[var(--brand-gold)]"
-                              />
+                          <div className="space-y-2">
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 bg-black/20 p-3 rounded-lg border border-white/5">
+                              {/* Mobile X */}
+                              <div>
+                                <div className="flex items-center justify-between text-slate-300 text-[10px] mb-1">
+                                  <span className="font-semibold">Mobile X</span>
+                                  <span className="font-mono text-[var(--brand-gold)]">{mobilePosX}%</span>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                  <input
+                                    type="range"
+                                    min="0"
+                                    max="100"
+                                    value={mobilePosX}
+                                    onChange={(e) => setMobilePosX(Number(e.target.value))}
+                                    className="w-full accent-[var(--brand-gold)] cursor-pointer"
+                                  />
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    max="100"
+                                    value={mobilePosX}
+                                    onChange={(e) => setMobilePosX(e.target.value === '' ? 0 : Number(e.target.value))}
+                                    className="w-14 bg-[var(--brand-primary-dark)] border border-white/20 px-1 py-1 rounded text-slate-100 text-xs font-mono text-center"
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Mobile Width */}
+                              <div>
+                                <div className="flex items-center justify-between text-slate-300 text-[10px] mb-1">
+                                  <span className="font-semibold">Mobile Width (120-600px)</span>
+                                  <span className="font-mono text-[var(--brand-gold)]">{mobileWidth}px</span>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                  <input
+                                    type="range"
+                                    min="120"
+                                    max="600"
+                                    value={mobileWidth}
+                                    onChange={(e) => setMobileWidth(Number(e.target.value))}
+                                    className="w-full accent-[var(--brand-gold)] cursor-pointer"
+                                  />
+                                  <input
+                                    type="number"
+                                    min="80"
+                                    max="700"
+                                    value={mobileWidth}
+                                    onChange={(e) => setMobileWidth(e.target.value === '' ? 0 : Number(e.target.value))}
+                                    className="w-16 bg-[var(--brand-primary-dark)] border border-white/20 px-1 py-1 rounded text-slate-100 text-xs font-mono text-center"
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Mobile Overflow */}
+                              <div>
+                                <div className="flex items-center justify-between text-slate-300 text-[10px] mb-1">
+                                  <span className="font-semibold">Mobile Overflow (0-300px)</span>
+                                  <span className="font-mono text-[var(--brand-gold)]">{mobileBottomOverflow}px</span>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                  <input
+                                    type="range"
+                                    min="0"
+                                    max="300"
+                                    value={mobileBottomOverflow}
+                                    onChange={(e) => setMobileBottomOverflow(Number(e.target.value))}
+                                    className="w-full accent-[var(--brand-gold)] cursor-pointer"
+                                  />
+                                  <input
+                                    type="number"
+                                    min="0"
+                                    max="300"
+                                    value={mobileBottomOverflow}
+                                    onChange={(e) => setMobileBottomOverflow(e.target.value === '' ? 0 : Number(e.target.value))}
+                                    className="w-16 bg-[var(--brand-primary-dark)] border border-white/20 px-1 py-1 rounded text-slate-100 text-xs font-mono text-center"
+                                  />
+                                </div>
+                              </div>
+
+                              {/* Mobile Y Offset (-400px to +400px) */}
+                              <div>
+                                <div className="flex items-center justify-between text-slate-300 text-[10px] mb-1">
+                                  <span className="font-semibold">Mobile Y (-400 to +400px)</span>
+                                  <span className={`font-mono font-bold ${mobilePosY < 0 ? 'text-cyan-300' : mobilePosY > 0 ? 'text-amber-300' : 'text-slate-300'}`}>
+                                    {mobilePosY > 0 ? `+${mobilePosY}` : mobilePosY}px
+                                  </span>
+                                </div>
+                                <div className="flex items-center gap-1.5">
+                                  <input
+                                    type="range"
+                                    min="-400"
+                                    max="400"
+                                    step="1"
+                                    value={mobilePosY}
+                                    onChange={(e) => setMobilePosY(Number(e.target.value))}
+                                    className="w-full accent-[var(--brand-gold)] cursor-pointer"
+                                  />
+                                  <input
+                                    type="number"
+                                    min="-400"
+                                    max="400"
+                                    step="1"
+                                    value={mobilePosY}
+                                    onChange={(e) => setMobilePosY(e.target.value === '' ? 0 : Number(e.target.value))}
+                                    className="w-16 bg-[var(--brand-primary-dark)] border border-white/20 px-1 py-1 rounded text-slate-100 text-xs font-mono text-center"
+                                  />
+                                </div>
+                              </div>
                             </div>
-                            <div>
-                              <label className="block text-slate-400 text-[10px]">Mobile Width ({mobileWidth}px)</label>
-                              <input
-                                type="number"
-                                min="100"
-                                max="500"
-                                value={mobileWidth}
-                                onChange={(e) => setMobileWidth(Number(e.target.value))}
-                                className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-1.5 rounded text-slate-100 text-xs"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-slate-400 text-[10px]">Mobile Overflow ({mobileBottomOverflow}px)</label>
-                              <input
-                                type="number"
-                                min="0"
-                                max="200"
-                                value={mobileBottomOverflow}
-                                onChange={(e) => setMobileBottomOverflow(Number(e.target.value))}
-                                className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-1.5 rounded text-slate-100 text-xs"
-                              />
-                            </div>
-                            <div>
-                              <label className="block text-slate-400 text-[10px]">Mobile Y ({mobilePosY}px)</label>
-                              <input
-                                type="number"
-                                min="-100"
-                                max="100"
-                                value={mobilePosY}
-                                onChange={(e) => setMobilePosY(Number(e.target.value))}
-                                className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-1.5 rounded text-slate-100 text-xs"
-                              />
+
+                            {/* Quick Y-Offset Presets for Mobile */}
+                            <div className="flex flex-wrap items-center gap-1 text-[10px]">
+                              <span className="text-slate-400 mr-1">Quick Mobile Y Presets:</span>
+                              {[-200, -150, -100, -50, 0, 50, 100].map((val) => (
+                                <button
+                                  key={val}
+                                  type="button"
+                                  onClick={() => setMobilePosY(val)}
+                                  className={`px-2 py-0.5 rounded text-[10px] font-mono transition-all ${
+                                    mobilePosY === val
+                                      ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold shadow-sm'
+                                      : 'bg-white/5 hover:bg-white/15 text-slate-300 border border-white/10'
+                                  }`}
+                                >
+                                  {val > 0 ? `+${val}` : val}px
+                                </button>
+                              ))}
                             </div>
                           </div>
                         )}
@@ -2115,7 +2286,11 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                     width: previewViewport === 'mobile'
                       ? `${previewSlide.mobileWidth ?? 260}px`
                       : `${previewSlide.desktopWidth ?? 440}px`,
-                    transform: 'translateX(-50%)',
+                    transform: `translateX(-50%) translateY(${
+                      previewViewport === 'mobile' 
+                        ? (previewSlide.mobilePosY ?? 0) 
+                        : (previewSlide.desktopPosY ?? 0)
+                    }px)`,
                   }}
                 >
                   <img

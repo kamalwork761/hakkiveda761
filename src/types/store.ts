@@ -308,6 +308,19 @@ export interface HeroSlide {
   animation?: 'fade' | 'slide' | 'zoom' | 'parallax' | 'kenburns' | 'leaves' | 'goldsweep' | 'none';
   altText?: string;
   imageTitle?: string;
+  // 3D Layered Foreground Overflow Effect
+  enable3dOverflow?: boolean;
+  foregroundCutoutUrl?: string; // Transparent PNG / WebP / SVG cutout
+  foregroundCutoutFilename?: string;
+  desktopPosX?: number; // Horizontal position % or px offset
+  desktopPosY?: number; // Vertical offset
+  desktopWidth?: number; // Width in px on desktop
+  desktopBottomOverflow?: number; // Pixels extending below bottom boundary on desktop (e.g. 140px)
+  mobilePosX?: number; // Horizontal position % on mobile
+  mobilePosY?: number; // Vertical offset on mobile
+  mobileWidth?: number; // Width in px on mobile
+  mobileBottomOverflow?: number; // Pixels extending below bottom boundary on mobile (e.g. 60px)
+  disableMobileOverflow?: boolean; // Option to disable overflow on mobile devices
   impressions?: number;
   clicks?: number;
   createdAt?: string;

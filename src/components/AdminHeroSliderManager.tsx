@@ -103,6 +103,22 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
   const [videoFile, setVideoFile] = useState<File | null>(null);
   const [videoPreviewUrl, setVideoPreviewUrl] = useState<string | null>(null);
 
+  // 3D Layered Foreground Subject & Overflow State
+  const [enable3dOverflow, setEnable3dOverflow] = useState(false);
+  const [foregroundCutoutUrl, setForegroundCutoutUrl] = useState('');
+  const [foregroundCutoutFilename, setForegroundCutoutFilename] = useState('');
+  const [cutoutFile, setCutoutFile] = useState<File | null>(null);
+  const [cutoutPreviewUrl, setCutoutPreviewUrl] = useState<string | null>(null);
+  const [desktopPosX, setDesktopPosX] = useState(70);
+  const [desktopPosY, setDesktopPosY] = useState(0);
+  const [desktopWidth, setDesktopWidth] = useState(440);
+  const [desktopBottomOverflow, setDesktopBottomOverflow] = useState(130);
+  const [mobilePosX, setMobilePosX] = useState(60);
+  const [mobilePosY, setMobilePosY] = useState(0);
+  const [mobileWidth, setMobileWidth] = useState(260);
+  const [mobileBottomOverflow, setMobileBottomOverflow] = useState(65);
+  const [disableMobileOverflow, setDisableMobileOverflow] = useState(false);
+
   // Upload Progress & File Error States
   const [isUploading, setIsUploading] = useState<boolean>(false);
   const [uploadProgress, setUploadProgress] = useState<number>(0);
@@ -155,8 +171,9 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
       if (desktopPreviewUrl) URL.revokeObjectURL(desktopPreviewUrl);
       if (mobilePreviewUrl) URL.revokeObjectURL(mobilePreviewUrl);
       if (videoPreviewUrl) URL.revokeObjectURL(videoPreviewUrl);
+      if (cutoutPreviewUrl) URL.revokeObjectURL(cutoutPreviewUrl);
     };
-  }, [desktopPreviewUrl, mobilePreviewUrl, videoPreviewUrl]);
+  }, [desktopPreviewUrl, mobilePreviewUrl, videoPreviewUrl, cutoutPreviewUrl]);
 
   // Cleanup helper
   const cleanupObjectUrls = () => {
@@ -172,9 +189,14 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
       URL.revokeObjectURL(videoPreviewUrl);
       setVideoPreviewUrl(null);
     }
+    if (cutoutPreviewUrl) {
+      URL.revokeObjectURL(cutoutPreviewUrl);
+      setCutoutPreviewUrl(null);
+    }
     setDesktopFile(null);
     setMobileFile(null);
     setVideoFile(null);
+    setCutoutFile(null);
   };
 
   // Reset Form
@@ -194,6 +216,18 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
     setMobileImageFilename('');
     setBackgroundVideo('');
     setBackgroundVideoFilename('');
+    setEnable3dOverflow(false);
+    setForegroundCutoutUrl('');
+    setForegroundCutoutFilename('');
+    setDesktopPosX(70);
+    setDesktopPosY(0);
+    setDesktopWidth(440);
+    setDesktopBottomOverflow(130);
+    setMobilePosX(60);
+    setMobilePosY(0);
+    setMobileWidth(260);
+    setMobileBottomOverflow(65);
+    setDisableMobileOverflow(false);
     setCtaText('Shop Tribal Elixir');
     setCtaLink('#products');
     setCtaType('COLLECTION');
@@ -235,6 +269,18 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
     setMobileImageFilename(slide.mobileImageFilename || '');
     setBackgroundVideo(slide.backgroundVideo || '');
     setBackgroundVideoFilename(slide.backgroundVideoFilename || '');
+    setEnable3dOverflow(Boolean(slide.enable3dOverflow));
+    setForegroundCutoutUrl(slide.foregroundCutoutUrl || '');
+    setForegroundCutoutFilename(slide.foregroundCutoutFilename || '');
+    setDesktopPosX(slide.desktopPosX ?? 70);
+    setDesktopPosY(slide.desktopPosY ?? 0);
+    setDesktopWidth(slide.desktopWidth ?? 440);
+    setDesktopBottomOverflow(slide.desktopBottomOverflow ?? 130);
+    setMobilePosX(slide.mobilePosX ?? 60);
+    setMobilePosY(slide.mobilePosY ?? 0);
+    setMobileWidth(slide.mobileWidth ?? 260);
+    setMobileBottomOverflow(slide.mobileBottomOverflow ?? 65);
+    setDisableMobileOverflow(Boolean(slide.disableMobileOverflow));
     setCtaText(slide.ctaText || '');
     setCtaLink(slide.ctaLink || '');
     setCtaType(slide.ctaType || 'COLLECTION');
@@ -264,7 +310,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
   // Instant File Selection Handler with format & size validation
   const handleFileSelect = (
     e: React.ChangeEvent<HTMLInputElement>,
-    targetType: 'DESKTOP' | 'MOBILE' | 'VIDEO'
+    targetType: 'DESKTOP' | 'MOBILE' | 'VIDEO' | 'CUTOUT'
   ) => {
     setFileError(null);
     setValidationError(null);
@@ -288,7 +334,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
       const validImageExts = ['jpg', 'jpeg', 'png', 'webp', 'gif', 'svg'];
       const validImageTypes = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif', 'image/svg+xml'];
       if (!validImageTypes.includes(file.type) && !validImageExts.includes(ext)) {
-        setFileError('Unsupported format. Please upload JPG, JPEG, PNG, WEBP, or GIF.');
+        setFileError('Unsupported format. Please upload PNG, WebP, SVG, JPG, or GIF.');
         e.target.value = '';
         return;
       }
@@ -321,6 +367,11 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
       setVideoFile(file);
       setVideoPreviewUrl(objectUrl);
       setBackgroundVideoFilename(file.name);
+    } else if (targetType === 'CUTOUT') {
+      if (cutoutPreviewUrl) URL.revokeObjectURL(cutoutPreviewUrl);
+      setCutoutFile(file);
+      setCutoutPreviewUrl(objectUrl);
+      setForegroundCutoutFilename(file.name);
     }
 
     // Reset input value so selecting the same file triggers onChange
@@ -506,6 +557,16 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
         });
       }
 
+      // 4. Process 3D Foreground Cutout File
+      let finalCutoutUrl = foregroundCutoutUrl;
+      if (cutoutFile) {
+        console.log('[HeroSliderManager] Processing cutout file:', cutoutFile.name);
+        setUploadProgress(80);
+        finalCutoutUrl = await uploadMediaFile(cutoutFile, (p) => {
+          setUploadProgress(80 + Math.round(p * 0.15));
+        });
+      }
+
       // Ensure proper media URL mapping based on mediaType
       if (mediaType === 'IMAGE') {
         finalVideoUrl = ''; // Clear video if slide is configured as IMAGE
@@ -549,6 +610,18 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
         animation,
         altText,
         imageTitle,
+        enable3dOverflow,
+        foregroundCutoutUrl: finalCutoutUrl,
+        foregroundCutoutFilename: cutoutFile ? cutoutFile.name : foregroundCutoutFilename,
+        desktopPosX,
+        desktopPosY,
+        desktopWidth,
+        desktopBottomOverflow,
+        mobilePosX,
+        mobilePosY,
+        mobileWidth,
+        mobileBottomOverflow,
+        disableMobileOverflow,
       };
 
       if (isEditing && editingSlideId) {
@@ -1234,6 +1307,220 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                     </div>
                   </div>
                 </div>
+
+                {/* 4. 3D Layered Overflow Effect */}
+                <div className="border-t border-white/10 pt-3 space-y-3">
+                  <div className="flex items-center justify-between">
+                    <h4 className="text-[11px] font-bold text-[var(--brand-gold)] uppercase tracking-wider flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>4. 3D Layered Foreground Subject & Overflow</span>
+                    </h4>
+                    <label className="flex items-center gap-2 cursor-pointer">
+                      <input
+                        type="checkbox"
+                        checked={enable3dOverflow}
+                        onChange={(e) => setEnable3dOverflow(e.target.checked)}
+                        className="w-4 h-4 accent-[var(--brand-gold)] rounded cursor-pointer"
+                      />
+                      <span className="text-xs font-bold text-slate-200">
+                        {enable3dOverflow ? (
+                          <span className="text-[var(--brand-gold)]">3D Overflow Enabled</span>
+                        ) : (
+                          'Enable 3D Effect'
+                        )}
+                      </span>
+                    </label>
+                  </div>
+
+                  {enable3dOverflow && (
+                    <div className="bg-[var(--brand-primary-deep)] p-3.5 rounded-xl border border-[var(--brand-gold)]/30 space-y-3">
+                      <p className="text-[11px] text-slate-300 leading-relaxed">
+                        Layer 2 transparent cutout (e.g. subject, long hair, botanicals) extends seamlessly outside the hero slider boundary into the next section for an ultra-luxurious depth illusion.
+                      </p>
+
+                      {/* Foreground Cutout Upload */}
+                      <div>
+                        <label className="block text-slate-300 mb-1 font-semibold text-xs">
+                          Transparent Foreground Cutout (PNG / WebP / SVG) *
+                        </label>
+                        <div className="flex items-center gap-2">
+                          <label className="cursor-pointer bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-3 py-2 rounded-lg font-bold text-xs flex items-center gap-1 shrink-0 hover:bg-white transition-all shadow-sm">
+                            <Upload className="w-3.5 h-3.5" />
+                            <span>Upload Cutout</span>
+                            <input
+                              type="file"
+                              accept="image/png,image/webp,image/svg+xml,image/gif"
+                              onChange={(e) => handleFileSelect(e, 'CUTOUT')}
+                              className="hidden"
+                            />
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="e.g. /images/woman_long_hair_cutout.svg or cutout URL"
+                            value={foregroundCutoutUrl}
+                            onChange={(e) => {
+                              if (cutoutPreviewUrl) {
+                                URL.revokeObjectURL(cutoutPreviewUrl);
+                                setCutoutPreviewUrl(null);
+                              }
+                              setCutoutFile(null);
+                              setForegroundCutoutUrl(e.target.value);
+                            }}
+                            className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2 rounded-lg text-slate-100 text-xs"
+                          />
+                        </div>
+                        {cutoutFile ? (
+                          <span className="text-[10px] text-amber-300 mt-1 block font-semibold">
+                            Selected cutout: {cutoutFile.name} ({(cutoutFile.size / 1024).toFixed(0)} KB)
+                          </span>
+                        ) : foregroundCutoutFilename ? (
+                          <span className="text-[10px] text-emerald-400 mt-1 block">Saved cutout: {foregroundCutoutFilename}</span>
+                        ) : null}
+                      </div>
+
+                      {/* Cutout Live Preview */}
+                      {(cutoutPreviewUrl || foregroundCutoutUrl) && (
+                        <div className="flex items-center gap-3 p-2 bg-black/40 rounded-lg border border-white/10">
+                          <div className="w-16 h-16 rounded border border-white/20 bg-[repeating-conic-gradient(#333_0_25%,#222_0_50%)] bg-[length:12px_12px] flex items-center justify-center overflow-hidden shrink-0">
+                            <img
+                              src={cutoutPreviewUrl || foregroundCutoutUrl}
+                              alt="3D Cutout Preview"
+                              className="max-h-full max-w-full object-contain"
+                            />
+                          </div>
+                          <div className="text-[11px] text-slate-300 space-y-0.5">
+                            <div className="font-bold text-[var(--brand-gold)]">3D Subject Layer Ready</div>
+                            <div className="text-[10px] text-slate-400">
+                              Subject will float & respond gently to cursor movements with bottom overlap.
+                            </div>
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Desktop Positioning Grid */}
+                      <div className="border-t border-white/10 pt-2 space-y-2">
+                        <div className="text-[11px] font-bold text-slate-200 flex items-center gap-1.5">
+                          <Monitor className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
+                          <span>Desktop Positioning & Depth</span>
+                        </div>
+                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                          <div>
+                            <label className="block text-slate-400 text-[10px]">Position X ({desktopPosX}%)</label>
+                            <input
+                              type="range"
+                              min="0"
+                              max="100"
+                              value={desktopPosX}
+                              onChange={(e) => setDesktopPosX(Number(e.target.value))}
+                              className="w-full accent-[var(--brand-gold)]"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-slate-400 text-[10px]">Width ({desktopWidth}px)</label>
+                            <input
+                              type="number"
+                              min="150"
+                              max="1000"
+                              value={desktopWidth}
+                              onChange={(e) => setDesktopWidth(Number(e.target.value))}
+                              className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-1.5 rounded text-slate-100 text-xs"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-slate-400 text-[10px]">Bottom Overflow ({desktopBottomOverflow}px)</label>
+                            <input
+                              type="number"
+                              min="0"
+                              max="300"
+                              value={desktopBottomOverflow}
+                              onChange={(e) => setDesktopBottomOverflow(Number(e.target.value))}
+                              className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-1.5 rounded text-slate-100 text-xs"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-slate-400 text-[10px]">Y Offset ({desktopPosY}px)</label>
+                            <input
+                              type="number"
+                              min="-100"
+                              max="100"
+                              value={desktopPosY}
+                              onChange={(e) => setDesktopPosY(Number(e.target.value))}
+                              className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-1.5 rounded text-slate-100 text-xs"
+                            />
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Mobile Positioning Grid */}
+                      <div className="border-t border-white/10 pt-2 space-y-2">
+                        <div className="flex items-center justify-between">
+                          <div className="text-[11px] font-bold text-slate-200 flex items-center gap-1.5">
+                            <Smartphone className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
+                            <span>Mobile Positioning & Depth</span>
+                          </div>
+                          <label className="flex items-center gap-1.5 cursor-pointer text-[10px] text-slate-300">
+                            <input
+                              type="checkbox"
+                              checked={disableMobileOverflow}
+                              onChange={(e) => setDisableMobileOverflow(e.target.checked)}
+                              className="w-3.5 h-3.5 accent-[var(--brand-gold)] rounded cursor-pointer"
+                            />
+                            <span>Disable on Mobile</span>
+                          </label>
+                        </div>
+
+                        {!disableMobileOverflow && (
+                          <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                            <div>
+                              <label className="block text-slate-400 text-[10px]">Mobile X ({mobilePosX}%)</label>
+                              <input
+                                type="range"
+                                min="0"
+                                max="100"
+                                value={mobilePosX}
+                                onChange={(e) => setMobilePosX(Number(e.target.value))}
+                                className="w-full accent-[var(--brand-gold)]"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-slate-400 text-[10px]">Mobile Width ({mobileWidth}px)</label>
+                              <input
+                                type="number"
+                                min="100"
+                                max="500"
+                                value={mobileWidth}
+                                onChange={(e) => setMobileWidth(Number(e.target.value))}
+                                className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-1.5 rounded text-slate-100 text-xs"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-slate-400 text-[10px]">Mobile Overflow ({mobileBottomOverflow}px)</label>
+                              <input
+                                type="number"
+                                min="0"
+                                max="200"
+                                value={mobileBottomOverflow}
+                                onChange={(e) => setMobileBottomOverflow(Number(e.target.value))}
+                                className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-1.5 rounded text-slate-100 text-xs"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-slate-400 text-[10px]">Mobile Y ({mobilePosY}px)</label>
+                              <input
+                                type="number"
+                                min="-100"
+                                max="100"
+                                value={mobilePosY}
+                                onChange={(e) => setMobilePosY(Number(e.target.value))}
+                                className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-1.5 rounded text-slate-100 text-xs"
+                              />
+                            </div>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -1263,6 +1550,17 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                       overlayColor,
                       overlayOpacity,
                       animation,
+                      enable3dOverflow,
+                      foregroundCutoutUrl: cutoutPreviewUrl || foregroundCutoutUrl,
+                      desktopPosX,
+                      desktopPosY,
+                      desktopWidth,
+                      desktopBottomOverflow,
+                      mobilePosX,
+                      mobilePosY,
+                      mobileWidth,
+                      mobileBottomOverflow,
+                      disableMobileOverflow,
                     };
                     setPreviewSlide(tempSlide);
                   }
@@ -1386,6 +1684,12 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                             >
                               {s.status || (s.active ? 'ACTIVE' : 'DRAFT')}
                             </span>
+                            {s.enable3dOverflow && (
+                              <span className="text-[9px] font-bold px-2 py-0.5 rounded bg-[var(--brand-gold)]/20 text-[var(--brand-gold)] border border-[var(--brand-gold)]/40 flex items-center gap-1">
+                                <Sparkles className="w-2.5 h-2.5" />
+                                <span>3D Layer</span>
+                              </span>
+                            )}
                           </div>
                           <h4 className="text-sm font-bold text-slate-100 truncate">{s.title}</h4>
                           <p className="text-xs text-slate-300 truncate">{s.subtitle || 'No description provided'}</p>
@@ -1796,6 +2100,31 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                   )}
                 </div>
               </div>
+
+              {/* 3D Foreground Cutout Layer Preview */}
+              {previewSlide.enable3dOverflow && previewSlide.foregroundCutoutUrl && !(previewViewport === 'mobile' && previewSlide.disableMobileOverflow) && (
+                <div
+                  className="absolute pointer-events-none z-20 transition-all duration-300"
+                  style={{
+                    left: previewViewport === 'mobile' 
+                      ? `${previewSlide.mobilePosX ?? 60}%` 
+                      : `${previewSlide.desktopPosX ?? 70}%`,
+                    bottom: previewViewport === 'mobile'
+                      ? `-${previewSlide.mobileBottomOverflow ?? 65}px`
+                      : `-${previewSlide.desktopBottomOverflow ?? 130}px`,
+                    width: previewViewport === 'mobile'
+                      ? `${previewSlide.mobileWidth ?? 260}px`
+                      : `${previewSlide.desktopWidth ?? 440}px`,
+                    transform: 'translateX(-50%)',
+                  }}
+                >
+                  <img
+                    src={normalizeMediaUrl(previewSlide.foregroundCutoutUrl)}
+                    alt="3D Foreground Preview"
+                    className="w-full h-auto object-contain hero-3d-overflow-shadow"
+                  />
+                </div>
+              )}
             </div>
           </div>
         </div>

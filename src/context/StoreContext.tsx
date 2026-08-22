@@ -362,6 +362,18 @@ const normalizeSlide = (s: Partial<HeroSlide>): HeroSlide => {
     enabled: enabledVal,
     ctaText: s.ctaText || '',
     ctaLink: s.ctaLink || '',
+    enable3dOverflow: s.enable3dOverflow ?? false,
+    foregroundCutoutUrl: s.foregroundCutoutUrl || '',
+    foregroundCutoutFilename: s.foregroundCutoutFilename || '',
+    desktopPosX: s.desktopPosX ?? 70,
+    desktopPosY: s.desktopPosY ?? 0,
+    desktopWidth: s.desktopWidth ?? 440,
+    desktopBottomOverflow: s.desktopBottomOverflow ?? 130,
+    mobilePosX: s.mobilePosX ?? 60,
+    mobilePosY: s.mobilePosY ?? 0,
+    mobileWidth: s.mobileWidth ?? 260,
+    mobileBottomOverflow: s.mobileBottomOverflow ?? 65,
+    disableMobileOverflow: s.disableMobileOverflow ?? false,
   } as HeroSlide;
 };
 

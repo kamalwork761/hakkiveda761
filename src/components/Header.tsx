@@ -387,8 +387,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
           )}
 
           <div className="flex flex-col justify-center min-w-0">
-            <HakkivedaWordmark size="sm" className="sm:hidden" theme="dark-header" />
-            <HakkivedaWordmark size="md" className="hidden sm:inline-flex" theme="dark-header" />
+            <HakkivedaWordmark size="md" theme="dark-header" />
             <span className="text-[7px] sm:text-[9px] tracking-[0.16em] sm:tracking-[0.28em] font-sans text-[#123F2A] font-semibold uppercase -mt-0.5 truncate drop-shadow-xs">
               {brandIdentity?.brandSubtitle || siteSettings?.logoSubtext || 'Hakki-Pikki Tribe & Ayurveda'}
             </span>

@@ -37,18 +37,28 @@ export const Footer: React.FC = () => {
           {/* Brand Info */}
           {cfg.showBrandColumn !== false && (
             <div className="lg:col-span-4 space-y-4">
-              <div className="flex items-center gap-2">
+              <a
+                href="/"
+                onClick={(e) => {
+                  e.preventDefault();
+                  window.history.pushState({}, '', '/');
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="flex items-center gap-2 group cursor-pointer w-fit"
+                title="Return to Homepage"
+              >
                 {cfg.brandLogo ? (
-                  <img src={cfg.brandLogo} alt={cfg.brandLogoText || 'Brand Logo'} className="h-9 w-auto object-contain" />
+                  <img src={cfg.brandLogo} alt={cfg.brandLogoText || 'Brand Logo'} className="h-9 w-auto object-contain transition-transform duration-200 group-hover:scale-105" />
                 ) : (
                   <>
-                    <span className="w-8 h-8 rounded-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] flex items-center justify-center font-serif font-bold text-lg shrink-0">
+                    <span className="w-8 h-8 rounded-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] flex items-center justify-center font-serif font-bold text-lg shrink-0 transition-transform duration-200 group-hover:scale-105">
                       {(cfg.brandLogoText || 'H')[0]}
                     </span>
                     <HakkivedaWordmark size="md" theme="dark-header" />
                   </>
                 )}
-              </div>
+              </a>
 
               <p className="text-xs text-slate-300 leading-relaxed font-light">
                 {brandDesc}

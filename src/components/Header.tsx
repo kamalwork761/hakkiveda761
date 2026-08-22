@@ -152,6 +152,21 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
   const rootNavLinks = activeNavLinks.filter((l) => !l.parentId && l.showOnDesktop !== false);
   const getSubNavLinks = (parentId: string) => activeNavLinks.filter((l) => l.parentId === parentId);
 
+  // Home click action (opens homepage "/" cleanly without full-page reload)
+  const handleHomeClick = (e?: React.MouseEvent) => {
+    if (e) e.preventDefault();
+    playSound('nav_click');
+    setIsMobileMenuOpen(false);
+    setIsCategoryMenuOpen(false);
+    setIsSearchFocused(false);
+    if (onSelectCategory) {
+      onSelectCategory('ALL', false);
+    }
+    window.history.pushState({}, '', '/');
+    window.dispatchEvent(new PopStateEvent('popstate'));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
   // Nav click action
   const handleNavClick = (link: NavLink) => {
     playSound('nav_click');
@@ -359,8 +374,14 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
 
       {/* Main Header Container */}
       <div className="bg-[var(--brand-primary-dark)]/95 backdrop-blur-md border-b border-[var(--brand-gold)]/20 px-3 sm:px-8 py-2 sm:py-2.5 flex items-center justify-between shadow-2xl relative">
-        {/* Brand Logo & Wordmark */}
-        <a href="#" className="flex items-center gap-2.5 sm:gap-3.5 group min-w-0 shrink">
+        {/* Brand Logo & Wordmark (Navigates to "/" Homepage on click) */}
+        <a
+          href="/"
+          onClick={handleHomeClick}
+          className="flex items-center gap-2.5 sm:gap-3.5 group min-w-0 shrink cursor-pointer transition-opacity duration-200 hover:opacity-90 active:scale-[0.99]"
+          title="Return to Homepage"
+          id="header-home-logo-link"
+        >
           {uploadedLogoUrl && !logoLoadError ? (
             <div className="flex items-center justify-center shrink-0">
               <picture className="flex items-center">

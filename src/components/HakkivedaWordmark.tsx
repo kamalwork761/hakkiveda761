@@ -20,8 +20,8 @@ export const HakkivedaWordmark: React.FC<HakkivedaWordmarkProps> = ({
     lg: 'h-8 sm:h-10 w-48 sm:w-72',
   }[size];
 
-  // Colors derived from global theme CSS variables
-  const strokeColor = 'var(--color-gold, var(--brand-gold, #D4AF37))';
+  // Colors derived from Forest Green palette (#123F2A primary / #0B2F20 deep shade)
+  const strokeColor = '#123F2A';
 
   return (
     <div className={`relative inline-flex items-center select-none ${className}`}>
@@ -34,11 +34,11 @@ export const HakkivedaWordmark: React.FC<HakkivedaWordmarkProps> = ({
         role="img"
       >
         <defs>
-          {/* Subtle Golden Glow Filter */}
-          <filter id="gold-glow-soft" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="1.5" result="blur" />
+          {/* Subtle Clean Forest Green Depth Filter */}
+          <filter id="forest-depth-soft" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="1" result="blur" />
             <feComponentTransfer in="blur" result="glow">
-              <feFuncA type="linear" slope="0.6" />
+              <feFuncA type="linear" slope="0.3" />
             </feComponentTransfer>
             <feMerge>
               <feMergeNode in="glow" />
@@ -46,11 +46,11 @@ export const HakkivedaWordmark: React.FC<HakkivedaWordmarkProps> = ({
             </feMerge>
           </filter>
 
-          {/* Luxury Brand Green Fill Gradient */}
+          {/* Premium Forest Green Fill Gradient */}
           <linearGradient id="forest-green-luxury" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="var(--color-primary, var(--brand-primary, #0A4F1F))" />
-            <stop offset="50%" stopColor="var(--color-accent, var(--brand-accent, #176B3A))" />
-            <stop offset="100%" stopColor="var(--color-button, var(--button-primary, #0A5A2A))" />
+            <stop offset="0%" stopColor="#123F2A" />
+            <stop offset="60%" stopColor="#123F2A" />
+            <stop offset="100%" stopColor="#0B2F20" />
           </linearGradient>
         </defs>
 
@@ -82,29 +82,29 @@ export const HakkivedaWordmark: React.FC<HakkivedaWordmarkProps> = ({
             }
           }
 
-          @keyframes goldenGlowPulse {
+          @keyframes forestGlowPulse {
             0%, 25% {
-              filter: drop-shadow(0 0 0px rgba(212, 175, 55, 0));
+              filter: drop-shadow(0 0 0px rgba(18, 63, 42, 0));
             }
             35% {
-              filter: drop-shadow(0 0 10px rgba(212, 175, 55, 0.85));
+              filter: drop-shadow(0 0 4px rgba(18, 63, 42, 0.35));
             }
             48% {
-              filter: drop-shadow(0 0 3px rgba(212, 175, 55, 0.3));
+              filter: drop-shadow(0 0 2px rgba(18, 63, 42, 0.15));
             }
             65% {
-              filter: drop-shadow(0 0 7px rgba(212, 175, 55, 0.55));
+              filter: drop-shadow(0 0 3px rgba(18, 63, 42, 0.25));
             }
             80% {
-              filter: drop-shadow(0 0 3px rgba(212, 175, 55, 0.3));
+              filter: drop-shadow(0 0 2px rgba(18, 63, 42, 0.15));
             }
             90%, 100% {
-              filter: drop-shadow(0 0 0px rgba(212, 175, 55, 0));
+              filter: drop-shadow(0 0 0px rgba(18, 63, 42, 0));
             }
           }
 
           .wordmark-group {
-            animation: goldenGlowPulse 10s ease-in-out infinite;
+            animation: forestGlowPulse 10s ease-in-out infinite;
           }
 
           .letter-path {

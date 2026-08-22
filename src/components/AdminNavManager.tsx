@@ -1183,9 +1183,19 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                 {/* Logo */}
                 {headerSettings.showLogo && (
                   <div className="flex items-center gap-2">
-                    <div className="w-7 h-7 border-2 border-[var(--brand-gold)] flex items-center justify-center rotate-45">
-                      <span className="-rotate-45 font-bold font-brand text-[var(--brand-gold)] text-[10px]">HV</span>
-                    </div>
+                    {store?.brandIdentity?.mainLogoLight || store?.brandIdentity?.mainLogoDark || store?.brandIdentity?.transparentLogo ? (
+                      <img
+                        src={store?.brandIdentity?.mainLogoLight || store?.brandIdentity?.mainLogoDark || store?.brandIdentity?.transparentLogo}
+                        alt="Logo"
+                        className="h-8 max-h-[36px] w-auto object-contain"
+                      />
+                    ) : (
+                      <div className="w-7 h-7 border-2 border-[var(--brand-gold)] flex items-center justify-center rotate-45">
+                        <span className="-rotate-45 font-bold font-brand text-[var(--brand-gold)] text-[10px]">
+                          {store?.brandIdentity?.brandInitials || 'HV'}
+                        </span>
+                      </div>
+                    )}
                     <HakkivedaWordmark size="sm" theme="dark-header" />
                   </div>
                 )}

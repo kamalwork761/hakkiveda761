@@ -53,6 +53,7 @@ const NAV_ICON_MAP: Record<string, React.FC<{ className?: string }>> = {
 export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCategory }) => {
   const {
     siteSettings,
+    brandIdentity,
     selectedCountry,
     setIsCountryModalOpen,
     cartItemsCount,
@@ -76,6 +77,18 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+  const [logoLoadError, setLogoLoadError] = useState(false);
+
+  // Preferred uploaded logo from Admin Brand Manager
+  const uploadedLogo =
+    brandIdentity?.mainLogoLight ||
+    brandIdentity?.mainLogoDark ||
+    brandIdentity?.transparentLogo ||
+    brandIdentity?.svgLogo ||
+    brandIdentity?.mobileLogo ||
+    '';
+
+  const mobileUploadedLogo = brandIdentity?.mobileLogo || uploadedLogo;
 
   const [hoveredNavId, setHoveredNavId] = useState<string | null>(null);
 
@@ -336,17 +349,37 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
       {/* Main Header Container */}
       <div className="bg-[var(--brand-primary-dark)]/95 backdrop-blur-md border-b border-[var(--brand-gold)]/20 px-3 sm:px-8 py-2.5 sm:py-3.5 flex items-center justify-between shadow-2xl relative">
         {/* Brand Logo & Wordmark */}
-        <a href="#" className="flex items-center gap-2 sm:gap-3.5 group min-w-0 shrink">
-          <div className="w-8 h-8 sm:w-9 sm:h-9 border-2 border-[var(--brand-gold)] flex items-center justify-center rotate-45 group-hover:bg-[var(--brand-gold)] transition-all duration-500 shadow-lg shrink-0">
-            <span className="-rotate-45 font-bold font-brand text-[var(--brand-gold)] group-hover:text-[var(--brand-primary-dark)] text-xs sm:text-sm tracking-tighter">
-              HV
-            </span>
-          </div>
-          <div className="flex flex-col min-w-0">
+        <a href="#" className="flex items-center gap-2.5 sm:gap-3.5 group min-w-0 shrink">
+          {uploadedLogo && !logoLoadError ? (
+            <div className="flex items-center justify-center shrink-0">
+              <picture className="flex items-center">
+                {mobileUploadedLogo !== uploadedLogo && (
+                  <source media="(max-width: 639px)" srcSet={mobileUploadedLogo} />
+                )}
+                <img
+                  src={uploadedLogo}
+                  alt={brandIdentity?.brandName || siteSettings?.companyName || 'HAKKIVEDA Logo'}
+                  className="h-9 sm:h-[48px] max-h-[44px] sm:max-h-[54px] w-auto max-w-[90px] sm:max-w-[140px] object-contain transition-transform duration-300 group-hover:scale-105"
+                  style={{ objectFit: 'contain' }}
+                  onError={() => setLogoLoadError(true)}
+                  loading="eager"
+                  decoding="async"
+                />
+              </picture>
+            </div>
+          ) : (
+            <div className="w-8 h-8 sm:w-9 sm:h-9 border-2 border-[var(--brand-gold,#D4AF37)] flex items-center justify-center rotate-45 group-hover:bg-[var(--brand-gold,#D4AF37)] transition-all duration-500 shadow-lg shrink-0">
+              <span className="-rotate-45 font-bold font-brand text-[var(--brand-gold,#D4AF37)] group-hover:text-[#123F2A] text-xs sm:text-sm tracking-tighter">
+                {brandIdentity?.brandInitials || siteSettings?.logoInitials || 'HV'}
+              </span>
+            </div>
+          )}
+
+          <div className="flex flex-col justify-center min-w-0">
             <HakkivedaWordmark size="sm" className="sm:hidden" theme="dark-header" />
             <HakkivedaWordmark size="md" className="hidden sm:inline-flex" theme="dark-header" />
-            <span className="text-[7px] sm:text-[9px] tracking-[0.16em] sm:tracking-[0.28em] font-sans text-slate-300 opacity-80 uppercase -mt-0.5 truncate">
-              Hakki-Pikki Tribe & Ayurveda
+            <span className="text-[7px] sm:text-[9px] tracking-[0.16em] sm:tracking-[0.28em] font-sans text-[#123F2A] font-semibold uppercase -mt-0.5 truncate drop-shadow-xs">
+              {brandIdentity?.brandSubtitle || siteSettings?.logoSubtext || 'Hakki-Pikki Tribe & Ayurveda'}
             </span>
           </div>
         </a>

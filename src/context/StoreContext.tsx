@@ -810,31 +810,31 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     // Set data-theme attribute on <html> element for CSS selectors
     root.setAttribute('data-theme', isLight ? 'light' : 'dark');
 
-    const primary = brand.primaryColor || (isLight ? '#0A4F1F' : '#0B1D13');
-    const gold = brand.secondaryGold || '#D4AF37';
-    const accent = brand.accentColor || (isLight ? '#176B3A' : '#3AA91F');
+    const primary = brand.primaryColor || (isLight ? '#123F2A' : '#0B1D13');
+    const gold = brand.secondaryGold || (isLight ? '#C9A84E' : '#D4AF37');
+    const accent = brand.accentColor || (isLight ? '#123F2A' : '#3AA91F');
     const fontHeading = brand.headingFont || 'Cinzel, Playfair Display, serif';
     const fontBody = brand.bodyFont || 'Plus Jakarta Sans, sans-serif';
     const fontButton = brand.buttonFont || 'Plus Jakarta Sans, sans-serif';
 
     // Strict Light vs Dark theme specifications according to design system
     let cardBg = '#FFFFFF';
-    let primaryText = brand.textColor || (isLight ? '#173A25' : '#FFFFFF');
-    let secondaryText = isLight ? '#375243' : '#CBD5E1';
-    let mutedText = isLight ? 'rgba(23, 58, 37, 0.70)' : 'rgba(248, 250, 252, 0.70)';
-    let buttonBg = brand.buttonColor || (isLight ? '#0A5A2A' : '#D4AF37');
+    let primaryText = brand.textColor || (isLight ? '#123F2A' : '#FFFFFF');
+    let secondaryText = isLight ? '#37463D' : '#CBD5E1';
+    let mutedText = isLight ? '#5F6B63' : 'rgba(248, 250, 252, 0.70)';
+    let buttonBg = brand.buttonColor || (isLight ? '#123F2A' : '#D4AF37');
     let buttonText = isLight ? '#FFFFFF' : '#0B1D13';
-    let buttonHoverBg = brand.hoverColor || (isLight ? '#083F1E' : '#E8D279');
+    let buttonHoverBg = brand.hoverColor || (isLight ? '#0B2F20' : '#E8D279');
     let buttonHoverText = isLight ? '#FFFFFF' : '#0B1D13';
     let inputBg = isLight ? '#FFFFFF' : '#122B1E';
-    let inputText = isLight ? '#173A25' : '#FFFFFF';
-    let inputBorder = brand.borderColor || (isLight ? '#D8CDAF' : 'rgba(212, 175, 55, 0.3)');
-    let border = brand.borderColor || (isLight ? '#D8CDAF' : 'rgba(212, 175, 55, 0.3)');
-    let iconColor = isLight ? '#173A25' : (brand.secondaryGold || '#D4AF37');
-    let linkColor = brand.accentColor || (isLight ? '#176B3A' : '#3AA91F');
-    let linkHoverColor = isLight ? '#0A4F1F' : '#E8D279';
+    let inputText = isLight ? '#123F2A' : '#FFFFFF';
+    let inputBorder = brand.borderColor || (isLight ? '#E7E1D5' : 'rgba(212, 175, 55, 0.3)');
+    let border = brand.borderColor || (isLight ? '#E7E1D5' : 'rgba(212, 175, 55, 0.3)');
+    let iconColor = isLight ? '#123F2A' : (brand.secondaryGold || '#D4AF37');
+    let linkColor = brand.accentColor || (isLight ? '#123F2A' : '#3AA91F');
+    let linkHoverColor = isLight ? '#0B2F20' : '#E8D279';
     let deepBg = isLight ? '#FFFFFF' : '#122B1E';
-    let deeperBg = isLight ? '#F0EBE1' : '#05120B';
+    let deeperBg = isLight ? '#FAF8F2' : '#05120B';
 
     if (!isLight) {
       cardBg = '#122B1E';
@@ -859,12 +859,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     root.style.setProperty('--button-primary-text', buttonText);
     root.style.setProperty('--button-primary-hover', buttonHoverBg);
     root.style.setProperty('--button-secondary-bg', gold);
-    root.style.setProperty('--button-secondary-text', isLight ? '#173A25' : '#0B1D13');
+    root.style.setProperty('--button-secondary-text', isLight ? '#123F2A' : '#0B1D13');
     root.style.setProperty('--button-disabled-bg', isLight ? '#E2E8F0' : '#1E293B');
     root.style.setProperty('--button-disabled-text', isLight ? '#94A3B8' : '#475569');
     root.style.setProperty('--input-background', inputBg);
     root.style.setProperty('--input-text', inputText);
-    root.style.setProperty('--input-label', isLight ? '#173A25' : '#F8FAFC');
+    root.style.setProperty('--input-label', isLight ? '#123F2A' : '#F8FAFC');
     root.style.setProperty('--input-placeholder', isLight ? '#64748B' : '#94A3B8');
     root.style.setProperty('--input-border', inputBorder);
     root.style.setProperty('--input-focus-border', gold);

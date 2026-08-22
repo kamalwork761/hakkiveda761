@@ -110,11 +110,11 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ onSelectCatego
   };
 
   return (
-    <section id="categories" className="py-12 sm:py-16 bg-[#123F2B] border-t border-b border-white/10 relative overflow-hidden scroll-mt-12 text-white">
+    <section id="categories" className="py-12 sm:py-16 bg-[#FAF8F2] dark:bg-[var(--brand-primary-dark,#0B1D13)] border-t border-b border-[var(--color-border,#E7E1D5)] dark:border-white/10 relative overflow-hidden scroll-mt-12 text-[#123F2A] dark:text-white">
       <div id="collections" className="absolute -top-12 left-0" />
       <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
         {/* Header */}
-        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 pb-4 border-b border-white/10 gap-4">
+        <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 pb-4 border-b border-[var(--color-border,#E7E1D5)] dark:border-white/10 gap-4">
           <div>
             <div className="flex items-center gap-2 mb-2">
               <Sparkles className="w-4 h-4 text-[var(--brand-gold)]" />
@@ -122,7 +122,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ onSelectCatego
                 Botanical Catalog
               </span>
             </div>
-            <h2 className="text-2xl sm:text-4xl font-serif-luxury font-bold text-slate-100">
+            <h2 className="text-2xl sm:text-4xl font-serif-luxury font-bold text-[#123F2A] dark:text-slate-100">
               Shop by Category
             </h2>
           </div>
@@ -132,7 +132,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ onSelectCatego
               <button
                 type="button"
                 onClick={() => handleScroll('left')}
-                className="p-2 rounded-full bg-white/10 border border-white/15 hover:bg-[var(--brand-gold)] hover:text-[#123F2B] transition-all cursor-pointer"
+                className="p-2 rounded-full bg-white dark:bg-white/10 border border-[#E7E1D5] dark:border-white/15 text-[#123F2A] dark:text-white hover:bg-[var(--brand-gold)] hover:text-[#0B2F20] transition-all cursor-pointer"
                 aria-label="Previous category"
               >
                 <ChevronLeft className="w-4 h-4" />
@@ -140,7 +140,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ onSelectCatego
               <button
                 type="button"
                 onClick={() => handleScroll('right')}
-                className="p-2 rounded-full bg-white/10 border border-white/15 hover:bg-[var(--brand-gold)] hover:text-[#123F2B] transition-all cursor-pointer"
+                className="p-2 rounded-full bg-white dark:bg-white/10 border border-[#E7E1D5] dark:border-white/15 text-[#123F2A] dark:text-white hover:bg-[var(--brand-gold)] hover:text-[#0B2F20] transition-all cursor-pointer"
                 aria-label="Next category"
               >
                 <ChevronRight className="w-4 h-4" />
@@ -201,7 +201,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ onSelectCatego
                     handleCategoryClick(cat.route, cat.categoryFilter);
                   }
                 }}
-                className="w-[82vw] sm:w-[46vw] md:w-full flex-shrink-0 snap-start group relative rounded-2xl overflow-hidden border border-white/20 bg-white text-slate-900 shadow-xl hover:shadow-2xl transition-all duration-300 cursor-pointer flex flex-col focus:outline-none focus:ring-2 focus:ring-[var(--brand-gold)]"
+                className="w-[82vw] sm:w-[46vw] md:w-full flex-shrink-0 snap-start group relative rounded-2xl overflow-hidden border border-[#E7E1D5] dark:border-white/20 bg-white text-slate-900 shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer flex flex-col focus:outline-none focus:ring-2 focus:ring-[var(--brand-gold)]"
               >
                 {/* Image Box */}
                 <div className="h-52 sm:h-60 overflow-hidden relative w-full bg-slate-100">
@@ -217,7 +217,7 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ onSelectCatego
                   
                   {/* Category Title Overlay Badge */}
                   <div className="absolute top-4 left-4 z-10">
-                    <span className="bg-[#123F2B]/90 text-[var(--brand-gold)] text-[11px] font-extrabold font-sans px-3 py-1 rounded-full border border-[var(--brand-gold)]/40 shadow-lg backdrop-blur-md">
+                    <span className="bg-[#123F2A]/90 text-[var(--brand-gold)] text-[11px] font-extrabold font-sans px-3 py-1 rounded-full border border-[var(--brand-gold)]/40 shadow-lg backdrop-blur-md">
                       Botanical Category
                     </span>
                   </div>
@@ -226,18 +226,18 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ onSelectCatego
                 {/* Card Content */}
                 <div className="p-5 sm:p-6 flex-1 flex flex-col justify-between space-y-4 bg-white">
                   <div>
-                    <h3 className="text-xl font-serif-luxury font-bold text-[#123F2B] group-hover:text-[#B8891E] transition-colors flex items-center justify-between">
+                    <h3 className="text-xl font-serif-luxury font-bold text-[#123F2A] group-hover:text-[#B8891E] transition-colors flex items-center justify-between">
                       <span>{cardTitle}</span>
-                      <ArrowRight className="w-5 h-5 text-[#123F2B] group-hover:text-[#B8891E] -translate-x-1 group-hover:translate-x-0 transition-all shrink-0" />
+                      <ArrowRight className="w-5 h-5 text-[#123F2A] group-hover:text-[#B8891E] -translate-x-1 group-hover:translate-x-0 transition-all shrink-0" />
                     </h3>
-                    <p className="text-xs leading-relaxed text-[#405B4A] mt-2 line-clamp-3">
+                    <p className="text-xs leading-relaxed text-[#37463D] mt-2 line-clamp-3">
                       {cardDescription}
                     </p>
                   </div>
 
                   {/* CTA Button */}
                   <div className="pt-2">
-                    <div className="w-full py-2.5 px-4 bg-[#123F2B] group-hover:bg-[#B8891E] text-white group-hover:text-[#123F2B] rounded-xl text-xs font-bold font-sans uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md">
+                    <div className="w-full py-2.5 px-4 bg-[#123F2A] hover:bg-[#0B2F20] text-white rounded-xl text-xs font-bold font-sans uppercase tracking-wider flex items-center justify-center gap-2 transition-all shadow-md">
                       <span>{ctaText}</span>
                       <ArrowRight className="w-4 h-4" />
                     </div>

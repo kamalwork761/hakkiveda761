@@ -192,7 +192,7 @@ export const HeroSlider: React.FC = () => {
       onMouseLeave={() => setIsHovered(false)}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      className="relative w-full h-[540px] sm:h-[580px] lg:h-[620px] flex items-center overflow-hidden bg-[var(--brand-primary-dark)]"
+      className="relative w-full h-[540px] sm:h-[580px] lg:h-[620px] flex items-center overflow-hidden bg-white dark:bg-[var(--brand-primary-dark,#0B1D13)]"
     >
       {/* Media & Overlay Layer */}
       {slidesToRender.map((slide, idx) => {
@@ -272,7 +272,7 @@ export const HeroSlider: React.FC = () => {
                 inset: 0,
                 zIndex: 1,
                 pointerEvents: 'none',
-                backgroundColor: slide.overlayColor || 'var(--brand-primary-dark)',
+                backgroundColor: slide.overlayColor || '#000000',
                 opacity: (slide.overlayOpacity ?? 75) / 100,
                 transitionDuration: `${transitionSpeed}ms`,
               }}

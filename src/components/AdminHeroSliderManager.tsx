@@ -1588,14 +1588,14 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                               {/* Mobile Width */}
                               <div>
                                 <div className="flex items-center justify-between text-slate-300 text-[10px] mb-1">
-                                  <span className="font-semibold">Mobile Width (120-600px)</span>
+                                  <span className="font-semibold">Mobile Width (120-700px)</span>
                                   <span className="font-mono text-[var(--brand-gold)]">{mobileWidth}px</span>
                                 </div>
                                 <div className="flex items-center gap-1.5">
                                   <input
                                     type="range"
                                     min="120"
-                                    max="600"
+                                    max="700"
                                     value={mobileWidth}
                                     onChange={(e) => setMobileWidth(Number(e.target.value))}
                                     className="w-full accent-[var(--brand-gold)] cursor-pointer"
@@ -1603,7 +1603,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                                   <input
                                     type="number"
                                     min="80"
-                                    max="700"
+                                    max="900"
                                     value={mobileWidth}
                                     onChange={(e) => setMobileWidth(e.target.value === '' ? 0 : Number(e.target.value))}
                                     className="w-16 bg-[var(--brand-primary-dark)] border border-white/20 px-1 py-1 rounded text-slate-100 text-xs font-mono text-center"
@@ -1629,7 +1629,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                                   <input
                                     type="number"
                                     min="0"
-                                    max="300"
+                                    max="500"
                                     value={mobileBottomOverflow}
                                     onChange={(e) => setMobileBottomOverflow(e.target.value === '' ? 0 : Number(e.target.value))}
                                     className="w-16 bg-[var(--brand-primary-dark)] border border-white/20 px-1 py-1 rounded text-slate-100 text-xs font-mono text-center"
@@ -1637,10 +1637,10 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                                 </div>
                               </div>
 
-                              {/* Mobile Y Offset (-400px to +400px) */}
+                              {/* Mobile Y Offset (-600px to +600px) */}
                               <div>
                                 <div className="flex items-center justify-between text-slate-300 text-[10px] mb-1">
-                                  <span className="font-semibold">Mobile Y (-400 to +400px)</span>
+                                  <span className="font-semibold">Mobile Y (-600 to +600px)</span>
                                   <span className={`font-mono font-bold ${mobilePosY < 0 ? 'text-cyan-300' : mobilePosY > 0 ? 'text-amber-300' : 'text-slate-300'}`}>
                                     {mobilePosY > 0 ? `+${mobilePosY}` : mobilePosY}px
                                   </span>
@@ -1648,8 +1648,8 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                                 <div className="flex items-center gap-1.5">
                                   <input
                                     type="range"
-                                    min="-400"
-                                    max="400"
+                                    min="-600"
+                                    max="600"
                                     step="1"
                                     value={mobilePosY}
                                     onChange={(e) => setMobilePosY(Number(e.target.value))}
@@ -1657,8 +1657,8 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                                   />
                                   <input
                                     type="number"
-                                    min="-400"
-                                    max="400"
+                                    min="-600"
+                                    max="600"
                                     step="1"
                                     value={mobilePosY}
                                     onChange={(e) => setMobilePosY(e.target.value === '' ? 0 : Number(e.target.value))}
@@ -1671,7 +1671,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                             {/* Quick Y-Offset Presets for Mobile */}
                             <div className="flex flex-wrap items-center gap-1 text-[10px]">
                               <span className="text-slate-400 mr-1">Quick Mobile Y Presets:</span>
-                              {[-200, -150, -100, -50, 0, 50, 100].map((val) => (
+                              {[-500, -400, -350, -300, -250, -200, -150, -100, -50, 0, 50, 100].map((val) => (
                                 <button
                                   key={val}
                                   type="button"
@@ -2191,42 +2191,44 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
           {/* Preview Canvas Container */}
           <div className="w-full max-w-6xl bg-black rounded-b-2xl border-x border-b border-white/20 p-4 sm:p-8 overflow-auto flex items-center justify-center">
             <div
-              className={`transition-all duration-300 relative rounded-2xl overflow-hidden border border-[var(--brand-gold)]/40 shadow-2xl bg-[var(--brand-primary-dark)] ${
+              className={`transition-all duration-300 relative rounded-2xl border border-[var(--brand-gold)]/40 shadow-2xl bg-[var(--brand-primary-dark)] overflow-visible ${
                 previewViewport === 'desktop'
                   ? 'w-full h-[500px]'
                   : previewViewport === 'tablet'
                   ? 'w-[768px] h-[480px]'
-                  : 'w-[375px] h-[520px]'
+                  : 'w-[375px] h-[540px]'
               }`}
             >
-              {/* Media Background */}
-              {(() => {
-                const previewImgUrl = normalizeMediaUrl(
-                  previewViewport === 'mobile' && previewSlide.mobileImage
-                    ? previewSlide.mobileImage
-                    : previewSlide.image
-                );
-                console.log('Hero preview image URL', previewImgUrl);
-                return previewSlide.mediaType === 'VIDEO' && previewSlide.backgroundVideo ? (
-                  <video src={normalizeMediaUrl(previewSlide.backgroundVideo)} className="absolute inset-0 w-full h-full object-cover" autoPlay muted loop />
-                ) : (
-                  <div
-                    className="absolute inset-0 bg-cover bg-center"
-                    style={{
-                      backgroundImage: `url('${previewImgUrl}')`,
-                    }}
-                  />
-                );
-              })()}
+              {/* Media Background Clipped */}
+              <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+                {(() => {
+                  const previewImgUrl = normalizeMediaUrl(
+                    previewViewport === 'mobile' && previewSlide.mobileImage
+                      ? previewSlide.mobileImage
+                      : previewSlide.image
+                  );
+                  console.log('Hero preview image URL', previewImgUrl);
+                  return previewSlide.mediaType === 'VIDEO' && previewSlide.backgroundVideo ? (
+                    <video src={normalizeMediaUrl(previewSlide.backgroundVideo)} className="w-full h-full object-cover" autoPlay muted loop />
+                  ) : (
+                    <div
+                      className="w-full h-full bg-cover bg-center"
+                      style={{
+                        backgroundImage: `url('${previewImgUrl}')`,
+                      }}
+                    />
+                  );
+                })()}
 
-              {/* Dynamic Overlay Color & Opacity */}
-              <div
-                className="absolute inset-0 transition-all"
-                style={{
-                  backgroundColor: previewSlide.overlayColor || 'var(--brand-primary-dark)',
-                  opacity: (previewSlide.overlayOpacity ?? 80) / 100,
-                }}
-              />
+                {/* Dynamic Overlay Color & Opacity */}
+                <div
+                  className="absolute inset-0 transition-all"
+                  style={{
+                    backgroundColor: previewSlide.overlayColor || 'var(--brand-primary-dark)',
+                    opacity: (previewSlide.overlayOpacity ?? 80) / 100,
+                  }}
+                />
+              </div>
 
               {/* Text Content */}
               <div

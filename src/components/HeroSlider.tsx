@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { Sparkles, ChevronRight, ChevronLeft, ShieldCheck, Flame, Award } from 'lucide-react';
+import { Sparkles, ChevronRight, ChevronLeft } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
 const normalizeMediaUrl = (url?: string): string => {
@@ -275,7 +275,7 @@ export const HeroSlider: React.FC = () => {
                 zIndex: 1,
                 pointerEvents: 'none',
                 backgroundColor: slide.overlayColor || '#000000',
-                opacity: (slide.overlayOpacity ?? 75) / 100,
+                opacity: (slide.overlayOpacity ?? 0) / 100,
                 transitionDuration: `${transitionSpeed}ms`,
               }}
             />
@@ -290,7 +290,7 @@ export const HeroSlider: React.FC = () => {
         return (
           <div
             key={`slide-content-${slide.id || idx}`}
-            className={`hero-content absolute inset-0 max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 w-full flex items-center transition-all ease-in-out ${
+            className={`hero-content absolute inset-0 max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 w-full flex items-end sm:items-center pb-16 sm:pb-0 transition-all ease-in-out ${
               isActive
                 ? 'opacity-100 translate-y-0 pointer-events-auto visible'
                 : 'opacity-0 translate-y-4 pointer-events-none invisible hidden'
@@ -305,90 +305,53 @@ export const HeroSlider: React.FC = () => {
               transitionDuration: `${transitionSpeed}ms`,
             }}
           >
-            <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
+            <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-end sm:items-center">
+              {/* Left Column: CTA Button(s) */}
               <div
-                className={`lg:col-span-7 space-y-4 sm:space-y-6 ${
+                className={`lg:col-span-7 flex flex-wrap items-center gap-3 sm:gap-4 ${
                   slide.textPosition === 'CENTER'
-                    ? 'text-center mx-auto lg:col-span-12'
+                    ? 'justify-center mx-auto lg:col-span-12'
                     : slide.textPosition === 'RIGHT'
-                    ? 'text-right ml-auto lg:col-span-7'
-                    : 'text-left'
+                    ? 'justify-end ml-auto lg:col-span-7'
+                    : 'justify-start'
                 }`}
-                style={{
-                  color: slide.textColor || undefined,
-                }}
               >
-                {/* Eyebrow / Tag Badge */}
-                <span className="inline-flex items-center gap-2 px-3.5 py-1 border border-[var(--brand-gold)] text-[var(--brand-gold)] font-sans text-[10px] sm:text-xs uppercase tracking-[0.28em] rounded-full backdrop-blur-md bg-black/50 font-semibold shadow-lg">
-                  <Sparkles className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
-                  <span>{slide.tag || 'AUTHENTIC HAKKI-PIKKI SECRET'}</span>
-                </span>
-
-                {slide.smallHeading && (
-                  <p className="text-xs sm:text-sm font-bold uppercase tracking-widest text-[var(--brand-gold-light)]">
-                    {slide.smallHeading}
-                  </p>
+                {/* Main CTA Button */}
+                {(slide.ctaText || 'Shop Tribal Elixir') && (
+                  <a
+                    href={slide.ctaLink || '#products'}
+                    onClick={(e) => {
+                      if (slide.ctaLink?.startsWith('#') || slide.ctaLink?.startsWith('/')) {
+                        e.preventDefault();
+                      }
+                      handleCtaClick(slide.id, slide.ctaLink || '#products');
+                    }}
+                    className="bg-[var(--brand-gold,#C9A84E)] text-[#123F2A] hover:bg-white text-xs sm:text-sm font-bold uppercase tracking-[0.2em] px-7 sm:px-9 py-3.5 sm:py-4 rounded-xl shadow-2xl transition-all duration-300 hover:scale-105 flex items-center gap-2.5 cursor-pointer font-sans select-none"
+                  >
+                    <span>{slide.ctaText || 'Shop Tribal Elixir'}</span>
+                    <ChevronRight className="w-4 h-4" />
+                  </a>
                 )}
 
-                <h1
-                  className="text-3xl sm:text-5xl lg:text-6xl font-bold font-serif-luxury leading-[1.08]"
-                  style={{ color: slide.textColor || '#FFFFFF' }}
-                >
-                  {slide.title}{' '}
-                  {slide.highlightText && (
-                    <span className="italic text-[var(--brand-gold)] text-gold-gradient block sm:inline">
-                      {slide.highlightText}
-                    </span>
-                  )}
-                </h1>
-
-                <p className="text-xs sm:text-base opacity-90 font-sans font-light leading-relaxed text-slate-200 max-w-xl">
-                  {slide.subtitle}
-                </p>
-
-                {/* CTA Buttons */}
-                <div className="flex flex-wrap items-center gap-3 sm:gap-4 pt-1 sm:pt-2">
-                  {slide.ctaText && (
-                    <a
-                      href={slide.ctaLink || '#products'}
-                      onClick={() => handleCtaClick(slide.id, slide.ctaLink)}
-                      className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-6 sm:px-8 py-3 sm:py-3.5 font-sans text-xs font-bold uppercase tracking-[0.2em] hover:bg-white transition-all duration-300 shadow-2xl rounded-sm hover:scale-105 flex items-center gap-2"
-                    >
-                      <span>{slide.ctaText}</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </a>
-                  )}
-
-                  {slide.secondaryCtaText && (
-                    <a
-                      href={slide.secondaryCtaLink || '#ai-quiz'}
-                      onClick={() => handleCtaClick(slide.id, slide.secondaryCtaLink)}
-                      className="border border-[var(--brand-gold)]/60 text-white px-6 sm:px-8 py-3 sm:py-3.5 font-sans text-xs font-bold uppercase tracking-[0.2em] backdrop-blur-md bg-black/30 hover:bg-[var(--brand-gold)]/20 transition-all rounded-sm flex items-center gap-2"
-                    >
-                      <Sparkles className="w-4 h-4 text-[var(--brand-gold)]" />
-                      <span>{slide.secondaryCtaText}</span>
-                    </a>
-                  )}
-                </div>
-
-                {/* Key Guarantee Badges */}
-                <div className="pt-4 sm:pt-6 grid grid-cols-3 gap-2 sm:gap-4 border-t border-white/10 max-w-lg font-sans text-[10px] sm:text-[11px] text-slate-300">
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <ShieldCheck className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[var(--brand-gold)] shrink-0" />
-                    <span>42 Rare Herbs</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <Flame className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[var(--brand-gold)] shrink-0" />
-                    <span>21-Day Woodfire Brew</span>
-                  </div>
-                  <div className="flex items-center gap-1.5 sm:gap-2">
-                    <Award className="w-3.5 h-3.5 sm:w-4 sm:h-4 text-[var(--brand-gold)] shrink-0" />
-                    <span>100% Organic</span>
-                  </div>
-                </div>
+                {/* Optional Secondary CTA Button */}
+                {slide.secondaryCtaText && (
+                  <a
+                    href={slide.secondaryCtaLink || '#ai-quiz'}
+                    onClick={(e) => {
+                      if (slide.secondaryCtaLink?.startsWith('#') || slide.secondaryCtaLink?.startsWith('/')) {
+                        e.preventDefault();
+                      }
+                      handleCtaClick(slide.id, slide.secondaryCtaLink || '#ai-quiz');
+                    }}
+                    className="border border-[var(--brand-gold,#C9A84E)]/70 text-white hover:text-[var(--brand-gold,#C9A84E)] px-6 sm:px-8 py-3.5 sm:py-4 font-sans text-xs sm:text-sm font-bold uppercase tracking-[0.18em] backdrop-blur-md bg-black/40 hover:bg-black/60 transition-all rounded-xl flex items-center gap-2 cursor-pointer shadow-lg select-none"
+                  >
+                    <Sparkles className="w-4 h-4 text-[var(--brand-gold,#C9A84E)]" />
+                    <span>{slide.secondaryCtaText}</span>
+                  </a>
+                )}
               </div>
 
-              {/* Right Feature Card (AI Hair Analysis Preview) */}
+              {/* Right Feature Card (AI Trichology Engine) */}
               {slide.textPosition !== 'CENTER' && (
                 <div className="hidden lg:flex lg:col-span-5 justify-end">
                   <div className="w-[320px] p-6 bg-black/60 backdrop-blur-xl border border-[var(--brand-gold)]/50 rounded-2xl space-y-4 gold-border-glow shadow-2xl transform hover:scale-102 transition-all">
@@ -410,11 +373,12 @@ export const HeroSlider: React.FC = () => {
                     </div>
 
                     <button
+                      type="button"
                       onClick={() => {
                         playSound('cta_click');
                         setIsQuizOpen(true);
                       }}
-                      className="w-full bg-gradient-to-r from-[var(--brand-gold)] to-[var(--brand-gold-light)] text-[var(--brand-primary-dark)] py-2.5 rounded font-sans text-xs font-bold uppercase tracking-wider hover:brightness-110 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
+                      className="w-full bg-gradient-to-r from-[var(--brand-gold)] to-[var(--brand-gold-light)] text-[var(--brand-primary-dark)] py-2.5 rounded-xl font-sans text-xs font-bold uppercase tracking-wider hover:brightness-110 transition-all shadow-md flex items-center justify-center gap-2 cursor-pointer"
                     >
                       <span>Analyze My Hair Now</span>
                       <ChevronRight className="w-4 h-4" />

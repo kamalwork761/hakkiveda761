@@ -1,5 +1,7 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where([data-theme="dark"], [data-theme="dark"] *, .dark, .dark *));
+
 @theme {
   --color-brand-primary: #3AA91F;
   --color-brand-primary-dark: #1C550E;
@@ -999,6 +1001,54 @@
   color: #C9A84E !important;
 }
 
+/* ========================================================= */
+/* CATEGORY PAGES THEME SYSTEM (WHITE LUXURY GOLD THEME)    */
+/* ========================================================= */
+[data-theme="light"] .category-page {
+  background-color: #FFFFFF !important;
+  color: #123F2A !important;
+}
 
+[data-theme="light"] .category-page .category-heading,
+[data-theme="light"] .category-page h1,
+[data-theme="light"] .category-page h2 {
+  color: #123F2A !important;
+  -webkit-text-fill-color: #123F2A !important;
+}
 
+[data-theme="light"] .category-page .category-description,
+[data-theme="light"] .category-page p {
+  color: #37463D !important;
+}
 
+[data-theme="light"] .category-page .text-secondary,
+[data-theme="light"] .category-page .text-[#5F6B63] {
+  color: #5F6B63 !important;
+}
+
+[data-theme="light"] .category-page .category-filter-bar {
+  background-color: #FAF8F2 !important;
+  border-color: #E5D8B5 !important;
+}
+
+[data-theme="light"] .category-page .category-filter-bar input[type="text"],
+[data-theme="light"] .category-page .category-filter-bar label,
+[data-theme="light"] .category-page .category-filter-bar div[class*="border"] {
+  background-color: #FFFFFF !important;
+  color: #123F2A !important;
+  border-color: #E5D8B5 !important;
+}
+
+[data-theme="light"] .category-page .category-filter-bar input::placeholder {
+  color: #6B756E !important;
+}
+
+[data-theme="light"] .category-page .category-filter-bar select {
+  background-color: transparent !important;
+  color: #123F2A !important;
+}
+
+[data-theme="light"] .category-page .category-filter-bar select option {
+  background-color: #FFFFFF !important;
+  color: #123F2A !important;
+}

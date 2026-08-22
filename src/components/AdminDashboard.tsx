@@ -574,7 +574,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
   });
 
   return (
-    <div className="min-h-screen bg-[var(--brand-primary-deep)] text-slate-100 font-sans flex flex-col sm:flex-row">
+    <div id="admin-root" className="admin-root min-h-screen bg-[var(--brand-primary-deep)] text-slate-100 font-sans flex flex-col sm:flex-row">
       {/* Toast Popup */}
       {toastMsg && (
         <div className="fixed top-5 right-5 bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold px-4 py-2.5 rounded-xl shadow-2xl z-50 flex items-center gap-2 animate-bounce">
@@ -584,7 +584,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
       )}
 
       {/* Sidebar Navigation */}
-      <aside className="w-full sm:w-64 bg-[var(--brand-primary-dark)] border-r border-[var(--brand-gold)]/30 p-4 shrink-0 flex flex-col justify-between">
+      <aside id="admin-sidebar" className="admin-sidebar w-full sm:w-64 bg-[var(--brand-primary-dark)] border-r border-[var(--brand-gold)]/30 p-4 shrink-0 flex flex-col justify-between">
         <div>
           {/* Brand header */}
           <div className="flex items-center justify-between pb-4 border-b border-white/10 mb-6">
@@ -919,239 +919,239 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
       </aside>
 
       {/* Main Content Dashboard Area */}
-      <main className="flex-1 p-6 sm:p-10 overflow-y-auto">
+      <main id="admin-main" className="admin-main flex-1 p-6 sm:p-10 overflow-y-auto bg-white dark:bg-[var(--brand-primary-deep)] text-[#123F2A] dark:text-slate-100">
         {/* Tab 1: Overview */}
         {activeTab === 'overview' && (
           <div className="space-y-8 animate-in fade-in">
             <div>
-              <h1 className="text-2xl font-bold font-serif-luxury text-slate-100">Store Command Dashboard</h1>
-              <p className="text-xs text-slate-300">Live analytics and operational status of HAKKIVEDA.</p>
+              <h1 className="text-2xl font-bold font-serif-luxury text-[#0B2F20] dark:text-slate-100">Store Command Dashboard</h1>
+              <p className="text-xs text-[#6B756E] dark:text-slate-300">Live analytics and operational status of HAKKIVEDA.</p>
             </div>
 
             {/* Top Stat Cards for Requirement 7 */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
               <div
                 onClick={() => handleDashboardCardNavigate('orders', { filter: 'today' })}
-                className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/30 p-5 rounded-2xl cursor-pointer hover:border-[var(--brand-gold)] hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
+                className="admin-card bg-[#FAF8F2] dark:bg-[var(--brand-primary-dark)] border border-[#E5D8B5] dark:border-[var(--brand-gold)]/30 p-5 rounded-2xl cursor-pointer hover:border-[var(--brand-gold)] hover:shadow-md dark:hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <div className="text-[10px] uppercase tracking-widest text-[var(--brand-gold)] font-bold">
+                    <div className="text-[10px] uppercase tracking-widest text-[#123F2A] dark:text-[var(--brand-gold)] font-bold">
                       Today's Orders
                     </div>
-                    <ShoppingBag className="w-4 h-4 text-[var(--brand-gold)]" />
+                    <ShoppingBag className="w-4 h-4 text-[#C9A84E] dark:text-[var(--brand-gold)]" />
                   </div>
-                  <div className="text-3xl font-bold font-mono text-white mt-1">{todaysOrders.length}</div>
+                  <div className="admin-stat-value text-3xl font-bold font-mono text-[#0B2F20] dark:text-white mt-1">{todaysOrders.length}</div>
                 </div>
-                <div className="text-[10px] text-[var(--brand-gold)] group-hover:underline font-bold mt-3">
+                <div className="text-[10px] text-[#C9A84E] dark:text-[var(--brand-gold)] group-hover:underline font-bold mt-3">
                   View Today's Orders →
                 </div>
               </div>
 
               <div
                 onClick={() => handleDashboardCardNavigate('orders', { paymentStatus: 'pending' })}
-                className="bg-[var(--brand-primary-dark)] border border-amber-500/30 p-5 rounded-2xl cursor-pointer hover:border-amber-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
+                className="admin-card bg-[#FAF8F2] dark:bg-[var(--brand-primary-dark)] border border-[#E5D8B5] dark:border-amber-500/30 p-5 rounded-2xl cursor-pointer hover:border-amber-500 hover:shadow-md dark:hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <div className="text-[10px] uppercase tracking-widest text-amber-400 font-bold">
+                    <div className="text-[10px] uppercase tracking-widest text-amber-700 dark:text-amber-400 font-bold">
                       Pending Orders
                     </div>
-                    <Clock className="w-4 h-4 text-amber-400" />
+                    <Clock className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   </div>
-                  <div className="text-3xl font-bold font-mono text-white mt-1">{pendingOrders.length}</div>
+                  <div className="admin-stat-value text-3xl font-bold font-mono text-[#0B2F20] dark:text-white mt-1">{pendingOrders.length}</div>
                 </div>
-                <div className="text-[10px] text-amber-400 group-hover:underline font-bold mt-3">
+                <div className="text-[10px] text-amber-700 dark:text-amber-400 group-hover:underline font-bold mt-3">
                   Awaiting Fulfillment →
                 </div>
               </div>
 
               <div
                 onClick={() => handleDashboardCardNavigate('orders', { paymentStatus: 'paid' })}
-                className="bg-[var(--brand-primary-dark)] border border-emerald-500/30 p-5 rounded-2xl cursor-pointer hover:border-emerald-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
+                className="admin-card bg-[#FAF8F2] dark:bg-[var(--brand-primary-dark)] border border-[#E5D8B5] dark:border-emerald-500/30 p-5 rounded-2xl cursor-pointer hover:border-emerald-500 hover:shadow-md dark:hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <div className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">
+                    <div className="text-[10px] uppercase tracking-widest text-emerald-700 dark:text-emerald-400 font-bold">
                       Paid Orders
                     </div>
-                    <CheckCircle2 className="w-4 h-4 text-emerald-400" />
+                    <CheckCircle2 className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   </div>
-                  <div className="text-3xl font-bold font-mono text-white mt-1">{paidOrders.length}</div>
+                  <div className="admin-stat-value text-3xl font-bold font-mono text-[#0B2F20] dark:text-white mt-1">{paidOrders.length}</div>
                 </div>
-                <div className="text-[10px] text-emerald-400 group-hover:underline font-bold mt-3">
+                <div className="text-[10px] text-emerald-700 dark:text-emerald-400 group-hover:underline font-bold mt-3">
                   Successful Payments →
                 </div>
               </div>
 
               <div
                 onClick={() => handleDashboardCardNavigate('orders', { paymentMethod: 'cod' })}
-                className="bg-[var(--brand-primary-dark)] border border-cyan-500/30 p-5 rounded-2xl cursor-pointer hover:border-cyan-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
+                className="admin-card bg-[#FAF8F2] dark:bg-[var(--brand-primary-dark)] border border-[#E5D8B5] dark:border-cyan-500/30 p-5 rounded-2xl cursor-pointer hover:border-cyan-500 hover:shadow-md dark:hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <div className="text-[10px] uppercase tracking-widest text-cyan-400 font-bold">
+                    <div className="text-[10px] uppercase tracking-widest text-cyan-700 dark:text-cyan-400 font-bold">
                       COD Orders
                     </div>
-                    <Banknote className="w-4 h-4 text-cyan-400" />
+                    <Banknote className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
                   </div>
-                  <div className="text-3xl font-bold font-mono text-white mt-1">{codOrders.length}</div>
+                  <div className="admin-stat-value text-3xl font-bold font-mono text-[#0B2F20] dark:text-white mt-1">{codOrders.length}</div>
                 </div>
-                <div className="text-[10px] text-cyan-400 group-hover:underline font-bold mt-3">
+                <div className="text-[10px] text-cyan-700 dark:text-cyan-400 group-hover:underline font-bold mt-3">
                   Cash on Delivery →
                 </div>
               </div>
 
               <div
                 onClick={() => handleDashboardCardNavigate('orders', { market: 'international' })}
-                className="bg-[var(--brand-primary-dark)] border border-indigo-500/30 p-5 rounded-2xl cursor-pointer hover:border-indigo-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
+                className="admin-card bg-[#FAF8F2] dark:bg-[var(--brand-primary-dark)] border border-[#E5D8B5] dark:border-indigo-500/30 p-5 rounded-2xl cursor-pointer hover:border-indigo-500 hover:shadow-md dark:hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <div className="text-[10px] uppercase tracking-widest text-indigo-400 font-bold">
+                    <div className="text-[10px] uppercase tracking-widest text-indigo-700 dark:text-indigo-400 font-bold">
                       International Orders
                     </div>
-                    <Globe className="w-4 h-4 text-indigo-400" />
+                    <Globe className="w-4 h-4 text-indigo-600 dark:text-indigo-400" />
                   </div>
-                  <div className="text-3xl font-bold font-mono text-white mt-1">{internationalOrders.length}</div>
+                  <div className="admin-stat-value text-3xl font-bold font-mono text-[#0B2F20] dark:text-white mt-1">{internationalOrders.length}</div>
                 </div>
-                <div className="text-[10px] text-indigo-400 group-hover:underline font-bold mt-3">
+                <div className="text-[10px] text-indigo-700 dark:text-indigo-400 group-hover:underline font-bold mt-3">
                   Global Express Shipments →
                 </div>
               </div>
 
               <div
                 onClick={() => handleDashboardCardNavigate('orders', { filter: 'revenue_today' })}
-                className="bg-[var(--brand-primary-dark)] border border-emerald-500/30 p-5 rounded-2xl cursor-pointer hover:border-emerald-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
+                className="admin-card bg-[#FAF8F2] dark:bg-[var(--brand-primary-dark)] border border-[#E5D8B5] dark:border-emerald-500/30 p-5 rounded-2xl cursor-pointer hover:border-emerald-500 hover:shadow-md dark:hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <div className="text-[10px] uppercase tracking-widest text-emerald-400 font-bold">
+                    <div className="text-[10px] uppercase tracking-widest text-emerald-700 dark:text-emerald-400 font-bold">
                       Revenue Today (INR)
                     </div>
-                    <DollarSign className="w-4 h-4 text-emerald-400" />
+                    <DollarSign className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
                   </div>
-                  <div className="text-2xl font-bold font-mono text-white mt-1">{formatAdminINR(revenueToday)}</div>
+                  <div className="admin-stat-value text-2xl font-bold font-mono text-[#0B2F20] dark:text-white mt-1">{formatAdminINR(revenueToday)}</div>
                 </div>
-                <div className="text-[10px] text-emerald-400 group-hover:underline font-bold mt-3">
+                <div className="text-[10px] text-emerald-700 dark:text-emerald-400 group-hover:underline font-bold mt-3">
                   Today's Sales →
                 </div>
               </div>
 
               <div
                 onClick={() => handleDashboardCardNavigate('orders', { filter: 'revenue_month' })}
-                className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/30 p-5 rounded-2xl cursor-pointer hover:border-[var(--brand-gold)] hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
+                className="admin-card bg-[#FAF8F2] dark:bg-[var(--brand-primary-dark)] border border-[#E5D8B5] dark:border-[var(--brand-gold)]/30 p-5 rounded-2xl cursor-pointer hover:border-[var(--brand-gold)] hover:shadow-md dark:hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <div className="text-[10px] uppercase tracking-widest text-[var(--brand-gold)] font-bold">
+                    <div className="text-[10px] uppercase tracking-widest text-[#123F2A] dark:text-[var(--brand-gold)] font-bold">
                       Revenue This Month (INR)
                     </div>
-                    <DollarSign className="w-4 h-4 text-[var(--brand-gold)]" />
+                    <DollarSign className="w-4 h-4 text-[#C9A84E] dark:text-[var(--brand-gold)]" />
                   </div>
-                  <div className="text-2xl font-bold font-mono text-white mt-1">{formatAdminINR(revenueThisMonth)}</div>
+                  <div className="admin-stat-value text-2xl font-bold font-mono text-[#0B2F20] dark:text-white mt-1">{formatAdminINR(revenueThisMonth)}</div>
                 </div>
-                <div className="text-[10px] text-[var(--brand-gold)] group-hover:underline font-bold mt-3">
+                <div className="text-[10px] text-[#C9A84E] dark:text-[var(--brand-gold)] group-hover:underline font-bold mt-3">
                   Monthly Total →
                 </div>
               </div>
 
               <div
                 onClick={() => handleDashboardCardNavigate('orders', { filter: 'revenue_all' })}
-                className="bg-[var(--brand-primary-dark)] border border-cyan-500/30 p-5 rounded-2xl cursor-pointer hover:border-cyan-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
+                className="admin-card bg-[#FAF8F2] dark:bg-[var(--brand-primary-dark)] border border-[#E5D8B5] dark:border-cyan-500/30 p-5 rounded-2xl cursor-pointer hover:border-cyan-500 hover:shadow-md dark:hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <div className="text-[10px] uppercase tracking-widest text-cyan-400 font-bold">
+                    <div className="text-[10px] uppercase tracking-widest text-cyan-700 dark:text-cyan-400 font-bold">
                       Total Revenue (INR)
                     </div>
-                    <DollarSign className="w-4 h-4 text-cyan-400" />
+                    <DollarSign className="w-4 h-4 text-cyan-600 dark:text-cyan-400" />
                   </div>
-                  <div className="text-2xl font-bold font-mono text-white mt-1">{formatAdminINR(totalRevenue)}</div>
+                  <div className="admin-stat-value text-2xl font-bold font-mono text-[#0B2F20] dark:text-white mt-1">{formatAdminINR(totalRevenue)}</div>
                 </div>
-                <div className="text-[10px] text-cyan-400 group-hover:underline font-bold mt-3">
+                <div className="text-[10px] text-cyan-700 dark:text-cyan-400 group-hover:underline font-bold mt-3">
                   All Time Gross →
                 </div>
               </div>
 
               <div
                 onClick={() => handleDashboardCardNavigate('orders', { paymentStatus: 'refunded' })}
-                className="bg-[var(--brand-primary-dark)] border border-purple-500/30 p-5 rounded-2xl cursor-pointer hover:border-purple-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
+                className="admin-card bg-[#FAF8F2] dark:bg-[var(--brand-primary-dark)] border border-[#E5D8B5] dark:border-purple-500/30 p-5 rounded-2xl cursor-pointer hover:border-purple-500 hover:shadow-md dark:hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <div className="text-[10px] uppercase tracking-widest text-purple-400 font-bold">
+                    <div className="text-[10px] uppercase tracking-widest text-purple-700 dark:text-purple-400 font-bold">
                       Refund Totals (INR)
                     </div>
-                    <CreditCard className="w-4 h-4 text-purple-400" />
+                    <CreditCard className="w-4 h-4 text-purple-600 dark:text-purple-400" />
                   </div>
-                  <div className="text-2xl font-bold font-mono text-white mt-1">{formatAdminINR(refundTotals)}</div>
+                  <div className="admin-stat-value text-2xl font-bold font-mono text-[#0B2F20] dark:text-white mt-1">{formatAdminINR(refundTotals)}</div>
                 </div>
-                <div className="text-[10px] text-purple-400 group-hover:underline font-bold mt-3">
+                <div className="text-[10px] text-purple-700 dark:text-purple-400 group-hover:underline font-bold mt-3">
                   View Refunds →
                 </div>
               </div>
 
               <div
                 onClick={() => handleDashboardCardNavigate('orders', { paymentStatus: 'settled' })}
-                className="bg-[var(--brand-primary-dark)] border border-amber-500/30 p-5 rounded-2xl cursor-pointer hover:border-amber-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
+                className="admin-card bg-[#FAF8F2] dark:bg-[var(--brand-primary-dark)] border border-[#E5D8B5] dark:border-amber-500/30 p-5 rounded-2xl cursor-pointer hover:border-amber-500 hover:shadow-md dark:hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <div className="text-[10px] uppercase tracking-widest text-amber-400 font-bold">
+                    <div className="text-[10px] uppercase tracking-widest text-amber-700 dark:text-amber-400 font-bold">
                       Settlement Totals (INR)
                     </div>
-                    <CheckCircle className="w-4 h-4 text-amber-400" />
+                    <CheckCircle className="w-4 h-4 text-amber-600 dark:text-amber-400" />
                   </div>
-                  <div className="text-2xl font-bold font-mono text-white mt-1">{formatAdminINR(settlementTotals)}</div>
+                  <div className="admin-stat-value text-2xl font-bold font-mono text-[#0B2F20] dark:text-white mt-1">{formatAdminINR(settlementTotals)}</div>
                 </div>
-                <div className="text-[10px] text-amber-400 group-hover:underline font-bold mt-3">
+                <div className="text-[10px] text-amber-700 dark:text-amber-400 group-hover:underline font-bold mt-3">
                   Settled Sales →
                 </div>
               </div>
 
               <div
                 onClick={() => handleDashboardCardNavigate('inventory', { filter: 'low_stock' })}
-                className="bg-[var(--brand-primary-dark)] border border-rose-500/30 p-5 rounded-2xl cursor-pointer hover:border-rose-400 hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
+                className="admin-card bg-[#FAF8F2] dark:bg-[var(--brand-primary-dark)] border border-[#E5D8B5] dark:border-rose-500/30 p-5 rounded-2xl cursor-pointer hover:border-rose-500 hover:shadow-md dark:hover:bg-[var(--brand-primary-light)] hover:scale-[1.02] transition-all duration-200 group flex flex-col justify-between"
               >
                 <div>
                   <div className="flex items-center justify-between">
-                    <div className="text-[10px] uppercase tracking-widest text-rose-400 font-bold">
+                    <div className="text-[10px] uppercase tracking-widest text-rose-700 dark:text-rose-400 font-bold">
                       Low Stock Products
                     </div>
-                    <AlertTriangle className="w-4 h-4 text-rose-400" />
+                    <AlertTriangle className="w-4 h-4 text-rose-600 dark:text-rose-400" />
                   </div>
-                  <div className="text-3xl font-bold font-mono text-white mt-1">{lowStockProducts.length}</div>
+                  <div className="admin-stat-value text-3xl font-bold font-mono text-[#0B2F20] dark:text-white mt-1">{lowStockProducts.length}</div>
                 </div>
-                <div className="text-[10px] text-rose-400 group-hover:underline font-bold mt-3">
+                <div className="text-[10px] text-rose-700 dark:text-rose-400 group-hover:underline font-bold mt-3">
                   Manage Inventory →
                 </div>
               </div>
             </div>
 
             {/* Recent Orders Overview */}
-            <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-6 rounded-2xl space-y-4">
+            <div className="admin-card bg-[#FAF8F2] dark:bg-[var(--brand-primary-dark)] border border-[#E5D8B5] dark:border-white/10 p-6 rounded-2xl space-y-4">
               <div className="flex items-center justify-between">
                 <div>
-                  <h3 className="text-base font-bold font-serif-luxury text-slate-100">Recent Customer Orders</h3>
-                  <p className="text-[11px] text-slate-400">Click any row to open complete Order Details & Logistics Management</p>
+                  <h3 className="text-base font-bold font-serif-luxury text-[#0B2F20] dark:text-slate-100">Recent Customer Orders</h3>
+                  <p className="text-[11px] text-[#6B756E] dark:text-slate-400">Click any row to open complete Order Details & Logistics Management</p>
                 </div>
                 <button
                   onClick={() => setActiveTab('orders')}
-                  className="text-xs font-bold text-[var(--brand-gold)] hover:underline"
+                  className="text-xs font-bold text-[#C9A84E] dark:text-[var(--brand-gold)] hover:underline"
                 >
                   View All Orders →
                 </button>
               </div>
 
               {orders.length === 0 ? (
-                <div className="p-8 text-center text-slate-400 text-xs border border-dashed border-white/10 rounded-xl">
+                <div className="p-8 text-center text-[#6B756E] dark:text-slate-400 text-xs border border-dashed border-[#E5D8B5] dark:border-white/10 rounded-xl">
                   No customer orders received yet. Start with empty database state.
                 </div>
               ) : (
                 <div className="overflow-x-auto">
                   <table className="w-full text-left text-xs font-sans">
-                    <thead className="text-[10px] uppercase tracking-wider text-[var(--brand-gold)] border-b border-white/10">
+                    <thead className="text-[10px] uppercase tracking-wider text-[#123F2A] dark:text-[var(--brand-gold)] border-b border-[#E5D8B5] dark:border-white/10">
                       <tr>
                         <th className="py-2.5 px-3">Order ID</th>
                         <th className="py-2.5 px-3">Date</th>
@@ -1161,30 +1161,30 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                         <th className="py-2.5 px-3 text-right">Action</th>
                       </tr>
                     </thead>
-                    <tbody className="divide-y divide-white/5">
+                    <tbody className="divide-y divide-[#E5D8B5] dark:divide-white/5">
                       {orders.map((o) => (
                         <tr
                           key={o.id}
                           onClick={() => setSelectedOrder(o)}
-                          className="cursor-pointer hover:bg-white/10 transition-colors group"
+                          className="cursor-pointer hover:bg-[#F4EFE6] dark:hover:bg-white/10 transition-colors group"
                         >
-                          <td className="py-3 px-3 font-mono font-bold text-[var(--brand-gold)] group-hover:underline">{o.orderNumber}</td>
-                          <td className="py-3 px-3 text-slate-300 font-mono text-[11px]">{o.date}</td>
+                          <td className="py-3 px-3 font-mono font-bold text-[#123F2A] dark:text-[var(--brand-gold)] group-hover:underline">{o.orderNumber}</td>
+                          <td className="py-3 px-3 text-[#4F5F55] dark:text-slate-300 font-mono text-[11px]">{o.date}</td>
                           <td className="py-3 px-3">
-                            <span className="font-bold text-white block">{o.customer.name}</span>
-                            <span className="text-[10px] text-slate-400 block">{o.customer.email}</span>
+                            <span className="font-bold text-[#123F2A] dark:text-white block">{o.customer.name}</span>
+                            <span className="text-[10px] text-[#6B756E] dark:text-slate-400 block">{o.customer.email}</span>
                           </td>
                           <td className="py-3 px-3 font-mono">
-                            <div className="font-bold text-white">{formatAdminINR(o.totalAmountINR)}</div>
+                            <div className="font-bold text-[#0B2F20] dark:text-white">{formatAdminINR(o.totalAmountINR)}</div>
                             {o.currencyCode && o.currencyCode !== 'INR' && (
-                              <div className="text-[10px] text-slate-400 font-normal">{formatOriginalAmount(o)}</div>
+                              <div className="text-[10px] text-[#6B756E] dark:text-slate-400 font-normal">{formatOriginalAmount(o)}</div>
                             )}
                           </td>
                           <td className="py-3 px-3">
                             <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
-                              o.trackingStatus === 'DELIVERED' ? 'bg-emerald-950 text-emerald-300 border border-emerald-500/30' :
-                              o.trackingStatus === 'CANCELLED' ? 'bg-rose-950 text-rose-300 border border-rose-500/30' :
-                              'bg-amber-950 text-amber-300 border border-amber-500/30'
+                              o.trackingStatus === 'DELIVERED' ? 'bg-emerald-100 text-emerald-800 border border-emerald-300 dark:bg-emerald-950 dark:text-emerald-300 dark:border-emerald-500/30' :
+                              o.trackingStatus === 'CANCELLED' ? 'bg-rose-100 text-rose-800 border border-rose-300 dark:bg-rose-950 dark:text-rose-300 dark:border-rose-500/30' :
+                              'bg-amber-100 text-amber-800 border border-amber-300 dark:bg-amber-950 dark:text-amber-300 dark:border-amber-500/30'
                             }`}>
                               {o.trackingStatus}
                             </span>
@@ -1195,7 +1195,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                                 e.stopPropagation();
                                 setSelectedOrder(o);
                               }}
-                              className="px-2.5 py-1 bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold text-[10px] rounded-lg hover:bg-white transition-colors inline-flex items-center gap-1 shadow-sm"
+                              className="px-2.5 py-1 bg-[var(--brand-gold)] text-[#0B2F20] font-bold text-[10px] rounded-lg hover:bg-amber-400 transition-colors inline-flex items-center gap-1 shadow-sm"
                             >
                               <Eye className="w-3 h-3" />
                               <span>View Details</span>

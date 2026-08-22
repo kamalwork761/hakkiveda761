@@ -190,18 +190,18 @@
   [data-theme="light"] .banner-content .text-slate-200,
   [data-theme="light"] .banner-content .text-slate-300,
   [data-theme="light"] .banner-content .text-white,
-  [data-theme="light"] [class*="bg-black"] .text-slate-100,
-  [data-theme="light"] [class*="bg-black"] .text-slate-200,
-  [data-theme="light"] [class*="bg-black"] .text-slate-300,
-  [data-theme="light"] [class*="bg-black"] .text-white,
-  [data-theme="light"] [class*="bg-black/"] .text-slate-100,
-  [data-theme="light"] [class*="bg-black/"] .text-slate-200,
-  [data-theme="light"] [class*="bg-black/"] .text-slate-300,
-  [data-theme="light"] [class*="bg-black/"] .text-white,
-  [data-theme="light"] .bg-slate-900 .text-slate-100,
-  [data-theme="light"] .bg-slate-900 .text-slate-200,
-  [data-theme="light"] .bg-slate-900 .text-slate-300,
-  [data-theme="light"] .bg-slate-900 .text-white {
+  [data-theme="light"] [class*="bg-black"]:not(.admin-root *):not(.admin-modal *) .text-slate-100,
+  [data-theme="light"] [class*="bg-black"]:not(.admin-root *):not(.admin-modal *) .text-slate-200,
+  [data-theme="light"] [class*="bg-black"]:not(.admin-root *):not(.admin-modal *) .text-slate-300,
+  [data-theme="light"] [class*="bg-black"]:not(.admin-root *):not(.admin-modal *) .text-white,
+  [data-theme="light"] [class*="bg-black/"]:not(.admin-root *):not(.admin-modal *) .text-slate-100,
+  [data-theme="light"] [class*="bg-black/"]:not(.admin-root *):not(.admin-modal *) .text-slate-200,
+  [data-theme="light"] [class*="bg-black/"]:not(.admin-root *):not(.admin-modal *) .text-slate-300,
+  [data-theme="light"] [class*="bg-black/"]:not(.admin-root *):not(.admin-modal *) .text-white,
+  [data-theme="light"] .bg-slate-900:not(.admin-root *):not(.admin-modal *) .text-slate-100,
+  [data-theme="light"] .bg-slate-900:not(.admin-root *):not(.admin-modal *) .text-slate-200,
+  [data-theme="light"] .bg-slate-900:not(.admin-root *):not(.admin-modal *) .text-slate-300,
+  [data-theme="light"] .bg-slate-900:not(.admin-root *):not(.admin-modal *) .text-white {
     color: #FFFFFF !important;
   }
 
@@ -210,8 +210,8 @@
   [data-theme="light"] .dark-media-card .text-slate-200,
   [data-theme="light"] .overlay-content .text-slate-200,
   [data-theme="light"] .banner-content .text-slate-200,
-  [data-theme="light"] [class*="bg-black"] .text-slate-200,
-  [data-theme="light"] [class*="bg-black/"] .text-slate-200 {
+  [data-theme="light"] [class*="bg-black"]:not(.admin-root *):not(.admin-modal *) .text-slate-200,
+  [data-theme="light"] [class*="bg-black/"]:not(.admin-root *):not(.admin-modal *) .text-slate-200 {
     color: #E2E8F0 !important;
   }
 
@@ -220,8 +220,8 @@
   [data-theme="light"] .dark-media-card .text-slate-300,
   [data-theme="light"] .overlay-content .text-slate-300,
   [data-theme="light"] .banner-content .text-slate-300,
-  [data-theme="light"] [class*="bg-black"] .text-slate-300,
-  [data-theme="light"] [class*="bg-black/"] .text-slate-300 {
+  [data-theme="light"] [class*="bg-black"]:not(.admin-root *):not(.admin-modal *) .text-slate-300,
+  [data-theme="light"] [class*="bg-black/"]:not(.admin-root *):not(.admin-modal *) .text-slate-300 {
     color: #CBD5E1 !important;
   }
 
@@ -232,8 +232,237 @@
   [data-theme="light"] .dark-media-card .text-\[var\(--brand-gold\)\],
   [data-theme="light"] .overlay-content .text-\[var\(--brand-gold\)\],
   [data-theme="light"] .banner-content .text-\[var\(--brand-gold\)\],
-  [data-theme="light"] [class*="bg-black"] .text-\[var\(--brand-gold\)\] {
+  [data-theme="light"] [class*="bg-black"]:not(.admin-root *):not(.admin-modal *) .text-\[var\(--brand-gold\)\] {
     color: var(--brand-gold, #C9A84E) !important;
+  }
+
+  /* ========================================================= */
+  /* ADMIN PANEL THEME SYSTEM (WHITE LUXURY GOLD THEME)        */
+  /* ========================================================= */
+  [data-theme="light"] #admin-root,
+  [data-theme="light"] .admin-root,
+  [data-theme="light"] [data-admin-root] {
+    background-color: #FFFFFF !important;
+    color: #123F2A !important;
+  }
+
+  [data-theme="light"] #admin-sidebar,
+  [data-theme="light"] .admin-sidebar,
+  [data-theme="light"] aside.admin-sidebar {
+    background-color: #FAF8F2 !important;
+    border-color: #E5D8B5 !important;
+    color: #123F2A !important;
+  }
+
+  [data-theme="light"] #admin-main,
+  [data-theme="light"] .admin-main,
+  [data-theme="light"] main.admin-main {
+    background-color: #FFFFFF !important;
+    color: #123F2A !important;
+  }
+
+  /* Admin Cards & Panels */
+  [data-theme="light"] .admin-root .admin-card,
+  [data-theme="light"] .admin-root [class*="bg-[var(--brand-primary-dark)]"],
+  [data-theme="light"] .admin-root [class*="bg-[var(--brand-primary-deep)]"],
+  [data-theme="light"] .admin-root [class*="bg-[var(--brand-primary-deeper)]"],
+  [data-theme="light"] .admin-root [class*="bg-[#0E281C]"],
+  [data-theme="light"] .admin-root [class*="bg-[#0B1D13]"],
+  [data-theme="light"] .admin-root [class*="bg-[#123F2B]"],
+  [data-theme="light"] .admin-root [class*="bg-[#122B1E]"],
+  [data-theme="light"] .admin-root .bg-slate-900,
+  [data-theme="light"] .admin-root .bg-slate-950,
+  [data-theme="light"] .admin-root .bg-black\/20,
+  [data-theme="light"] .admin-root .bg-black\/30,
+  [data-theme="light"] .admin-root .bg-black\/40,
+  [data-theme="light"] .admin-root .bg-black\/50,
+  [data-theme="light"] .admin-root .bg-black\/60,
+  [data-theme="light"] .admin-root .bg-black\/70,
+  [data-theme="light"] .admin-root .bg-black\/80 {
+    background-color: #FAF8F2 !important;
+    border-color: #E5D8B5 !important;
+    color: #123F2A !important;
+  }
+
+  /* Admin Large Numbers & Stat Values */
+  [data-theme="light"] .admin-root .admin-stat-value,
+  [data-theme="light"] .admin-root .stat-value,
+  [data-theme="light"] .admin-root .text-3xl,
+  [data-theme="light"] .admin-root .text-2xl,
+  [data-theme="light"] .admin-root .text-4xl,
+  [data-theme="light"] .admin-root .font-mono.text-3xl,
+  [data-theme="light"] .admin-root .font-mono.text-2xl {
+    color: #0B2F20 !important;
+    font-weight: 700 !important;
+  }
+
+  /* Admin Typography Hierarchy */
+  [data-theme="light"] .admin-root h1,
+  [data-theme="light"] .admin-root h2,
+  [data-theme="light"] .admin-root h3 {
+    color: #0B2F20 !important;
+  }
+
+  [data-theme="light"] .admin-root h4,
+  [data-theme="light"] .admin-root h5,
+  [data-theme="light"] .admin-root h6 {
+    color: #123F2A !important;
+  }
+
+  [data-theme="light"] .admin-root label {
+    color: #123F2A !important;
+    font-weight: 600;
+  }
+
+  /* Secondary & Muted Admin Text */
+  [data-theme="light"] .admin-root .text-slate-400,
+  [data-theme="light"] .admin-root .text-slate-500,
+  [data-theme="light"] .admin-root .text-gray-400,
+  [data-theme="light"] .admin-root .text-gray-500 {
+    color: #6B756E !important;
+  }
+
+  [data-theme="light"] .admin-root .text-slate-300,
+  [data-theme="light"] .admin-root .text-gray-300 {
+    color: #4F5F55 !important;
+  }
+
+  [data-theme="light"] .admin-root .text-slate-100,
+  [data-theme="light"] .admin-root .text-slate-200,
+  [data-theme="light"] .admin-root .text-gray-100,
+  [data-theme="light"] .admin-root .text-gray-200 {
+    color: #123F2A !important;
+  }
+
+  /* Reset un-nested text-white inside admin unless on colored pill buttons */
+  [data-theme="light"] .admin-root span.text-white,
+  [data-theme="light"] .admin-root div.text-white,
+  [data-theme="light"] .admin-root p.text-white,
+  [data-theme="light"] .admin-root td.text-white,
+  [data-theme="light"] .admin-root th.text-white {
+    color: #123F2A !important;
+  }
+
+  /* Admin Form Inputs, Selects, Textareas */
+  [data-theme="light"] .admin-root input[type="text"],
+  [data-theme="light"] .admin-root input[type="number"],
+  [data-theme="light"] .admin-root input[type="email"],
+  [data-theme="light"] .admin-root input[type="tel"],
+  [data-theme="light"] .admin-root input[type="password"],
+  [data-theme="light"] .admin-root input[type="url"],
+  [data-theme="light"] .admin-root input[type="search"],
+  [data-theme="light"] .admin-root input[type="date"],
+  [data-theme="light"] .admin-root textarea,
+  [data-theme="light"] .admin-root select,
+  [data-theme="light"] .admin-modal input,
+  [data-theme="light"] .admin-modal textarea,
+  [data-theme="light"] .admin-modal select {
+    background-color: #FFFFFF !important;
+    color: #123F2A !important;
+    border-color: #D8D2C4 !important;
+  }
+
+  [data-theme="light"] .admin-root input::placeholder,
+  [data-theme="light"] .admin-root textarea::placeholder,
+  [data-theme="light"] .admin-modal input::placeholder,
+  [data-theme="light"] .admin-modal textarea::placeholder {
+    color: #6B756E !important;
+    opacity: 1 !important;
+  }
+
+  [data-theme="light"] .admin-root input:focus,
+  [data-theme="light"] .admin-root textarea:focus,
+  [data-theme="light"] .admin-root select:focus,
+  [data-theme="light"] .admin-modal input:focus,
+  [data-theme="light"] .admin-modal textarea:focus,
+  [data-theme="light"] .admin-modal select:focus {
+    border-color: #C9A84E !important;
+    outline: none !important;
+    box-shadow: 0 0 0 1px #C9A84E !important;
+  }
+
+  [data-theme="light"] .admin-root select option,
+  [data-theme="light"] .admin-modal select option {
+    background-color: #FFFFFF !important;
+    color: #123F2A !important;
+  }
+
+  /* Admin Tables */
+  [data-theme="light"] .admin-root table {
+    color: #123F2A !important;
+  }
+
+  [data-theme="light"] .admin-root table thead,
+  [data-theme="light"] .admin-root table thead tr {
+    background-color: #FAF8F2 !important;
+    border-color: #E5D8B5 !important;
+  }
+
+  [data-theme="light"] .admin-root table thead th {
+    color: #123F2A !important;
+    font-weight: 700 !important;
+  }
+
+  [data-theme="light"] .admin-root table tbody tr {
+    border-color: #E5D8B5 !important;
+  }
+
+  [data-theme="light"] .admin-root table tbody tr:hover {
+    background-color: #F4EFE6 !important;
+  }
+
+  [data-theme="light"] .admin-root table td {
+    color: #123F2A !important;
+  }
+
+  /* Admin Borders */
+  [data-theme="light"] .admin-root .border-white\/5,
+  [data-theme="light"] .admin-root .border-white\/10,
+  [data-theme="light"] .admin-root .border-white\/15,
+  [data-theme="light"] .admin-root .border-white\/20,
+  [data-theme="light"] .admin-root .border-white\/30,
+  [data-theme="light"] .admin-root .border-white\/40,
+  [data-theme="light"] .admin-root .divide-white\/5,
+  [data-theme="light"] .admin-root .divide-white\/10 {
+    border-color: #E5D8B5 !important;
+  }
+
+  /* Admin Sidebar Nav Tabs */
+  [data-theme="light"] .admin-sidebar button.bg-\[var\(--brand-gold\)\],
+  [data-theme="light"] .admin-sidebar button.active-admin-tab {
+    background-color: #C9A84E !important;
+    color: #0B2F20 !important;
+    font-weight: 700 !important;
+  }
+
+  [data-theme="light"] .admin-sidebar button:not(.bg-\[var\(--brand-gold\)\]):not(.bg-rose-950\/80):not(.active-admin-tab) {
+    color: #123F2A !important;
+  }
+
+  [data-theme="light"] .admin-sidebar button:not(.bg-\[var\(--brand-gold\)\]):not(.bg-rose-950\/80):not(.active-admin-tab):hover {
+    background-color: #EDE8DC !important;
+    color: #0B2F20 !important;
+  }
+
+  /* Admin Modals & Popups */
+  [data-theme="light"] .admin-modal-card,
+  [data-theme="light"] [role="dialog"] .bg-\[var\(--brand-primary-dark\)\],
+  [data-theme="light"] [role="dialog"] .bg-\[var\(--brand-primary-deep\)\],
+  [data-theme="light"] [role="dialog"] .bg-\[var\(--brand-primary-deeper\)\] {
+    background-color: #FFFFFF !important;
+    border-color: #E5D8B5 !important;
+    color: #123F2A !important;
+  }
+
+  /* Admin Gold Accents in Light Theme */
+  [data-theme="light"] .admin-root .text-\[var\(--brand-gold\)\] {
+    color: #C9A84E !important;
+  }
+
+  [data-theme="light"] .admin-root .border-\[var\(--brand-gold\)\]\/30,
+  [data-theme="light"] .admin-root .border-\[var\(--brand-gold\)\]\/40,
+  [data-theme="light"] .admin-root .border-\[var\(--brand-gold\)\]\/50 {
+    border-color: #E5D8B5 !important;
   }
 
   /* Light Theme Input Fields */

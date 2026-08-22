@@ -940,14 +940,14 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   return (
     <div
       onClick={handleBackdropClick}
-      className="fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-y-auto animate-in fade-in cursor-pointer"
+      className="admin-modal fixed inset-0 z-50 bg-black/80 backdrop-blur-sm flex items-center justify-center p-4 sm:p-6 overflow-y-auto animate-in fade-in cursor-pointer"
     >
       <div
         onClick={(e) => e.stopPropagation()}
-        className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/40 rounded-3xl max-w-4xl w-full max-h-[92vh] overflow-y-auto shadow-2xl text-slate-100 font-sans my-auto cursor-default"
+        className="admin-modal-card bg-[#FFFFFF] dark:bg-[var(--brand-primary-dark)] border border-[#E5D8B5] dark:border-[var(--brand-gold)]/40 rounded-3xl max-w-4xl w-full max-h-[92vh] overflow-y-auto shadow-2xl text-[#123F2A] dark:text-slate-100 font-sans my-auto cursor-default"
       >
         {/* Header */}
-        <div className="sticky top-0 bg-[var(--brand-primary-deeper)] border-b border-white/10 px-6 py-5 flex items-center justify-between z-10">
+        <div className="sticky top-0 bg-[#FAF8F2] dark:bg-[var(--brand-primary-deeper)] border-b border-[#E5D8B5] dark:border-white/10 px-6 py-5 flex items-center justify-between z-10">
           <div className="flex items-center gap-3">
             <div className="w-10 h-10 rounded-2xl bg-[var(--brand-gold)]/20 border border-[var(--brand-gold)]/40 flex items-center justify-center text-[var(--brand-gold)]">
               <Package className="w-5 h-5" />

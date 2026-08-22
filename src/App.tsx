@@ -19,6 +19,7 @@ const ShoppableReelsSection = lazy(() => import('./components/ShoppableReelsSect
 const CustomerReviews = lazy(() => import('./components/CustomerReviews').then(m => ({ default: m.CustomerReviews })));
 const BlogSection = lazy(() => import('./components/BlogSection').then(m => ({ default: m.BlogSection })));
 const B2BSection = lazy(() => import('./components/B2BSection').then(m => ({ default: m.B2BSection })));
+const B2BEnquiryPage = lazy(() => import('./pages/B2BEnquiryPage').then(m => ({ default: m.B2BEnquiryPage })));
 
 // Dynamic Modals & Drawers
 const ProductDetailModal = lazy(() => import('./components/ProductDetailModal').then(m => ({ default: m.ProductDetailModal })));
@@ -174,6 +175,7 @@ export function AppContent() {
   }
 
   const isCategoryRoute = currentPath === '/hair-care' || currentPath === '/skin-care' || currentPath === '/tribal-wellness';
+  const isB2BRoute = currentPath === '/b2b-enquiry' || currentPath === '/b2b' || currentPath === '/export-enquiry';
 
   return (
     <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-text)] flex flex-col font-sans selection:bg-[var(--brand-gold)] selection:text-[var(--color-button-text)] transition-colors duration-300">
@@ -189,6 +191,10 @@ export function AppContent() {
             categoryPath={currentPath}
             onReturnHome={() => navigate('/')}
           />
+        ) : isB2BRoute ? (
+          <Suspense fallback={<SectionSkeleton />}>
+            <B2BEnquiryPage onReturnHome={() => navigate('/')} />
+          </Suspense>
         ) : (
           <>
             {/* Hero Slider */}

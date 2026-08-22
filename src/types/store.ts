@@ -206,9 +206,13 @@ export interface B2BLead {
   email: string;
   phone: string;
   country: string;
-  estimatedVolume: string;
+  businessType?: string;
+  productsInterested?: string;
+  estimatedVolume?: string;
+  targetMarket?: string;
+  preferredContactMethod?: 'WhatsApp' | 'Phone' | 'Email';
   message: string;
-  status: 'NEW' | 'CONTACTED' | 'QUALIFIED' | 'CLOSED';
+  status: 'NEW' | 'CONTACTED' | 'NEGOTIATING' | 'SAMPLE_REQUESTED' | 'CONVERTED' | 'CLOSED' | 'QUALIFIED';
   createdAt: string;
 }
 

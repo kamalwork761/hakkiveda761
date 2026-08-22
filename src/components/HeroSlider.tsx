@@ -168,12 +168,14 @@ export const HeroSlider: React.FC = () => {
       return;
     }
 
-    if (link === '#b2b' || link === '#b2b-export') {
+    if (link === '#b2b' || link === '#b2b-export' || link === '/b2b-enquiry' || link === '/b2b') {
       const b2bEl = document.getElementById('b2b') || document.getElementById('b2b-export');
-      if (b2bEl) {
+      if (b2bEl && link !== '/b2b-enquiry') {
         b2bEl.scrollIntoView({ behavior: 'smooth' });
       } else {
-        setIsB2BModalOpen(true);
+        window.history.pushState({}, '', '/b2b-enquiry');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
       return;
     }

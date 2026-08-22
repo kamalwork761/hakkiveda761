@@ -58,6 +58,8 @@ import {
   Download,
   Save,
   Check,
+  MessageSquare,
+  Mail,
   X,
   CreditCard,
   MapPin,
@@ -1784,56 +1786,206 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
         {/* Tab 9: B2B Wholesale */}
         {activeTab === 'b2b' && (
           <div className="space-y-6 animate-in fade-in">
-            <div>
-              <h1 className="text-2xl font-bold font-serif-luxury text-slate-100">B2B Wholesale Enquiries</h1>
-              <p className="text-xs text-slate-300">Manage global export requests and wholesale leads.</p>
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+              <div>
+                <h1 className="text-2xl font-bold font-serif-luxury text-[#123F2A] dark:text-slate-100">
+                  B2B Wholesale & Export Enquiries
+                </h1>
+                <p className="text-xs text-[#5F6B63] dark:text-slate-300">
+                  Manage global commercial proposals, distributor applications, and bulk packaging orders ({b2bLeads.length} total).
+                </p>
+              </div>
             </div>
 
             {b2bLeads.length === 0 ? (
-              <div className="p-12 text-center text-slate-400 border border-dashed border-white/10 rounded-2xl">
-                No B2B leads submitted yet. Start with empty database state.
+              <div className="p-12 text-center text-[#5F6B63] dark:text-slate-400 border border-dashed border-[#E5D8B5] dark:border-white/10 rounded-2xl bg-white dark:bg-[var(--brand-primary-dark)]">
+                <Building2 className="w-10 h-10 mx-auto text-[#C9A84E] mb-3 opacity-60" />
+                <p className="text-sm font-bold text-[#123F2A] dark:text-slate-200">No B2B Enquiries Yet</p>
+                <p className="text-xs text-[#5F6B63] dark:text-slate-400 mt-1">
+                  Enquiries submitted through the /b2b-enquiry page will appear here with complete business profiles.
+                </p>
               </div>
             ) : (
               <div className="space-y-4">
-                {b2bLeads.map((lead) => (
-                  <div key={lead.id} className="bg-[var(--brand-primary-dark)] border border-white/10 p-5 rounded-2xl space-y-3 text-xs">
-                    <div className="flex justify-between items-center border-b border-white/10 pb-2">
-                      <h4 className="font-bold text-sm text-[var(--brand-gold)]">{lead.companyName}</h4>
-                      <span className="text-slate-400 font-mono text-[10px]">{lead.createdAt}</span>
+                {b2bLeads.map((lead) => {
+                  const rawPhone = (lead.phone || '').replace(/\D/g, '');
+                  const waUrl = rawPhone
+                    ? `https://wa.me/${rawPhone}?text=${encodeURIComponent(
+                        `Hello ${lead.contactName}, thank you for contacting HAKKIVEDA regarding wholesale/export partnerships for ${lead.companyName}.`
+                      )}`
+                    : null;
+
+                  return (
+                    <div
+                      key={lead.id}
+                      className="bg-white dark:bg-[var(--brand-primary-dark)] border border-[#E5D8B5] dark:border-white/10 p-5 rounded-2xl space-y-4 text-xs shadow-xs"
+                    >
+                      {/* Header Row */}
+                      <div className="flex flex-wrap items-center justify-between gap-2 border-b border-[#E5D8B5] dark:border-white/10 pb-3">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-xl bg-[#FAF8F2] dark:bg-black/30 border border-[#E5D8B5] dark:border-white/10 flex items-center justify-center text-[#123F2A] dark:text-[var(--brand-gold)] font-bold shrink-0">
+                            <Building2 className="w-4 h-4" />
+                          </div>
+                          <div>
+                            <h4 className="font-bold text-sm text-[#123F2A] dark:text-[var(--brand-gold)]">
+                              {lead.companyName}
+                            </h4>
+                            <span className="text-[10px] text-[#5F6B63] dark:text-slate-400">
+                              Business Type: <strong className="text-[#123F2A] dark:text-slate-200">{lead.businessType || 'Wholesale / Distribution'}</strong>
+                            </span>
+                          </div>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          <span className="text-[#5F6B63] dark:text-slate-400 font-mono text-[10px] bg-[#FAF8F2] dark:bg-black/40 px-2.5 py-1 rounded-lg border border-[#E5D8B5] dark:border-white/10">
+                            {lead.createdAt}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Detail Grid */}
+                      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 text-[#37463D] dark:text-slate-300 bg-[#FAF8F2] dark:bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-[#E5D8B5] dark:border-white/5">
+                        <div>
+                          <span className="block text-[10px] uppercase tracking-wider text-[#5F6B63] dark:text-slate-400 font-bold">
+                            Contact Person
+                          </span>
+                          <span className="font-bold text-[#123F2A] dark:text-slate-100">{lead.contactName}</span>
+                        </div>
+
+                        <div>
+                          <span className="block text-[10px] uppercase tracking-wider text-[#5F6B63] dark:text-slate-400 font-bold">
+                            Email
+                          </span>
+                          <a
+                            href={`mailto:${lead.email}`}
+                            className="text-[#123F2A] dark:text-slate-200 hover:underline break-all"
+                          >
+                            {lead.email}
+                          </a>
+                        </div>
+
+                        <div>
+                          <span className="block text-[10px] uppercase tracking-wider text-[#5F6B63] dark:text-slate-400 font-bold">
+                            Phone / WhatsApp
+                          </span>
+                          <span className="font-bold text-[#123F2A] dark:text-slate-100">{lead.phone}</span>
+                        </div>
+
+                        <div>
+                          <span className="block text-[10px] uppercase tracking-wider text-[#5F6B63] dark:text-slate-400 font-bold">
+                            Country / Territory
+                          </span>
+                          <span className="font-medium text-[#123F2A] dark:text-slate-100">{lead.country}</span>
+                        </div>
+
+                        <div>
+                          <span className="block text-[10px] uppercase tracking-wider text-[#5F6B63] dark:text-slate-400 font-bold">
+                            Estimated Order Volume
+                          </span>
+                          <span className="font-bold text-[#123F2A] dark:text-[var(--brand-gold)]">
+                            {lead.estimatedVolume || 'Standard Order'}
+                          </span>
+                        </div>
+
+                        <div>
+                          <span className="block text-[10px] uppercase tracking-wider text-[#5F6B63] dark:text-slate-400 font-bold">
+                            Preferred Contact
+                          </span>
+                          <span className="font-medium text-[#123F2A] dark:text-slate-100">
+                            {lead.preferredContactMethod || 'WhatsApp'}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Products Interested */}
+                      {lead.productsInterested && (
+                        <div>
+                          <span className="block text-[10px] uppercase tracking-wider text-[#5F6B63] dark:text-slate-400 font-bold mb-1">
+                            Products Interested In:
+                          </span>
+                          <div className="bg-white dark:bg-black/30 border border-[#E5D8B5] dark:border-white/10 px-3 py-2 rounded-lg text-xs text-[#123F2A] dark:text-slate-200">
+                            {lead.productsInterested}
+                          </div>
+                        </div>
+                      )}
+
+                      {/* Message / Requirements */}
+                      {lead.message && (
+                        <div>
+                          <span className="block text-[10px] uppercase tracking-wider text-[#5F6B63] dark:text-slate-400 font-bold mb-1">
+                            Message / Requirements:
+                          </span>
+                          <p className="p-3 bg-white dark:bg-black/40 rounded-xl text-[#37463D] dark:text-slate-200 border border-[#E5D8B5] dark:border-white/10 italic leading-relaxed">
+                            "{lead.message}"
+                          </p>
+                        </div>
+                      )}
+
+                      {/* Actions & Status Bar */}
+                      <div className="flex flex-wrap items-center justify-between gap-3 pt-2 border-t border-[#E5D8B5] dark:border-white/10">
+                        <div className="flex items-center gap-2">
+                          <label className="text-[11px] font-bold text-[#123F2A] dark:text-slate-300">
+                            Status:
+                          </label>
+                          <select
+                            value={lead.status || 'NEW'}
+                            onChange={(e) => {
+                              updateB2BLeadStatus(lead.id, e.target.value as any);
+                              showToast(`Lead status updated to ${e.target.value}`);
+                            }}
+                            className="bg-[#FAF8F2] dark:bg-[var(--brand-primary-deep)] border border-[#E5D8B5] dark:border-white/20 px-3 py-1.5 rounded-lg text-[#123F2A] dark:text-slate-100 text-xs font-bold focus:outline-none focus:border-[#C9A84E] cursor-pointer"
+                          >
+                            <option value="NEW">New</option>
+                            <option value="CONTACTED">Contacted</option>
+                            <option value="NEGOTIATING">Negotiating</option>
+                            <option value="SAMPLE_REQUESTED">Sample Requested</option>
+                            <option value="CONVERTED">Converted</option>
+                            <option value="CLOSED">Closed</option>
+                            <option value="QUALIFIED">Qualified</option>
+                          </select>
+                        </div>
+
+                        <div className="flex items-center gap-2">
+                          {waUrl && (
+                            <a
+                              href={waUrl}
+                              target="_blank"
+                              rel="noreferrer"
+                              className="bg-emerald-700 hover:bg-emerald-800 text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors shadow-2xs"
+                            >
+                              <MessageSquare className="w-3.5 h-3.5" />
+                              <span>WhatsApp</span>
+                            </a>
+                          )}
+
+                          <a
+                            href={`mailto:${lead.email}?subject=${encodeURIComponent(
+                              `HAKKIVEDA Wholesale Partnership - ${lead.companyName}`
+                            )}`}
+                            className="bg-[#123F2A] hover:bg-[#0B2F20] text-white text-xs font-bold px-3 py-1.5 rounded-lg flex items-center gap-1.5 transition-colors shadow-2xs"
+                          >
+                            <Mail className="w-3.5 h-3.5" />
+                            <span>Email</span>
+                          </a>
+
+                          <button
+                            type="button"
+                            onClick={() => {
+                              if (window.confirm(`Delete enquiry from ${lead.companyName}?`)) {
+                                deleteB2BLead(lead.id);
+                                showToast('Enquiry deleted');
+                              }
+                            }}
+                            className="text-rose-600 hover:text-rose-700 dark:text-rose-400 dark:hover:text-rose-300 text-xs font-bold flex items-center gap-1 px-2 py-1.5 rounded-lg hover:bg-rose-50 dark:hover:bg-rose-950/40 transition-colors cursor-pointer"
+                          >
+                            <Trash2 className="w-3.5 h-3.5" />
+                            <span>Delete</span>
+                          </button>
+                        </div>
+                      </div>
                     </div>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 text-slate-300">
-                      <div>Contact: {lead.contactName} ({lead.email})</div>
-                      <div>Phone: {lead.phone} | Country: {lead.country}</div>
-                      <div>Estimated Volume: {lead.estimatedVolume}</div>
-                    </div>
-                    <p className="p-3 bg-[var(--brand-primary-deep)] rounded-xl text-slate-200 italic">{lead.message}</p>
-                    <div className="flex items-center justify-between pt-2">
-                      <select
-                        value={lead.status}
-                        onChange={(e) => {
-                          updateB2BLeadStatus(lead.id, e.target.value as any);
-                          showToast('Lead status updated');
-                        }}
-                        className="bg-[var(--brand-primary-deep)] border border-white/20 p-2 rounded-lg text-slate-100 text-xs font-bold"
-                      >
-                        <option value="NEW">NEW</option>
-                        <option value="CONTACTED">CONTACTED</option>
-                        <option value="QUALIFIED">QUALIFIED</option>
-                        <option value="CLOSED">CLOSED</option>
-                      </select>
-                      <button
-                        onClick={() => {
-                          deleteB2BLead(lead.id);
-                          showToast('Lead deleted');
-                        }}
-                        className="text-rose-400 hover:text-rose-300 text-xs font-bold flex items-center gap-1"
-                      >
-                        <Trash2 className="w-3.5 h-3.5" />
-                        <span>Delete Lead</span>
-                      </button>
-                    </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </div>

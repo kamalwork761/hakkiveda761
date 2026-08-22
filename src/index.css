@@ -945,15 +945,45 @@
   filter: none !important;
 }
 
-.shoppable-reels-heading p {
-  color: #405b4a !important;
-  -webkit-text-fill-color: #405b4a !important;
-  opacity: 1 !important;
-  visibility: visible !important;
-  mix-blend-mode: normal !important;
-  text-shadow: none !important;
-  filter: none !important;
+/* ========================================================= */
+/* B2B SECTION & ENQUIRY PAGE CONTRAST ENHANCEMENTS          */
+/* ========================================================= */
+#b2b,
+.b2b-section,
+.b2b-enquiry-page {
+  background-color: #FAF8F2 !important;
+  color: #37463D !important;
 }
+
+#b2b h2,
+#b2b h3,
+.b2b-section h2,
+.b2b-section h3,
+.b2b-enquiry-page h1,
+.b2b-enquiry-page h2,
+.b2b-enquiry-page h3 {
+  color: #123F2A !important;
+  -webkit-text-fill-color: #123F2A !important;
+}
+
+#b2b p,
+.b2b-section p,
+.b2b-enquiry-page p {
+  color: #37463D !important;
+  -webkit-text-fill-color: #37463D !important;
+}
+
+#b2b .text-slate-100,
+#b2b .text-slate-200,
+#b2b .text-slate-300,
+#b2b .text-white:not(button *):not(.bg-\[\#123F2A\] *) {
+  color: #123F2A !important;
+}
+
+.b2b-gold-accent {
+  color: #C9A84E !important;
+}
+
 
 
 

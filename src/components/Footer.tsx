@@ -154,7 +154,12 @@ export const Footer: React.FC = () => {
                 </button>
 
                 <button
-                  onClick={() => setIsB2BModalOpen?.(true)}
+                  onClick={() => {
+                    playSound?.('nav_click');
+                    window.history.pushState({}, '', '/b2b-enquiry');
+                    window.dispatchEvent(new PopStateEvent('popstate'));
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
                   className="text-[11px] text-slate-300 hover:text-[var(--brand-gold)] underline font-medium text-left cursor-pointer"
                 >
                   {cfg.wholesaleLinkText || 'Wholesale & Export Enquiries →'}

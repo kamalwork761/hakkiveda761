@@ -158,14 +158,24 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
       link.modalType === 'B2B' ||
       urlLower === '#b2b' ||
       urlLower === '#b2b-export' ||
+      urlLower === '/b2b-enquiry' ||
+      urlLower === '/b2b' ||
       labelLower.includes('b2b') ||
       labelLower.includes('export')
     ) {
+      if (urlLower === '/b2b-enquiry' || urlLower === '/b2b' || link.linkType === 'B2B') {
+        window.history.pushState({}, '', '/b2b-enquiry');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+        return;
+      }
       const b2bEl = document.getElementById('b2b') || document.getElementById('b2b-export');
       if (b2bEl) {
         b2bEl.scrollIntoView({ behavior: 'smooth', block: 'start' });
       } else {
-        setIsB2BModalOpen(true);
+        window.history.pushState({}, '', '/b2b-enquiry');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
       return;
     }

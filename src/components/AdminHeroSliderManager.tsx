@@ -2199,8 +2199,8 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                   : 'w-[375px] h-[540px]'
               }`}
             >
-              {/* Media Background Clipped */}
-              <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none">
+              {/* Media Background Clipped (z-index: 1) */}
+              <div className="absolute inset-0 rounded-2xl overflow-hidden pointer-events-none" style={{ zIndex: 1 }}>
                 {(() => {
                   const previewImgUrl = normalizeMediaUrl(
                     previewViewport === 'mobile' && previewSlide.mobileImage
@@ -2230,15 +2230,46 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                 />
               </div>
 
-              {/* Text Content */}
+              {/* 3D Foreground Cutout Layer Preview (z-index: 10) */}
+              {previewSlide.enable3dOverflow && previewSlide.foregroundCutoutUrl && !(previewViewport === 'mobile' && previewSlide.disableMobileOverflow) && (
+                <div
+                  className="absolute pointer-events-none transition-all duration-300"
+                  style={{
+                    zIndex: 10,
+                    left: previewViewport === 'mobile' 
+                      ? `${previewSlide.mobilePosX ?? 60}%` 
+                      : `${previewSlide.desktopPosX ?? 70}%`,
+                    bottom: previewViewport === 'mobile'
+                      ? `-${previewSlide.mobileBottomOverflow ?? 65}px`
+                      : `-${previewSlide.desktopBottomOverflow ?? 130}px`,
+                    width: previewViewport === 'mobile'
+                      ? `${previewSlide.mobileWidth ?? 260}px`
+                      : `${previewSlide.desktopWidth ?? 440}px`,
+                    transform: `translateX(-50%) translateY(${
+                      previewViewport === 'mobile' 
+                        ? (previewSlide.mobilePosY ?? 0) 
+                        : (previewSlide.desktopPosY ?? 0)
+                    }px)`,
+                  }}
+                >
+                  <img
+                    src={normalizeMediaUrl(previewSlide.foregroundCutoutUrl)}
+                    alt="3D Foreground Preview"
+                    className="w-full h-auto object-contain hero-3d-overflow-shadow"
+                  />
+                </div>
+              )}
+
+              {/* Text Content & CTA Layer (z-index: 20) */}
               <div
-                className={`relative z-10 h-full p-6 sm:p-10 flex flex-col justify-center ${
+                className={`relative h-full p-6 sm:p-10 flex flex-col justify-center pointer-events-none ${
                   previewSlide.textPosition === 'CENTER'
                     ? 'items-center text-center max-w-2xl mx-auto'
                     : previewSlide.textPosition === 'RIGHT'
                     ? 'items-end text-right ml-auto max-w-xl'
                     : 'items-start text-left max-w-xl'
                 }`}
+                style={{ zIndex: 20 }}
               >
                 {previewSlide.tag && (
                   <span className="inline-flex items-center gap-1.5 px-3 py-1 border border-[var(--brand-gold)] text-[var(--brand-gold)] font-sans text-[10px] uppercase tracking-widest rounded-full bg-black/40 font-bold mb-3 shadow">
@@ -2273,35 +2304,6 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
                   )}
                 </div>
               </div>
-
-              {/* 3D Foreground Cutout Layer Preview */}
-              {previewSlide.enable3dOverflow && previewSlide.foregroundCutoutUrl && !(previewViewport === 'mobile' && previewSlide.disableMobileOverflow) && (
-                <div
-                  className="absolute pointer-events-none z-20 transition-all duration-300"
-                  style={{
-                    left: previewViewport === 'mobile' 
-                      ? `${previewSlide.mobilePosX ?? 60}%` 
-                      : `${previewSlide.desktopPosX ?? 70}%`,
-                    bottom: previewViewport === 'mobile'
-                      ? `-${previewSlide.mobileBottomOverflow ?? 65}px`
-                      : `-${previewSlide.desktopBottomOverflow ?? 130}px`,
-                    width: previewViewport === 'mobile'
-                      ? `${previewSlide.mobileWidth ?? 260}px`
-                      : `${previewSlide.desktopWidth ?? 440}px`,
-                    transform: `translateX(-50%) translateY(${
-                      previewViewport === 'mobile' 
-                        ? (previewSlide.mobilePosY ?? 0) 
-                        : (previewSlide.desktopPosY ?? 0)
-                    }px)`,
-                  }}
-                >
-                  <img
-                    src={normalizeMediaUrl(previewSlide.foregroundCutoutUrl)}
-                    alt="3D Foreground Preview"
-                    className="w-full h-auto object-contain hero-3d-overflow-shadow"
-                  />
-                </div>
-              )}
             </div>
           </div>
         </div>

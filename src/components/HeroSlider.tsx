@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useMemo } from 'react';
 import { Sparkles, ChevronRight, ChevronLeft, ShieldCheck, Flame, Award } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 
@@ -26,60 +26,97 @@ export const HeroSlider: React.FC = () => {
   const [currentSlideIndex, setCurrentSlideIndex] = useState(0);
   const [isHovered, setIsHovered] = useState(false);
   const touchStartX = useRef<number | null>(null);
+  const lastTrackedSlideId = useRef<string | null>(null);
 
   // Filter active and scheduled slides from server store
-  const activeSlides = (Array.isArray(heroSlides) ? heroSlides : [])
-    .filter((s) => {
-      if (!s) return false;
-      if (s.status === 'DRAFT') return false;
-      if (s.status === 'SCHEDULED' && s.startDate && s.endDate) {
-        const today = new Date().toISOString().split('T')[0];
-        if (today < s.startDate || today > s.endDate) return false;
-      }
-      if (s.active === false && s.status !== 'ACTIVE') return false;
-      return true;
-    })
-    .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+  const slidesToRender = useMemo(() => {
+    return (Array.isArray(heroSlides) ? heroSlides : [])
+      .filter((s) => {
+        if (!s) return false;
+        if (s.status === 'DRAFT') return false;
+        if (s.status === 'SCHEDULED' && s.startDate && s.endDate) {
+          const today = new Date().toISOString().split('T')[0];
+          if (today < s.startDate || today > s.endDate) return false;
+        }
+        if (s.active === false && s.status !== 'ACTIVE') return false;
+        return true;
+      })
+      .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
+  }, [heroSlides]);
 
-  const slidesToRender = activeSlides;
+  const totalSlides = slidesToRender.length;
+  const autoPlay = heroSliderSettings?.autoPlay ?? true;
+  const autoPlayDelay = heroSliderSettings?.autoPlayDelay || 6;
+  const pauseOnHover = heroSliderSettings?.pauseOnHover ?? true;
+  const infiniteLoop = heroSliderSettings?.infiniteLoop ?? true;
+  const transitionSpeed = heroSliderSettings?.transitionSpeed || 700;
+
+  // Preload all hero slide images once and upcoming images for smooth, flicker-free transitions
+  useEffect(() => {
+    if (!slidesToRender.length) return;
+
+    slidesToRender.forEach((slide) => {
+      const isVideo =
+        slide.mediaType === 'VIDEO' ||
+        Boolean(
+          slide.backgroundVideo ||
+            (slide.image && /\.(mp4|webm|ogg|mov)($|\?)/i.test(slide.image))
+        );
+
+      if (!isVideo) {
+        if (slide.image) {
+          const img = new Image();
+          img.src = normalizeMediaUrl(slide.image);
+        }
+        if (slide.mobileImage) {
+          const mobImg = new Image();
+          mobImg.src = normalizeMediaUrl(slide.mobileImage);
+        }
+      }
+    });
+  }, [slidesToRender]);
 
   // Keep current slide index within valid bounds if slide list changes
   useEffect(() => {
-    if (currentSlideIndex >= slidesToRender.length) {
+    if (currentSlideIndex >= totalSlides && totalSlides > 0) {
       setCurrentSlideIndex(0);
     }
-  }, [slidesToRender.length, currentSlideIndex]);
+  }, [totalSlides, currentSlideIndex]);
 
-  // Track impression on active slide change
+  // Track impression only once when active slide changes
   useEffect(() => {
     if (dbSyncStatus !== 'loading' && slidesToRender[currentSlideIndex]) {
-      try {
-        trackSlideImpression(slidesToRender[currentSlideIndex].id);
-      } catch (err) {
-        console.error('[HeroSlider] Failed to track slide impression:', err);
+      const activeSlideId = slidesToRender[currentSlideIndex].id;
+      if (activeSlideId && lastTrackedSlideId.current !== activeSlideId) {
+        lastTrackedSlideId.current = activeSlideId;
+        try {
+          trackSlideImpression(activeSlideId);
+        } catch (err) {
+          console.error('[HeroSlider] Failed to track slide impression:', err);
+        }
       }
     }
-  }, [currentSlideIndex, slidesToRender.length, dbSyncStatus]);
+  }, [currentSlideIndex, totalSlides, dbSyncStatus, slidesToRender, trackSlideImpression]);
 
-  // Autoplay Timer
+  // Stable Single Autoplay Timer
   useEffect(() => {
     if (dbSyncStatus === 'loading') return;
-    if (slidesToRender.length <= 1) return;
-    if (!heroSliderSettings?.autoPlay) return;
-    if (isHovered && heroSliderSettings?.pauseOnHover) return;
+    if (totalSlides <= 1) return;
+    if (!autoPlay) return;
+    if (isHovered && pauseOnHover) return;
 
-    const delayMs = (heroSliderSettings?.autoPlayDelay || 6) * 1000;
+    const delayMs = Math.max(2000, autoPlayDelay * 1000);
     const interval = setInterval(() => {
       setCurrentSlideIndex((prev) => {
-        if (prev >= slidesToRender.length - 1) {
-          return heroSliderSettings?.infiniteLoop ? 0 : prev;
+        if (prev >= totalSlides - 1) {
+          return infiniteLoop ? 0 : prev;
         }
         return prev + 1;
       });
     }, delayMs);
 
     return () => clearInterval(interval);
-  }, [slidesToRender.length, heroSliderSettings, isHovered, dbSyncStatus]);
+  }, [totalSlides, autoPlay, autoPlayDelay, pauseOnHover, infiniteLoop, isHovered, dbSyncStatus]);
 
   // Render a clean hero loading state while store data is hydrating from server
   if (dbSyncStatus === 'loading') {
@@ -157,7 +194,7 @@ export const HeroSlider: React.FC = () => {
       onTouchEnd={handleTouchEnd}
       className="relative w-full h-[540px] sm:h-[580px] lg:h-[620px] flex items-center overflow-hidden bg-[var(--brand-primary-dark)]"
     >
-      {/* Media & Overlay Layer (z-index 0 and z-index 1) */}
+      {/* Media & Overlay Layer */}
       {slidesToRender.map((slide, idx) => {
         const isActive = idx === currentSlideIndex;
         const isVideoUrl = (url?: string) =>
@@ -185,14 +222,16 @@ export const HeroSlider: React.FC = () => {
         return (
           <div
             key={`slide-media-${slide.id || idx}`}
-            className={`absolute inset-0 transition-opacity duration-1000 ease-in-out ${
+            className={`absolute inset-0 transition-opacity ease-in-out ${
               isActive ? 'opacity-100 pointer-events-auto' : 'opacity-0 pointer-events-none'
             }`}
-            style={{ zIndex: 0 }}
+            style={{
+              zIndex: isActive ? 2 : 1,
+              transitionDuration: `${transitionSpeed}ms`,
+            }}
           >
             {isVideo && videoUrl ? (
               <video
-                key={`video-${slide.id}-${videoUrl}`}
                 src={videoUrl}
                 autoPlay={isActive}
                 preload={isActive ? 'metadata' : 'none'}
@@ -210,7 +249,6 @@ export const HeroSlider: React.FC = () => {
                   <source media="(max-width: 640px)" srcSet={mobileImageUrl} />
                 )}
                 <img
-                  key={`img-${slide.id}-${imageUrl}`}
                   src={imageUrl}
                   alt={slide.altText || slide.title || 'HakkiVeda Hero Banner'}
                   onError={(e) => {
@@ -219,19 +257,16 @@ export const HeroSlider: React.FC = () => {
                       e.currentTarget.src = fallback;
                     }
                   }}
-                  className={`w-full h-full object-cover transform scale-105 ${
-                    slide.animation === 'kenburns' ? 'animate-pulse' : ''
-                  }`}
-                  loading={idx === 0 ? 'eager' : 'lazy'}
-                  decoding={idx === 0 ? 'sync' : 'async'}
-                  {...(idx === 0 ? ({ fetchPriority: 'high' } as any) : {})}
+                  className="w-full h-full object-cover transform scale-105"
+                  loading="eager"
+                  decoding="async"
                 />
               </picture>
             )}
 
-            {/* Hero Overlay (z-index 1) */}
+            {/* Hero Overlay */}
             <div
-              className="hero-overlay absolute inset-0 transition-opacity duration-700 pointer-events-none"
+              className="hero-overlay absolute inset-0 transition-opacity pointer-events-none"
               style={{
                 position: 'absolute',
                 inset: 0,
@@ -239,6 +274,7 @@ export const HeroSlider: React.FC = () => {
                 pointerEvents: 'none',
                 backgroundColor: slide.overlayColor || 'var(--brand-primary-dark)',
                 opacity: (slide.overlayOpacity ?? 75) / 100,
+                transitionDuration: `${transitionSpeed}ms`,
               }}
             />
           </div>
@@ -252,7 +288,7 @@ export const HeroSlider: React.FC = () => {
         return (
           <div
             key={`slide-content-${slide.id || idx}`}
-            className={`hero-content absolute inset-0 max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 w-full flex items-center transition-all duration-700 ease-in-out ${
+            className={`hero-content absolute inset-0 max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 w-full flex items-center transition-all ease-in-out ${
               isActive
                 ? 'opacity-100 translate-y-0 pointer-events-auto visible'
                 : 'opacity-0 translate-y-4 pointer-events-none invisible hidden'
@@ -264,6 +300,7 @@ export const HeroSlider: React.FC = () => {
               opacity: isActive ? 1 : 0,
               visibility: isActive ? 'visible' : 'hidden',
               pointerEvents: isActive ? 'auto' : 'none',
+              transitionDuration: `${transitionSpeed}ms`,
             }}
           >
             <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-center">
@@ -388,7 +425,7 @@ export const HeroSlider: React.FC = () => {
         );
       })}
 
-      {/* Controls & Dots Navigation (z-index 4 / z-30) */}
+      {/* Controls & Dots Navigation */}
       {slidesToRender.length > 1 && (
         <>
           <button

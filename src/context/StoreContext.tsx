@@ -982,6 +982,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     // Keep siteSettings in sync automatically
     const siteUpdates: Partial<SiteSettings> = {};
+    if (theme.headerHvLogo !== undefined) {
+      siteUpdates.headerHvLogo = theme.headerHvLogo;
+      siteUpdates.logoImageUrl = theme.headerHvLogo;
+    }
     if (theme.brandName) siteUpdates.logoText = theme.brandName;
     if (theme.brandSubtitle) siteUpdates.logoSubtext = theme.brandSubtitle;
     if (theme.brandInitials) siteUpdates.logoInitials = theme.brandInitials;
@@ -1003,6 +1007,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
       // Keep siteSettings in sync automatically
       const siteUpdates: Partial<SiteSettings> = {};
+      if (partial.headerHvLogo !== undefined) {
+        siteUpdates.headerHvLogo = partial.headerHvLogo;
+        siteUpdates.logoImageUrl = partial.headerHvLogo;
+      }
       if (partial.brandName) siteUpdates.logoText = partial.brandName;
       if (partial.brandSubtitle) siteUpdates.logoSubtext = partial.brandSubtitle;
       if (partial.brandInitials) siteUpdates.logoInitials = partial.brandInitials;

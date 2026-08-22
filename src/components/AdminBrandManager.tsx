@@ -51,6 +51,9 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
     reloadThemeCache,
     applyBrandStyles,
     setIsPreviewingWebsiteTheme,
+    updateBrandIdentity,
+    updateSiteSettings,
+    siteSettings,
   } = useStore();
 
   const [formData, setFormData] = useState<BrandIdentityConfig>(() => ({
@@ -78,6 +81,10 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
     setFormData((prev) => {
       const next = { ...prev, [field]: value };
       applyBrandStyles(next);
+      if (field === 'headerHvLogo') {
+        updateBrandIdentity({ headerHvLogo: value });
+        updateSiteSettings({ headerHvLogo: value, logoImageUrl: value });
+      }
       return next;
     });
   };
@@ -101,21 +108,32 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
         applyBrandStyles(next);
         return next;
       });
-      showToast(`Uploaded file for ${String(field)} to server`);
+
+      if (field === 'headerHvLogo') {
+        updateBrandIdentity({ headerHvLogo: url, headerHvLogoFilename: file.name });
+        updateSiteSettings({ headerHvLogo: url, logoImageUrl: url });
+      }
+      showToast(`Uploaded ${String(field)} successfully to server`);
     } catch (err) {
       const reader = new FileReader();
       reader.onload = (event) => {
         if (event.target?.result) {
+          const dataUrl = event.target?.result as string;
           setFormData((prev) => {
             const next = {
               ...prev,
-              [field]: event.target?.result as string,
+              [field]: dataUrl,
               ...(filenameField ? { [filenameField]: file.name } : {}),
             };
             applyBrandStyles(next);
             return next;
           });
-          showToast(`Uploaded file for ${String(field)}`);
+
+          if (field === 'headerHvLogo') {
+            updateBrandIdentity({ headerHvLogo: dataUrl, headerHvLogoFilename: file.name });
+            updateSiteSettings({ headerHvLogo: dataUrl, logoImageUrl: dataUrl });
+          }
+          showToast(`Uploaded ${String(field)}`);
         }
       };
       reader.readAsDataURL(file);
@@ -132,6 +150,11 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
       applyBrandStyles(next);
       return next;
     });
+
+    if (field === 'headerHvLogo') {
+      updateBrandIdentity({ headerHvLogo: '', headerHvLogoFilename: '' });
+      updateSiteSettings({ headerHvLogo: '', logoImageUrl: '' });
+    }
     showToast(`Cleared ${String(field)}`);
   };
 
@@ -356,10 +379,169 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
                   <ImageIcon className="w-4 h-4" />
                   <span>1. Logo Management & Uploads</span>
                 </h3>
-                <span className="text-[10px] text-slate-400 font-mono">10 Logo Assets Supported</span>
+                <span className="text-[10px] text-slate-400 font-mono">11 Logo Assets Supported</span>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              {/* FEATURED: HEADER HV LOGO */}
+              <div className="p-5 rounded-2xl bg-gradient-to-b from-[#1C3D28] to-[var(--brand-primary-deep)] border-2 border-[var(--brand-gold)]/40 shadow-xl space-y-4">
+                <div className="flex flex-wrap items-center justify-between gap-2 border-b border-white/10 pb-3">
+                  <div>
+                    <div className="flex items-center gap-2">
+                      <span className="px-2 py-0.5 rounded-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-black text-[10px] uppercase tracking-wider">
+                        Primary Header
+                      </span>
+                      <h4 className="text-base font-black text-white tracking-wide">
+                        HEADER HV LOGO
+                      </h4>
+                    </div>
+                    <p className="text-slate-300 text-xs mt-1">
+                      Upload the custom HV logo image displayed to the left of the animated Forest Green HAKKIVEDA wordmark.
+                    </p>
+                  </div>
+
+                  {formData.headerHvLogo ? (
+                    <span className="px-2.5 py-1 rounded-full bg-emerald-500/20 border border-emerald-500/40 text-emerald-300 font-bold text-[11px] flex items-center gap-1.5">
+                      <CheckCircle2 className="w-3.5 h-3.5" />
+                      <span>Custom Logo Active</span>
+                    </span>
+                  ) : (
+                    <span className="px-2.5 py-1 rounded-full bg-amber-500/20 border border-amber-500/40 text-amber-300 font-bold text-[11px] flex items-center gap-1.5">
+                      <Sparkles className="w-3.5 h-3.5" />
+                      <span>Fallback HV Mark Active</span>
+                    </span>
+                  )}
+                </div>
+
+                {/* Grid: Preview & Live Simulation on Left, Controls on Right */}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-5 items-center">
+                  {/* Current Logo Preview & Live Header Simulation */}
+                  <div className="lg:col-span-6 space-y-3">
+                    <div className="flex items-center justify-between text-[11px]">
+                      <span className="font-bold text-slate-300">Current Logo Preview</span>
+                      <span className="text-slate-400 font-mono text-[10px]">
+                        {formData.headerHvLogo ? 'Aspect Ratio: Contain' : 'Default Emblem'}
+                      </span>
+                    </div>
+
+                    {/* Preview Box with Transparency Checkerboard */}
+                    <div className="h-28 bg-[radial-gradient(#334155_1px,transparent_1px)] [background-size:8px_8px] bg-slate-950/80 border border-white/15 rounded-xl flex items-center justify-center p-3 overflow-hidden relative shadow-inner">
+                      {formData.headerHvLogo ? (
+                        <img
+                          src={formData.headerHvLogo}
+                          alt="Header HV Logo Preview"
+                          className="max-h-[54px] w-auto object-contain drop-shadow-md"
+                          style={{ objectFit: 'contain' }}
+                        />
+                      ) : (
+                        <div className="flex flex-col items-center gap-1 text-slate-400">
+                          <div className="w-9 h-9 border-2 border-[var(--brand-gold)] flex items-center justify-center rotate-45">
+                            <span className="-rotate-45 font-bold font-brand text-[var(--brand-gold)] text-xs">
+                              {formData.brandInitials || 'HV'}
+                            </span>
+                          </div>
+                          <span className="text-[10px] text-slate-400 mt-1">Default HV Diamond Mark</span>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Live Header Simulation Bar */}
+                    <div className="bg-[#0e2d1d] border border-[var(--brand-gold)]/30 rounded-xl p-3 flex items-center gap-3">
+                      <span className="text-[10px] uppercase font-bold text-[var(--brand-gold)] shrink-0 border-r border-white/10 pr-2.5">
+                        Header Simulation
+                      </span>
+                      <div className="flex items-center gap-2.5 min-w-0">
+                        {formData.headerHvLogo ? (
+                          <img
+                            src={formData.headerHvLogo}
+                            alt="Logo"
+                            className="h-[38px] sm:h-[48px] max-h-[48px] w-auto object-contain shrink-0"
+                          />
+                        ) : (
+                          <div className="w-8 h-8 border-2 border-[var(--brand-gold)] flex items-center justify-center rotate-45 shrink-0">
+                            <span className="-rotate-45 font-bold font-brand text-[var(--brand-gold)] text-xs">
+                              {formData.brandInitials || 'HV'}
+                            </span>
+                          </div>
+                        )}
+                        <div className="flex flex-col justify-center min-w-0">
+                          <HakkivedaWordmark size="sm" theme="dark-header" />
+                          <span className="text-[8px] tracking-widest font-sans text-[#123F2A] font-bold uppercase truncate">
+                            {formData.brandSubtitle || 'Hakki-Pikki Tribe & Ayurveda'}
+                          </span>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Upload, Replace, Remove Controls */}
+                  <div className="lg:col-span-6 space-y-3">
+                    <div className="flex flex-wrap gap-2">
+                      {/* Upload / Replace Button */}
+                      <label className="flex-1 min-w-[140px] px-4 py-2.5 rounded-xl bg-[var(--brand-gold)] hover:bg-[#e5c158] text-[var(--brand-primary-dark)] font-black text-xs cursor-pointer flex items-center justify-center gap-2 shadow-lg transition-transform duration-150 active:scale-95">
+                        <Upload className="w-4 h-4" />
+                        <span>{formData.headerHvLogo ? 'Replace Logo' : 'Upload Logo'}</span>
+                        <input
+                          type="file"
+                          accept=".png,.webp,.jpg,.jpeg,.svg,image/png,image/webp,image/jpeg,image/svg+xml"
+                          onChange={(e) => handleFileUpload('headerHvLogo', e, 'headerHvLogoFilename')}
+                          className="hidden"
+                        />
+                      </label>
+
+                      {/* Remove Logo Button */}
+                      {formData.headerHvLogo && (
+                        <button
+                          type="button"
+                          onClick={() => handleClearField('headerHvLogo', 'headerHvLogoFilename')}
+                          className="px-3.5 py-2.5 rounded-xl bg-rose-500/20 hover:bg-rose-500/30 border border-rose-500/40 text-rose-300 font-bold text-xs flex items-center gap-1.5 transition-colors"
+                          title="Remove custom logo and revert to fallback HV mark"
+                        >
+                          <Trash2 className="w-3.5 h-3.5" />
+                          <span>Remove Logo</span>
+                        </button>
+                      )}
+                    </div>
+
+                    {/* Direct Image URL input */}
+                    <div className="space-y-1">
+                      <label className="text-[11px] text-slate-300 font-medium block">
+                        Or enter direct image URL / path:
+                      </label>
+                      <input
+                        type="text"
+                        value={formData.headerHvLogo || ''}
+                        onChange={(e) => handleTextChange('headerHvLogo', e.target.value)}
+                        placeholder="https://... or /uploads/..."
+                        className="w-full bg-black/50 border border-white/20 rounded-xl px-3 py-2 text-slate-200 text-xs focus:border-[var(--brand-gold)] focus:outline-hidden"
+                      />
+                    </div>
+
+                    {/* Format and Size Recommendations */}
+                    <div className="p-3 bg-black/30 rounded-xl border border-white/10 space-y-1 text-[11px] text-slate-300">
+                      <div className="flex items-center gap-1.5 text-[var(--brand-gold)] font-bold">
+                        <ShieldCheck className="w-3.5 h-3.5" />
+                        <span>Specs & Recommendations</span>
+                      </div>
+                      <p className="text-slate-300">
+                        <strong className="text-white">Accepted formats:</strong> PNG, WebP, JPG/JPEG, SVG.
+                      </p>
+                      <p className="text-slate-300">
+                        <strong className="text-white">Recommended:</strong> Transparent PNG or WebP.
+                      </p>
+                      <p className="text-slate-400 text-[10px]">
+                        Desktop display: ~48px height • Mobile display: ~38px height (width: auto, preserved transparency, no distortion).
+                      </p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Other Supporting Logo Assets */}
+              <div className="border-t border-white/10 pt-4">
+                <h4 className="text-xs font-bold text-slate-300 uppercase tracking-wider mb-3">
+                  Additional Brand & Packaging Logos
+                </h4>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 {[
                   { id: 'mainLogoLight', label: 'Main Logo (Light Mode Header)', desc: 'Used on dark background headers' },
                   { id: 'mainLogoDark', label: 'Main Logo (Dark Mode / Printable)', desc: 'Used on light background layouts' },
@@ -427,6 +609,7 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
                     </div>
                   );
                 })}
+                </div>
               </div>
             </div>
           )}
@@ -1439,8 +1622,8 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
                 {/* Brand Header */}
                 <div className="flex items-center justify-between pb-3 border-b" style={{ borderColor: formData.borderColor || '#D8CDAF' }}>
                   <div className="flex items-center gap-2">
-                    {formData.mainLogoLight ? (
-                      <img src={formData.mainLogoLight} alt="Logo" className="h-6 object-contain" />
+                    {formData.headerHvLogo || formData.mainLogoLight ? (
+                      <img src={formData.headerHvLogo || formData.mainLogoLight} alt="Logo" className="h-6 object-contain" />
                     ) : (
                       <div className="flex items-center gap-2">
                         <span

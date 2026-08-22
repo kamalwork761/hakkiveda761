@@ -598,6 +598,8 @@ export const INITIAL_SITE_SETTINGS: SiteSettings = {
   logoText: 'HAKKIVEDA',
   logoSubtext: 'Hakki-Pikki Tribe & Ayurveda',
   logoInitials: 'HV',
+  headerHvLogo: '',
+  logoImageUrl: '',
 
   companyName: 'HAKKIVEDA Herbal Enterprises',
   address: 'Door No. 574, V.P. Bore, Hunsur, Mysore, Karnataka, India - 571105',
@@ -1348,6 +1350,8 @@ export const INITIAL_PAYMENT_LOGS: PaymentLog[] = [];
 
 export const INITIAL_BRAND_IDENTITY: BrandIdentityConfig = {
   // 1. Logo Management
+  headerHvLogo: '',
+  headerHvLogoFilename: '',
   mainLogoLight: '',
   mainLogoDark: '',
   mobileLogo: '',

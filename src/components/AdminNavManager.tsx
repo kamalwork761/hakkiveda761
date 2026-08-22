@@ -1183,9 +1183,9 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                 {/* Logo */}
                 {headerSettings.showLogo && (
                   <div className="flex items-center gap-2">
-                    {store?.brandIdentity?.mainLogoLight || store?.brandIdentity?.mainLogoDark || store?.brandIdentity?.transparentLogo ? (
+                    {store?.brandIdentity?.headerHvLogo || store?.siteSettings?.headerHvLogo || store?.brandIdentity?.mainLogoLight || store?.brandIdentity?.mainLogoDark || store?.brandIdentity?.transparentLogo ? (
                       <img
-                        src={store?.brandIdentity?.mainLogoLight || store?.brandIdentity?.mainLogoDark || store?.brandIdentity?.transparentLogo}
+                        src={store?.brandIdentity?.headerHvLogo || store?.siteSettings?.headerHvLogo || store?.brandIdentity?.mainLogoLight || store?.brandIdentity?.mainLogoDark || store?.brandIdentity?.transparentLogo}
                         alt="Logo"
                         className="h-8 max-h-[36px] w-auto object-contain"
                       />

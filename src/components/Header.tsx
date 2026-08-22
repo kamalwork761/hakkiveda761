@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import {
   Search,
   ShoppingBag,
@@ -79,8 +79,11 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [logoLoadError, setLogoLoadError] = useState(false);
 
-  // Preferred uploaded logo from Admin Brand Manager
-  const uploadedLogo =
+  // Preferred uploaded HEADER HV LOGO from Admin Brand Manager / Site Settings
+  const uploadedLogoUrl =
+    brandIdentity?.headerHvLogo ||
+    siteSettings?.headerHvLogo ||
+    siteSettings?.logoImageUrl ||
     brandIdentity?.mainLogoLight ||
     brandIdentity?.mainLogoDark ||
     brandIdentity?.transparentLogo ||
@@ -88,7 +91,15 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
     brandIdentity?.mobileLogo ||
     '';
 
-  const mobileUploadedLogo = brandIdentity?.mobileLogo || uploadedLogo;
+  const mobileUploadedLogoUrl =
+    brandIdentity?.mobileLogo ||
+    brandIdentity?.headerHvLogo ||
+    siteSettings?.headerHvLogo ||
+    uploadedLogoUrl;
+
+  useEffect(() => {
+    setLogoLoadError(false);
+  }, [uploadedLogoUrl]);
 
   const [hoveredNavId, setHoveredNavId] = useState<string | null>(null);
 
@@ -350,16 +361,16 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
       <div className="bg-[var(--brand-primary-dark)]/95 backdrop-blur-md border-b border-[var(--brand-gold)]/20 px-3 sm:px-8 py-2.5 sm:py-3.5 flex items-center justify-between shadow-2xl relative">
         {/* Brand Logo & Wordmark */}
         <a href="#" className="flex items-center gap-2.5 sm:gap-3.5 group min-w-0 shrink">
-          {uploadedLogo && !logoLoadError ? (
+          {uploadedLogoUrl && !logoLoadError ? (
             <div className="flex items-center justify-center shrink-0">
               <picture className="flex items-center">
-                {mobileUploadedLogo !== uploadedLogo && (
-                  <source media="(max-width: 639px)" srcSet={mobileUploadedLogo} />
+                {mobileUploadedLogoUrl !== uploadedLogoUrl && (
+                  <source media="(max-width: 639px)" srcSet={mobileUploadedLogoUrl} />
                 )}
                 <img
-                  src={uploadedLogo}
-                  alt={brandIdentity?.brandName || siteSettings?.companyName || 'HAKKIVEDA Logo'}
-                  className="h-9 sm:h-[48px] max-h-[44px] sm:max-h-[54px] w-auto max-w-[90px] sm:max-w-[140px] object-contain transition-transform duration-300 group-hover:scale-105"
+                  src={uploadedLogoUrl}
+                  alt={brandIdentity?.brandName || siteSettings?.companyName || 'HAKKIVEDA Header Logo'}
+                  className="h-[38px] max-h-[38px] sm:h-[48px] sm:max-h-[48px] w-auto max-w-[110px] sm:max-w-[160px] object-contain transition-transform duration-300 group-hover:scale-105"
                   style={{ objectFit: 'contain' }}
                   onError={() => setLogoLoadError(true)}
                   loading="eager"

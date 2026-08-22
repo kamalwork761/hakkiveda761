@@ -580,6 +580,8 @@ export interface HeaderLayoutSettings {
 
 export interface BrandIdentityConfig {
   // 1. Logo Management
+  headerHvLogo?: string;
+  headerHvLogoFilename?: string;
   mainLogoLight?: string;
   mainLogoDark?: string;
   mobileLogo?: string;
@@ -663,6 +665,8 @@ export interface SiteSettings {
   logoText: string;
   logoSubtext: string;
   logoInitials: string;
+  headerHvLogo?: string;
+  logoImageUrl?: string;
 
   // Contact Info
   companyName: string;

@@ -105,8 +105,6 @@ export const BrandStory: React.FC = () => {
                   />
                 </picture>
               )}
-              <div className="image-overlay bg-gradient-to-t from-[var(--brand-primary-dark)] via-transparent to-black/30"></div>
-
               {/* Floating Lore Quote Badge */}
               <div className="absolute bottom-6 left-6 right-6 p-6 bg-black/75 backdrop-blur-xl border border-[var(--brand-gold)]/50 rounded-xl space-y-2 overlay-card z-10">
                 <div className="flex items-center gap-2 text-[var(--brand-gold)] accent">

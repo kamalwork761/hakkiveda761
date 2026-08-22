@@ -80,26 +80,86 @@
     font-family: var(--font-heading, 'Cinzel', 'Cormorant Garamond', Georgia, serif);
   }
 
-  /* LIGHT THEME ENGINE OVERRIDES */
+  /* LIGHT THEME & WHITE LUXURY GOLD ENGINE OVERRIDES */
   [data-theme="light"] {
     color-scheme: light;
+    --color-primary: #0B2F20;
+    --color-forest-green: #123F2A;
+    --color-deep-forest: #0B2F20;
+    --color-luxury-gold: #C9A84E;
+    --color-soft-gold: #E4D39A;
+    --color-muted-text: #5F6B63;
+    --color-card-border: #E7E1D5;
   }
 
   [data-theme="light"] body {
-    background-color: var(--color-background) !important;
-    color: var(--color-text) !important;
+    background-color: var(--color-background, #FFFFFF) !important;
+    color: var(--color-text, #123F2A) !important;
+  }
+
+  /* Light Theme Headings Hierarchy */
+  [data-theme="light"] h1:not(.hero-content h1, .overlay-card h1, .dark-media-card h1, .banner-content h1) {
+    color: #0B2F20 !important;
+  }
+
+  [data-theme="light"] h2:not(.hero-content h2, .overlay-card h2, .dark-media-card h2, .banner-content h2),
+  [data-theme="light"] h3:not(.hero-content h3, .overlay-card h3, .dark-media-card h3, .banner-content h3) {
+    color: #0B2F20 !important;
+  }
+
+  [data-theme="light"] h4:not(.hero-content h4, .overlay-card h4, .dark-media-card h4, .banner-content h4),
+  [data-theme="light"] h5:not(.hero-content h5, .overlay-card h5, .dark-media-card h5, .banner-content h5),
+  [data-theme="light"] h6:not(.hero-content h6, .overlay-card h6, .dark-media-card h6, .banner-content h6) {
+    color: #123F2A !important;
   }
 
   /* Light Theme Text Contrast for Light Background Sections */
   [data-theme="light"] .text-slate-100,
   [data-theme="light"] .text-slate-200,
   [data-theme="light"] .text-slate-300 {
-    color: var(--color-text, #1F2A1F) !important;
+    color: var(--color-text, #123F2A) !important;
   }
 
   [data-theme="light"] .text-slate-400,
   [data-theme="light"] .text-slate-500 {
-    color: var(--color-secondary-text, #475569) !important;
+    color: var(--color-muted-text, #5F6B63) !important;
+  }
+
+  /* Light Theme Card Borders and Soft Warm Shadows */
+  [data-theme="light"] .border-white\/10,
+  [data-theme="light"] .border-white\/15,
+  [data-theme="light"] .border-white\/20,
+  [data-theme="light"] .border-white\/25,
+  [data-theme="light"] .border-white\/30 {
+    border-color: var(--color-border, #E7E1D5) !important;
+  }
+
+  /* Card and Panel Backgrounds in Light Theme */
+  [data-theme="light"] .bg-\[var\(--brand-primary-dark\)\] {
+    background-color: var(--color-background, #FFFFFF) !important;
+  }
+
+  [data-theme="light"] .bg-\[var\(--brand-primary-deep\)\] {
+    background-color: var(--color-card-background, #FFFFFF) !important;
+    border-color: var(--color-border, #E7E1D5);
+  }
+
+  [data-theme="light"] .bg-\[var\(--brand-primary-deeper\)\] {
+    background-color: #FAF8F2 !important;
+  }
+
+  [data-theme="light"] .bg-black\/20,
+  [data-theme="light"] .bg-black\/30,
+  [data-theme="light"] .bg-black\/40 {
+    background-color: #FAF8F2 !important;
+  }
+
+  /* High Contrast Links & Buttons */
+  [data-theme="light"] .bg-\[var\(--brand-gold\)\] .text-\[var\(--brand-primary-dark\)\],
+  [data-theme="light"] a.bg-\[var\(--brand-gold\)\],
+  [data-theme="light"] button.bg-\[var\(--brand-gold\)\] {
+    color: #0B2F20 !important;
+    font-weight: 700;
   }
 
   /* EXPLICITLY PRESERVE WHITE/LIGHT/GOLD TEXT FOR HERO & DARK OVERLAYS IN LIGHT THEME */
@@ -173,27 +233,7 @@
   [data-theme="light"] .overlay-content .text-\[var\(--brand-gold\)\],
   [data-theme="light"] .banner-content .text-\[var\(--brand-gold\)\],
   [data-theme="light"] [class*="bg-black"] .text-\[var\(--brand-gold\)\] {
-    color: var(--brand-gold, #D4AF37) !important;
-  }
-
-  /* High Contrast Text for Gold Buttons */
-  [data-theme="light"] .bg-\[var\(--brand-gold\)\] .text-\[var\(--brand-primary-dark\)\],
-  [data-theme="light"] a.bg-\[var\(--brand-gold\)\],
-  [data-theme="light"] button.bg-\[var\(--brand-gold\)\] {
-    color: #0A3D14 !important;
-  }
-
-  /* Light Theme Card & Section Backgrounds */
-  [data-theme="light"] .bg-\[var\(--brand-primary-dark\)\] {
-    background-color: var(--color-background) !important;
-  }
-
-  [data-theme="light"] .bg-\[var\(--brand-primary-deep\)\] {
-    background-color: var(--color-card-background) !important;
-  }
-
-  [data-theme="light"] .bg-\[var\(--brand-primary-deeper\)\] {
-    background-color: #F0EBE1 !important;
+    color: var(--brand-gold, #C9A84E) !important;
   }
 
   /* Light Theme Input Fields */
@@ -203,9 +243,9 @@
   [data-theme="light"] input[type="password"],
   [data-theme="light"] textarea,
   [data-theme="light"] select {
-    background-color: var(--color-input-background) !important;
-    color: var(--color-input-text) !important;
-    border-color: var(--color-input-border) !important;
+    background-color: var(--color-input-background, #FFFFFF) !important;
+    color: var(--color-input-text, #123F2A) !important;
+    border-color: var(--color-input-border, #E7E1D5) !important;
   }
 
   /* DARK THEME ENGINE OVERRIDES */

@@ -590,11 +590,12 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
               {/* Quick Preset Color Swatches */}
               <div className="bg-black/30 p-4 rounded-xl border border-white/10 space-y-3">
                 <div className="flex items-center justify-between">
-                  <span className="font-bold text-slate-300 block text-xs">Official Brand Presets (5 Curated Themes)</span>
+                  <span className="font-bold text-slate-300 block text-xs">Official Brand Presets (6 Curated Luxury Themes)</span>
                   <span className="text-[10px] font-mono text-[var(--brand-gold)] font-bold">Auto Theme-Engine Active</span>
                 </div>
                 <div className="flex flex-wrap gap-2.5">
                   {[
+                    { name: 'White Luxury Gold', primary: '#0B2F20', gold: '#C9A84E', bg: '#FFFFFF', text: '#123F2A', accent: '#C9A84E', button: '#0B2F20', hover: '#123F2A', border: '#E7E1D5', themeMode: 'light' },
                     { name: 'HAKKIVEDA Ivory', primary: '#0A4F1F', gold: '#D4AF37', bg: '#F8F5EE', text: '#173A25', accent: '#176B3A', button: '#0A5A2A', hover: '#083F1E', border: '#D8CDAF', themeMode: 'light' },
                     { name: 'Forest Mist', primary: '#1B4332', gold: '#D4AF37', bg: '#F4F7F4', text: '#173A25', accent: '#2D6A4F', button: '#D4AF37', hover: '#B8962E', border: '#D0DCD5', themeMode: 'light' },
                     { name: 'Botanical Sage', primary: '#356447', gold: '#C9A43C', bg: '#F3F7F1', text: '#173A25', accent: '#709B68', button: '#356447', hover: '#284E37', border: '#D5E2D5', themeMode: 'light' },
@@ -621,7 +622,11 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
                         applyBrandStyles(next);
                         showToast(`Applied ${swatch.name} (${swatch.themeMode.toUpperCase()} Theme)`);
                       }}
-                      className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-bold text-slate-200 flex items-center gap-2 transition-all cursor-pointer group"
+                      className={`px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border text-xs font-bold text-slate-200 flex items-center gap-2 transition-all cursor-pointer group ${
+                        formData.backgroundColor === swatch.bg && formData.primaryColor === swatch.primary
+                          ? 'border-[var(--brand-gold)] ring-1 ring-[var(--brand-gold)]/40 bg-white/10'
+                          : 'border-white/10'
+                      }`}
                     >
                       <span className="w-3.5 h-3.5 rounded-full border border-white/20 shrink-0" style={{ backgroundColor: swatch.bg }}></span>
                       <span className="w-3.5 h-3.5 rounded-full shrink-0" style={{ backgroundColor: swatch.gold }}></span>
@@ -865,37 +870,196 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
               <div className="flex items-center justify-between border-b border-white/10 pb-3">
                 <h3 className="text-sm font-bold text-[var(--brand-gold)] uppercase tracking-wider flex items-center gap-2">
                   <Sun className="w-4 h-4" />
-                  <span>5. Theme Manager (Light / Dark / Auto)</span>
+                  <span>5. Theme Manager (Curated Luxury Themes & Mode Switcher)</span>
                 </h3>
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
-                {[
-                  { id: 'dark', label: 'Dark Mode (Forest Green)', icon: Moon, desc: 'Signature dark luxury experience' },
-                  { id: 'light', label: 'Light Mode (Clean Cream)', icon: Sun, desc: 'High-contrast bright storefront' },
-                  { id: 'auto', label: 'Auto (System Preference)', icon: Monitor, desc: 'Adapts to user operating system' },
-                ].map((mode) => {
-                  const Icon = mode.icon;
-                  const isSel = formData.themeMode === mode.id;
-                  return (
-                    <button
-                      key={mode.id}
-                      onClick={() => handleTextChange('themeMode', mode.id)}
-                      className={`p-4 rounded-xl border text-left transition-all space-y-2 ${
-                        isSel
-                          ? 'bg-[var(--brand-gold)]/10 border-[var(--brand-gold)] ring-2 ring-[var(--brand-gold)]/30'
-                          : 'bg-[var(--brand-primary-deep)] border-white/10 hover:border-white/30'
-                      }`}
-                    >
-                      <div className="flex items-center justify-between">
-                        <Icon className={`w-5 h-5 ${isSel ? 'text-[var(--brand-gold)]' : 'text-slate-400'}`} />
-                        {isSel && <CheckCircle2 className="w-4 h-4 text-[var(--brand-gold)]" />}
-                      </div>
-                      <span className="font-bold text-slate-100 block text-sm">{mode.label}</span>
-                      <p className="text-[11px] text-slate-400">{mode.desc}</p>
-                    </button>
-                  );
-                })}
+              {/* Curated Global Themes Gallery */}
+              <div className="space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-slate-100 block text-xs uppercase tracking-wider">
+                    Select Curated Global Theme
+                  </span>
+                  <span className="text-[10px] font-mono text-[var(--brand-gold)] font-bold">1-Click Live Activation</span>
+                </div>
+
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3.5">
+                  {[
+                    {
+                      name: 'White Luxury Gold',
+                      primary: '#0B2F20',
+                      gold: '#C9A84E',
+                      bg: '#FFFFFF',
+                      text: '#123F2A',
+                      accent: '#C9A84E',
+                      button: '#0B2F20',
+                      hover: '#123F2A',
+                      border: '#E7E1D5',
+                      themeMode: 'light',
+                      desc: 'Clean white canvas, deep forest green typography & luxury metallic gold accents. Maximum readability & elegance.',
+                      badge: 'New Flagship',
+                    },
+                    {
+                      name: 'HAKKIVEDA Ivory',
+                      primary: '#0A4F1F',
+                      gold: '#D4AF37',
+                      bg: '#F8F5EE',
+                      text: '#173A25',
+                      accent: '#176B3A',
+                      button: '#0A5A2A',
+                      hover: '#083F1E',
+                      border: '#D8CDAF',
+                      themeMode: 'light',
+                      desc: 'Classic warm organic cream with herbal green branding & gold accents.',
+                    },
+                    {
+                      name: 'Forest Mist',
+                      primary: '#1B4332',
+                      gold: '#D4AF37',
+                      bg: '#F4F7F4',
+                      text: '#173A25',
+                      accent: '#2D6A4F',
+                      button: '#D4AF37',
+                      hover: '#B8962E',
+                      border: '#D0DCD5',
+                      themeMode: 'light',
+                      desc: 'Subtle cool mist tones with deep emerald accents and gold highlights.',
+                    },
+                    {
+                      name: 'Botanical Sage',
+                      primary: '#356447',
+                      gold: '#C9A43C',
+                      bg: '#F3F7F1',
+                      text: '#173A25',
+                      accent: '#709B68',
+                      button: '#356447',
+                      hover: '#284E37',
+                      border: '#D5E2D5',
+                      themeMode: 'light',
+                      desc: 'Earthy botanical sage herbs palette with warm golden sun hues.',
+                    },
+                    {
+                      name: 'Ayurvedic Deep Forest',
+                      primary: '#0B1D13',
+                      gold: '#D4AF37',
+                      bg: '#0B1D13',
+                      text: '#FFFFFF',
+                      accent: '#3AA91F',
+                      button: '#D4AF37',
+                      hover: '#E8D279',
+                      border: 'rgba(212, 175, 55, 0.3)',
+                      themeMode: 'dark',
+                      desc: 'Signature nighttime Mysore jungle sanctuary dark mode with luminescent gold accents.',
+                    },
+                    {
+                      name: 'Royal Emerald',
+                      primary: '#022C22',
+                      gold: '#F59E0B',
+                      bg: '#022C22',
+                      text: '#F0FDF4',
+                      accent: '#10B981',
+                      button: '#F59E0B',
+                      hover: '#FBBF24',
+                      border: 'rgba(245, 158, 11, 0.3)',
+                      themeMode: 'dark',
+                      desc: 'Majestic deep jewel emerald theme with warm amber gold highlights.',
+                    },
+                  ].map((theme, idx) => {
+                    const isActive = formData.backgroundColor === theme.bg && formData.primaryColor === theme.primary;
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={() => {
+                          const next = {
+                            ...formData,
+                            primaryColor: theme.primary,
+                            secondaryGold: theme.gold,
+                            backgroundColor: theme.bg,
+                            textColor: theme.text,
+                            accentColor: theme.accent,
+                            buttonColor: theme.button,
+                            hoverColor: theme.hover,
+                            borderColor: theme.border,
+                            themeMode: theme.themeMode as any,
+                          };
+                          setFormData(next);
+                          applyBrandStyles(next);
+                          showToast(`Activated ${theme.name} Theme!`);
+                        }}
+                        className={`p-3.5 rounded-xl border text-left transition-all space-y-2.5 relative flex flex-col justify-between ${
+                          isActive
+                            ? 'bg-[var(--brand-gold)]/15 border-[var(--brand-gold)] ring-2 ring-[var(--brand-gold)]/40 shadow-lg'
+                            : 'bg-[var(--brand-primary-deep)] border-white/10 hover:border-white/30 hover:bg-white/5'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <div className="flex items-center gap-2">
+                            <span
+                              className="w-4 h-4 rounded-full border border-white/20 shadow-xs"
+                              style={{ backgroundColor: theme.bg }}
+                            ></span>
+                            <span
+                              className="w-4 h-4 rounded-full shadow-xs"
+                              style={{ backgroundColor: theme.gold }}
+                            ></span>
+                            <span
+                              className="w-4 h-4 rounded-full shadow-xs"
+                              style={{ backgroundColor: theme.primary }}
+                            ></span>
+                            <span className="font-bold text-slate-100 text-xs">{theme.name}</span>
+                          </div>
+                          {theme.badge && (
+                            <span className="text-[9px] font-mono font-extrabold uppercase px-1.5 py-0.5 rounded bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]">
+                              {theme.badge}
+                            </span>
+                          )}
+                          {isActive && <CheckCircle2 className="w-4 h-4 text-[var(--brand-gold)] ml-auto" />}
+                        </div>
+                        <p className="text-[10px] text-slate-300 leading-relaxed font-light">{theme.desc}</p>
+                        <div className="flex items-center justify-between pt-1 border-t border-white/10 text-[9px] font-mono text-slate-400">
+                          <span>Mode: {theme.themeMode.toUpperCase()}</span>
+                          <span className="text-[var(--brand-gold)] font-bold">Click to Apply</span>
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Operating System Theme Mode Control */}
+              <div className="space-y-3 pt-2">
+                <span className="font-bold text-slate-100 block text-xs uppercase tracking-wider">
+                  Theme Display Engine Mode
+                </span>
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+                  {[
+                    { id: 'dark', label: 'Dark Mode (Forest Green)', icon: Moon, desc: 'Signature dark luxury experience' },
+                    { id: 'light', label: 'Light Mode (Clean Cream / White)', icon: Sun, desc: 'High-contrast bright storefront' },
+                    { id: 'auto', label: 'Auto (System Preference)', icon: Monitor, desc: 'Adapts to user operating system' },
+                  ].map((mode) => {
+                    const Icon = mode.icon;
+                    const isSel = formData.themeMode === mode.id;
+                    return (
+                      <button
+                        key={mode.id}
+                        onClick={() => handleTextChange('themeMode', mode.id)}
+                        className={`p-4 rounded-xl border text-left transition-all space-y-2 ${
+                          isSel
+                            ? 'bg-[var(--brand-gold)]/10 border-[var(--brand-gold)] ring-2 ring-[var(--brand-gold)]/30'
+                            : 'bg-[var(--brand-primary-deep)] border-white/10 hover:border-white/30'
+                        }`}
+                      >
+                        <div className="flex items-center justify-between">
+                          <Icon className={`w-5 h-5 ${isSel ? 'text-[var(--brand-gold)]' : 'text-slate-400'}`} />
+                          {isSel && <CheckCircle2 className="w-4 h-4 text-[var(--brand-gold)]" />}
+                        </div>
+                        <span className="font-bold text-slate-100 block text-sm">{mode.label}</span>
+                        <p className="text-[11px] text-slate-400">{mode.desc}</p>
+                      </button>
+                    );
+                  })}
+                </div>
               </div>
             </div>
           )}

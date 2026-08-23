@@ -89,25 +89,37 @@ export const ProductDetailModal: React.FC = () => {
     setZoomPos({ x, y });
   };
 
-  // Touch Swipe handlers
+  // Touch gestures for mobile swipe (allows vertical page scrolling while capturing horizontal swipes)
+  const touchStartY = useRef<number>(0);
+  const touchEndY = useRef<number>(0);
+
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    touchEndX.current = e.touches[0].clientX;
+    touchEndY.current = e.touches[0].clientY;
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     touchEndX.current = e.touches[0].clientX;
+    touchEndY.current = e.touches[0].clientY;
   };
 
   const handleTouchEnd = () => {
-    if (!touchStartX.current || !touchEndX.current) return;
-    const distance = touchStartX.current - touchEndX.current;
-    if (distance > 40) {
-      handleNextImage(); // Swiped left -> Next image
-    } else if (distance < -40) {
-      handlePrevImage(); // Swiped right -> Previous image
+    const deltaX = touchStartX.current - touchEndX.current;
+    const deltaY = Math.abs(touchStartY.current - touchEndY.current);
+
+    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > deltaY) {
+      if (deltaX > 0) {
+        handleNextImage(); // Swiped left -> Next image
+      } else {
+        handlePrevImage(); // Swiped right -> Previous image
+      }
     }
     touchStartX.current = 0;
+    touchStartY.current = 0;
     touchEndX.current = 0;
+    touchEndY.current = 0;
   };
 
   const handleReviewSubmit = (e: React.FormEvent) => {
@@ -169,7 +181,7 @@ export const ProductDetailModal: React.FC = () => {
                 onTouchStart={handleTouchStart}
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
-                className="w-full h-64 sm:h-80 md:h-96 rounded-xl overflow-hidden relative border border-slate-200 bg-white flex items-center justify-center p-2 sm:p-4 cursor-crosshair group select-none shrink-0"
+                className="w-full aspect-square sm:aspect-auto sm:h-80 md:h-96 rounded-xl overflow-hidden relative border border-slate-200 bg-white flex items-center justify-center p-2 sm:p-4 cursor-crosshair group select-none shrink-0"
               >
                 <img
                   src={productImages[selectedImageIndex]}
@@ -179,11 +191,12 @@ export const ProductDetailModal: React.FC = () => {
                     transformOrigin: `${zoomPos.x}% ${zoomPos.y}%`,
                     transform: isZoomed ? 'scale(2.2)' : 'scale(1)',
                     width: '100%',
-                    height: 'auto',
+                    height: '100%',
                     maxHeight: '100%',
+                    maxWidth: '100%',
                     objectFit: 'contain',
                   }}
-                  className="product-main-image w-full h-auto max-h-full object-contain transition-transform duration-200 ease-out"
+                  className="product-main-image w-full h-full object-contain transition-transform duration-200 ease-out select-none"
                 />
 
                 {/* SKU Tag */}
@@ -197,12 +210,12 @@ export const ProductDetailModal: React.FC = () => {
                 </span>
 
                 {/* Desktop Hover Zoom Hint */}
-                <div className="absolute bottom-3 left-3 bg-black/75 text-[#D4AF37] text-[10px] font-bold px-2.5 py-1 rounded-full border border-[var(--brand-gold)]/30 opacity-80 group-hover:opacity-0 transition-opacity flex items-center gap-1 z-10">
+                <div className="hidden md:flex absolute bottom-3 left-3 bg-black/75 text-[#D4AF37] text-[10px] font-bold px-2.5 py-1 rounded-full border border-[var(--brand-gold)]/30 opacity-80 group-hover:opacity-0 transition-opacity items-center gap-1 z-10">
                   <ZoomIn className="w-3 h-3" />
                   <span>Hover to zoom • Swipe on mobile</span>
                 </div>
 
-                {/* Prev / Next Navigation Arrows */}
+                {/* Prev / Next Navigation Arrows (Desktop Only) */}
                 {productImages.length > 1 && (
                   <>
                     <button
@@ -211,7 +224,7 @@ export const ProductDetailModal: React.FC = () => {
                         e.stopPropagation();
                         handlePrevImage();
                       }}
-                      className="absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/70 text-white hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all flex items-center justify-center border border-white/20 shadow-xl cursor-pointer"
+                      className="hidden md:flex absolute left-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/70 text-white hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all items-center justify-center border border-white/20 shadow-xl cursor-pointer"
                       title="Previous Image"
                     >
                       <ChevronLeft className="w-5 h-5" />
@@ -222,7 +235,7 @@ export const ProductDetailModal: React.FC = () => {
                         e.stopPropagation();
                         handleNextImage();
                       }}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/70 text-white hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all flex items-center justify-center border border-white/20 shadow-xl cursor-pointer"
+                      className="hidden md:flex absolute right-2 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/70 text-white hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all items-center justify-center border border-white/20 shadow-xl cursor-pointer"
                       title="Next Image"
                     >
                       <ChevronRight className="w-5 h-5" />
@@ -231,9 +244,42 @@ export const ProductDetailModal: React.FC = () => {
                 )}
               </div>
 
-              {/* Clickable Gallery Thumbnails Bar */}
+              {/* Mobile Pagination Dots: Placed directly below the main image */}
               {productImages.length > 1 && (
-                <div className="flex gap-2.5 overflow-x-auto pb-2 pt-1 scrollbar-none">
+                <div
+                  className="flex md:hidden items-center justify-center gap-2 py-2 px-1 w-full select-none overflow-x-auto no-scrollbar"
+                  aria-label="Product image pagination"
+                >
+                  {productImages.map((_, idx) => {
+                    const isActive = selectedImageIndex === idx;
+                    return (
+                      <button
+                        key={idx}
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setSelectedImageIndex(idx);
+                        }}
+                        className="p-1 -m-1 flex items-center justify-center cursor-pointer touch-manipulation focus:outline-none"
+                        aria-label={`Go to slide ${idx + 1}`}
+                        aria-current={isActive ? 'true' : 'false'}
+                      >
+                        <span
+                          className={`block rounded-full transition-all duration-200 ${
+                            isActive
+                              ? 'w-6 h-2 bg-[var(--brand-gold,#D4AF37)] shadow-sm'
+                              : 'w-2 h-2 bg-slate-300 hover:bg-slate-400'
+                          }`}
+                        />
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+
+              {/* Clickable Gallery Thumbnails Bar (Desktop Only) */}
+              {productImages.length > 1 && (
+                <div className="hidden md:flex gap-2.5 overflow-x-auto pb-2 pt-1 scrollbar-none">
                   {productImages.map((img, idx) => (
                     <button
                       key={idx}

@@ -236,10 +236,10 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
         </div>
 
         {/* Main Product Hero Grid */}
-        <div className="bg-white dark:bg-[#123F2B] border border-[#E7E1D5] dark:border-white/10 rounded-3xl shadow-xl overflow-hidden mb-12">
+        <div className="bg-transparent sm:bg-white dark:sm:bg-[#123F2B] border-0 sm:border border-[#E7E1D5] dark:border-white/10 rounded-none sm:rounded-3xl shadow-none sm:shadow-xl overflow-hidden mb-8 sm:mb-12">
           <div className="grid grid-cols-1 lg:grid-cols-12 gap-0">
             {/* Left: Product Image Gallery (6 Cols) */}
-            <div className="lg:col-span-6 p-4 sm:p-8 bg-[#FAF8F2]/60 dark:bg-black/20 border-b lg:border-b-0 lg:border-r border-[#E7E1D5] dark:border-white/10 flex flex-col justify-center">
+            <div className="lg:col-span-6 p-0 sm:p-8 bg-transparent sm:bg-[#FAF8F2]/60 dark:sm:bg-black/20 border-b-0 lg:border-b-0 lg:border-r border-[#E7E1D5] dark:border-white/10 flex flex-col justify-center">
               <ProductGallery
                 images={productImages}
                 productName={product.name}
@@ -251,7 +251,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
             </div>
 
             {/* Right: Product Details & Purchase Form (6 Cols) */}
-            <div className="lg:col-span-6 p-6 sm:p-10 flex flex-col justify-between space-y-6 bg-white dark:bg-[#123F2B] text-[#123F2A] dark:text-white">
+            <div className="lg:col-span-6 px-0 py-4 sm:p-10 flex flex-col justify-between space-y-6 bg-transparent sm:bg-white dark:sm:bg-[#123F2B] text-[#123F2A] dark:text-white">
               <div className="space-y-4">
                 {/* Category & Stock Status Row */}
                 <div className="flex flex-wrap items-center justify-between gap-2">

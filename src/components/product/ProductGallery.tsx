@@ -64,32 +64,56 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
     setZoomCoords({ x, y });
   };
 
-  // Mobile Touch Gestures
+  // Touch gestures for mobile swipe (allows vertical page scrolling while capturing horizontal swipes)
+  const touchStartY = useRef<number>(0);
+  const touchEndY = useRef<number>(0);
+  const isSwipingHorizontal = useRef<boolean>(false);
+
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+    touchEndX.current = e.touches[0].clientX;
+    touchEndY.current = e.touches[0].clientY;
+    isSwipingHorizontal.current = false;
   };
 
   const handleTouchMove = (e: React.TouchEvent) => {
     touchEndX.current = e.touches[0].clientX;
+    touchEndY.current = e.touches[0].clientY;
+
+    const deltaX = Math.abs(touchEndX.current - touchStartX.current);
+    const deltaY = Math.abs(touchEndY.current - touchStartY.current);
+
+    // If horizontal movement exceeds vertical movement by a margin, lock horizontal intent
+    if (deltaX > deltaY && deltaX > 10) {
+      isSwipingHorizontal.current = true;
+    }
   };
 
   const handleTouchEnd = () => {
-    if (!touchStartX.current || !touchEndX.current) return;
-    const diff = touchStartX.current - touchEndX.current;
-    if (diff > 45) {
-      handleNext();
-    } else if (diff < -45) {
-      handlePrev();
+    const deltaX = touchStartX.current - touchEndX.current;
+    const deltaY = Math.abs(touchStartY.current - touchEndY.current);
+
+    // Only trigger slide change if horizontal swipe is decisive (>40px) and greater than vertical scroll
+    if (Math.abs(deltaX) > 40 && Math.abs(deltaX) > deltaY) {
+      if (deltaX > 0) {
+        handleNext();
+      } else {
+        handlePrev();
+      }
     }
     touchStartX.current = 0;
+    touchStartY.current = 0;
     touchEndX.current = 0;
+    touchEndY.current = 0;
+    isSwipingHorizontal.current = false;
   };
 
   return (
     <div id="product-gallery" className="w-full flex flex-col-reverse lg:flex-row gap-4 select-none">
       {/* Desktop Vertical Thumbnails / Mobile Horizontal Thumbnails */}
       {images.length > 1 && (
-        <div className="flex lg:flex-col gap-2.5 overflow-x-auto lg:overflow-y-auto lg:max-h-[520px] pb-2 lg:pb-0 scrollbar-none shrink-0 no-scrollbar">
+        <div className="hidden md:flex lg:flex-col gap-2.5 overflow-x-auto lg:overflow-y-auto lg:max-h-[520px] pb-2 lg:pb-0 scrollbar-none shrink-0 no-scrollbar">
           {images.map((img, idx) => {
             const isSelected = selectedIndex === idx;
             return (
@@ -120,7 +144,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
       )}
 
       {/* Main Showcase Stage */}
-      <div className="flex-1 relative">
+      <div className="flex-1 relative w-full overflow-hidden">
         <div
           ref={mainImageContainerRef}
           onMouseEnter={() => setIsZoomActive(true)}
@@ -130,7 +154,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
           onTouchMove={handleTouchMove}
           onTouchEnd={handleTouchEnd}
           onClick={() => setIsFullscreenOpen(true)}
-          className="w-full h-80 sm:h-96 md:h-[480px] lg:h-[520px] rounded-2xl overflow-hidden relative border border-[#E7E1D5] dark:border-white/10 bg-white dark:bg-black/30 flex items-center justify-center p-4 cursor-zoom-in group shadow-sm transition-all"
+          className="w-full aspect-square sm:aspect-auto sm:h-96 md:h-[480px] lg:h-[520px] rounded-2xl md:rounded-2xl overflow-hidden relative border-0 sm:border border-[#E7E1D5] dark:border-white/10 bg-white/70 dark:bg-black/30 flex items-center justify-center p-2 sm:p-4 cursor-zoom-in group shadow-none sm:shadow-sm transition-all"
         >
           {/* Main Product Image (Preloaded / Eager for LCP) */}
           <img
@@ -142,11 +166,12 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
               transformOrigin: `${zoomCoords.x}% ${zoomCoords.y}%`,
               transform: isZoomActive ? 'scale(2.2)' : 'scale(1)',
               width: '100%',
-              height: 'auto',
+              height: '100%',
               maxHeight: '100%',
+              maxWidth: '100%',
               objectFit: 'contain',
             }}
-            className="w-full h-auto max-h-full object-contain transition-transform duration-150 ease-out"
+            className="w-full h-full object-contain transition-transform duration-150 ease-out select-none"
           />
 
           {/* Badges Overlay */}
@@ -173,14 +198,14 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             )}
           </div>
 
-          {/* Fullscreen Button Trigger */}
+          {/* Fullscreen Button Trigger (Desktop Only, on mobile tapping image opens fullscreen) */}
           <button
             type="button"
             onClick={(e) => {
               e.stopPropagation();
               setIsFullscreenOpen(true);
             }}
-            className="absolute bottom-3 right-3 p-2.5 rounded-xl bg-black/60 hover:bg-[var(--brand-gold)] text-white hover:text-[#0B2F20] border border-white/20 transition-all shadow-lg z-20 flex items-center gap-1 text-xs font-bold cursor-pointer"
+            className="hidden md:flex absolute bottom-3 right-3 p-2.5 rounded-xl bg-black/60 hover:bg-[var(--brand-gold)] text-white hover:text-[#0B2F20] border border-white/20 transition-all shadow-lg z-20 items-center gap-1 text-xs font-bold cursor-pointer"
             title="Open fullscreen viewer"
             aria-label="Open fullscreen image viewer"
           >
@@ -188,13 +213,13 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             <span className="hidden sm:inline text-[10px]">Fullscreen</span>
           </button>
 
-          {/* Mobile swipe / Desktop zoom hint pill */}
-          <div className="absolute bottom-3 left-3 bg-black/60 text-slate-200 text-[10px] font-medium px-2.5 py-1 rounded-full border border-white/10 opacity-70 group-hover:opacity-0 transition-opacity flex items-center gap-1.5 z-10 backdrop-blur-xs pointer-events-none">
+          {/* Mobile swipe / Desktop zoom hint pill (Desktop Only) */}
+          <div className="hidden md:flex absolute bottom-3 left-3 bg-black/60 text-slate-200 text-[10px] font-medium px-2.5 py-1 rounded-full border border-white/10 opacity-70 group-hover:opacity-0 transition-opacity items-center gap-1.5 z-10 backdrop-blur-xs pointer-events-none">
             <ZoomIn className="w-3 h-3 text-[var(--brand-gold)]" />
             <span>Hover to zoom • Click for fullscreen</span>
           </div>
 
-          {/* Gallery Prev / Next Controls */}
+          {/* Gallery Prev / Next Controls (Desktop Only) */}
           {images.length > 1 && (
             <>
               <button
@@ -203,7 +228,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                   e.stopPropagation();
                   handlePrev();
                 }}
-                className="absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 hover:bg-[var(--brand-gold)] text-white hover:text-[#0B2F20] transition-all flex items-center justify-center border border-white/20 shadow-xl opacity-80 hover:opacity-100 cursor-pointer"
+                className="hidden md:flex absolute left-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 hover:bg-[var(--brand-gold)] text-white hover:text-[#0B2F20] transition-all items-center justify-center border border-white/20 shadow-xl opacity-80 hover:opacity-100 cursor-pointer"
                 aria-label="Previous image"
               >
                 <ChevronLeft className="w-5 h-5" />
@@ -214,7 +239,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                   e.stopPropagation();
                   handleNext();
                 }}
-                className="absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 hover:bg-[var(--brand-gold)] text-white hover:text-[#0B2F20] transition-all flex items-center justify-center border border-white/20 shadow-xl opacity-80 hover:opacity-100 cursor-pointer"
+                className="hidden md:flex absolute right-3 top-1/2 -translate-y-1/2 z-20 w-10 h-10 rounded-full bg-black/50 hover:bg-[var(--brand-gold)] text-white hover:text-[#0B2F20] transition-all items-center justify-center border border-white/20 shadow-xl opacity-80 hover:opacity-100 cursor-pointer"
                 aria-label="Next image"
               >
                 <ChevronRight className="w-5 h-5" />
@@ -222,22 +247,41 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             </>
           )}
 
-          {/* Mobile Dot Indicators */}
-          {images.length > 1 && (
-            <div className="absolute bottom-3 inset-x-0 flex lg:hidden items-center justify-center gap-1.5 z-10 pointer-events-none">
-              {images.map((_, idx) => (
-                <span
-                  key={idx}
-                  className={`h-1.5 rounded-full transition-all ${
-                    selectedIndex === idx
-                      ? 'w-5 bg-[var(--brand-gold)] shadow'
-                      : 'w-1.5 bg-white/50'
-                  }`}
-                />
-              ))}
-            </div>
-          )}
+          {/* Desktop Only Inside-Overlay Dot Indicators (if any needed) */}
         </div>
+
+        {/* Mobile Pagination Dots: Placed directly below the main image for clean visibility & easy tap */}
+        {images.length > 1 && (
+          <div
+            className="flex md:hidden items-center justify-center gap-2 py-3 px-2 w-full select-none overflow-x-auto no-scrollbar"
+            aria-label="Product image pagination"
+          >
+            {images.map((_, idx) => {
+              const isActive = selectedIndex === idx;
+              return (
+                <button
+                  key={idx}
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedIndex(idx);
+                  }}
+                  className="p-1 -m-1 flex items-center justify-center cursor-pointer touch-manipulation focus:outline-none"
+                  aria-label={`Go to slide ${idx + 1}`}
+                  aria-current={isActive ? 'true' : 'false'}
+                >
+                  <span
+                    className={`block rounded-full transition-all duration-200 ${
+                      isActive
+                        ? 'w-6 h-2 bg-[var(--brand-gold,#D4AF37)] shadow-sm'
+                        : 'w-2 h-2 bg-slate-300 dark:bg-white/30 hover:bg-slate-400 dark:hover:bg-white/50'
+                    }`}
+                  />
+                </button>
+              );
+            })}
+          </div>
+        )}
       </div>
 
       {/* Fullscreen Lightbox Modal */}

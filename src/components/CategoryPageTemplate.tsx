@@ -18,6 +18,7 @@ import {
 import { useStore } from '../context/StoreContext';
 import { Product, CategoryPageConfig } from '../types/store';
 import { CategoryHeroBanner } from './CategoryHeroBanner';
+import { getProductUrl } from '../utils/productUtils';
 
 interface CategoryPageTemplateProps {
   categoryId: string; // e.g., 'hair-care', 'skin-care', 'tribal-wellness'
@@ -533,7 +534,11 @@ export const CategoryPageTemplate: React.FC<CategoryPageTemplateProps> = ({
               return (
                 <div
                   key={product.id}
-                  onClick={() => openQuickView(product)}
+                  onClick={() => {
+                    window.history.pushState({}, '', getProductUrl(product));
+                    window.dispatchEvent(new PopStateEvent('popstate'));
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
                   className="bg-white text-slate-900 rounded-2xl overflow-hidden border border-[#E5D8B5]/80 shadow-sm hover:shadow-xl active:scale-[0.99] transition-all duration-300 flex flex-col group cursor-pointer"
                 >
                   {/* Product Image */}
@@ -580,10 +585,17 @@ export const CategoryPageTemplate: React.FC<CategoryPageTemplateProps> = ({
 
                     {/* Quick View Indicator Overlay */}
                     <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
-                      <span className="bg-white/95 text-slate-900 font-bold text-xs px-4 py-2 rounded-full flex items-center gap-2 shadow-lg">
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openQuickView(product);
+                        }}
+                        className="bg-white/95 hover:bg-white text-slate-900 font-bold text-xs px-4 py-2 rounded-full flex items-center gap-2 shadow-lg transition-transform hover:scale-105 cursor-pointer"
+                      >
                         <Eye className="w-4 h-4 text-[#123F2A]" />
                         <span>Quick View</span>
-                      </span>
+                      </button>
                     </div>
                   </div>
 

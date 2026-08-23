@@ -7,6 +7,32 @@ export interface Currency {
   flag: string;
 }
 
+export interface ProductVariant {
+  id: string;
+  name: string; // e.g. "100 ml", "200 ml", "500 ml", "1 L", "150 g", "Small"
+  sku: string;
+  priceINR: number;
+  originalPriceINR?: number;
+  stock: number;
+  weight?: string;
+  size?: string;
+  image?: string;
+  active?: boolean;
+}
+
+export interface ProductDetailAttribute {
+  label: string;
+  value: string;
+}
+
+export interface ProductGalleryItem {
+  id: string;
+  url: string;
+  altText?: string;
+  active?: boolean;
+  sortOrder?: number;
+}
+
 export interface Product {
   id: string;
   name: string;
@@ -20,7 +46,10 @@ export interface Product {
   reviewsCount: number;
   image: string;
   additionalImages: string[];
+  galleryItems?: ProductGalleryItem[];
   description: string;
+  shortDescription?: string;
+  fullDescription?: string;
   benefits: string[];
   ingredients: string[];
   volume: string;
@@ -31,7 +60,32 @@ export interface Product {
   featuredBestSeller?: boolean;
   isNew: boolean;
   inStock: boolean;
+  status?: 'ACTIVE' | 'DRAFT' | 'ARCHIVED';
   displayOrder?: number;
+  countryOfOrigin?: string;
+  
+  // Variants & Detail Sections
+  variants?: ProductVariant[];
+  selectedVariant?: ProductVariant;
+  howToUse?: string[];
+  whoItIsFor?: string[];
+  safetyPrecautions?: string[];
+  storageInstructions?: string;
+  shippingAndDelivery?: string;
+  returnsPolicy?: string;
+  productAttributes?: ProductDetailAttribute[];
+
+  // Related Products
+  relatedProductIds?: string[];
+  relatedProductsMode?: 'auto' | 'manual';
+
+  // SEO & Social Meta
+  slug?: string;
+  seoTitle?: string;
+  seoDescription?: string;
+  seoMetaDescription?: string;
+  canonicalUrl?: string;
+  ogImage?: string;
 }
 
 export interface Category {
@@ -63,6 +117,7 @@ export interface Category {
 export interface CartItem {
   product: Product;
   quantity: number;
+  selectedVariant?: ProductVariant;
 }
 
 export interface SavedAddress {

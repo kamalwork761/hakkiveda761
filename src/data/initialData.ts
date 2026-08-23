@@ -262,10 +262,10 @@ export const INITIAL_PRODUCTS: Product[] = [
     description: 'The crown jewel of Hakki-Pikki tribal wisdom. Handcrafted in small artisanal batches in Mysore using 108 rare wild-harvested herbs, root extracts, and virgin sesame & coconut oils slow-cooked in traditional copper cauldrons over woodfire for 21 solar cycles.',
     benefits: [
       'Reactivates dormant hair follicles within 45-60 days',
-      'Stops severe hair fall and root breakage',
-      'Promotes natural dark melanin retention & long hair growth',
-      'Relieves dry scalp, itchiness, and flaky buildup',
-      'Deeply conditions coarse & dry hair strands'
+      'Stops severe hair fall and root breakage from root to tip',
+      'Promotes natural dark melanin retention and rapid length growth',
+      'Relieves dry scalp, persistent itchiness, and flaky buildup',
+      'Deeply conditions coarse, dry, and chemically treated hair strands'
     ],
     ingredients: [
       'Wild Amla (Phyllanthus emblica)',
@@ -274,10 +274,95 @@ export const INITIAL_PRODUCTS: Product[] = [
       'Shikakai (Senegalia rugata)',
       'Devadaru Resin (Cedrus deodara)',
       'Jatamansi (Nardostachys jatamansi)',
+      'Nagarmotha (Cyperus rotundus)',
       'Cold-pressed Sesame & Coconut Oil base'
     ],
     volume: '200 ml / 6.7 fl oz',
     usageRitual: 'Warm 10-15ml oil in your palms. Apply gently onto dry scalp using fingertips in circular movements. Leave overnight or for at least 2 hours before washing with 42 Mountain Herbs Shampoo.',
+    howToUse: [
+      'Warm a generous portion (10-15 ml) between your palms or place the bottle in warm water for 2 minutes.',
+      'Part your hair into clean sections using your fingers or a wide-tooth neem comb.',
+      'Massage the herbal oil deeply into your scalp roots in circular, gentle rhythmic motions for 8–10 minutes.',
+      'Smooth remaining oil down to the hair tips to prevent split ends and cuticle roughness.',
+      'Leave overnight for deep restorative follicular penetration, or leave for a minimum of 2 hours wrapped in a warm damp towel.',
+      'Rinse with lukewarm water and HAKKIVEDA 42 Mountain Herbs Clarifying Shampoo.'
+    ],
+    whoItIsFor: [
+      'Men and women suffering from excessive hair shedding and crown thinning',
+      'Postpartum hair loss, stress-induced alopecia, and receding hairline spots',
+      'Anyone dealing with dry, itchy, or dandruff-prone scalp terrain',
+      'Those seeking thick, glossy, and natural dark hair growth with Ayurvedic purity',
+      'Safe and effective for all hair types (Straight, Wavy, Curly, Coily) and color-treated hair'
+    ],
+    safetyPrecautions: [
+      'Perform a 24-hour patch test behind the ear before first application to rule out rare individual botanical sensitivities.',
+      'For external scalp and hair topical use only. Do not ingest.',
+      'Avoid direct contact with eyes. In case of accidental contact, flush immediately with fresh cool water.',
+      'Contains 100% natural herbs — natural sedimentation may settle at the bottom of the bottle, which is proof of raw herbal purity.'
+    ],
+    storageInstructions: 'Store in a cool, dry place away from direct sunlight and moisture. Keep the cap tightly sealed after each use. No artificial preservatives added.',
+    shippingAndDelivery: 'Dispatched within 24 hours in tamper-proof botanical protective packaging. Express Delivery: 2–4 business days across India; 4–7 business days for international express air shipping (USA, Singapore, Malaysia, Mauritius, UAE, Fiji, and Global).',
+    returnsPolicy: '100% Authenticity Guarantee. We provide a 15-day replacement or refund policy for transit-damaged or defective goods. Seals must be intact for change-of-mind returns.',
+    productAttributes: [
+      { label: 'Item Form', value: 'Cold-infusion Botanical Herbal Oil' },
+      { label: 'Volume / Net Quantity', value: '200 ml / 6.7 fl oz (Standard)' },
+      { label: 'Hair Type', value: 'All Hair Types (Thinning, Dry, Coarse, Damaged)' },
+      { label: 'Scent', value: 'Authentic Earthy Forest Herbs & Devadaru' },
+      { label: 'Formulation Method', value: '21 Solar Cycles Woodfire Copper Brewing' },
+      { label: 'Country of Origin', value: 'Mysore, Karnataka, India' },
+      { label: 'Ayush Certification', value: 'GMP & AYUSH Certified Tribal Formulation' },
+      { label: 'Shelf Life', value: '24 Months from Manufacturing Date' }
+    ],
+    variants: [
+      {
+        id: 'var-101',
+        name: '100 ml (Trial Pack)',
+        sku: 'HV-TGHO-100',
+        priceINR: 1499,
+        originalPriceINR: 1799,
+        stock: 180,
+        weight: '160g',
+        size: '100 ml',
+        image: '/images/hakkiveda_108_oil_gold.jpg',
+        active: true,
+      },
+      {
+        id: 'var-102',
+        name: '200 ml (Standard - Most Popular)',
+        sku: 'HV-TGHO-200',
+        priceINR: 2499,
+        originalPriceINR: 2999,
+        stock: 250,
+        weight: '320g',
+        size: '200 ml',
+        image: '/images/hakkiveda_108_oil_gold.jpg',
+        active: true,
+      },
+      {
+        id: 'var-103',
+        name: '500 ml (Family Regrowth Pack)',
+        sku: 'HV-TGHO-500',
+        priceINR: 4999,
+        originalPriceINR: 6499,
+        stock: 120,
+        weight: '680g',
+        size: '500 ml',
+        image: '/images/hakkiveda_108_oil_yellow_cap.jpg',
+        active: true,
+      },
+      {
+        id: 'var-104',
+        name: '1 L (Artisanal Copper Edition)',
+        sku: 'HV-TGHO-1000',
+        priceINR: 8999,
+        originalPriceINR: 11999,
+        stock: 45,
+        weight: '1350g',
+        size: '1 L',
+        image: '/images/hakkiveda_oil_couple_herbs.jpg',
+        active: true,
+      },
+    ],
     stock: 250,
     sku: 'HV-TGHO-200',
     isBestseller: true,
@@ -296,24 +381,90 @@ export const INITIAL_PRODUCTS: Product[] = [
     reviewsCount: 840,
     image: '/images/hakkiveda_108_oil_yellow_cap.jpg',
     additionalImages: [
-      '/images/hakkiveda_108_herbs_infographic.jpg'
+      '/images/hakkiveda_108_herbs_infographic.jpg',
+      '/images/hakkiveda_108_oil_back_label.jpg'
     ],
     description: 'A gentle, low-foaming botanical cleanser enriched with Reetha (soapnut), Hibiscus flowers, and Shikakai infusion. Gently lifts oil and environmental impurities without stripping natural scalp lipids.',
     benefits: [
-      'Sulfate, Paraben and Silicone free',
-      'Maintains healthy 5.5 scalp pH',
-      'Prevents post-wash dryness and frizz',
-      'Safe for color-treated and chemically straightened hair'
+      'Sulfate, Paraben, Phthalate and Silicone free',
+      'Maintains healthy 5.5 acidic scalp microbiome pH',
+      'Prevents post-wash dryness, frizz, and strand brittleness',
+      'Safe for keratin-treated, colored, and chemically processed hair'
     ],
     ingredients: [
-      'Reetha Fruit Extract',
-      'Shikakai Decoction',
-      'Fresh Hibiscus Petal Juice',
-      'Aloe Vera Leaf Extract',
-      'Vetiver Essential Oil'
+      'Reetha Fruit Extract (Sapindus mukorossi)',
+      'Shikakai Decoction (Acacia concinna)',
+      'Fresh Hibiscus Petal Juice (Hibiscus rosa-sinensis)',
+      'Aloe Vera Leaf Extract (Aloe barbadensis)',
+      'Vetiver Essential Oil (Chrysopogon zizanioides)'
     ],
     volume: '250 ml / 8.4 fl oz',
     usageRitual: 'Take a coin-sized amount, dilute with water, apply to damp scalp, massage gently for 2 minutes and rinse thoroughly with cool water.',
+    howToUse: [
+      'Wet hair thoroughly with lukewarm or cool water.',
+      'Take 1–2 pumps in wet hands, lather slightly, and apply directly to the scalp roots.',
+      'Massage with finger pads for 2 to 3 minutes to activate the botanical saponins.',
+      'Let the mild lather glide down the lengths of your hair without vigorous friction.',
+      'Rinse thoroughly until water runs completely clear.'
+    ],
+    whoItIsFor: [
+      'Individuals looking for a residue-free natural cleanser to wash off heavy herbal oils',
+      'Sensitive scalp sufferers prone to itchy flare-ups from harsh SLS/SLES sulfates',
+      'Color-treated and chemically straightened hair needing gentle nourishment'
+    ],
+    safetyPrecautions: [
+      'For external hair and scalp use only.',
+      'Natural soapnuts can sting if they enter the eyes. Rinse thoroughly with water immediately if contact occurs.'
+    ],
+    storageInstructions: 'Keep in a cool place away from direct heat and water splashes. Close pump tightly when travelling.',
+    shippingAndDelivery: 'Fast dispatch within 24 hours. Arrives in 2-4 business days across India, 4-7 days worldwide.',
+    returnsPolicy: 'Easy 15-day return policy for unopened or transit-damaged items.',
+    productAttributes: [
+      { label: 'Item Form', value: 'Botanical Liquid Scalp Cleanser' },
+      { label: 'Volume', value: '250 ml / 8.4 fl oz' },
+      { label: 'Sulfate & Paraben Free', value: '100% Free of synthetic sulfates & silicones' },
+      { label: 'pH Balance', value: '5.5 Scalp Safe' },
+      { label: 'Country of Origin', value: 'India' },
+      { label: 'Shelf Life', value: '24 Months' }
+    ],
+    variants: [
+      {
+        id: 'var-201',
+        name: '200 ml (Compact)',
+        sku: 'HV-MHCS-200',
+        priceINR: 999,
+        originalPriceINR: 1199,
+        stock: 140,
+        weight: '240g',
+        size: '200 ml',
+        image: '/images/hakkiveda_108_oil_yellow_cap.jpg',
+        active: true,
+      },
+      {
+        id: 'var-202',
+        name: '250 ml (Standard)',
+        sku: 'HV-MHCS-250',
+        priceINR: 1299,
+        originalPriceINR: 1599,
+        stock: 180,
+        weight: '300g',
+        size: '250 ml',
+        image: '/images/hakkiveda_108_oil_yellow_cap.jpg',
+        active: true,
+      },
+      {
+        id: 'var-203',
+        name: '500 ml (Family Size)',
+        sku: 'HV-MHCS-500',
+        priceINR: 2299,
+        originalPriceINR: 2899,
+        stock: 90,
+        weight: '580g',
+        size: '500 ml',
+        image: '/images/hakkiveda_108_oil_yellow_cap.jpg',
+        active: true,
+      },
+    ],
     stock: 180,
     sku: 'HV-MHCS-250',
     isBestseller: true,
@@ -332,24 +483,86 @@ export const INITIAL_PRODUCTS: Product[] = [
     reviewsCount: 512,
     image: '/images/hakkiveda_108_oil_back_label.jpg',
     additionalImages: [
-      '/images/hakkiveda_108_oil_gold.jpg'
+      '/images/hakkiveda_108_oil_gold.jpg',
+      '/images/hakkiveda_108_herbs_infographic.jpg'
     ],
     description: 'An advanced non-greasy aqueous serum formulated with fermented Indian Gooseberry and Gotu Kola. Designed to be left on the scalp daily to stimulate microcirculation and strengthen the dermal papilla.',
     benefits: [
-      'Non-sticky leave-in daily formula',
-      'Increases hair strand diameter and elasticity',
+      'Non-sticky leave-in daily morning or bedtime formula',
+      'Increases hair strand diameter and root elasticity',
       'Shields roots from DHT follicle miniaturization',
-      'Dermatologically tested & non-comedogenic'
+      'Dermatologically tested and non-comedogenic for sensitive scalps'
     ],
     ingredients: [
       'Fermented Amla Nectar',
       'Gotu Kola (Centella asiatica)',
       'Red Onion Extract',
       'Brahmi Leaf Juice',
-      'Rosemary Essential Oil'
+      'Rosemary Essential Oil Hydrosol'
     ],
     volume: '50 ml / 1.7 fl oz',
     usageRitual: 'Apply 1 full dropper onto dry or towel-dried scalp sections daily. Massage gently. Do not rinse.',
+    howToUse: [
+      'Use the precision glass pipette to draw 1 ml of serum.',
+      'Part hair in areas of visible thinning, receding temples, or crown section.',
+      'Apply drops directly onto the scalp surface.',
+      'Gently tap and massage with your fingertips until completely absorbed. Do not rinse.'
+    ],
+    whoItIsFor: [
+      'Men and women with early receding hairline or crown thinning',
+      'Busy professionals seeking an invisible, water-light leave-on daily solution'
+    ],
+    safetyPrecautions: [
+      'External scalp use only. Keep out of reach of children.',
+      'If mild redness or sensitivity occurs, reduce frequency to alternate days.'
+    ],
+    storageInstructions: 'Store in an amber glass bottle at room temperature away from direct sunlight.',
+    shippingAndDelivery: 'Packaged in shock-proof air-cushioned boxes. Express delivery in 2-4 business days.',
+    returnsPolicy: '15-day return and exchange policy on all authentic orders.',
+    productAttributes: [
+      { label: 'Item Form', value: 'Weightless Aqueous Scalp Drops' },
+      { label: 'Volume', value: '50 ml / 1.7 fl oz' },
+      { label: 'Fragrance', value: 'Mild Natural Rosemary & Brahmi' },
+      { label: 'Non-Greasy', value: '100% Water-based Fast Absorbing' }
+    ],
+    variants: [
+      {
+        id: 'var-301',
+        name: '30 ml (Travel Pipette)',
+        sku: 'HV-RDFS-030',
+        priceINR: 1299,
+        originalPriceINR: 1499,
+        stock: 80,
+        weight: '90g',
+        size: '30 ml',
+        image: '/images/hakkiveda_108_oil_back_label.jpg',
+        active: true,
+      },
+      {
+        id: 'var-302',
+        name: '50 ml (Standard Dropper)',
+        sku: 'HV-RDFS-050',
+        priceINR: 1899,
+        originalPriceINR: 2199,
+        stock: 120,
+        weight: '140g',
+        size: '50 ml',
+        image: '/images/hakkiveda_108_oil_back_label.jpg',
+        active: true,
+      },
+      {
+        id: 'var-303',
+        name: '100 ml (2-Month Intensive)',
+        sku: 'HV-RDFS-100',
+        priceINR: 3299,
+        originalPriceINR: 3999,
+        stock: 65,
+        weight: '240g',
+        size: '100 ml',
+        image: '/images/hakkiveda_108_oil_back_label.jpg',
+        active: true,
+      },
+    ],
     stock: 120,
     sku: 'HV-RDFS-050',
     isBestseller: false,
@@ -368,23 +581,86 @@ export const INITIAL_PRODUCTS: Product[] = [
     reviewsCount: 680,
     image: '/images/hakkiveda_baldness_powder.jpg',
     additionalImages: [
-      '/images/hakkiveda_baldness_powder_ingredients.jpg'
+      '/images/hakkiveda_baldness_powder_ingredients.jpg',
+      '/images/hakkiveda_108_oil_gold.jpg'
     ],
-    description: 'Specialized Hakki-Pikki tribal herbal powder formula for advanced baldness, receding temple lines, and dormant hair root patches. Mix with water or oil to form a active herbal paste (Lepa).',
+    description: 'Specialized Hakki-Pikki tribal herbal powder formula for advanced baldness, receding temple lines, and dormant hair root patches. Mix with water or oil to form an active herbal paste (Lepa).',
     benefits: [
       'Targeted root reactivation on visible bald patches & thinning spots',
-      'Eradicates severe dandruff flakes and clears clogged scalp pores',
-      'Stimulates micro-blood circulation to dormant hair roots'
+      'Eradicates severe dandruff flakes and clears clogged scalp sebum pores',
+      'Stimulates micro-blood circulation to dormant hair roots with natural camphor cooling'
     ],
     ingredients: [
-      'Wild Neem Leaf Powder',
-      'Gunja Seed Ash Powder',
+      'Wild Neem Leaf Powder (Azadirachta indica)',
+      'Gunja Seed Ash Powder (Abrus precatorius)',
       'Purified Camphor (Bhimseni Kapoor)',
       'Multani Mitti & Devadaru Bark',
       'Fenugreek & Tulsi Extract'
     ],
     volume: '150 g / 5.3 oz',
     usageRitual: 'Mix 2 tablespoons with warm water or Herbal Hair Oil to form a paste. Apply on bald spots & scalp. Leave for 20 minutes, then wash with HAKKIVEDA Clarifying Shampoo.',
+    howToUse: [
+      'Take 2 to 3 tablespoons of powder in a wooden or ceramic bowl.',
+      'Add warm water or 10-15 ml of HAKKIVEDA Hair Oil to make a smooth, creamy paste.',
+      'Apply paste generously over thinning zones, bald patches, and the crown area.',
+      'Leave the botanical paste on for 20–30 minutes until semi-dry.',
+      'Gently wash off using warm water and HAKKIVEDA Shampoo.'
+    ],
+    whoItIsFor: [
+      'Men and women dealing with stubborn bald patches, receding hairline, and severe thinning',
+      'Individuals battling recurring flaky dandruff and clogged follicle pores'
+    ],
+    safetyPrecautions: [
+      'A mild cooling or tingling sensation from pure Bhimseni camphor is normal.',
+      'Avoid applying on open cuts, active abrasions, or broken skin.'
+    ],
+    storageInstructions: 'Store in an airtight jar in a cool, dry place. Keep spoon dry when scooping powder.',
+    shippingAndDelivery: 'Fast dispatch within 24 hours with sealed moisture-barrier packaging.',
+    returnsPolicy: '15-day easy return policy with complete authenticity guarantee.',
+    productAttributes: [
+      { label: 'Item Form', value: 'Micro-milled Forest Herbal Lepa Powder' },
+      { label: 'Net Weight', value: '150 g / 5.3 oz' },
+      { label: 'Recommended Frequency', value: '2-3 Times per Week' },
+      { label: 'Country of Origin', value: 'India' }
+    ],
+    variants: [
+      {
+        id: 'var-401',
+        name: '150 g (Single Pack)',
+        sku: 'HV-HBCP-150',
+        priceINR: 1499,
+        originalPriceINR: 1799,
+        stock: 195,
+        weight: '190g',
+        size: '150 g',
+        image: '/images/hakkiveda_baldness_powder.jpg',
+        active: true,
+      },
+      {
+        id: 'var-402',
+        name: '300 g (Double Value Jar)',
+        sku: 'HV-HBCP-300',
+        priceINR: 2699,
+        originalPriceINR: 3499,
+        stock: 110,
+        weight: '360g',
+        size: '300 g',
+        image: '/images/hakkiveda_baldness_powder.jpg',
+        active: true,
+      },
+      {
+        id: 'var-403',
+        name: '500 g (Therapeutic Mud Tub)',
+        sku: 'HV-HBCP-500',
+        priceINR: 3999,
+        originalPriceINR: 5499,
+        stock: 50,
+        weight: '580g',
+        size: '500 g',
+        image: '/images/hakkiveda_baldness_powder.jpg',
+        active: true,
+      },
+    ],
     stock: 195,
     sku: 'HV-HBCP-150',
     isBestseller: true,
@@ -409,14 +685,73 @@ export const INITIAL_PRODUCTS: Product[] = [
     ],
     description: 'The ultimate 3-step baldness care & hair regrowth system. Includes 1x HAKKIVEDA Herbal Hair Oil (200ml), 1x HAKKIVEDA Herbal Baldness Care Powder (150g), and 1x HAKKIVEDA 42 Herbs Shampoo (250ml). Includes free brass head massager tool!',
     benefits: [
-      'Save 15% compared to purchasing individually',
-      'Complete 3-step solution for baldness, severe thinning & hair fall',
-      'Includes complimentary brass Kansa head massager',
-      'Free express worldwide shipping'
+      'Save over 20% compared to purchasing items individually',
+      'Comprehensive 3-step holistic solution for baldness, severe thinning & root hair fall',
+      'Includes complimentary handmade brass Kansa scalp massage wand',
+      'Guaranteed priority express worldwide door delivery'
     ],
-    ingredients: ['Combines all 108 Hakki-Pikki mountain herbs across the 3-step ritual'],
+    ingredients: [
+      'Full 108 Hakki-Pikki Mountain Herbs (Amla, Bhringraj, Gunja, Shikakai, Devadaru, Reetha, Hibiscus, Neem)'
+    ],
     volume: 'Bundle (200ml Oil + 150g Baldness Powder + 250ml Shampoo)',
     usageRitual: 'Step 1: Apply Herbal Hair Oil 3x weekly. Step 2: Apply Baldness Care Powder paste 2x weekly. Step 3: Wash thoroughly with 42 Herbs Shampoo.',
+    howToUse: [
+      'Morning / Night (3x/Week): Massage scalp with 108 Herbal Hair Oil and use the included Kansa wand for 5 minutes.',
+      'Weekend Ritual (2x/Week): Mix Baldness Powder into paste, apply on thinning roots for 20 mins.',
+      'Cleansing: Wash gently with 42 Mountain Herbs Shampoo.'
+    ],
+    whoItIsFor: [
+      'Individuals suffering from advanced crown bald spots or receding temples wanting the most intensive holistic regrowth regimen.'
+    ],
+    safetyPrecautions: [
+      'Follow individual product instructions for optimal synergistic benefit.'
+    ],
+    storageInstructions: 'Keep in the provided artisanal wooden-style box in a dry, room-temperature room.',
+    shippingAndDelivery: 'Eligible for Free Priority Express Air Shipping worldwide.',
+    returnsPolicy: '30-Day Authentic Regrowth Guarantee with hassle-free replacements.',
+    productAttributes: [
+      { label: 'Bundle Contents', value: '200ml 108 Oil + 150g Baldness Lepa + 250ml Shampoo + Free Kansa Wand' },
+      { label: 'Treatment Duration', value: 'Complete 90-Day Regrowth Regimen' },
+      { label: 'Savings', value: 'Save over 20% compared to individual items' }
+    ],
+    variants: [
+      {
+        id: 'var-501',
+        name: 'Starter 30-Day Regimen',
+        sku: 'HV-CHDR-START',
+        priceINR: 3499,
+        originalPriceINR: 3999,
+        stock: 100,
+        weight: '600g',
+        size: 'Starter 30-Day Kit',
+        image: '/images/hakkiveda_oil_couple_herbs.jpg',
+        active: true,
+      },
+      {
+        id: 'var-502',
+        name: 'Full 90-Day Regrowth Kit (Best Value)',
+        sku: 'HV-CHDR-90D',
+        priceINR: 4999,
+        originalPriceINR: 5697,
+        stock: 150,
+        weight: '980g',
+        size: '90-Day Full Regimen Kit',
+        image: '/images/hakkiveda_oil_couple_herbs.jpg',
+        active: true,
+      },
+      {
+        id: 'var-503',
+        name: '180-Day Intensive Restoration Bundle',
+        sku: 'HV-CHDR-180D',
+        priceINR: 8999,
+        originalPriceINR: 11394,
+        stock: 60,
+        weight: '1900g',
+        size: '180-Day Intensive Kit',
+        image: '/images/hakkiveda_oil_couple_herbs.jpg',
+        active: true,
+      },
+    ],
     stock: 150,
     sku: 'HV-CHDR-COMBO',
     isBestseller: true,
@@ -434,16 +769,67 @@ export const INITIAL_PRODUCTS: Product[] = [
     rating: 4.82,
     reviewsCount: 230,
     image: '/images/hakkiveda_108_herbs_infographic.jpg',
-    additionalImages: [],
+    additionalImages: [
+      '/images/hakkiveda_108_oil_gold.jpg'
+    ],
     description: 'A light, fragrant hair elixir spray that shields strands from UV damage, prevents split ends, and enhances natural gloss.',
     benefits: [
-      'Tames flyaways and reduces split ends',
-      'Adds natural silky shine without grease',
-      'Heat-protection shield for daily styling'
+      'Tames flyaways and reduces split ends instantly',
+      'Adds natural silky shine without any greasiness',
+      'Heat-protection shield for daily sun and styling exposure'
     ],
-    ingredients: ['Cold-pressed Bhringraj Juice', 'Fresh Amla Water', 'Vetiver Root Hydrosol'],
+    ingredients: [
+      'Cold-pressed Bhringraj Juice (Eclipta alba)',
+      'Fresh Amla Water (Phyllanthus emblica)',
+      'Vetiver Root Hydrosol (Chrysopogon zizanioides)'
+    ],
     volume: '100 ml / 3.4 fl oz',
     usageRitual: 'Mist lightly over damp or dry hair lengths. Comb through.',
+    howToUse: [
+      'Shake well before spraying.',
+      'Hold the bottle 6 inches away from hair and mist evenly across the lengths.',
+      'Comb through with fingers or a wooden comb. Do not rinse.'
+    ],
+    whoItIsFor: [
+      'Anyone looking for instant hair gloss, frizz control, and UV protection during the day.'
+    ],
+    safetyPrecautions: [
+      'External use only. Avoid spraying directly into eyes.'
+    ],
+    storageInstructions: 'Store in a cool and dry spot away from high temperatures.',
+    shippingAndDelivery: 'Fast dispatch within 24 hours.',
+    returnsPolicy: '15-day return and exchange policy on all authentic items.',
+    productAttributes: [
+      { label: 'Item Form', value: 'Weightless Botanical Fine Mist' },
+      { label: 'Volume', value: '100 ml / 3.4 fl oz' },
+      { label: 'Hair Type', value: 'All Hair Types' }
+    ],
+    variants: [
+      {
+        id: 'var-601',
+        name: '100 ml (Pocket Mist)',
+        sku: 'HV-BAVT-100',
+        priceINR: 1199,
+        originalPriceINR: 1399,
+        stock: 80,
+        weight: '140g',
+        size: '100 ml',
+        image: '/images/hakkiveda_108_herbs_infographic.jpg',
+        active: true,
+      },
+      {
+        id: 'var-602',
+        name: '200 ml (Duo Month Value)',
+        sku: 'HV-BAVT-200',
+        priceINR: 1999,
+        originalPriceINR: 2499,
+        stock: 95,
+        weight: '250g',
+        size: '200 ml',
+        image: '/images/hakkiveda_108_herbs_infographic.jpg',
+        active: true,
+      },
+    ],
     stock: 80,
     sku: 'HV-BAVT-100',
     isBestseller: false,

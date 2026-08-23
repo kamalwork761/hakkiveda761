@@ -32,6 +32,10 @@ const CustomerPortal = lazy(() => import('./components/CustomerPortal').then(m =
 const CountrySelectorModal = lazy(() => import('./components/CountrySelectorModal').then(m => ({ default: m.CountrySelectorModal })));
 
 import { AdminErrorBoundary } from './components/AdminErrorBoundary';
+import { getProductUrl } from './utils/productUtils';
+
+// Product Detail Page Route
+const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage').then(m => ({ default: m.ProductDetailPage })));
 
 // Private Admin Views
 const AdminDashboard = lazy(() => import('./components/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
@@ -64,18 +68,6 @@ export function AppContent() {
     const handleLocationChange = () => {
       const pathname = window.location.pathname;
       setCurrentPath(pathname);
-
-      // Handle product route
-      if (pathname.startsWith('/products/') && products.length > 0) {
-        const slug = pathname.replace('/products/', '').toLowerCase();
-        const slugify = (s: string) => s.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-');
-        const matched = products.find(
-          (p) => p.id === slug || slugify(p.name) === slug || (p.sku && p.sku.toLowerCase() === slug)
-        );
-        if (matched) {
-          openQuickView(matched);
-        }
-      }
 
       // Handle category route
       if (pathname.startsWith('/categories/') && categories.length > 0) {
@@ -142,6 +134,7 @@ export function AppContent() {
   const navigate = (path: string) => {
     window.history.pushState({}, '', path);
     setCurrentPath(path);
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const isAdminRoute = currentPath.startsWith('/admin');
@@ -174,6 +167,7 @@ export function AppContent() {
     );
   }
 
+  const isProductRoute = currentPath.startsWith('/products/');
   const isCategoryRoute = currentPath === '/hair-care' || currentPath === '/skin-care' || currentPath === '/tribal-wellness';
   const isB2BRoute = currentPath === '/b2b-enquiry' || currentPath === '/b2b' || currentPath === '/export-enquiry';
 
@@ -186,7 +180,21 @@ export function AppContent() {
       <Header selectedCategory={selectedCategory} onSelectCategory={handleSelectCategory} />
 
       <main className="flex-1">
-        {isCategoryRoute ? (
+        {isProductRoute ? (
+          <Suspense fallback={<SectionSkeleton />}>
+            <ProductDetailPage
+              slug={currentPath.replace('/products/', '')}
+              onNavigateHome={() => navigate('/')}
+              onNavigateCategory={(catName) => {
+                navigate('/');
+                setTimeout(() => handleSelectCategory(catName, true), 50);
+              }}
+              onNavigateProduct={(product) => {
+                navigate(getProductUrl(product));
+              }}
+            />
+          </Suspense>
+        ) : isCategoryRoute ? (
           <CategoryLandingPage
             categoryPath={currentPath}
             onReturnHome={() => navigate('/')}
@@ -223,7 +231,7 @@ export function AppContent() {
               <VideoTestimonials />
 
               {/* Shoppable Video Reels */}
-              <ShoppableReelsSection onSelectProduct={openQuickView} />
+              <ShoppableReelsSection onSelectProduct={(p) => navigate(getProductUrl(p))} />
 
               {/* Customer Reviews */}
               <CustomerReviews />
@@ -243,7 +251,7 @@ export function AppContent() {
 
       {/* Customer Interactive Overlays (Lazy Loaded) */}
       <Suspense fallback={null}>
-        <VideoPopupModal onSelectProduct={openQuickView} />
+        <VideoPopupModal onSelectProduct={(p) => navigate(getProductUrl(p))} />
         <ProductDetailModal />
         <AIHairQuiz />
         <AIChatModal />

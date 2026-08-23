@@ -39,7 +39,7 @@ export const ProductDetailModal: React.FC = () => {
     setIsZoomed(false);
   }, [quickViewProduct?.id]);
 
-  // Lock background scrolling and attach Esc key + Android Back Button handlers when open
+  // Lock background scrolling and attach Esc key handler when open
   useEffect(() => {
     if (isQuickViewOpen) {
       document.body.style.overflow = 'hidden';
@@ -51,22 +51,12 @@ export const ProductDetailModal: React.FC = () => {
       };
       window.addEventListener('keydown', handleKeyDown);
 
-      try {
-        window.history.pushState({ modal: 'product-quickview' }, '');
-      } catch (_) {}
-
-      const handlePopState = () => {
-        closeQuickView();
-      };
-      window.addEventListener('popstate', handlePopState);
-
       return () => {
         document.body.style.overflow = '';
         window.removeEventListener('keydown', handleKeyDown);
-        window.removeEventListener('popstate', handlePopState);
       };
     }
-  }, [isQuickViewOpen]);
+  }, [isQuickViewOpen, closeQuickView]);
 
   if (!isQuickViewOpen || !quickViewProduct) return null;
 

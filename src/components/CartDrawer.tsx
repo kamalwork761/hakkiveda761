@@ -93,56 +93,69 @@ export const CartDrawer: React.FC = () => {
                 </button>
               </div>
             ) : (
-              cart.map((item) => (
-                <div
-                  key={item.product.id}
-                  className="flex gap-4 p-3 bg-[var(--brand-primary-dark)] border border-white/10 rounded-xl hover:border-[var(--brand-gold)]/40 transition-colors"
-                >
-                  <img
-                    src={item.product.image}
-                    alt={item.product.name}
-                    className="w-20 h-20 object-contain rounded-lg shrink-0 border border-white/10 bg-black/30 p-1"
-                  />
-                  <div className="flex-1 flex flex-col justify-between">
-                    <div className="flex justify-between">
-                      <div>
-                        <h4 className="text-xs font-bold font-serif-luxury text-slate-100 line-clamp-1">
-                          {item.product.name}
-                        </h4>
-                        <span className="text-[10px] text-[var(--brand-gold)]">{item.product.volume}</span>
-                      </div>
-                      <button
-                        onClick={() => removeFromCart(item.product.id)}
-                        className="text-slate-400 hover:text-red-400 p-1"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-
-                    <div className="flex items-center justify-between pt-2">
-                      <div className="flex items-center border border-white/20 rounded overflow-hidden bg-black/30">
+              cart.map((item) => {
+                const itemKey = item.selectedVariant ? `${item.product.id}-${item.selectedVariant.id}` : item.product.id;
+                return (
+                  <div
+                    key={itemKey}
+                    className="flex gap-4 p-3 bg-[var(--brand-primary-dark)] border border-white/10 rounded-xl hover:border-[var(--brand-gold)]/40 transition-colors"
+                  >
+                    <img
+                      src={item.product.image}
+                      alt={item.product.name}
+                      className="w-20 h-20 object-contain rounded-lg shrink-0 border border-white/10 bg-black/30 p-1"
+                    />
+                    <div className="flex-1 flex flex-col justify-between">
+                      <div className="flex justify-between items-start gap-2">
+                        <div>
+                          <h4 className="text-xs font-bold font-serif-luxury text-slate-100 line-clamp-1">
+                            {item.product.name}
+                          </h4>
+                          <div className="flex items-center gap-1.5 mt-0.5">
+                            <span className="text-[10px] text-[var(--brand-gold)] font-medium">
+                              {item.selectedVariant ? item.selectedVariant.name : item.product.volume}
+                            </span>
+                            {item.selectedVariant?.sku && (
+                              <span className="text-[9px] text-slate-400 font-mono">
+                                ({item.selectedVariant.sku})
+                              </span>
+                            )}
+                          </div>
+                        </div>
                         <button
-                          onClick={() => updateCartQuantity(item.product.id, item.quantity - 1)}
-                          className="px-2 py-0.5 text-xs text-slate-300"
+                          onClick={() => removeFromCart(itemKey)}
+                          className="text-slate-400 hover:text-red-400 p-1"
+                          title="Remove item"
                         >
-                          -
-                        </button>
-                        <span className="px-2 text-xs font-bold">{item.quantity}</span>
-                        <button
-                          onClick={() => updateCartQuantity(item.product.id, item.quantity + 1)}
-                          className="px-2 py-0.5 text-xs text-slate-300"
-                        >
-                          +
+                          <Trash2 className="w-4 h-4" />
                         </button>
                       </div>
 
-                      <span className="text-xs font-bold text-[var(--brand-gold)]">
-                        {formatPrice(item.product.priceINR * item.quantity)}
-                      </span>
+                      <div className="flex items-center justify-between pt-2">
+                        <div className="flex items-center border border-white/20 rounded overflow-hidden bg-black/30">
+                          <button
+                            onClick={() => updateCartQuantity(itemKey, item.quantity - 1)}
+                            className="px-2 py-0.5 text-xs text-slate-300 hover:bg-white/10"
+                          >
+                            -
+                          </button>
+                          <span className="px-2 text-xs font-bold">{item.quantity}</span>
+                          <button
+                            onClick={() => updateCartQuantity(itemKey, item.quantity + 1)}
+                            className="px-2 py-0.5 text-xs text-slate-300 hover:bg-white/10"
+                          >
+                            +
+                          </button>
+                        </div>
+
+                        <span className="text-xs font-bold text-[var(--brand-gold)]">
+                          {formatPrice(item.product.priceINR * item.quantity)}
+                        </span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))
+                );
+              })
             )}
           </div>
 

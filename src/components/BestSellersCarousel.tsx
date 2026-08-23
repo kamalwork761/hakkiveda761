@@ -2,6 +2,7 @@ import React, { useRef, useState, useMemo } from 'react';
 import { Star, ShoppingBag, Heart, Eye, ChevronLeft, ChevronRight, Check, Sparkles } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { Product } from '../types/store';
+import { getProductUrl } from '../utils/productUtils';
 
 export const BestSellersCarousel: React.FC = () => {
   const { products, formatPrice, addToCart, toggleWishlist, isInWishlist, openQuickView, playSound } = useStore();
@@ -148,7 +149,11 @@ export const BestSellersCarousel: React.FC = () => {
             return (
               <div
                 key={product.id}
-                onClick={() => openQuickView(product)}
+                onClick={() => {
+                  window.history.pushState({}, '', getProductUrl(product));
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
                 className="w-[78vw] sm:w-[42vw] md:w-[30%] lg:w-[calc(25%-18px)] flex-shrink-0 snap-start bg-white text-slate-900 rounded-2xl overflow-hidden border border-[#E7E1D5] dark:border-white/10 shadow-md hover:shadow-xl active:scale-[0.99] transition-all duration-300 flex flex-col group cursor-pointer"
               >
                 {/* Product Image Box */}
@@ -196,11 +201,14 @@ export const BestSellersCarousel: React.FC = () => {
                   <div className="absolute inset-0 bg-black/30 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2 p-4">
                     <button
                       type="button"
-                      onClick={() => openQuickView(product)}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        openQuickView(product);
+                      }}
                       className="bg-white/90 hover:bg-white text-slate-900 font-bold text-xs px-4 py-2 rounded-full flex items-center gap-2 shadow-lg transition-transform hover:scale-105 cursor-pointer"
                     >
                       <Eye className="w-4 h-4 text-[#123F2A]" />
-                      <span>View Details</span>
+                      <span>Quick View</span>
                     </button>
                   </div>
                 </div>
@@ -218,8 +226,7 @@ export const BestSellersCarousel: React.FC = () => {
 
                     {/* Title */}
                     <h3
-                      onClick={() => openQuickView(product)}
-                      className="font-serif-luxury font-bold text-sm sm:text-base text-slate-900 line-clamp-2 hover:text-[#123F2A] transition-colors cursor-pointer leading-snug"
+                      className="font-serif-luxury font-bold text-sm sm:text-base text-slate-900 line-clamp-2 hover:text-[#123F2A] transition-colors leading-snug"
                     >
                       {product.name}
                     </h3>

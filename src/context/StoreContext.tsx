@@ -1,6 +1,7 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import {
   Product,
+  ProductVariant,
   Category,
   CartItem,
   Currency,
@@ -191,9 +192,9 @@ interface StoreContextType {
 
   // Cart & Checkout
   cart: CartItem[];
-  addToCart: (product: Product, quantity?: number) => void;
-  removeFromCart: (productId: string) => void;
-  updateCartQuantity: (productId: string, quantity: number) => void;
+  addToCart: (product: Product, quantity?: number, variant?: ProductVariant) => void;
+  removeFromCart: (productIdOrKey: string) => void;
+  updateCartQuantity: (productIdOrKey: string, quantity: number) => void;
   clearCart: () => void;
   cartItemsCount: number;
   cartSubtotalINR: number;
@@ -1631,17 +1632,38 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const cartTotalINR = Math.max(0, cartSubtotalINR - discountAmountINR);
 
   // Cart Actions
-  const addToCart = (product: Product, quantity = 1) => {
+  const addToCart = (product: Product, quantity = 1, variant?: ProductVariant) => {
     soundManager.play('add_to_cart');
+
+    const activeVariant = variant || product.selectedVariant;
+    const finalProduct: Product = activeVariant
+      ? {
+          ...product,
+          priceINR: activeVariant.priceINR,
+          originalPriceINR: activeVariant.originalPriceINR ?? product.originalPriceINR,
+          volume: activeVariant.size || activeVariant.name || product.volume,
+          sku: activeVariant.sku || product.sku,
+          stock: activeVariant.stock,
+          image: activeVariant.image || product.image,
+          selectedVariant: activeVariant,
+        }
+      : product;
+
+    const variantKey = activeVariant ? `${product.id}-${activeVariant.id}` : product.id;
+
     setCart((prev) => {
-      const existingIndex = prev.findIndex((item) => item.product.id === product.id);
+      const existingIndex = prev.findIndex((item) => {
+        const itemKey = item.selectedVariant ? `${item.product.id}-${item.selectedVariant.id}` : item.product.id;
+        return itemKey === variantKey;
+      });
+
       let updated: CartItem[];
       if (existingIndex > -1) {
         updated = prev.map((item, index) =>
           index === existingIndex ? { ...item, quantity: item.quantity + quantity } : item
         );
       } else {
-        updated = [...prev, { product, quantity }];
+        updated = [...prev, { product: finalProduct, quantity, selectedVariant: activeVariant }];
       }
       setStored('cart', updated);
       return updated;
@@ -1649,21 +1671,30 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setIsCartOpen(true);
   };
 
-  const removeFromCart = (productId: string) => {
+  const removeFromCart = (productIdOrKey: string) => {
     setCart((prev) => {
-      const updated = prev.filter((item) => item.product.id !== productId);
+      const updated = prev.filter((item) => {
+        const itemKey = item.selectedVariant ? `${item.product.id}-${item.selectedVariant.id}` : item.product.id;
+        return itemKey !== productIdOrKey && item.product.id !== productIdOrKey;
+      });
       setStored('cart', updated);
       return updated;
     });
   };
 
-  const updateCartQuantity = (productId: string, quantity: number) => {
+  const updateCartQuantity = (productIdOrKey: string, quantity: number) => {
     if (quantity <= 0) {
-      removeFromCart(productId);
+      removeFromCart(productIdOrKey);
       return;
     }
     setCart((prev) => {
-      const updated = prev.map((item) => (item.product.id === productId ? { ...item, quantity } : item));
+      const updated = prev.map((item) => {
+        const itemKey = item.selectedVariant ? `${item.product.id}-${item.selectedVariant.id}` : item.product.id;
+        if (itemKey === productIdOrKey || item.product.id === productIdOrKey) {
+          return { ...item, quantity };
+        }
+        return item;
+      });
       setStored('cart', updated);
       return updated;
     });

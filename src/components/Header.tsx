@@ -26,6 +26,7 @@ import { NavLink } from '../types/store';
 import { HakkivedaWordmark } from './HakkivedaWordmark';
 import { MobileBottomNav } from './MobileBottomNav';
 import { SoundToggle } from './SoundToggle';
+import { getProductUrl } from '../utils/productUtils';
 
 interface HeaderProps {
   selectedCategory?: string;
@@ -551,7 +552,11 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
                     key={prod.id}
                     onClick={() => {
                       playSound('nav_click');
-                      openQuickView(prod);
+                      setIsSearchFocused(false);
+                      setSearchQuery('');
+                      window.history.pushState({}, '', getProductUrl(prod));
+                      window.dispatchEvent(new PopStateEvent('popstate'));
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                     className="flex items-center gap-3 p-2 hover:bg-[var(--brand-primary-dark)] rounded-lg cursor-pointer transition-colors"
                   >
@@ -649,7 +654,10 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
                     key={prod.id}
                     onClick={() => {
                       setIsMobileMenuOpen(false);
-                      openQuickView(prod);
+                      setSearchQuery('');
+                      window.history.pushState({}, '', getProductUrl(prod));
+                      window.dispatchEvent(new PopStateEvent('popstate'));
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                     className="flex items-center gap-2 p-1.5 hover:bg-[var(--brand-primary-deeper)] rounded cursor-pointer"
                   >

@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react';
 import { Star, ShoppingBag, Heart, Eye, Check, Search, ChevronRight, SlidersHorizontal, ArrowUpDown, Filter, RotateCcw } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { Product } from '../types/store';
+import { getProductUrl } from '../utils/productUtils';
 
 interface ProductGridProps {
   selectedCategory: string;
@@ -286,7 +287,11 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
               return (
                 <div
                   key={product.id}
-                  onClick={() => openQuickView(product)}
+                  onClick={() => {
+                    window.history.pushState({}, '', getProductUrl(product));
+                    window.dispatchEvent(new PopStateEvent('popstate'));
+                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                  }}
                   className="group bg-[var(--brand-primary-deep)] border border-white/10 rounded-2xl overflow-hidden hover:border-[var(--brand-gold)]/60 transition-all duration-300 hover:shadow-2xl flex flex-col cursor-pointer relative"
                 >
                   {/* Image Container */}

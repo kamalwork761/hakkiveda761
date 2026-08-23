@@ -168,6 +168,85 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
+  // Mega Menu Link Click Action
+  const handleMegaMenuLinkClick = (url?: string, label?: string, openInNewTab?: boolean) => {
+    setHoveredNavId(null);
+    setIsMobileMenuOpen(false);
+    playSound('nav_click');
+
+    if (!url || url === '#' || !url.trim()) {
+      return;
+    }
+
+    const targetUrl = url.trim();
+    const urlLower = targetUrl.toLowerCase();
+    const labelLower = (label || '').toLowerCase();
+
+    // 1. External URLs
+    if (openInNewTab || targetUrl.startsWith('http://') || targetUrl.startsWith('https://')) {
+      window.open(targetUrl, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    // 2. AI Quiz
+    if (urlLower === '#ai-quiz' || urlLower === '/quiz' || labelLower.includes('quiz')) {
+      setIsQuizOpen(true);
+      return;
+    }
+
+    // 3. B2B routes
+    if (urlLower === '/b2b' || urlLower === '/b2b-enquiry' || urlLower === '#b2b' || urlLower === '#b2b-export' || labelLower.includes('b2b') || labelLower.includes('wholesale')) {
+      window.history.pushState({}, '', '/b2b-enquiry');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // 4. Internal SPA routes (/hair-care, /skin-care, /tribal-wellness, /products/:slug, /search..., /categories/...)
+    if (targetUrl.startsWith('/')) {
+      window.history.pushState({}, '', targetUrl);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // 5. Category hash navigation (#category-X or #category=X)
+    if (targetUrl.startsWith('#category-') || targetUrl.startsWith('#category=')) {
+      const catName = targetUrl.replace('#category-', '').replace('#category=', '');
+      if (window.location.pathname !== '/') {
+        window.history.pushState({}, '', `/?category=${encodeURIComponent(catName)}`);
+        window.dispatchEvent(new PopStateEvent('popstate'));
+      } else {
+        if (onSelectCategory) onSelectCategory(catName);
+      }
+      const el = document.getElementById('products') || document.getElementById('categories');
+      if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      return;
+    }
+
+    // 6. Section Anchors (#products, #brand-story, #tribal-heritage, #reviews, #blogs, etc.)
+    if (targetUrl.startsWith('#')) {
+      const targetId = targetUrl.replace('#', '');
+      if (window.location.pathname !== '/') {
+        window.history.pushState({}, '', `/${targetUrl}`);
+        window.dispatchEvent(new PopStateEvent('popstate'));
+        setTimeout(() => {
+          const el = document.getElementById(targetId);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      } else {
+        const el = document.getElementById(targetId);
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        if (targetId === 'products' || targetId === 'categories') {
+          if (onSelectCategory) onSelectCategory('ALL');
+        }
+      }
+      return;
+    }
+  };
+
   // Nav click action
   const handleNavClick = (link: NavLink) => {
     playSound('nav_click');
@@ -185,9 +264,18 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
       urlLower === '#tribal-heritage' ||
       urlLower === '/tribal-heritage'
     ) {
-      const el = document.getElementById('tribal-heritage') || document.getElementById('brand-story');
-      if (el) {
-        el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (window.location.pathname !== '/') {
+        window.history.pushState({}, '', '/#brand-story');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+        setTimeout(() => {
+          const el = document.getElementById('tribal-heritage') || document.getElementById('brand-story');
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }, 100);
+      } else {
+        const el = document.getElementById('tribal-heritage') || document.getElementById('brand-story');
+        if (el) {
+          el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       }
       return;
     }
@@ -242,30 +330,60 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
         setIsQuizOpen(true);
         return;
       }
-      // For non-quiz, non-B2B modals, do NOT default to quiz modal
     }
 
     // 5. Open in new tab
     if (link.openInNewTab && link.url && link.url !== '#') {
-      window.open(link.url, '_blank');
+      window.open(link.url, '_blank', 'noopener,noreferrer');
       return;
     }
 
-    // 6. Hash navigation & categories
+    // 6. Direct internal SPA Routes (/hair-care, /skin-care, /tribal-wellness, /products/:slug, etc.)
+    if (link.url && link.url.startsWith('/')) {
+      window.history.pushState({}, '', link.url);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // 7. Hash navigation & categories
     if (link.url) {
       if (link.url.startsWith('#category-')) {
         const catName = link.url.replace('#category-', '');
-        if (onSelectCategory) onSelectCategory(catName);
+        if (window.location.pathname !== '/') {
+          window.history.pushState({}, '', `/?category=${encodeURIComponent(catName)}`);
+          window.dispatchEvent(new PopStateEvent('popstate'));
+        } else {
+          if (onSelectCategory) onSelectCategory(catName);
+        }
         const el = document.getElementById('products');
         if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
       } else if (link.url === '#products' || link.url === '#categories' || link.url === '#collections') {
-        const el = document.getElementById('categories') || document.getElementById('collections') || document.getElementById('products');
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        if (onSelectCategory) onSelectCategory('ALL');
+        if (window.location.pathname !== '/') {
+          window.history.pushState({}, '', '/#products');
+          window.dispatchEvent(new PopStateEvent('popstate'));
+          setTimeout(() => {
+            const el = document.getElementById('categories') || document.getElementById('collections') || document.getElementById('products');
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+        } else {
+          const el = document.getElementById('categories') || document.getElementById('collections') || document.getElementById('products');
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          if (onSelectCategory) onSelectCategory('ALL');
+        }
       } else if (link.url.startsWith('#')) {
         const targetId = link.url.replace('#', '');
-        const el = document.getElementById(targetId);
-        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        if (window.location.pathname !== '/') {
+          window.history.pushState({}, '', `/${link.url}`);
+          window.dispatchEvent(new PopStateEvent('popstate'));
+          setTimeout(() => {
+            const el = document.getElementById(targetId);
+            if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }, 100);
+        } else {
+          const el = document.getElementById(targetId);
+          if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
       }
     }
   };
@@ -448,51 +566,103 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
                   </a>
 
                   {/* Mega Menu Dropdown */}
-                  {hasMegaMenu && isHovered && (
-                    <div className="absolute left-1/2 -translate-x-1/2 top-full pt-1 w-[680px] z-50 animate-in fade-in slide-in-from-top-1 duration-200">
-                      <div className="bg-[var(--brand-primary-deeper)] border border-[var(--brand-gold)]/40 rounded-xl shadow-2xl p-5 text-left grid grid-cols-3 gap-5 normal-case font-sans">
-                        {item.megaMenu?.columns.map((col) => (
-                          <div key={col.id} className="space-y-2">
-                            <h4 className="text-[11px] font-bold text-[var(--brand-gold)] uppercase tracking-wider border-b border-white/10 pb-1 flex items-center justify-between">
-                              <span>{col.title}</span>
-                            </h4>
-                            <ul className="space-y-1.5 text-xs text-slate-200">
-                              {col.links.map((link, lIdx) => (
-                                <li key={lIdx}>
-                                  <a
-                                    href={link.url}
-                                    onClick={() => playSound('nav_click')}
-                                    className="hover:text-[var(--brand-gold)] flex items-center justify-between py-0.5 transition-colors"
-                                  >
-                                    <span>{link.label}</span>
-                                    {renderBadgeTag(link.badge as any)}
-                                  </a>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
-                        ))}
+                  {hasMegaMenu && isHovered && (() => {
+                    const hasPromo = Boolean(item.megaMenu?.featuredImageUrl && item.megaMenu.featuredImageUrl.trim() !== '');
+                    const activeCols = (item.megaMenu?.columns || []).filter((c) => c.enabled !== false);
+                    const colCount = Math.max(1, activeCols.length);
 
-                        {item.megaMenu?.featuredImageUrl && (
-                          <div className="bg-[var(--brand-primary-dark)] p-3 rounded-xl border border-white/10 flex flex-col justify-between">
-                            <img
-                              src={item.megaMenu.featuredImageUrl}
-                              alt="Featured"
-                              className="w-full h-28 object-cover rounded-lg mb-2 border border-white/10"
-                            />
-                            <div>
-                              <div className="font-bold text-xs text-slate-100 line-clamp-1">
-                                {item.megaMenu.featuredImageTitle || 'Featured formulation'}
+                    return (
+                      <div className="absolute left-1/2 -translate-x-1/2 top-full pt-1 z-50 animate-in fade-in slide-in-from-top-1 duration-200">
+                        <div
+                          className={`bg-[var(--brand-primary-deeper)] border border-[var(--brand-gold)]/40 rounded-xl shadow-2xl p-5 text-left normal-case font-sans ${
+                            hasPromo ? 'w-[720px] grid grid-cols-12 gap-5' : 'w-auto min-w-[360px] max-w-[680px]'
+                          }`}
+                        >
+                          {/* Content Columns Area */}
+                          <div
+                            className={
+                              hasPromo
+                                ? `col-span-8 grid grid-cols-${colCount === 1 ? '1' : '2'} gap-5`
+                                : `grid grid-cols-${colCount === 1 ? '1' : colCount === 3 ? '3' : '2'} gap-6`
+                            }
+                          >
+                            {activeCols.map((col) => (
+                              <div key={col.id} className="space-y-2.5">
+                                <h4 className="text-[11px] font-bold text-[var(--brand-gold)] uppercase tracking-wider border-b border-white/10 pb-1.5 flex items-center justify-between">
+                                  <span>{col.title}</span>
+                                </h4>
+                                <ul className="space-y-1.5 text-xs text-slate-200">
+                                  {(col.links || [])
+                                    .filter((l) => l.enabled !== false)
+                                    .map((link, lIdx) => {
+                                      const isValid = Boolean(link.url && link.url.trim() && link.url !== '#');
+                                      return (
+                                        <li key={lIdx}>
+                                          <a
+                                            href={link.url || '#'}
+                                            onClick={(e) => {
+                                              e.preventDefault();
+                                              if (isValid) {
+                                                handleMegaMenuLinkClick(link.url, link.label);
+                                              }
+                                            }}
+                                            className={`flex items-center justify-between py-1 transition-all rounded px-1.5 -mx-1.5 ${
+                                              isValid
+                                                ? 'hover:text-[var(--brand-gold)] hover:bg-white/5 cursor-pointer text-slate-200'
+                                                : 'text-slate-500 cursor-not-allowed opacity-60'
+                                            }`}
+                                          >
+                                            <span className="font-medium">{link.label}</span>
+                                            {renderBadgeTag(link.badge as any, link.badgeCustomText)}
+                                          </a>
+                                        </li>
+                                      );
+                                    })}
+                                </ul>
                               </div>
-                              <p className="text-[10px] text-slate-300 mt-0.5 line-clamp-1">
-                                {item.megaMenu.featuredImageSubtitle}
-                              </p>
-                            </div>
+                            ))}
                           </div>
-                        )}
+
+                          {/* Promotional Image / Card Area (ONLY rendered if promo image is present and non-empty) */}
+                          {hasPromo && (
+                            <div
+                              onClick={() => {
+                                if (item.megaMenu?.featuredImageLink) {
+                                  handleMegaMenuLinkClick(item.megaMenu.featuredImageLink, item.megaMenu.featuredImageTitle);
+                                }
+                              }}
+                              className={`col-span-4 bg-[var(--brand-primary-dark)] p-3 rounded-xl border border-white/10 flex flex-col justify-between ${
+                                item.megaMenu?.featuredImageLink ? 'cursor-pointer hover:border-[var(--brand-gold)]/40 transition-colors group' : ''
+                              }`}
+                            >
+                              <div className="overflow-hidden rounded-lg mb-2 border border-white/10">
+                                <img
+                                  src={item.megaMenu!.featuredImageUrl}
+                                  alt={item.megaMenu?.featuredImageTitle || 'Featured'}
+                                  className="w-full h-28 object-cover transition-transform duration-300 group-hover:scale-105"
+                                />
+                              </div>
+                              <div>
+                                <div className="font-bold text-xs text-slate-100 line-clamp-1 group-hover:text-[var(--brand-gold)] transition-colors">
+                                  {item.megaMenu?.featuredImageTitle || 'Featured Formulation'}
+                                </div>
+                                {item.megaMenu?.featuredImageSubtitle && (
+                                  <p className="text-[10px] text-slate-300 mt-0.5 line-clamp-2">
+                                    {item.megaMenu.featuredImageSubtitle}
+                                  </p>
+                                )}
+                                {item.megaMenu?.featuredImageLink && (
+                                  <span className="inline-flex items-center gap-1 text-[10px] text-[var(--brand-gold)] font-semibold mt-2 group-hover:underline">
+                                    Explore Now →
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          )}
+                        </div>
                       </div>
-                    </div>
-                  )}
+                    );
+                  })()}
 
                   {/* Standard Multi-Level Sub-Menu Dropdown */}
                   {!hasMegaMenu && subLinks.length > 0 && isHovered && (
@@ -752,6 +922,75 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
                             {renderBadgeTag(sub.badge, sub.badgeCustomText)}
                           </button>
                         ))}
+                      </div>
+                    )}
+
+                    {/* Mega Menu Columns in Mobile */}
+                    {link.megaMenu?.enabled && link.megaMenu.columns && link.megaMenu.columns.length > 0 && (
+                      <div className="ml-3 space-y-2.5 pl-3 border-l border-[var(--brand-gold)]/30 pt-1 pb-1">
+                        {link.megaMenu.columns
+                          .filter((c) => c.enabled !== false)
+                          .map((col) => (
+                            <div key={col.id} className="space-y-1">
+                              <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--brand-gold)]">
+                                {col.title}
+                              </div>
+                              <div className="space-y-1 pl-1">
+                                {(col.links || [])
+                                  .filter((l) => l.enabled !== false)
+                                  .map((lnk, lIdx) => {
+                                    const isValid = Boolean(lnk.url && lnk.url.trim() && lnk.url !== '#');
+                                    return (
+                                      <button
+                                        key={lIdx}
+                                        onClick={() => {
+                                          if (isValid) {
+                                            handleMegaMenuLinkClick(lnk.url, lnk.label);
+                                          }
+                                        }}
+                                        className={`w-full text-left py-1 px-1.5 text-xs flex items-center justify-between rounded ${
+                                          isValid
+                                            ? 'text-slate-300 hover:text-[var(--brand-gold)] hover:bg-white/5'
+                                            : 'text-slate-500 opacity-60 cursor-not-allowed'
+                                        }`}
+                                      >
+                                        <span>{lnk.label}</span>
+                                        {renderBadgeTag(lnk.badge as any, lnk.badgeCustomText)}
+                                      </button>
+                                    );
+                                  })}
+                              </div>
+                            </div>
+                          ))}
+
+                        {link.megaMenu.featuredImageUrl && link.megaMenu.featuredImageUrl.trim() !== '' && (
+                          <div
+                            onClick={() => {
+                              if (link.megaMenu?.featuredImageLink) {
+                                handleMegaMenuLinkClick(link.megaMenu.featuredImageLink, link.megaMenu.featuredImageTitle);
+                              }
+                            }}
+                            className={`mt-2 bg-[var(--brand-primary-deeper)] p-2 rounded-lg border border-white/10 flex items-center gap-2.5 ${
+                              link.megaMenu?.featuredImageLink ? 'cursor-pointer' : ''
+                            }`}
+                          >
+                            <img
+                              src={link.megaMenu.featuredImageUrl}
+                              alt={link.megaMenu.featuredImageTitle || 'Featured'}
+                              className="w-12 h-12 rounded object-cover border border-white/10 shrink-0"
+                            />
+                            <div className="flex-1 min-w-0">
+                              <div className="text-xs font-bold text-slate-100 truncate">
+                                {link.megaMenu.featuredImageTitle || 'Featured Formulation'}
+                              </div>
+                              {link.megaMenu.featuredImageSubtitle && (
+                                <div className="text-[10px] text-slate-400 truncate">
+                                  {link.megaMenu.featuredImageSubtitle}
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        )}
                       </div>
                     )}
                   </div>

@@ -532,11 +532,24 @@ export interface CountrySetting {
   paymentRule: 'COD_AND_PREPAID' | 'PREPAID_ONLY' | 'BLOCK_ORDERS';
 }
 
+export interface MegaMenuLink {
+  id?: string;
+  label: string;
+  url: string;
+  badge?: 'NEW' | 'HOT' | 'SALE' | 'B2B' | 'CUSTOM' | 'NONE' | string;
+  badgeCustomText?: string;
+  enabled?: boolean;
+  imageUrl?: string;
+  sortOrder?: number;
+}
+
 export interface MegaMenuColumn {
   id: string;
   title: string;
   categorySlug?: string;
-  links: { label: string; url: string; badge?: string }[];
+  enabled?: boolean;
+  sortOrder?: number;
+  links: MegaMenuLink[];
 }
 
 export interface GalleryImageItem {

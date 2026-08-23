@@ -1051,7 +1051,54 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   // Nav Links
-  const [navLinks, setNavLinks] = useState<NavLink[]>(() => getStored('nav_links', INITIAL_NAV_LINKS));
+  const [navLinks, setNavLinks] = useState<NavLink[]>(() => {
+    const raw = getStored('nav_links', INITIAL_NAV_LINKS);
+    if (Array.isArray(raw)) {
+      const migrated = raw.map((item) => {
+        if (item.id === 'nav-1' || item.label === 'Collections') {
+          let updatedMega = item.megaMenu;
+          if (updatedMega) {
+            if (updatedMega.featuredImageUrl && updatedMega.featuredImageUrl.includes('photo-1526947425960-945c6e72858f')) {
+              updatedMega = { ...updatedMega, featuredImageUrl: '', featuredImageTitle: '', featuredImageSubtitle: '', featuredImageLink: '' };
+            }
+            if (updatedMega.columns && Array.isArray(updatedMega.columns)) {
+              const updatedCols = updatedMega.columns.map((col: any) => {
+                const updatedLinks = (col.links || []).map((lnk: any) => {
+                  if (lnk.url === '#products') {
+                    if (lnk.label === 'Hair Fall Control' || lnk.label === 'Scalp Nourishment & Dandruff' || lnk.label === 'Premature Greying Repair') {
+                      return { ...lnk, url: '/hair-care', enabled: lnk.enabled !== false };
+                    }
+                    if (lnk.label === 'Growth Boost Elixir') {
+                      return { ...lnk, url: '/products/root-density-follicle-serum', enabled: lnk.enabled !== false };
+                    }
+                    if (lnk.label === '42 Mountain Herbs Oil') {
+                      return { ...lnk, url: '/products/hakkiveda-108-herbs-hair-oil', enabled: lnk.enabled !== false };
+                    }
+                    if (lnk.label === 'Amla & Bhringraj Scalp Pack') {
+                      return { ...lnk, url: '/products/baldness-care-powder', enabled: lnk.enabled !== false };
+                    }
+                    if (lnk.label === 'Forest Honey & Neem Cleanser') {
+                      return { ...lnk, url: '/products/neem-face-cleanser', enabled: lnk.enabled !== false };
+                    }
+                  }
+                  if (lnk.url === '#b2b') {
+                    return { ...lnk, url: '/b2b-enquiry', enabled: lnk.enabled !== false };
+                  }
+                  return lnk;
+                });
+                return { ...col, links: updatedLinks };
+              });
+              updatedMega = { ...updatedMega, columns: updatedCols };
+            }
+            return { ...item, megaMenu: updatedMega };
+          }
+        }
+        return item;
+      });
+      return migrated;
+    }
+    return INITIAL_NAV_LINKS;
+  });
 
   const addNavLink = (item: Omit<NavLink, 'id'>) => {
     const newLink: NavLink = {

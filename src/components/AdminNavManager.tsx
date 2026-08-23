@@ -331,6 +331,34 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
     reader.readAsDataURL(file);
   };
 
+  const handleMegaFeaturedImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.url) {
+          setMegaFeaturedImage(data.url);
+          showToast(`Uploaded promo image: ${file.name}`);
+          return;
+        }
+      }
+    } catch (err) {
+      console.warn('[AdminNavManager] Server upload fallback to FileReader:', err);
+    }
+    const reader = new FileReader();
+    reader.onload = (evt) => {
+      if (evt.target?.result) {
+        setMegaFeaturedImage(evt.target.result as string);
+        showToast(`Uploaded promo image: ${file.name}`);
+      }
+    };
+    reader.readAsDataURL(file);
+  };
+
   // Open Edit Form
   const openEditModal = (item?: NavLink) => {
     if (item) {
@@ -1727,12 +1755,12 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
 
               {/* MODAL TAB 3: MEGA MENU BUILDER */}
               {modalTab === 'megamenu' && (
-                <div className="space-y-4">
+                <div className="space-y-6 animate-in fade-in">
                   <div className="flex items-center justify-between p-4 bg-[var(--brand-primary-deep)] rounded-xl border border-white/10">
                     <div>
                       <span className="font-bold text-slate-100 text-sm">Enable Rich Mega Menu Dropdown</span>
                       <p className="text-[11px] text-slate-400">
-                        Displays multi-column category links, badges, and featured promotional banners on hover.
+                        Displays multi-column categorized links, product routes, badges, and optional promotional card on hover.
                       </p>
                     </div>
                     <input
@@ -1744,41 +1772,143 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                   </div>
 
                   {megaEnabled && (
-                    <div className="space-y-4 bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10">
-                      {/* Featured Banner */}
-                      <h4 className="font-bold text-[var(--brand-gold)] text-xs uppercase tracking-wider border-b border-white/10 pb-1">
-                        Featured Side Banner / Highlighted Formulation
-                      </h4>
-
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                        <div>
-                          <label className="block text-slate-200 font-medium mb-1">Featured Image URL</label>
-                          <input
-                            type="text"
-                            value={megaFeaturedImage}
-                            onChange={(e) => setMegaFeaturedImage(e.target.value)}
-                            placeholder="https://images.unsplash.com/..."
-                            className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2 rounded text-slate-100"
-                          />
+                    <div className="space-y-6">
+                      {/* 1. Promotional Card / Image */}
+                      <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-4">
+                        <div className="flex items-center justify-between border-b border-white/10 pb-2">
+                          <h4 className="font-bold text-[var(--brand-gold)] text-xs uppercase tracking-wider flex items-center gap-2">
+                            <ImageIcon className="w-4 h-4 text-[var(--brand-gold)]" />
+                            <span>Promotional Card & Image (Optional)</span>
+                          </h4>
+                          {megaFeaturedImage ? (
+                            <span className="text-[10px] bg-emerald-500/20 text-emerald-300 font-bold px-2 py-0.5 rounded">
+                              Image Configured
+                            </span>
+                          ) : (
+                            <span className="text-[10px] bg-amber-500/20 text-amber-300 font-bold px-2 py-0.5 rounded">
+                              Hidden (Columns Expand 100%)
+                            </span>
+                          )}
                         </div>
 
-                        <div>
-                          <label className="block text-slate-200 font-medium mb-1">Featured Title</label>
-                          <input
-                            type="text"
-                            value={megaFeaturedTitle}
-                            onChange={(e) => setMegaFeaturedTitle(e.target.value)}
-                            placeholder="Royal Hakki-Pikki Hair Oil"
-                            className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2 rounded text-slate-100"
-                          />
+                        <p className="text-xs text-slate-300">
+                          If an image is uploaded or set, a promotional card appears on the right side of the mega menu. If cleared or empty, the promotional card is completely hidden and the content columns expand across the full width.
+                        </p>
+
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          {/* Image preview & upload */}
+                          <div className="space-y-2">
+                            <label className="block text-slate-200 font-medium text-xs">Promo Image</label>
+                            {megaFeaturedImage ? (
+                              <div className="relative rounded-lg overflow-hidden border border-white/15 h-36 bg-black/40 group">
+                                <img
+                                  src={megaFeaturedImage}
+                                  alt="Promo Preview"
+                                  className="w-full h-full object-cover"
+                                />
+                                <div className="absolute inset-0 bg-black/60 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center gap-2">
+                                  <label className="cursor-pointer bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-2.5 py-1 rounded text-xs font-bold flex items-center gap-1 hover:bg-[#d8b25a]">
+                                    <Upload className="w-3.5 h-3.5" />
+                                    <span>Replace</span>
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={handleMegaFeaturedImageUpload}
+                                      className="hidden"
+                                    />
+                                  </label>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setMegaFeaturedImage('');
+                                      showToast('Removed promotional image (card will be hidden)');
+                                    }}
+                                    className="bg-rose-500 text-white px-2.5 py-1 rounded text-xs font-bold flex items-center gap-1 hover:bg-rose-600"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                    <span>Remove</span>
+                                  </button>
+                                </div>
+                              </div>
+                            ) : (
+                              <label className="flex flex-col items-center justify-center border-2 border-dashed border-white/20 hover:border-[var(--brand-gold)]/60 rounded-xl h-36 cursor-pointer bg-black/20 hover:bg-black/40 transition-all p-4 text-center">
+                                <Upload className="w-6 h-6 text-slate-400 mb-1" />
+                                <span className="text-xs font-bold text-slate-200">Upload Promo Image</span>
+                                <span className="text-[10px] text-slate-400 mt-0.5">PNG, JPG or WebP</span>
+                                <input
+                                  type="file"
+                                  accept="image/*"
+                                  onChange={handleMegaFeaturedImageUpload}
+                                  className="hidden"
+                                />
+                              </label>
+                            )}
+
+                            {/* Direct URL input and Clear button */}
+                            <div className="flex items-center gap-2 pt-1">
+                              <input
+                                type="text"
+                                value={megaFeaturedImage}
+                                onChange={(e) => setMegaFeaturedImage(e.target.value)}
+                                placeholder="Or enter Image URL (leave empty to hide)"
+                                className="flex-1 bg-[var(--brand-primary-dark)] border border-white/20 p-2 rounded text-xs text-slate-100"
+                              />
+                              {megaFeaturedImage && (
+                                <button
+                                  type="button"
+                                  onClick={() => setMegaFeaturedImage('')}
+                                  className="bg-slate-700 text-slate-200 hover:text-white px-2.5 py-2 rounded text-xs font-bold shrink-0"
+                                  title="Clear Image"
+                                >
+                                  Clear
+                                </button>
+                              )}
+                            </div>
+                          </div>
+
+                          {/* Promo card text & destination */}
+                          <div className="space-y-3">
+                            <div>
+                              <label className="block text-slate-200 font-medium text-xs mb-1">Card Title</label>
+                              <input
+                                type="text"
+                                value={megaFeaturedTitle}
+                                onChange={(e) => setMegaFeaturedTitle(e.target.value)}
+                                placeholder="e.g. 42 Mountain Herbs Hair Oil"
+                                className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2 rounded text-xs text-slate-100"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-slate-200 font-medium text-xs mb-1">Card Subtitle / Description</label>
+                              <input
+                                type="text"
+                                value={megaFeaturedSubtitle}
+                                onChange={(e) => setMegaFeaturedSubtitle(e.target.value)}
+                                placeholder="e.g. Hand-brewed over woodfire by Hakki-Pikki elders"
+                                className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2 rounded text-xs text-slate-100"
+                              />
+                            </div>
+
+                            <div>
+                              <label className="block text-slate-200 font-medium text-xs mb-1">Destination Route / URL</label>
+                              <input
+                                type="text"
+                                value={megaFeaturedLink}
+                                onChange={(e) => setMegaFeaturedLink(e.target.value)}
+                                placeholder="e.g. /products/hakkiveda-108-herbs-hair-oil"
+                                className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2 rounded text-xs text-slate-100"
+                              />
+                            </div>
+                          </div>
                         </div>
                       </div>
 
-                      {/* Mega Columns */}
-                      <div className="pt-2">
-                        <div className="flex items-center justify-between border-b border-white/10 pb-2 mb-3">
+                      {/* 2. Content Columns & Links */}
+                      <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-4">
+                        <div className="flex items-center justify-between border-b border-white/10 pb-2">
                           <h4 className="font-bold text-[var(--brand-gold)] text-xs uppercase tracking-wider">
-                            Mega Menu Content Columns ({megaColumns.length})
+                            Content Columns ({megaColumns.length})
                           </h4>
                           <button
                             type="button"
@@ -1788,88 +1918,269 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
                                 {
                                   id: `col-${Date.now()}`,
                                   title: 'New Column',
-                                  links: [{ label: 'New Link', url: '#products' }],
+                                  enabled: true,
+                                  links: [{ label: 'New Link', url: '/hair-care', enabled: true, badge: 'NONE' }],
                                 },
                               ])
                             }
-                            className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-2.5 py-1 rounded font-bold text-[11px]"
+                            className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-3 py-1 rounded font-bold text-xs hover:bg-[#d8b25a] transition-colors"
                           >
                             + Add Column
                           </button>
                         </div>
 
-                        <div className="space-y-3">
+                        <div className="space-y-4">
                           {megaColumns.map((col, colIdx) => (
-                            <div key={col.id} className="bg-[var(--brand-primary-dark)] p-3 rounded-lg border border-white/10 space-y-2">
-                              <div className="flex items-center justify-between">
-                                <input
-                                  type="text"
-                                  value={col.title}
-                                  onChange={(e) => {
-                                    const next = [...megaColumns];
-                                    next[colIdx].title = e.target.value;
-                                    setMegaColumns(next);
-                                  }}
-                                  className="bg-[var(--brand-primary-deep)] border border-white/20 p-1.5 rounded text-xs text-slate-100 font-bold"
-                                />
-                                <button
-                                  type="button"
-                                  onClick={() => setMegaColumns(megaColumns.filter((_, idx) => idx !== colIdx))}
-                                  className="text-rose-400 hover:text-rose-300 p-1"
-                                >
-                                  <Trash2 className="w-3.5 h-3.5" />
-                                </button>
+                            <div key={col.id} className="bg-[var(--brand-primary-dark)] p-4 rounded-xl border border-white/10 space-y-3">
+                              {/* Column Header */}
+                              <div className="flex items-center justify-between gap-3 bg-[var(--brand-primary-deep)] p-2.5 rounded-lg border border-white/10">
+                                <div className="flex items-center gap-2 flex-1">
+                                  <span className="text-[10px] font-bold text-[var(--brand-gold)] uppercase tracking-wider">
+                                    Col {colIdx + 1}:
+                                  </span>
+                                  <input
+                                    type="text"
+                                    value={col.title}
+                                    onChange={(e) => {
+                                      const next = [...megaColumns];
+                                      next[colIdx].title = e.target.value;
+                                      setMegaColumns(next);
+                                    }}
+                                    placeholder="Column Title (e.g. By Category)"
+                                    className="bg-[var(--brand-primary-dark)] border border-white/20 px-2.5 py-1 rounded text-xs text-slate-100 font-bold flex-1"
+                                  />
+                                </div>
+                                <div className="flex items-center gap-2">
+                                  <label className="flex items-center gap-1.5 text-xs text-slate-300 cursor-pointer">
+                                    <input
+                                      type="checkbox"
+                                      checked={col.enabled !== false}
+                                      onChange={(e) => {
+                                        const next = [...megaColumns];
+                                        next[colIdx].enabled = e.target.checked;
+                                        setMegaColumns(next);
+                                      }}
+                                      className="accent-[var(--brand-gold)]"
+                                    />
+                                    <span>Enabled</span>
+                                  </label>
+                                  <button
+                                    type="button"
+                                    onClick={() => setMegaColumns(megaColumns.filter((_, idx) => idx !== colIdx))}
+                                    className="text-rose-400 hover:text-rose-300 p-1.5 hover:bg-rose-500/10 rounded transition-colors"
+                                    title="Delete Column"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
                               </div>
 
-                              {/* Links list in column */}
-                              <div className="space-y-1.5 pt-1">
-                                {col.links.map((link, linkIdx) => (
-                                  <div key={linkIdx} className="flex items-center gap-2">
-                                    <input
-                                      type="text"
-                                      placeholder="Link label"
-                                      value={link.label}
-                                      onChange={(e) => {
-                                        const next = [...megaColumns];
-                                        next[colIdx].links[linkIdx].label = e.target.value;
-                                        setMegaColumns(next);
-                                      }}
-                                      className="w-1/3 bg-[var(--brand-primary-deep)] border border-white/15 p-1 rounded text-[11px] text-slate-100"
-                                    />
-                                    <input
-                                      type="text"
-                                      placeholder="URL e.g. #products"
-                                      value={link.url}
-                                      onChange={(e) => {
-                                        const next = [...megaColumns];
-                                        next[colIdx].links[linkIdx].url = e.target.value;
-                                        setMegaColumns(next);
-                                      }}
-                                      className="w-1/3 bg-[var(--brand-primary-deep)] border border-white/15 p-1 rounded text-[11px] text-slate-100"
-                                    />
-                                    <button
-                                      type="button"
-                                      onClick={() => {
-                                        const next = [...megaColumns];
-                                        next[colIdx].links.splice(linkIdx, 1);
-                                        setMegaColumns(next);
-                                      }}
-                                      className="text-rose-400 p-1"
-                                    >
-                                      <X className="w-3 h-3" />
-                                    </button>
+                              {/* Column Links List */}
+                              <div className="space-y-2.5 pl-1">
+                                <div className="text-[11px] font-bold text-slate-300">
+                                  Links in this column ({col.links?.length || 0}):
+                                </div>
+
+                                {col.links?.map((link, linkIdx) => (
+                                  <div
+                                    key={linkIdx}
+                                    className="bg-[var(--brand-primary-deep)] p-3 rounded-lg border border-white/10 space-y-2"
+                                  >
+                                    <div className="grid grid-cols-1 sm:grid-cols-12 gap-2 items-center">
+                                      {/* Enabled */}
+                                      <div className="sm:col-span-1 flex items-center justify-center">
+                                        <input
+                                          type="checkbox"
+                                          checked={link.enabled !== false}
+                                          onChange={(e) => {
+                                            const next = [...megaColumns];
+                                            next[colIdx].links[linkIdx].enabled = e.target.checked;
+                                            setMegaColumns(next);
+                                          }}
+                                          className="w-4 h-4 accent-[var(--brand-gold)]"
+                                          title="Enable/Disable Link"
+                                        />
+                                      </div>
+
+                                      {/* Label */}
+                                      <div className="sm:col-span-4">
+                                        <input
+                                          type="text"
+                                          placeholder="Link Label (e.g. Hair Fall & Thinning)"
+                                          value={link.label}
+                                          onChange={(e) => {
+                                            const next = [...megaColumns];
+                                            next[colIdx].links[linkIdx].label = e.target.value;
+                                            setMegaColumns(next);
+                                          }}
+                                          className="w-full bg-[var(--brand-primary-dark)] border border-white/20 px-2 py-1.5 rounded text-xs text-slate-100 font-medium"
+                                        />
+                                      </div>
+
+                                      {/* URL / Route */}
+                                      <div className="sm:col-span-4">
+                                        <input
+                                          type="text"
+                                          placeholder="URL e.g. /hair-care or /products/..."
+                                          value={link.url}
+                                          onChange={(e) => {
+                                            const next = [...megaColumns];
+                                            next[colIdx].links[linkIdx].url = e.target.value;
+                                            setMegaColumns(next);
+                                          }}
+                                          className="w-full bg-[var(--brand-primary-dark)] border border-white/20 px-2 py-1.5 rounded text-xs text-slate-100 font-mono"
+                                        />
+                                      </div>
+
+                                      {/* Badge */}
+                                      <div className="sm:col-span-2">
+                                        <select
+                                          value={link.badge || 'NONE'}
+                                          onChange={(e) => {
+                                            const next = [...megaColumns];
+                                            next[colIdx].links[linkIdx].badge = e.target.value as any;
+                                            setMegaColumns(next);
+                                          }}
+                                          className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-1.5 rounded text-xs text-slate-200"
+                                        >
+                                          <option value="NONE">No Badge</option>
+                                          <option value="HOT">HOT</option>
+                                          <option value="NEW">NEW</option>
+                                          <option value="SALE">SALE</option>
+                                          <option value="B2B">B2B</option>
+                                          <option value="CUSTOM">CUSTOM</option>
+                                        </select>
+                                      </div>
+
+                                      {/* Actions: Move & Delete */}
+                                      <div className="sm:col-span-1 flex items-center justify-end gap-1">
+                                        <button
+                                          type="button"
+                                          disabled={linkIdx === 0}
+                                          onClick={() => {
+                                            const next = [...megaColumns];
+                                            const item = next[colIdx].links.splice(linkIdx, 1)[0];
+                                            next[colIdx].links.splice(linkIdx - 1, 0, item);
+                                            setMegaColumns(next);
+                                          }}
+                                          className="text-slate-400 hover:text-slate-200 disabled:opacity-30 p-0.5"
+                                          title="Move Up"
+                                        >
+                                          ↑
+                                        </button>
+                                        <button
+                                          type="button"
+                                          disabled={linkIdx === col.links.length - 1}
+                                          onClick={() => {
+                                            const next = [...megaColumns];
+                                            const item = next[colIdx].links.splice(linkIdx, 1)[0];
+                                            next[colIdx].links.splice(linkIdx + 1, 0, item);
+                                            setMegaColumns(next);
+                                          }}
+                                          className="text-slate-400 hover:text-slate-200 disabled:opacity-30 p-0.5"
+                                          title="Move Down"
+                                        >
+                                          ↓
+                                        </button>
+                                        <button
+                                          type="button"
+                                          onClick={() => {
+                                            const next = [...megaColumns];
+                                            next[colIdx].links.splice(linkIdx, 1);
+                                            setMegaColumns(next);
+                                          }}
+                                          className="text-rose-400 hover:text-rose-300 p-1"
+                                          title="Delete Link"
+                                        >
+                                          <X className="w-3.5 h-3.5" />
+                                        </button>
+                                      </div>
+                                    </div>
+
+                                    {/* Preset Quick Route Picker */}
+                                    <div className="flex flex-wrap items-center gap-1.5 pt-1 text-[10px]">
+                                      <span className="text-slate-400 font-semibold">Presets:</span>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const next = [...megaColumns];
+                                          next[colIdx].links[linkIdx].url = '/hair-care';
+                                          setMegaColumns(next);
+                                        }}
+                                        className="bg-white/5 hover:bg-[var(--brand-gold)] hover:text-black px-1.5 py-0.5 rounded text-slate-300"
+                                      >
+                                        /hair-care
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const next = [...megaColumns];
+                                          next[colIdx].links[linkIdx].url = '/skin-care';
+                                          setMegaColumns(next);
+                                        }}
+                                        className="bg-white/5 hover:bg-[var(--brand-gold)] hover:text-black px-1.5 py-0.5 rounded text-slate-300"
+                                      >
+                                        /skin-care
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const next = [...megaColumns];
+                                          next[colIdx].links[linkIdx].url = '/tribal-wellness';
+                                          setMegaColumns(next);
+                                        }}
+                                        className="bg-white/5 hover:bg-[var(--brand-gold)] hover:text-black px-1.5 py-0.5 rounded text-slate-300"
+                                      >
+                                        /tribal-wellness
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const next = [...megaColumns];
+                                          next[colIdx].links[linkIdx].url = '/products/hakkiveda-108-herbs-hair-oil';
+                                          setMegaColumns(next);
+                                        }}
+                                        className="bg-white/5 hover:bg-[var(--brand-gold)] hover:text-black px-1.5 py-0.5 rounded text-slate-300"
+                                      >
+                                        42 Herbs Oil
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const next = [...megaColumns];
+                                          next[colIdx].links[linkIdx].url = '/products/baldness-care-powder';
+                                          setMegaColumns(next);
+                                        }}
+                                        className="bg-white/5 hover:bg-[var(--brand-gold)] hover:text-black px-1.5 py-0.5 rounded text-slate-300"
+                                      >
+                                        Baldness Lepa
+                                      </button>
+                                      <button
+                                        type="button"
+                                        onClick={() => {
+                                          const next = [...megaColumns];
+                                          next[colIdx].links[linkIdx].url = '/b2b-enquiry';
+                                          setMegaColumns(next);
+                                        }}
+                                        className="bg-white/5 hover:bg-[var(--brand-gold)] hover:text-black px-1.5 py-0.5 rounded text-slate-300"
+                                      >
+                                        B2B Enquiry
+                                      </button>
+                                    </div>
                                   </div>
                                 ))}
+
                                 <button
                                   type="button"
                                   onClick={() => {
                                     const next = [...megaColumns];
-                                    next[colIdx].links.push({ label: 'New Link', url: '#products' });
+                                    if (!next[colIdx].links) next[colIdx].links = [];
+                                    next[colIdx].links.push({ label: 'New Link', url: '/hair-care', enabled: true, badge: 'NONE' });
                                     setMegaColumns(next);
                                   }}
-                                  className="text-[10px] text-[var(--brand-gold)] font-bold hover:underline"
+                                  className="text-xs text-[var(--brand-gold)] font-bold hover:underline flex items-center gap-1 pt-1"
                                 >
-                                  + Add Link
+                                  + Add Link to Column
                                 </button>
                               </div>
                             </div>

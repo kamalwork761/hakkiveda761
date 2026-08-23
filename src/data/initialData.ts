@@ -847,7 +847,7 @@ export const INITIAL_HERO_SLIDES: HeroSlide[] = [
     subtitle: 'Harness the power of 42 rare mountain herbs, formulated by the Hakki-Pikki tribe for extraordinary hair density & scalp vitality.',
     image: '/images/hero_tribal_elders.jpg',
     ctaText: 'Shop Tribal Elixir',
-    ctaLink: '#products',
+    ctaLink: '/tribal-wellness',
     active: true,
     enable3dOverflow: true,
     foregroundCutoutUrl: '/images/woman_long_hair_cutout.svg',

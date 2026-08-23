@@ -170,14 +170,24 @@ export const HeroSlider: React.FC = () => {
       }
     }
 
-    if (link === '#ai-quiz' || link === '#quiz') {
+    const resolvedLink = link?.trim() || '/tribal-wellness';
+
+    // 1. External URLs
+    if (resolvedLink.startsWith('http://') || resolvedLink.startsWith('https://')) {
+      window.open(resolvedLink, '_blank', 'noopener,noreferrer');
+      return;
+    }
+
+    // 2. AI Quiz modal trigger
+    if (resolvedLink === '#ai-quiz' || resolvedLink === '#quiz' || resolvedLink === '/quiz') {
       setIsQuizOpen(true);
       return;
     }
 
-    if (link === '#b2b' || link === '#b2b-export' || link === '/b2b-enquiry' || link === '/b2b') {
+    // 3. B2B routes
+    if (resolvedLink === '#b2b' || resolvedLink === '#b2b-export' || resolvedLink === '/b2b-enquiry' || resolvedLink === '/b2b') {
       const b2bEl = document.getElementById('b2b') || document.getElementById('b2b-export');
-      if (b2bEl && link !== '/b2b-enquiry') {
+      if (b2bEl && resolvedLink !== '/b2b-enquiry') {
         b2bEl.scrollIntoView({ behavior: 'smooth' });
       } else {
         window.history.pushState({}, '', '/b2b-enquiry');
@@ -187,10 +197,37 @@ export const HeroSlider: React.FC = () => {
       return;
     }
 
-    if (link && link.startsWith('#')) {
-      const targetEl = document.querySelector(link);
+    // 4. Direct SPA Route Navigation (/tribal-wellness, /hair-care, /skin-care, /products/:slug, etc.)
+    if (resolvedLink.startsWith('/')) {
+      window.history.pushState({}, '', resolvedLink);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // 5. Category query params e.g. #category-Hair Care
+    if (resolvedLink.startsWith('#category-') || resolvedLink.startsWith('#category=')) {
+      const catName = resolvedLink.replace('#category-', '').replace('#category=', '');
+      window.history.pushState({}, '', `/?category=${encodeURIComponent(catName)}`);
+      window.dispatchEvent(new PopStateEvent('popstate'));
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+      return;
+    }
+
+    // 6. Section Hash anchors on homepage (#brand-story, #categories, #collections, etc.)
+    if (resolvedLink.startsWith('#')) {
+      const targetId = resolvedLink.replace('#', '');
+      let targetEl = document.getElementById(targetId);
+      if (!targetEl && (targetId === 'products' || targetId === 'collections')) {
+        targetEl = document.getElementById('categories') || document.getElementById('bestsellers');
+      }
       if (targetEl) {
         targetEl.scrollIntoView({ behavior: 'smooth' });
+      } else if (targetId === 'products') {
+        // If #products has no anchor, route to /tribal-wellness
+        window.history.pushState({}, '', '/tribal-wellness');
+        window.dispatchEvent(new PopStateEvent('popstate'));
+        window.scrollTo({ top: 0, behavior: 'smooth' });
       }
     }
   };
@@ -413,21 +450,30 @@ export const HeroSlider: React.FC = () => {
                   style={{ zIndex: 20 }}
                 >
                   {/* Main CTA Button */}
-                  {(slide.ctaText || 'Shop Tribal Elixir') && (
-                    <a
-                      href={slide.ctaLink || '#products'}
-                      onClick={(e) => {
-                        if (slide.ctaLink?.startsWith('#') || slide.ctaLink?.startsWith('/')) {
-                          e.preventDefault();
-                        }
-                        handleCtaClick(slide.id, slide.ctaLink || '#products');
-                      }}
-                      className="bg-[var(--brand-gold,#C9A84E)] text-[#123F2A] hover:bg-white text-xs sm:text-sm font-bold uppercase tracking-[0.2em] px-7 sm:px-9 py-3.5 sm:py-4 rounded-xl shadow-2xl transition-all duration-300 hover:scale-105 flex items-center gap-2.5 cursor-pointer font-sans select-none"
-                    >
-                      <span>{slide.ctaText || 'Shop Tribal Elixir'}</span>
-                      <ChevronRight className="w-4 h-4" />
-                    </a>
-                  )}
+                  {Boolean(slide.ctaText || 'Shop Tribal Elixir') && (() => {
+                    const rawMainLink = slide.ctaLink?.trim();
+                    const mainCtaDestination = rawMainLink && rawMainLink !== '#products'
+                      ? rawMainLink
+                      : (slide.id === 'slide-1' || (slide.ctaText && slide.ctaText.toLowerCase().includes('tribal elixir'))
+                          ? '/tribal-wellness'
+                          : (rawMainLink || '/tribal-wellness'));
+
+                    return (
+                      <a
+                        href={mainCtaDestination}
+                        onClick={(e) => {
+                          if (mainCtaDestination.startsWith('#') || mainCtaDestination.startsWith('/')) {
+                            e.preventDefault();
+                          }
+                          handleCtaClick(slide.id, mainCtaDestination);
+                        }}
+                        className="bg-[var(--brand-gold,#C9A84E)] text-[#123F2A] hover:bg-white text-xs sm:text-sm font-bold uppercase tracking-[0.2em] px-7 sm:px-9 py-3.5 sm:py-4 rounded-xl shadow-2xl transition-all duration-300 hover:scale-105 flex items-center gap-2.5 cursor-pointer font-sans select-none"
+                      >
+                        <span>{slide.ctaText || 'Shop Tribal Elixir'}</span>
+                        <ChevronRight className="w-4 h-4" />
+                      </a>
+                    );
+                  })()}
 
                   {/* Optional Secondary CTA Button */}
                   {slide.secondaryCtaText && (

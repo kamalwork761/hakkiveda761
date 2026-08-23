@@ -73,11 +73,10 @@ export const BestSellersCarousel: React.FC = () => {
 
   const handleBuyNow = (e: React.MouseEvent, product: Product) => {
     e.stopPropagation();
-    playSound('add_to_cart');
-    addToCart(product, 1);
-    // open cart drawer or checkout
-    const cartBtn = document.querySelector('[aria-label="Shopping Cart"]') as HTMLButtonElement;
-    if (cartBtn) cartBtn.click();
+    playSound('nav_click');
+    window.history.pushState({}, '', getProductUrl(product));
+    window.dispatchEvent(new PopStateEvent('popstate'));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   return (

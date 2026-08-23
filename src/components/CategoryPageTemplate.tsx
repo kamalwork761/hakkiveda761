@@ -371,10 +371,10 @@ export const CategoryPageTemplate: React.FC<CategoryPageTemplateProps> = ({
 
   const handleBuyNow = (e: React.MouseEvent, product: Product) => {
     e.stopPropagation();
-    playSound('add_to_cart');
-    addToCart(product, 1);
-    const cartBtn = document.querySelector('[aria-label="Shopping Cart"]') as HTMLButtonElement;
-    if (cartBtn) cartBtn.click();
+    playSound('nav_click');
+    window.history.pushState({}, '', getProductUrl(product));
+    window.dispatchEvent(new PopStateEvent('popstate'));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
   const faqs = CATEGORY_FAQS[cleanCatId] || CATEGORY_FAQS['hair-care'];

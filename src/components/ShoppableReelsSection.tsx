@@ -176,8 +176,11 @@ export const ShoppableReelsSection: React.FC<ShoppableReelsSectionProps> = ({
 
   // Buy Now Action
   const handleBuyNow = (product: Product) => {
-    addToCart(product, 1);
-    setIsCheckoutOpen(true);
+    if (videoRef.current) {
+      videoRef.current.pause();
+    }
+    closeReels();
+    onSelectProduct(product);
   };
 
   // WhatsApp Enquiry Action

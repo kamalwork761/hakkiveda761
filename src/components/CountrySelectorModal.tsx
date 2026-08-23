@@ -105,29 +105,29 @@ export const CountrySelectorModal: React.FC<CountrySelectorModalProps> = ({ isOp
       }}
     >
       <div
-        className="w-full max-w-lg h-[88vh] sm:h-[620px] max-h-[90vh] bg-[var(--brand-primary-deep)] border border-[var(--brand-gold)]/40 sm:rounded-2xl rounded-t-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 text-slate-100 font-sans"
+        className="w-full max-w-lg h-[88vh] sm:h-[620px] max-h-[90vh] bg-white border border-[#D4AF37]/50 sm:rounded-2xl rounded-t-2xl shadow-2xl flex flex-col overflow-hidden animate-in slide-in-from-bottom sm:zoom-in-95 duration-200 text-[#0B3D2E] font-sans"
         role="dialog"
         aria-modal="true"
         aria-label="Select Country and Currency"
       >
         {/* Modal Header */}
-        <div className="p-4 sm:p-5 border-b border-white/10 bg-[var(--brand-primary-dark)] flex items-center justify-between shrink-0">
+        <div className="p-4 sm:p-5 border-b border-[#E7E1D5] bg-[#FAF8F2] flex items-center justify-between shrink-0">
           <div className="flex items-center gap-2.5">
-            <div className="w-9 h-9 rounded-xl bg-[var(--brand-gold)]/10 border border-[var(--brand-gold)]/30 flex items-center justify-center text-[var(--brand-gold)]">
+            <div className="w-9 h-9 rounded-xl bg-[#D4AF37]/15 border border-[#D4AF37]/40 flex items-center justify-center text-[#997A15]">
               <Globe className="w-5 h-5" />
             </div>
             <div>
-              <h3 className="text-sm font-bold text-[var(--brand-gold)] tracking-wide uppercase">
+              <h3 className="text-sm font-bold text-[#0B3D2E] tracking-wide uppercase">
                 Select Country & Region
               </h3>
-              <p className="text-[11px] text-slate-300">
+              <p className="text-[11px] text-[#5F6B63] font-medium">
                 Currency adjusts automatically based on your location
               </p>
             </div>
           </div>
           <button
             onClick={onClose}
-            className="w-9 h-9 rounded-xl bg-white/5 hover:bg-white/10 text-slate-300 hover:text-white transition-colors flex items-center justify-center border border-white/10"
+            className="w-9 h-9 rounded-xl bg-black/5 hover:bg-black/10 text-[#0B3D2E] hover:text-black transition-colors flex items-center justify-center border border-[#E7E1D5]"
             aria-label="Close country selector"
           >
             <X className="w-5 h-5" />
@@ -135,44 +135,44 @@ export const CountrySelectorModal: React.FC<CountrySelectorModalProps> = ({ isOp
         </div>
 
         {/* Search Bar */}
-        <div className="p-3 sm:p-4 border-b border-white/10 bg-[var(--brand-primary-deep)] shrink-0">
+        <div className="p-3 sm:p-4 border-b border-[#E7E1D5] bg-white shrink-0">
           <div className="relative flex items-center">
-            <Search className="w-4 h-4 absolute left-3 text-[var(--brand-gold)]" />
+            <Search className="w-4 h-4 absolute left-3 text-[#997A15]" />
             <input
               ref={inputRef}
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
               placeholder="Search by country name, code (e.g. India, USA, SG)..."
-              className="w-full pl-9 pr-9 py-2.5 bg-[var(--brand-primary-deeper)] border border-[var(--brand-gold)]/30 rounded-xl text-xs text-white placeholder-slate-400 focus:outline-none focus:border-[var(--brand-gold)] focus:ring-1 focus:ring-[var(--brand-gold)] transition-all"
+              className="w-full pl-9 pr-9 py-2.5 bg-[#FAF8F2] border border-[#D4AF37]/40 rounded-xl text-xs text-[#0B3D2E] placeholder-[#64748B] focus:outline-none focus:border-[#0B3D2E] focus:ring-1 focus:ring-[#0B3D2E] transition-all font-medium"
             />
             {searchQuery && (
               <button
                 onClick={() => setSearchQuery('')}
-                className="absolute right-3 text-slate-400 hover:text-white p-1 rounded-full"
+                className="absolute right-3 text-[#64748B] hover:text-[#0B3D2E] p-1 rounded-full"
                 aria-label="Clear search"
               >
                 <X className="w-3.5 h-3.5" />
               </button>
             )}
           </div>
-          <div className="mt-2 flex items-center justify-between text-[10px] text-slate-400 px-1">
+          <div className="mt-2 flex items-center justify-between text-[11px] text-[#5F6B63] font-medium px-1">
             <span>Showing {filteredCountries.length} countries</span>
-            <span>Use ↑ ↓ keys or scroll</span>
+            <span className="text-[#64748B]">Use ↑ ↓ keys or scroll</span>
           </div>
         </div>
 
         {/* Scrollable Country List */}
         <div
           ref={listRef}
-          className="flex-1 overflow-y-auto min-h-0 divide-y divide-white/5 p-2 touch-pan-y overscroll-contain"
+          className="flex-1 overflow-y-auto min-h-0 divide-y divide-[#F1ECE1] p-2 touch-pan-y overscroll-contain bg-white"
           style={{ WebkitOverflowScrolling: 'touch' }}
         >
           {filteredCountries.length === 0 ? (
-            <div className="py-12 text-center text-slate-400 text-xs">
-              <Globe className="w-8 h-8 mx-auto mb-2 opacity-30 text-[var(--brand-gold)]" />
-              <p className="font-semibold">No countries matching "{searchQuery}"</p>
-              <p className="text-[11px] mt-1 text-slate-500">Try searching for full country name or code</p>
+            <div className="py-12 text-center text-[#5F6B63] text-xs">
+              <Globe className="w-8 h-8 mx-auto mb-2 opacity-40 text-[#997A15]" />
+              <p className="font-semibold text-[#0B3D2E]">No countries matching "{searchQuery}"</p>
+              <p className="text-[11px] mt-1 text-[#64748B]">Try searching for full country name or ISO code</p>
             </div>
           ) : (
             filteredCountries.map((country, index) => {
@@ -187,10 +187,10 @@ export const CountrySelectorModal: React.FC<CountrySelectorModalProps> = ({ isOp
                   onMouseEnter={() => setHighlightedIndex(index)}
                   className={`w-full text-left px-3.5 py-3 rounded-xl flex items-center justify-between transition-all duration-150 min-h-[50px] ${
                     isSelected
-                      ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold shadow-md'
+                      ? 'bg-[#0B3D2E] text-white font-bold shadow-md'
                       : isHighlighted
-                      ? 'bg-[var(--brand-primary-dark)] text-white border border-[var(--brand-gold)]/30'
-                      : 'hover:bg-white/5 text-slate-200'
+                      ? 'bg-[#FAF8F2] text-[#0B3D2E] border border-[#D4AF37]/50 shadow-sm'
+                      : 'hover:bg-[#FAF8F2] text-[#0B3D2E] border border-transparent'
                   }`}
                 >
                   <div className="flex items-center gap-3 min-w-0 pr-2">
@@ -198,12 +198,16 @@ export const CountrySelectorModal: React.FC<CountrySelectorModalProps> = ({ isOp
                       {country.flag}
                     </span>
                     <div className="min-w-0 flex-1">
-                      <div className="text-xs font-semibold truncate leading-tight">
+                      <div
+                        className={`text-xs font-semibold truncate leading-tight ${
+                          isSelected ? 'text-white' : 'text-[#0B3D2E]'
+                        }`}
+                      >
                         {country.name}
                       </div>
                       <div
                         className={`text-[10px] mt-0.5 tracking-wider font-mono ${
-                          isSelected ? 'text-[var(--brand-primary-dark)]/80 font-bold' : 'text-slate-400'
+                          isSelected ? 'text-white/80 font-bold' : 'text-[#5F6B63]'
                         }`}
                       >
                         ISO: {country.code}
@@ -215,13 +219,13 @@ export const CountrySelectorModal: React.FC<CountrySelectorModalProps> = ({ isOp
                     <span
                       className={`text-[11px] font-mono px-2 py-0.5 rounded font-bold border ${
                         isSelected
-                          ? 'bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] border-transparent'
-                          : 'bg-[var(--brand-primary-deeper)] text-[var(--brand-gold)] border-[var(--brand-gold)]/20'
+                          ? 'bg-white/20 text-white border-white/30'
+                          : 'bg-[#FAF8F2] text-[#0B3D2E] border-[#D4AF37]/40'
                       }`}
                     >
                       {country.currencyCode}
                     </span>
-                    {isSelected && <Check className="w-4 h-4 text-[var(--brand-primary-dark)] stroke-[3]" />}
+                    {isSelected && <Check className="w-4 h-4 text-white stroke-[3]" />}
                   </div>
                 </button>
               );
@@ -230,8 +234,9 @@ export const CountrySelectorModal: React.FC<CountrySelectorModalProps> = ({ isOp
         </div>
 
         {/* Modal Footer */}
-        <div className="p-3 bg-[var(--brand-primary-deeper)] border-t border-white/10 text-center text-[11px] text-slate-400 shrink-0">
-          Selected: <strong className="text-[var(--brand-gold)]">{selectedCountry.flag} {selectedCountry.name}</strong> ({selectedCountry.currencyCode})
+        <div className="p-3.5 bg-[#FAF8F2] border-t border-[#E7E1D5] text-center text-xs text-[#5F6B63] font-medium shrink-0">
+          Selected: <strong className="text-[#0B3D2E] font-bold">{selectedCountry.flag} {selectedCountry.name}</strong>{' '}
+          <span className="text-[#0B3D2E] font-semibold">({selectedCountry.currencyCode})</span>
         </div>
       </div>
     </div>

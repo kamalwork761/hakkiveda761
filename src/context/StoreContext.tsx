@@ -575,7 +575,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const authenticateAdmin = async (email: string, password: string): Promise<{ success: boolean; message: string }> => {
     const targetEmail = adminAccount.email || DEFAULT_ADMIN_EMAIL;
     if (email.trim().toLowerCase() !== targetEmail.toLowerCase()) {
-      return { success: false, message: 'Invalid admin email address.' };
+      return { success: false, message: 'Invalid email or password.' };
     }
 
     const inputHash = await hashPassword(password);
@@ -591,7 +591,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
 
     if (inputHash !== targetHash) {
-      return { success: false, message: 'Invalid admin password.' };
+      return { success: false, message: 'Invalid email or password.' };
     }
 
     setAdminAuthenticated(true);

@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
-import { Lock, KeyRound, Mail, Shield, Sparkles, ArrowLeft, CheckCircle2, AlertCircle } from 'lucide-react';
+import { Lock, KeyRound, Mail, Shield, ArrowLeft, AlertCircle } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
-import { DEFAULT_ADMIN_EMAIL } from '../utils/auth';
 
 interface AdminLoginProps {
   onLoginSuccess: () => void;
@@ -10,7 +9,7 @@ interface AdminLoginProps {
 
 export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onReturnToStore }) => {
   const { authenticateAdmin } = useStore();
-  const [email, setEmail] = useState(DEFAULT_ADMIN_EMAIL);
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [errorMsg, setErrorMsg] = useState('');
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -25,10 +24,10 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onReturn
       if (res.success) {
         onLoginSuccess();
       } else {
-        setErrorMsg(res.message);
+        setErrorMsg(res.message || 'Invalid email or password.');
       }
     } catch (err) {
-      setErrorMsg('Authentication failed. Please check your credentials.');
+      setErrorMsg('Invalid email or password.');
     } finally {
       setIsSubmitting(false);
     }
@@ -93,7 +92,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onReturn
                   required
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
-                  placeholder="admin@hakkiveda.com"
+                  placeholder="Enter admin email"
                   className="w-full bg-[var(--brand-primary-deeper)] border border-white/20 rounded-xl pl-10 pr-4 py-3 text-sm text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[var(--brand-gold)] transition-all"
                 />
               </div>
@@ -119,7 +118,7 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onReturn
             <button
               type="submit"
               disabled={isSubmitting}
-              className="w-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-white transition-all shadow-xl flex items-center justify-center gap-2 disabled:opacity-50 mt-2"
+              className="w-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] py-3.5 rounded-xl font-bold text-xs uppercase tracking-widest hover:bg-white transition-all shadow-xl flex items-center justify-center gap-2 disabled:opacity-50 mt-2 cursor-pointer"
             >
               {isSubmitting ? (
                 <span>Verifying Security Hash...</span>
@@ -133,11 +132,9 @@ export const AdminLogin: React.FC<AdminLoginProps> = ({ onLoginSuccess, onReturn
           </form>
 
           <div className="mt-8 pt-6 border-t border-white/10 text-center space-y-2">
-            <p className="text-[11px] text-slate-400 font-mono">
-              SHA-256 Encrypted Session Authentication
-            </p>
-            <p className="text-[10px] text-slate-500">
-              Default Master Admin Account: <span className="text-[var(--brand-gold)]">hakkiveda@gmail.com</span>
+            <p className="text-[11px] text-slate-400 font-mono flex items-center justify-center gap-1.5">
+              <Shield className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
+              <span>Secure Session Authentication</span>
             </p>
           </div>
         </div>

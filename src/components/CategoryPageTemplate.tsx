@@ -18,6 +18,11 @@ import {
 import { useStore } from '../context/StoreContext';
 import { Product, CategoryPageConfig } from '../types/store';
 import { CategoryHeroBanner } from './CategoryHeroBanner';
+import {
+  MobileCategorySortFilterBar,
+  CategorySortOption,
+  CategoryFilterState,
+} from './MobileCategorySortFilterBar';
 import { getProductUrl } from '../utils/productUtils';
 
 interface CategoryPageTemplateProps {
@@ -231,7 +236,14 @@ export const CategoryPageTemplate: React.FC<CategoryPageTemplateProps> = ({
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [inStockOnly, setInStockOnly] = useState<boolean>(false);
-  const [sortBy, setSortBy] = useState<'bestseller' | 'price-asc' | 'price-desc' | 'rating' | 'name'>('bestseller');
+  const [sortBy, setSortBy] = useState<CategorySortOption>('bestseller');
+  const [filters, setFilters] = useState<CategoryFilterState>({
+    subcategory: '',
+    concern: '',
+    priceRange: 'all',
+    inStockOnly: false,
+    minRating: 0,
+  });
 
   // Normalize categoryId (e.g. '/hair-care' -> 'hair-care')
   const cleanCatId = categoryId.replace(/^\//, '').replace(/^categories\//, '').toLowerCase();
@@ -271,17 +283,12 @@ export const CategoryPageTemplate: React.FC<CategoryPageTemplateProps> = ({
     return found || fallback;
   }, [categoryPages, cleanCatId, defaultConfig]);
 
-  // Filter & Sort Category Products
-  const categoryProducts = useMemo(() => {
+  // Extract available subcategories & concerns for this category
+  const rawBaseCategoryProducts = useMemo(() => {
     if (!products || !Array.isArray(products)) return [];
-
-    let result = products.filter((p) => {
+    return products.filter((p) => {
       if (!p) return false;
-      
-      // Match by primaryCategory
       if (p.primaryCategory && p.primaryCategory.toLowerCase() === cleanCatId) return true;
-
-      // Category-specific heuristic fallbacks
       if (cleanCatId === 'hair-care') {
         return (
           p.primaryCategory === 'hair-care' ||
@@ -296,7 +303,6 @@ export const CategoryPageTemplate: React.FC<CategoryPageTemplateProps> = ({
           ))
         );
       }
-
       if (cleanCatId === 'skin-care') {
         return (
           p.primaryCategory === 'skin-care' ||
@@ -309,7 +315,6 @@ export const CategoryPageTemplate: React.FC<CategoryPageTemplateProps> = ({
           ))
         );
       }
-
       if (cleanCatId === 'tribal-wellness') {
         return (
           p.primaryCategory === 'tribal-wellness' ||
@@ -321,14 +326,36 @@ export const CategoryPageTemplate: React.FC<CategoryPageTemplateProps> = ({
           ))
         );
       }
-
-      // Generic match
       const formattedName = cleanCatId.replace(/-/g, ' ');
       return (
         (p.category && p.category.toLowerCase().includes(formattedName)) ||
         (p.name && p.name.toLowerCase().includes(formattedName))
       );
     });
+  }, [products, cleanCatId]);
+
+  const availableSubcategories = useMemo(() => {
+    const set = new Set<string>();
+    rawBaseCategoryProducts.forEach((p) => {
+      if (p.subcategory) set.add(p.subcategory);
+      else if (p.category) set.add(p.category);
+    });
+    return Array.from(set);
+  }, [rawBaseCategoryProducts]);
+
+  const availableConcerns = useMemo(() => {
+    const set = new Set<string>();
+    rawBaseCategoryProducts.forEach((p) => {
+      if (Array.isArray(p.benefits)) {
+        p.benefits.slice(0, 3).forEach((b) => set.add(b));
+      }
+    });
+    return Array.from(set).slice(0, 8);
+  }, [rawBaseCategoryProducts]);
+
+  // Filter & Sort Category Products
+  const categoryProducts = useMemo(() => {
+    let result = [...rawBaseCategoryProducts];
 
     // 1. Search query filter
     if (searchQuery.trim()) {
@@ -343,23 +370,54 @@ export const CategoryPageTemplate: React.FC<CategoryPageTemplateProps> = ({
       );
     }
 
-    // 2. In-stock filter
-    if (inStockOnly) {
+    // 2. In-stock filter (from desktop or mobile filter)
+    if (inStockOnly || filters.inStockOnly) {
       result = result.filter((p) => p.inStock !== false);
     }
 
-    // 3. Sorting
+    // 3. Mobile subcategory filter
+    if (filters.subcategory) {
+      result = result.filter(
+        (p) => p.subcategory === filters.subcategory || p.category === filters.subcategory
+      );
+    }
+
+    // 4. Mobile concern filter
+    if (filters.concern) {
+      result = result.filter(
+        (p) =>
+          p.benefits &&
+          p.benefits.some((b) => b.toLowerCase().includes(filters.concern.toLowerCase()))
+      );
+    }
+
+    // 5. Price range filter
+    if (filters.priceRange === 'under-999') {
+      result = result.filter((p) => (p.priceINR || 0) < 999);
+    } else if (filters.priceRange === '999-1999') {
+      result = result.filter((p) => (p.priceINR || 0) >= 999 && (p.priceINR || 0) <= 1999);
+    } else if (filters.priceRange === 'above-1999') {
+      result = result.filter((p) => (p.priceINR || 0) > 1999);
+    }
+
+    // 6. Minimum rating filter
+    if (filters.minRating > 0) {
+      result = result.filter((p) => (p.rating || 0) >= filters.minRating);
+    }
+
+    // 7. Sorting
     return [...result].sort((a, b) => {
       if (sortBy === 'price-asc') return (a.priceINR || 0) - (b.priceINR || 0);
       if (sortBy === 'price-desc') return (b.priceINR || 0) - (a.priceINR || 0);
       if (sortBy === 'rating') return (b.rating || 0) - (a.rating || 0);
+      if (sortBy === 'newest') return (b.isNew ? 1 : 0) - (a.isNew ? 1 : 0);
       if (sortBy === 'name') return (a.name || '').localeCompare(b.name || '');
       // default: bestseller & displayOrder
       if (a.isBestseller && !b.isBestseller) return -1;
       if (!a.isBestseller && b.isBestseller) return 1;
       return (a.displayOrder || 0) - (b.displayOrder || 0);
     });
-  }, [products, cleanCatId, searchQuery, inStockOnly, sortBy]);
+  }, [rawBaseCategoryProducts, searchQuery, inStockOnly, filters, sortBy]);
 
   const handleAddToCart = (e: React.MouseEvent, product: Product) => {
     e.stopPropagation();
@@ -394,10 +452,10 @@ export const CategoryPageTemplate: React.FC<CategoryPageTemplateProps> = ({
   }
 
   return (
-    <div className="category-page min-h-screen bg-white dark:bg-[#0E281C] text-[#123F2A] dark:text-white selection:bg-[var(--brand-gold,#C9A84E)] selection:text-[#0E281C] transition-colors duration-300">
+    <div className="category-page min-h-screen pb-24 sm:pb-12 bg-white dark:bg-[#0E281C] text-[#123F2A] dark:text-white selection:bg-[var(--brand-gold,#C9A84E)] selection:text-[#0E281C] transition-colors duration-300">
       {/* Toast Notification */}
       {addedToast && (
-        <div className="fixed bottom-8 left-8 z-50 bg-[#123F2A] text-white dark:bg-[var(--brand-gold)] dark:text-[#0E281C] px-5 py-3 rounded-xl shadow-2xl font-sans text-xs font-bold flex items-center gap-3 animate-in slide-in-from-bottom duration-300">
+        <div className="fixed bottom-20 sm:bottom-8 left-4 sm:left-8 z-50 bg-[#123F2A] text-white dark:bg-[var(--brand-gold)] dark:text-[#0E281C] px-5 py-3 rounded-xl shadow-2xl font-sans text-xs font-bold flex items-center gap-3 animate-in slide-in-from-bottom duration-300">
           <Check className="w-5 h-5 bg-[#C9A84E] text-[#123F2A] rounded-full p-1" />
           <span>Added '{addedToast}' to your cart!</span>
         </div>
@@ -411,24 +469,24 @@ export const CategoryPageTemplate: React.FC<CategoryPageTemplateProps> = ({
       />
 
       {/* 2. PRODUCTS SECTION (HEADER, SEARCH, FILTERS & SORT) */}
-      <section className="category-products-section py-8 sm:py-14 px-4 sm:px-8 lg:px-12 max-w-7xl mx-auto">
-        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-8 pb-4 border-b border-[#E5D8B5] dark:border-white/10 gap-4">
+      <section className="category-products-section py-4 sm:py-14 px-3 sm:px-8 lg:px-12 max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:items-end justify-between mb-4 sm:mb-8 pb-3 sm:pb-4 border-b border-[#E5D8B5] dark:border-white/10 gap-2 sm:gap-4">
           <div>
-            <h2 className="category-heading text-2xl sm:text-3xl font-serif-luxury font-bold text-[#123F2A] dark:text-slate-100">
+            <h2 className="category-heading text-xl sm:text-3xl font-serif-luxury font-bold text-[#123F2A] dark:text-slate-100">
               {pageConfig.title || 'Formulations'}
             </h2>
-            <p className="category-description text-xs text-[#37463D] dark:text-slate-300 mt-1 font-sans">
+            <p className="category-description text-[11px] sm:text-xs text-[#37463D] dark:text-slate-300 mt-0.5 sm:mt-1 font-sans">
               Showing {categoryProducts.length} authentic {pageConfig.categoryName.toLowerCase()} formulations
             </p>
           </div>
-          <div className="text-xs font-sans text-[#C9A84E] font-bold flex items-center gap-2">
-            <Feather className="w-4 h-4" />
+          <div className="text-[11px] sm:text-xs font-sans text-[#C9A84E] font-bold flex items-center gap-1.5 sm:gap-2">
+            <Feather className="w-3.5 h-3.5 sm:w-4 sm:h-4" />
             <span>Free Express Worldwide Shipping</span>
           </div>
         </div>
 
-        {/* SEARCH, IN-STOCK FILTER & SORT CONTROL BAR */}
-        <div className="category-filter-bar mb-8 bg-[#FAF8F2] dark:bg-[#123F2B] p-4 rounded-2xl border border-[#E5D8B5] dark:border-white/10 flex flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
+        {/* SEARCH, IN-STOCK FILTER & SORT CONTROL BAR (DESKTOP / TABLET ONLY: hidden on mobile md:flex) */}
+        <div className="hidden md:flex category-filter-bar mb-8 bg-[#FAF8F2] dark:bg-[#123F2B] p-4 rounded-2xl border border-[#E5D8B5] dark:border-white/10 flex-col md:flex-row items-center justify-between gap-4 shadow-sm">
           {/* Search Bar Input */}
           <div className="relative w-full md:w-80">
             <Search className="w-4 h-4 text-[#123F2A] dark:text-emerald-300 absolute left-3.5 top-1/2 -translate-y-1/2 pointer-events-none" />
@@ -523,8 +581,8 @@ export const CategoryPageTemplate: React.FC<CategoryPageTemplateProps> = ({
             </button>
           </div>
         ) : (
-          /* Responsive Product Cards Grid */
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+          /* Responsive Product Cards Grid - 2 columns on mobile, 3 on md, 4 on lg */
+          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2.5 sm:gap-4 md:gap-6">
             {categoryProducts.map((product) => {
               const inWishlist = isInWishlist(product.id);
               const discountPct = product.originalPriceINR
@@ -539,10 +597,10 @@ export const CategoryPageTemplate: React.FC<CategoryPageTemplateProps> = ({
                     window.dispatchEvent(new PopStateEvent('popstate'));
                     window.scrollTo({ top: 0, behavior: 'smooth' });
                   }}
-                  className="bg-white text-slate-900 rounded-2xl overflow-hidden border border-[#E5D8B5]/80 shadow-sm hover:shadow-xl active:scale-[0.99] transition-all duration-300 flex flex-col group cursor-pointer"
+                  className="bg-white dark:bg-[#123F2B] text-slate-900 dark:text-white rounded-xl sm:rounded-2xl overflow-hidden border border-[#E5D8B5]/80 dark:border-white/10 shadow-xs sm:shadow-sm hover:shadow-xl active:scale-[0.99] transition-all duration-300 flex flex-col justify-between group cursor-pointer"
                 >
-                  {/* Product Image */}
-                  <div className="relative aspect-square w-full overflow-hidden bg-slate-100">
+                  {/* Product Image Container */}
+                  <div className="relative aspect-square w-full overflow-hidden bg-slate-50 dark:bg-[#0A1A12]">
                     <img
                       src={product.image}
                       alt={product.name}
@@ -550,17 +608,18 @@ export const CategoryPageTemplate: React.FC<CategoryPageTemplateProps> = ({
                       decoding="async"
                       width={320}
                       height={320}
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                      className="w-full h-full object-contain p-1 sm:p-2 group-hover:scale-105 transition-transform duration-500"
                     />
 
                     {/* Badges */}
-                    <div className="absolute top-3 left-3 flex flex-col gap-1 z-10 pointer-events-none">
-                      <span className="bg-[#123F2A] text-[#C9A84E] text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border border-[#C9A84E]/30 shadow-md">
-                        {product.category}
-                      </span>
-                      {discountPct > 0 && (
-                        <span className="bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
+                    <div className="absolute top-1.5 left-1.5 sm:top-3 sm:left-3 flex flex-col gap-1 z-10 pointer-events-none">
+                      {discountPct > 0 ? (
+                        <span className="bg-[#B8891E] text-white text-[9px] sm:text-[10px] font-extrabold px-1.5 py-0.5 rounded shadow-xs">
                           {discountPct}% OFF
+                        </span>
+                      ) : (
+                        <span className="hidden sm:inline-block bg-[#123F2A] text-[#C9A84E] text-[10px] font-extrabold uppercase px-2 py-0.5 rounded-md border border-[#C9A84E]/30 shadow-xs">
+                          {product.category}
                         </span>
                       )}
                     </div>
@@ -573,18 +632,18 @@ export const CategoryPageTemplate: React.FC<CategoryPageTemplateProps> = ({
                         playSound('wishlist_toggle');
                         toggleWishlist(product.id);
                       }}
-                      className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-all shadow-md z-10 cursor-pointer ${
+                      className={`absolute top-1.5 right-1.5 sm:top-3 sm:right-3 p-1.5 sm:p-2 rounded-full backdrop-blur-md transition-all shadow-md z-10 cursor-pointer ${
                         inWishlist
                           ? 'bg-rose-500 text-white'
                           : 'bg-black/40 text-white hover:bg-white hover:text-rose-500'
                       }`}
                       aria-label={`Wishlist ${product.name}`}
                     >
-                      <Heart className={`w-4 h-4 ${inWishlist ? 'fill-current' : ''}`} />
+                      <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${inWishlist ? 'fill-current' : ''}`} />
                     </button>
 
-                    {/* Quick View Indicator Overlay */}
-                    <div className="absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center p-4">
+                    {/* Quick View Indicator Overlay (Desktop Only) */}
+                    <div className="hidden md:flex absolute inset-0 bg-black/25 opacity-0 group-hover:opacity-100 transition-opacity items-center justify-center p-4">
                       <button
                         type="button"
                         onClick={(e) => {
@@ -599,45 +658,57 @@ export const CategoryPageTemplate: React.FC<CategoryPageTemplateProps> = ({
                     </div>
                   </div>
 
-                  {/* Details */}
-                  <div className="p-4 sm:p-5 flex-1 flex flex-col justify-between space-y-3">
+                  {/* Card Details */}
+                  <div className="p-2 sm:p-4 flex-1 flex flex-col justify-between space-y-1.5 sm:space-y-3">
                     <div>
-                      <div className="flex items-center justify-between text-[11px] text-[#5F6B63] font-sans mb-1">
-                        <span className="font-semibold text-[#123F2A] uppercase tracking-wider">
-                          {product.category}
-                        </span>
-                        {product.volume && <span>{product.volume}</span>}
+                      {/* Rating & Reviews */}
+                      <div className="flex items-center gap-1 text-[10px] sm:text-xs text-[#5F6B63] dark:text-slate-300 font-sans mb-1">
+                        <Star className="w-3 h-3 sm:w-3.5 sm:h-3.5 fill-current text-amber-500 shrink-0" />
+                        <span className="font-bold text-slate-800 dark:text-slate-100">{product.rating}</span>
+                        <span className="text-slate-400">({product.reviewsCount})</span>
                       </div>
 
-                      <h3 className="font-serif-luxury font-bold text-sm sm:text-base text-slate-900 line-clamp-2 hover:text-[#123F2A] transition-colors leading-snug">
+                      {/* Product Name */}
+                      <h3 className="font-serif-luxury font-bold text-xs sm:text-sm md:text-base text-slate-900 dark:text-white line-clamp-2 hover:text-[#123F2A] dark:hover:text-[#C9A84E] transition-colors leading-tight min-h-[2rem] sm:min-h-[2.5rem]">
                         {product.name}
                       </h3>
-
-                      <div className="flex items-center gap-1.5 mt-2">
-                        <Star className="w-3.5 h-3.5 fill-current text-amber-500" />
-                        <span className="text-xs font-bold text-slate-800">{product.rating}</span>
-                        <span className="text-[11px] text-slate-400">({product.reviewsCount})</span>
-                      </div>
                     </div>
 
                     {/* Pricing & Actions */}
-                    <div className="pt-2 border-t border-slate-100 space-y-3">
-                      <div className="flex items-baseline gap-2">
-                        <span className="text-base font-extrabold text-[#123F2A]">
+                    <div className="pt-1.5 sm:pt-2 border-t border-slate-100 dark:border-white/10 flex items-center justify-between gap-1 sm:block sm:space-y-3">
+                      {/* Prices */}
+                      <div className="flex flex-wrap items-baseline gap-1 sm:gap-2">
+                        <span className="text-xs sm:text-base font-extrabold text-[#123F2A] dark:text-[#E4C86A] font-sans">
                           {formatPrice(product.priceINR)}
                         </span>
                         {product.originalPriceINR && product.originalPriceINR > product.priceINR && (
-                          <span className="text-xs text-slate-400 line-through">
+                          <span className="text-[10px] sm:text-xs text-slate-400 line-through font-sans">
                             {formatPrice(product.originalPriceINR)}
+                          </span>
+                        )}
+                        {discountPct > 0 && (
+                          <span className="hidden sm:inline text-[10px] font-bold text-emerald-600 dark:text-emerald-400">
+                            {discountPct}% OFF
                           </span>
                         )}
                       </div>
 
-                      <div className="grid grid-cols-2 gap-2">
+                      {/* Mobile: Small Quick Add Cart Icon */}
+                      <button
+                        type="button"
+                        onClick={(e) => handleAddToCart(e, product)}
+                        className="sm:hidden w-7 h-7 bg-[#123F2A] text-white hover:bg-[#B8891E] active:scale-90 rounded-full flex items-center justify-center shadow-md transition-all cursor-pointer border border-[#E5D8B5]/40 shrink-0"
+                        aria-label={`Add ${product.name} to cart`}
+                      >
+                        <ShoppingBag className="w-3.5 h-3.5" />
+                      </button>
+
+                      {/* Desktop: Full Action Buttons */}
+                      <div className="hidden sm:grid grid-cols-2 gap-2">
                         <button
                           type="button"
                           onClick={(e) => handleAddToCart(e, product)}
-                          className="w-full py-2 px-2 bg-[#FAF8F2] hover:bg-[#E5D8B5] text-[#123F2A] rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-xs active:scale-95 border border-[#E5D8B5]"
+                          className="w-full py-2 px-2 bg-[#FAF8F2] dark:bg-[#0E281C] hover:bg-[#E5D8B5] text-[#123F2A] dark:text-[#E4C86A] rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-xs active:scale-95 border border-[#E5D8B5] dark:border-white/10"
                         >
                           <ShoppingBag className="w-3.5 h-3.5" />
                           <span>Add</span>
@@ -730,6 +801,31 @@ export const CategoryPageTemplate: React.FC<CategoryPageTemplateProps> = ({
           })}
         </div>
       </section>
+
+      {/* Mobile Context-Aware Sticky Sort/Filter Bottom Bar */}
+      <MobileCategorySortFilterBar
+        sortBy={sortBy}
+        onSelectSort={(newSort) => setSortBy(newSort)}
+        filters={filters}
+        onApplyFilters={(newFilters) => {
+          setFilters(newFilters);
+          setInStockOnly(newFilters.inStockOnly);
+        }}
+        onClearFilters={() => {
+          setFilters({
+            subcategory: '',
+            concern: '',
+            priceRange: 'all',
+            inStockOnly: false,
+            minRating: 0,
+          });
+          setInStockOnly(false);
+          setSortBy('bestseller');
+        }}
+        availableSubcategories={availableSubcategories}
+        availableConcerns={availableConcerns}
+        totalResultsCount={categoryProducts.length}
+      />
     </div>
   );
 };

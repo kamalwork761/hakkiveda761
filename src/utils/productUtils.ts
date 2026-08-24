@@ -21,6 +21,10 @@ export const getProductUrl = (product: { id: string; name: string; sku?: string;
   return `/products/${getProductSlug(product)}`;
 };
 
+export const getProductReviewsUrl = (product: { id: string; name: string; sku?: string; slug?: string }): string => {
+  return `/products/${getProductSlug(product)}/reviews`;
+};
+
 export const findProductBySlug = (products: Product[], slug: string): Product | undefined => {
   if (!slug || !products || products.length === 0) return undefined;
   const cleanSlug = decodeURIComponent(slug).toLowerCase().trim();

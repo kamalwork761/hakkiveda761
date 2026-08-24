@@ -25,16 +25,21 @@ export const ProductStickyBar: React.FC<ProductStickyBarProps> = ({
 
   useEffect(() => {
     const handleScroll = () => {
-      // Show when scrolled down 500px past top hero area
-      if (window.scrollY > 480) {
+      // On mobile (< 640px), keep it visible throughout PDP; on desktop, reveal when scrolled down
+      if (window.innerWidth < 640 || window.scrollY > 480) {
         setIsVisible(true);
       } else {
         setIsVisible(false);
       }
     };
 
+    handleScroll();
     window.addEventListener('scroll', handleScroll, { passive: true });
-    return () => window.removeEventListener('scroll', handleScroll);
+    window.addEventListener('resize', handleScroll, { passive: true });
+    return () => {
+      window.removeEventListener('scroll', handleScroll);
+      window.removeEventListener('resize', handleScroll);
+    };
   }, []);
 
   if (!isVisible) return null;
@@ -45,7 +50,7 @@ export const ProductStickyBar: React.FC<ProductStickyBarProps> = ({
   return (
     <div
       id="product-sticky-action-bar"
-      className="fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-[#0B1D13]/95 backdrop-blur-md border-t border-[#E7E1D5] dark:border-white/10 p-3 sm:py-3.5 sm:px-6 shadow-2xl animate-in slide-in-from-bottom duration-300 transition-all"
+      className="fixed bottom-0 inset-x-0 z-40 bg-white/95 dark:bg-[#0B1D13]/95 backdrop-blur-md border-t border-[#E7E1D5] dark:border-white/10 p-3 sm:py-3.5 sm:px-6 shadow-2xl pb-[max(12px,env(safe-area-inset-bottom))] animate-in slide-in-from-bottom duration-300 transition-all"
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-3">
         {/* Left: Thumbnail & Details */}

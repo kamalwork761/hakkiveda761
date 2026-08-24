@@ -1,4 +1,5 @@
 import React from 'react';
+import { ArrowLeft } from 'lucide-react';
 import { CategoryPageConfig } from '../types/store';
 
 interface CategoryHeroBannerProps {
@@ -20,23 +21,41 @@ export const CategoryHeroBanner: React.FC<CategoryHeroBannerProps> = ({
       ? config.mobileHeroImage
       : desktopImg;
 
+  const handleBack = () => {
+    onNavigateHome();
+  };
+
   return (
-    <section className="w-full bg-[#FAF8F2] dark:bg-[#081811] pt-4 pb-2 sm:pt-6 sm:pb-4 px-4 sm:px-8 lg:px-12 transition-colors duration-300">
-      <div className="max-w-7xl mx-auto space-y-3 sm:space-y-4">
-        {/* High-Contrast Breadcrumb Navigation */}
-        <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-sans px-1 select-none">
+    <section className="w-full bg-[#FAF8F2] dark:bg-[#081811] pt-3 pb-2 sm:pt-6 sm:pb-4 px-3 sm:px-8 lg:px-12 transition-colors duration-300">
+      <div className="max-w-7xl mx-auto space-y-2.5 sm:space-y-4">
+        {/* High-Contrast Navigation / Breadcrumb Bar */}
+        <div className="flex items-center justify-between gap-2 px-1">
+          {/* Mobile Back Button */}
           <button
             type="button"
-            onClick={onNavigateHome}
-            className="text-[#5F6B63] dark:text-white/90 hover:text-[#123F2A] dark:hover:text-[#E4C86A] font-semibold transition-colors cursor-pointer"
+            onClick={handleBack}
+            className="sm:hidden inline-flex items-center gap-1.5 text-xs font-bold text-[#123F2A] dark:text-[#E4C86A] py-1 px-2.5 rounded-full bg-white dark:bg-[#123F2B] border border-[#E5D8B5] dark:border-white/10 shadow-xs active:scale-95 transition-all cursor-pointer font-sans"
+            aria-label="Go Back"
           >
-            Home
+            <ArrowLeft className="w-3.5 h-3.5" />
+            <span>Back</span>
           </button>
-          <span className="text-[#C9A84E] font-bold select-none">/</span>
-          <span className="text-[#123F2A] dark:text-[#E4C86A] font-bold">
-            {config.categoryName || config.title || fallbackTitle}
-          </span>
-        </nav>
+
+          {/* Breadcrumb Navigation */}
+          <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-sans select-none">
+            <button
+              type="button"
+              onClick={onNavigateHome}
+              className="text-[#5F6B63] dark:text-white/90 hover:text-[#123F2A] dark:hover:text-[#E4C86A] font-semibold transition-colors cursor-pointer"
+            >
+              Home
+            </button>
+            <span className="text-[#C9A84E] font-bold select-none">/</span>
+            <span className="text-[#123F2A] dark:text-[#E4C86A] font-bold truncate max-w-[200px] sm:max-w-none">
+              {config.categoryName || config.title || fallbackTitle}
+            </span>
+          </nav>
+        </div>
 
         {/* HERO CONTAINER - PURE ARTWORK ONLY, ADAPTING NATURALLY TO IMAGE ASPECT RATIO */}
         <div

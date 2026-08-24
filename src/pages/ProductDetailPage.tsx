@@ -18,16 +18,25 @@ import {
 import { useStore } from '../context/StoreContext';
 import { Product, ProductVariant } from '../types/store';
 import { findProductBySlug } from '../utils/productUtils';
+import { resolveProductBackDestination, getProductCategoryRoute } from '../utils/navigationState';
 import { ProductGallery } from '../components/product/ProductGallery';
 import { ProductVariantSelector } from '../components/product/ProductVariantSelector';
 import { ProductDetailSections } from '../components/product/ProductDetailSections';
 import { ProductStickyBar } from '../components/product/ProductStickyBar';
+import { MobileProductTrustStrip } from '../components/product/MobileProductTrustStrip';
+import { MobileProductTopBar } from '../components/product/MobileProductTopBar';
+import { MobileExploreTheseSection } from '../components/product/MobileExploreTheseSection';
+import { MobileCategoryCarousel } from '../components/product/MobileCategoryCarousel';
+import { MobileRecentlyViewedSection } from '../components/product/MobileRecentlyViewedSection';
+import { recordRecentlyViewed } from '../utils/recentlyViewed';
 
 interface ProductDetailPageProps {
   slug: string;
   onNavigateHome: () => void;
   onNavigateCategory?: (categoryName: string) => void;
   onNavigateProduct: (product: Product) => void;
+  onNavigateReviews?: (product: Product) => void;
+  onNavigateBack?: (destinationPath: string) => void;
 }
 
 export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
@@ -35,6 +44,8 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   onNavigateHome,
   onNavigateCategory,
   onNavigateProduct,
+  onNavigateReviews,
+  onNavigateBack,
 }) => {
   const {
     products,
@@ -75,6 +86,8 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   useEffect(() => {
     if (product) {
       document.title = product.seoTitle || `${product.name} | 100% Authentic Adivasi Formulation - HAKKIVEDA`;
+      // Track product in Recently Viewed history
+      recordRecentlyViewed(product.id);
     } else {
       document.title = `Product Not Found - HAKKIVEDA`;
     }
@@ -187,19 +200,38 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     }
   };
 
+  const handleBack = () => {
+    playSound('nav_click');
+    const destination = resolveProductBackDestination(product, slug);
+    if (onNavigateBack) {
+      onNavigateBack(destination);
+    } else if (onNavigateCategory && (destination === '/hair-care' || destination === '/skin-care' || destination === '/tribal-wellness')) {
+      onNavigateCategory(destination);
+    } else {
+      onNavigateHome();
+    }
+  };
+
   return (
-    <div className="product-detail-page bg-[#FAF8F2] dark:bg-[var(--brand-primary-dark,#0B1D13)] text-[#123F2A] dark:text-white min-h-screen py-6 sm:py-10 transition-colors duration-300">
+    <div className="product-detail-page bg-[#FAF8F2] dark:bg-[var(--brand-primary-dark,#0B1D13)] text-[#123F2A] dark:text-white min-h-screen pt-0 pb-28 sm:py-10 sm:pb-16 transition-colors duration-300">
+      {/* Mobile Sticky Top Bar (Phone only) */}
+      <MobileProductTopBar
+        product={product}
+        onBack={handleBack}
+        onNavigateProduct={onNavigateProduct}
+      />
+
       {/* Toast Notification */}
       {addedToast && (
-        <div className="fixed bottom-8 left-8 z-50 bg-[#123F2A] text-[var(--brand-gold)] dark:bg-[var(--brand-gold)] dark:text-[#0B2F20] px-5 py-3.5 rounded-xl shadow-2xl font-sans text-xs font-bold flex items-center gap-3 border border-[var(--brand-gold)]/40 animate-in slide-in-from-bottom duration-300">
+        <div className="fixed bottom-24 sm:bottom-8 left-4 sm:left-8 z-50 bg-[#123F2A] text-[var(--brand-gold)] dark:bg-[var(--brand-gold)] dark:text-[#0B2F20] px-5 py-3.5 rounded-xl shadow-2xl font-sans text-xs font-bold flex items-center gap-3 border border-[var(--brand-gold)]/40 animate-in slide-in-from-bottom duration-300">
           <Check className="w-5 h-5 bg-[var(--brand-gold)] text-[#123F2A] rounded-full p-1 shrink-0" />
           <span>{addedToast}</span>
         </div>
       )}
 
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
-        {/* Top Breadcrumb Navigation */}
-        <div className="flex items-center justify-between gap-4 mb-6 pb-4 border-b border-[#E7E1D5] dark:border-white/10">
+      <div className="max-w-7xl mx-auto px-3 sm:px-8 lg:px-12 pt-3 sm:pt-0">
+        {/* Desktop Breadcrumb & Back Navigation */}
+        <div className="hidden md:flex items-center justify-between gap-2 sm:gap-4 mb-4 sm:mb-6 pb-3 sm:pb-4 border-b border-[#E7E1D5] dark:border-white/10">
           <nav aria-label="Breadcrumb" className="flex items-center gap-2 text-xs font-sans text-[#37463D] dark:text-slate-300 overflow-x-auto whitespace-nowrap scrollbar-none">
             <button
               onClick={onNavigateHome}
@@ -210,7 +242,10 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
             <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
             <button
               onClick={() => {
-                if (onNavigateCategory) {
+                const catRoute = getProductCategoryRoute(product);
+                if (onNavigateBack && catRoute && catRoute !== '/') {
+                  onNavigateBack(catRoute);
+                } else if (onNavigateCategory) {
                   onNavigateCategory(product.category);
                 } else {
                   onNavigateHome();
@@ -221,17 +256,17 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               <span>{product.category}</span>
             </button>
             <ChevronRight className="w-3.5 h-3.5 text-slate-400 shrink-0" />
-            <span className="text-[var(--brand-gold,#D4AF37)] font-bold truncate max-w-[200px] sm:max-w-md">
+            <span className="text-[var(--brand-gold,#D4AF37)] font-bold truncate max-w-[140px] sm:max-w-md">
               {product.name}
             </span>
           </nav>
 
           <button
-            onClick={onNavigateHome}
-            className="hidden sm:inline-flex items-center gap-1.5 text-xs font-sans font-bold text-[#123F2A] dark:text-slate-200 hover:text-[var(--brand-gold)] transition-colors shrink-0 cursor-pointer"
+            onClick={handleBack}
+            className="inline-flex items-center gap-1.5 text-xs font-sans font-bold text-[#123F2A] dark:text-slate-200 hover:text-[var(--brand-gold)] transition-colors shrink-0 cursor-pointer"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            <span>Back to Catalog</span>
+            <span>Back</span>
           </button>
         </div>
 
@@ -247,6 +282,12 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                 discountPct={discountPct}
                 sku={activeSku}
                 selectedVariantImage={selectedVariant?.image}
+                isInWishlist={inWishlist}
+                onToggleWishlist={() => {
+                  playSound('wishlist_toggle');
+                  toggleWishlist(product.id);
+                }}
+                onShare={handleShare}
               />
             </div>
 
@@ -384,7 +425,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
               </div>
 
               {/* Quantity Selector & Main Action Buttons */}
-              <div className="space-y-4 pt-2">
+              <div className="space-y-3 sm:space-y-4 pt-2">
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 sm:gap-4">
                   {/* Quantity Control */}
                   <div className="flex items-center justify-between border border-[#E7E1D5] dark:border-white/20 rounded-xl overflow-hidden bg-[#FAF8F2] dark:bg-black/30 w-full sm:w-36 shrink-0 h-12 shadow-inner">
@@ -392,7 +433,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                       type="button"
                       disabled={isOutOfStock}
                       onClick={() => setQuantity(Math.max(1, quantity - 1))}
-                      className="w-11 h-full text-[#123F2A] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 font-bold text-lg flex items-center justify-center transition-colors cursor-pointer disabled:opacity-30"
+                      className="w-12 sm:w-11 h-full text-[#123F2A] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 font-bold text-lg flex items-center justify-center transition-colors cursor-pointer disabled:opacity-30"
                       aria-label="Decrease quantity"
                     >
                       -
@@ -404,19 +445,19 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                       type="button"
                       disabled={isOutOfStock || quantity >= activeStock}
                       onClick={() => setQuantity(quantity + 1)}
-                      className="w-11 h-full text-[#123F2A] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 font-bold text-lg flex items-center justify-center transition-colors cursor-pointer disabled:opacity-30"
+                      className="w-12 sm:w-11 h-full text-[#123F2A] dark:text-white hover:bg-black/5 dark:hover:bg-white/10 font-bold text-lg flex items-center justify-center transition-colors cursor-pointer disabled:opacity-30"
                       aria-label="Increase quantity"
                     >
                       +
                     </button>
                   </div>
 
-                  {/* Add to Cart Button */}
+                  {/* Add to Cart Button (Desktop only - mobile uses sticky bottom bar) */}
                   <button
                     type="button"
                     disabled={isOutOfStock}
                     onClick={() => handleAddToCart(true)}
-                    className="flex-1 h-12 px-6 rounded-xl bg-[#123F2A] hover:bg-[#0B2F20] dark:bg-white dark:text-[#0B2F20] text-white font-sans text-xs sm:text-sm font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-lg active:scale-98 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    className="hidden sm:flex flex-1 h-12 px-6 rounded-xl bg-[#123F2A] hover:bg-[#0B2F20] dark:bg-white dark:text-[#0B2F20] text-white font-sans text-xs sm:text-sm font-bold uppercase tracking-wider transition-all items-center justify-center gap-2 shadow-lg active:scale-98 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     <ShoppingBag className="w-4 h-4 text-[var(--brand-gold)] dark:text-[#0B2F20]" />
                     <span>
@@ -426,14 +467,14 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                     </span>
                   </button>
 
-                  {/* Wishlist Button */}
+                  {/* Wishlist Button (Desktop only - mobile uses gallery heart overlay) */}
                   <button
                     type="button"
                     onClick={() => {
                       playSound('wishlist_toggle');
                       toggleWishlist(product.id);
                     }}
-                    className={`h-12 w-12 rounded-xl border flex items-center justify-center transition-all shrink-0 cursor-pointer shadow-sm ${
+                    className={`hidden sm:flex h-12 w-12 rounded-xl border items-center justify-center transition-all shrink-0 cursor-pointer shadow-sm ${
                       inWishlist
                         ? 'border-rose-500 bg-rose-500 text-white shadow-rose-500/20'
                         : 'border-[#E7E1D5] dark:border-white/20 text-[#123F2A] dark:text-white hover:border-[var(--brand-gold)]'
@@ -443,11 +484,11 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                     <Heart className={`w-5 h-5 ${inWishlist ? 'fill-current' : ''}`} />
                   </button>
 
-                  {/* Share Button */}
+                  {/* Share Button (Desktop only - mobile uses gallery share overlay) */}
                   <button
                     type="button"
                     onClick={handleShare}
-                    className="h-12 w-12 rounded-xl border border-[#E7E1D5] dark:border-white/20 text-[#123F2A] dark:text-white hover:border-[var(--brand-gold)] flex items-center justify-center transition-all shrink-0 cursor-pointer shadow-sm"
+                    className="hidden sm:flex h-12 w-12 rounded-xl border border-[#E7E1D5] dark:border-white/20 text-[#123F2A] dark:text-white hover:border-[var(--brand-gold)] items-center justify-center transition-all shrink-0 cursor-pointer shadow-sm"
                     aria-label="Share product"
                   >
                     <Share2 className="w-4 h-4" />
@@ -468,6 +509,9 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                       : 'Buy Now — Instant Express Checkout'}
                   </span>
                 </button>
+
+                {/* Mobile-Only Auto-Sliding Payment/Trust Strip & Same-Day Dispatch Timer */}
+                <MobileProductTrustStrip />
 
                 {/* Worldwide Shipping & Authenticity Trust Bar */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 pt-3 border-t border-[#E7E1D5] dark:border-white/10 text-xs font-sans text-[#37463D] dark:text-slate-300">
@@ -490,11 +534,46 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
         </div>
 
         {/* Rich Product Detail Sections (Description, Benefits, Ingredients, How to Use, Who It Is For, Specs, Safety, Storage, Shipping, Returns, Reviews) */}
-        <ProductDetailSections product={product} />
+        <ProductDetailSections
+          product={product}
+          onViewAllReviews={() => {
+            if (onNavigateReviews) {
+              onNavigateReviews(product);
+            }
+          }}
+        />
 
-        {/* Related Formulations Section */}
+        {/* Mobile Product Discovery Sections (Phone only: Explore These -> Shop by Category -> Recently Viewed) */}
+        <div className="block md:hidden space-y-2 mt-4 mb-6">
+          {/* 1. EXPLORE THESE */}
+          <MobileExploreTheseSection
+            currentProduct={product}
+            onNavigateProduct={onNavigateProduct}
+            onViewAll={onNavigateHome}
+          />
+
+          {/* 2. SHOP BY CATEGORY */}
+          <MobileCategoryCarousel
+            onNavigateCategory={(catName) => {
+              if (onNavigateCategory) {
+                onNavigateCategory(catName);
+              } else {
+                onNavigateHome();
+              }
+            }}
+            onNavigateBack={onNavigateBack}
+          />
+
+          {/* 3. RECENTLY VIEWED */}
+          <MobileRecentlyViewedSection
+            currentProduct={product}
+            onNavigateProduct={onNavigateProduct}
+          />
+        </div>
+
+        {/* Desktop Related Formulations Section (Desktop only - unchanged) */}
         {relatedProducts.length > 0 && (
-          <div className="mb-16">
+          <div className="hidden md:block mb-16">
             <div className="flex items-end justify-between mb-8 pb-4 border-b border-[#E7E1D5] dark:border-white/10">
               <div>
                 <span className="text-[var(--brand-gold)] font-sans text-xs uppercase tracking-[0.25em] font-bold block mb-1">

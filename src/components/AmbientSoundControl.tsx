@@ -18,6 +18,21 @@ export const AmbientSoundControl: React.FC = () => {
 
   const [isOpen, setIsOpen] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [pathname, setPathname] = useState(window.location.pathname);
+
+  useEffect(() => {
+    const handleLocation = () => {
+      setPathname(window.location.pathname);
+    };
+    window.addEventListener('popstate', handleLocation);
+    window.addEventListener('hashchange', handleLocation);
+    window.addEventListener('app:navigate', handleLocation);
+    return () => {
+      window.removeEventListener('popstate', handleLocation);
+      window.removeEventListener('hashchange', handleLocation);
+      window.removeEventListener('app:navigate', handleLocation);
+    };
+  }, []);
 
   useEffect(() => {
     const handleGesture = () => {
@@ -50,6 +65,23 @@ export const AmbientSoundControl: React.FC = () => {
     setHasInteracted(true);
   };
 
+  // Determine active mobile context for bottom positioning
+  const isReviewsPage = pathname.endsWith('/reviews');
+  const isPdp = pathname.startsWith('/products/') && !isReviewsPage;
+  const isCategory =
+    pathname === '/hair-care' ||
+    pathname === '/skin-care' ||
+    pathname === '/tribal-wellness' ||
+    pathname.startsWith('/categories/');
+
+  const mobileBottomStyle = isReviewsPage
+    ? 'calc(18px + env(safe-area-inset-bottom, 0px))'
+    : isPdp
+    ? 'calc(76px + env(safe-area-inset-bottom, 0px))'
+    : isCategory
+    ? 'calc(62px + env(safe-area-inset-bottom, 0px))'
+    : 'calc(68px + env(safe-area-inset-bottom, 0px))';
+
   return (
     <>
       {/* Top Welcome Tap Banner for Audio Autoplay Permission */}
@@ -74,10 +106,15 @@ export const AmbientSoundControl: React.FC = () => {
         </div>
       )}
 
-      <div className="fixed bottom-20 right-4 sm:bottom-6 sm:right-6 z-40">
+      {/* Floating Sound Control Container */}
+      <div
+        id="floating-sound-control-container"
+        style={{ bottom: mobileBottomStyle }}
+        className="fixed left-3 sm:left-auto sm:right-28 sm:!bottom-6 z-35 font-sans transition-all duration-300 pointer-events-auto"
+      >
         {/* Popover Menu */}
         {isOpen && (
-          <div className="mb-3 w-72 bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/50 rounded-2xl p-4 shadow-2xl backdrop-blur-xl text-slate-100 animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <div className="mb-2.5 w-72 sm:w-80 max-w-[calc(100vw-24px)] bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/50 rounded-2xl p-4 shadow-2xl backdrop-blur-xl text-slate-100 animate-in fade-in slide-in-from-bottom-2 duration-200">
             <div className="flex items-center justify-between border-b border-[var(--brand-gold)]/20 pb-2 mb-3">
               <div className="flex items-center gap-2">
                 <Trees className="w-4 h-4 text-[var(--brand-gold)] animate-pulse" />
@@ -87,7 +124,8 @@ export const AmbientSoundControl: React.FC = () => {
               </div>
               <button
                 onClick={() => setIsOpen(false)}
-                className="text-slate-400 hover:text-white p-1"
+                className="text-slate-400 hover:text-white p-1 cursor-pointer"
+                aria-label="Close sound panel"
               >
                 <ChevronDown className="w-4 h-4" />
               </button>
@@ -100,7 +138,7 @@ export const AmbientSoundControl: React.FC = () => {
             {/* Toggle Button */}
             <button
               onClick={handleToggle}
-              className={`w-full py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2.5 transition-all mb-4 ${
+              className={`w-full py-2.5 px-4 rounded-xl font-bold text-xs flex items-center justify-center gap-2.5 transition-all mb-4 cursor-pointer ${
                 isPlaying
                   ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] shadow-md shadow-[var(--brand-gold)]/20'
                   : 'bg-black/40 border border-white/20 text-slate-300 hover:text-white'
@@ -124,7 +162,7 @@ export const AmbientSoundControl: React.FC = () => {
               <label className="text-[10px] font-bold uppercase tracking-wider text-[var(--brand-gold)] block">
                 Nature Soundscape Profile
               </label>
-              <div className="space-y-1.5">
+              <div className="space-y-1.5 max-h-48 overflow-y-auto pr-1">
                 {AMBIENT_PRESETS.map((preset) => (
                   <button
                     key={preset.id}
@@ -133,7 +171,7 @@ export const AmbientSoundControl: React.FC = () => {
                       playSound('nav_click');
                       setAmbientPreset(preset.id);
                     }}
-                    className={`w-full p-2 rounded-xl text-left text-xs transition-all flex items-start gap-2.5 border ${
+                    className={`w-full p-2 rounded-xl text-left text-xs transition-all flex items-start gap-2.5 border cursor-pointer ${
                       ambientPreset === preset.id
                         ? 'bg-[var(--brand-primary-deep)] border-[var(--brand-gold)] text-[var(--brand-gold)]'
                         : 'bg-black/20 border-white/10 text-slate-300 hover:bg-white/5'
@@ -183,12 +221,13 @@ export const AmbientSoundControl: React.FC = () => {
             setIsOpen(!isOpen);
             setHasInteracted(true);
           }}
-          className={`group flex items-center gap-2.5 px-3.5 py-2.5 rounded-full border shadow-2xl transition-all duration-300 ${
+          className={`group flex items-center gap-2 px-3 py-2 sm:px-3.5 sm:py-2.5 rounded-full border shadow-2xl transition-all duration-300 cursor-pointer ${
             isPlaying
-              ? 'bg-[var(--brand-primary-dark)] border-[var(--brand-gold)] text-[var(--brand-gold)] shadow-[0_0_20px_rgba(200,162,74,0.35)] ring-2 ring-[var(--brand-gold)]/30'
-              : 'bg-black/70 border-white/20 text-slate-300 hover:text-white hover:border-[var(--brand-gold)]/50 backdrop-blur-md'
+              ? 'bg-[var(--brand-primary-dark)] border-[var(--brand-gold)] text-[var(--brand-gold)] shadow-[0_0_20px_rgba(200,162,74,0.35)] ring-1 sm:ring-2 ring-[var(--brand-gold)]/30'
+              : 'bg-black/75 border-white/20 text-slate-300 hover:text-white hover:border-[var(--brand-gold)]/50 backdrop-blur-md'
           }`}
           title="Continuous Nature & Forest Music"
+          aria-label="Toggle Ayurvedic Forest Music"
         >
           <div className="relative flex items-center justify-center">
             <Trees
@@ -201,12 +240,12 @@ export const AmbientSoundControl: React.FC = () => {
             )}
           </div>
 
-          <div className="flex items-center gap-1.5 text-left text-xs font-bold tracking-wider uppercase">
+          <div className="flex items-center gap-1 text-left text-[11px] sm:text-xs font-bold tracking-wider uppercase">
             <span className="hidden sm:inline">
               {isPlaying ? activePreset.name.split(' ')[0] + ' Sound' : 'Forest Sound'}
             </span>
             <span className="sm:hidden">{isPlaying ? 'Nature' : 'Sound'}</span>
-            {isOpen ? <ChevronDown className="w-3.5 h-3.5 opacity-70" /> : <ChevronUp className="w-3.5 h-3.5 opacity-70" />}
+            {isOpen ? <ChevronDown className="w-3 h-3 opacity-70" /> : <ChevronUp className="w-3 h-3 opacity-70" />}
           </div>
         </button>
       </div>

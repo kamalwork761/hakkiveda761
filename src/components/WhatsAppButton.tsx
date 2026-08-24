@@ -1,19 +1,60 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { MessageCircle, X, PhoneCall, Sparkles } from 'lucide-react';
 
 export const WhatsAppButton: React.FC = () => {
   const [showTooltip, setShowTooltip] = useState(false);
+  const [pathname, setPathname] = useState(window.location.pathname);
   const phoneNumber = '917619536831';
   const displayPhone = '+91 76195 36831';
   const defaultMessage = 'Namaste HAKKIVEDA! I have a question about your 42-herb tribal hair oil and products.';
 
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(defaultMessage)}`;
 
+  useEffect(() => {
+    const handleLocation = () => {
+      setPathname(window.location.pathname);
+    };
+    window.addEventListener('popstate', handleLocation);
+    window.addEventListener('hashchange', handleLocation);
+    window.addEventListener('app:navigate', handleLocation);
+    return () => {
+      window.removeEventListener('popstate', handleLocation);
+      window.removeEventListener('hashchange', handleLocation);
+      window.removeEventListener('app:navigate', handleLocation);
+    };
+  }, []);
+
+  // Determine active mobile context for bottom positioning
+  const isReviewsPage = pathname.endsWith('/reviews');
+  const isPdp = pathname.startsWith('/products/') && !isReviewsPage;
+  const isCategory =
+    pathname === '/hair-care' ||
+    pathname === '/skin-care' ||
+    pathname === '/tribal-wellness' ||
+    pathname.startsWith('/categories/');
+
+  // Dynamic mobile bottom offset based on page sticky bars
+  // PDP: Add to Cart / Buy Now bar (~64px) -> offset ~76px
+  // Category: Sort/Filter bar (~48px) -> offset ~62px
+  // Reviews: No sticky bar -> offset ~18px
+  // Homepage / Others: Global Bottom Nav (~56px) -> offset ~68px
+  const mobileBottomStyle = isReviewsPage
+    ? 'calc(18px + env(safe-area-inset-bottom, 0px))'
+    : isPdp
+    ? 'calc(76px + env(safe-area-inset-bottom, 0px))'
+    : isCategory
+    ? 'calc(62px + env(safe-area-inset-bottom, 0px))'
+    : 'calc(68px + env(safe-area-inset-bottom, 0px))';
+
   return (
-    <div className="fixed bottom-6 right-6 sm:right-8 z-50 font-sans">
+    <div
+      id="floating-whatsapp-container"
+      style={{ bottom: mobileBottomStyle }}
+      className="fixed right-3.5 sm:right-8 sm:!bottom-6 z-35 font-sans transition-all duration-300 pointer-events-auto"
+    >
       {/* Expanded Tooltip / Quick Card */}
       {showTooltip && (
-        <div className="absolute bottom-16 right-0 mb-2 w-72 sm:w-80 bg-[#082b20] border border-[#25D366]/50 rounded-2xl shadow-2xl overflow-hidden text-slate-100 animate-in slide-in-from-bottom duration-300">
+        <div className="absolute bottom-16 right-0 mb-2 w-72 sm:w-80 max-w-[calc(100vw-28px)] bg-[#082b20] border border-[#25D366]/50 rounded-2xl shadow-2xl overflow-hidden text-slate-100 animate-in slide-in-from-bottom duration-300">
           {/* Header */}
           <div className="bg-[#128C7E] p-3.5 flex items-center justify-between text-white">
             <div className="flex items-center gap-2.5">
@@ -30,7 +71,7 @@ export const WhatsAppButton: React.FC = () => {
             </div>
             <button
               onClick={() => setShowTooltip(false)}
-              className="text-white/80 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors"
+              className="text-white/80 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors cursor-pointer"
               aria-label="Close"
             >
               <X className="w-4 h-4" />
@@ -66,7 +107,7 @@ export const WhatsAppButton: React.FC = () => {
       {/* Floating Main Button */}
       <div className="relative group flex items-center">
         {/* Pulsing Aura Ring */}
-        <span className="absolute -inset-1 rounded-full bg-[#25D366] opacity-50 animate-ping pointer-events-none"></span>
+        <span className="absolute -inset-1 rounded-full bg-[#25D366] opacity-40 animate-ping pointer-events-none"></span>
 
         {/* Hover Text Banner for Desktop */}
         <div className="hidden sm:flex absolute right-full mr-3 bg-[var(--brand-primary-deep)]/90 backdrop-blur-md text-slate-100 text-xs px-3.5 py-2 rounded-xl border border-[#25D366]/40 shadow-2xl whitespace-nowrap opacity-0 group-hover:opacity-100 transition-all pointer-events-none items-center gap-2 font-medium transform translate-x-2 group-hover:translate-x-0">
@@ -79,7 +120,7 @@ export const WhatsAppButton: React.FC = () => {
           target="_blank"
           rel="noopener noreferrer"
           onClick={() => setShowTooltip(!showTooltip)}
-          className="relative bg-[#25D366] hover:bg-[#1fbd59] text-white p-3.5 sm:p-4 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 transition-all duration-300 cursor-pointer border-2 border-white/30 group-hover:border-white shadow-emerald-950/80"
+          className="relative bg-[#25D366] hover:bg-[#1fbd59] text-white w-[52px] h-[52px] sm:w-[58px] sm:h-[58px] rounded-full shadow-2xl flex items-center justify-center hover:scale-105 active:scale-95 transition-all duration-300 cursor-pointer border-2 border-white/30 group-hover:border-white shadow-emerald-950/80"
           id="whatsapp-floating-button"
           aria-label="Contact on WhatsApp +91 76195 36831"
         >
@@ -89,7 +130,7 @@ export const WhatsAppButton: React.FC = () => {
           </svg>
           
           {/* Active notification badge */}
-          <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-5 h-5 rounded-full flex items-center justify-center border-2 border-[var(--brand-primary-dark)] shadow-md animate-bounce">
+          <span className="absolute -top-1 -right-1 bg-rose-500 text-white text-[10px] font-bold w-4.5 h-4.5 rounded-full flex items-center justify-center border border-[var(--brand-primary-dark)] shadow-md animate-bounce">
             1
           </span>
         </a>

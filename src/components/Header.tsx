@@ -79,6 +79,24 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
   const [logoLoadError, setLogoLoadError] = useState(false);
+  const [currentPathname, setCurrentPathname] = useState(window.location.pathname);
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setCurrentPathname(window.location.pathname);
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Determine if this is a Product Detail Page or Category Listing Page
+  const isPdpPage = currentPathname.startsWith('/products/');
+  const isCategoryListingPage =
+    currentPathname === '/hair-care' ||
+    currentPathname === '/skin-care' ||
+    currentPathname === '/tribal-wellness' ||
+    currentPathname.startsWith('/categories/');
+  const isSpecialBarPage = isPdpPage || isCategoryListingPage;
 
   // Preferred uploaded HEADER HV LOGO from Admin Brand Manager / Site Settings
   const uploadedLogoUrl =
@@ -692,7 +710,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
         )}
 
         {/* Header Right Actions */}
-        <div className="flex items-center gap-2.5 sm:gap-4 shrink-0">
+        <div className="flex items-center gap-1.5 sm:gap-3 lg:gap-4 shrink-0">
           {/* Quick Search */}
           <div className="relative hidden md:block w-44 lg:w-56">
             <div className="relative">
@@ -741,8 +759,10 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
             )}
           </div>
 
-          {/* Sound Toggle Button */}
-          <SoundToggle variant="header" />
+          {/* Sound Toggle Button (Desktop/Tablet) */}
+          <div className="hidden sm:block">
+            <SoundToggle variant="header" />
+          </div>
 
           {/* User Account */}
           <button
@@ -1000,11 +1020,13 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
         </div>
       )}
 
-      {/* Floating Mobile Bottom Navigation Bar */}
-      <MobileBottomNav
-        onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-        isMobileMenuOpen={isMobileMenuOpen}
-      />
+      {/* Floating Mobile Bottom Navigation Bar (Homepage / General views only) */}
+      {!isSpecialBarPage && (
+        <MobileBottomNav
+          onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          isMobileMenuOpen={isMobileMenuOpen}
+        />
+      )}
     </header>
   );
 };

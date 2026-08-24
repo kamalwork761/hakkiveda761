@@ -32,10 +32,13 @@ const CustomerPortal = lazy(() => import('./components/CustomerPortal').then(m =
 const CountrySelectorModal = lazy(() => import('./components/CountrySelectorModal').then(m => ({ default: m.CountrySelectorModal })));
 
 import { AdminErrorBoundary } from './components/AdminErrorBoundary';
-import { getProductUrl } from './utils/productUtils';
+import { ReviewsErrorBoundary } from './components/ReviewsErrorBoundary';
+import { getProductUrl, getProductReviewsUrl } from './utils/productUtils';
+import { recordNavigationSource, getCategoryRouteFromId } from './utils/navigationState';
 
-// Product Detail Page Route
+// Product Detail Page & Dedicated Reviews Routes
 const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage').then(m => ({ default: m.ProductDetailPage })));
+const ProductReviewsPage = lazy(() => import('./pages/ProductReviewsPage').then(m => ({ default: m.ProductReviewsPage })));
 
 // Private Admin Views
 const AdminDashboard = lazy(() => import('./components/AdminDashboard').then(m => ({ default: m.AdminDashboard })));
@@ -63,10 +66,21 @@ export function AppContent() {
     return 'ALL';
   });
   const [currentPath, setCurrentPath] = useState(window.location.pathname);
+  const currentPathRef = React.useRef(
+    typeof window !== 'undefined'
+      ? `${window.location.pathname}${window.location.search}${window.location.hash}`
+      : '/'
+  );
 
   useEffect(() => {
     const handleLocationChange = () => {
       const pathname = window.location.pathname;
+      const nextFullUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
+      const previousFullUrl = currentPathRef.current;
+
+      // Safely record source transition before updating state
+      recordNavigationSource(nextFullUrl, previousFullUrl);
+      currentPathRef.current = nextFullUrl;
       setCurrentPath(pathname);
 
       // Handle category route
@@ -119,6 +133,7 @@ export function AppContent() {
     
     if (window.location.search !== (searchParams.toString() ? `?${searchParams.toString()}` : '')) {
       window.history.pushState({ category: catName }, '', newSearch);
+      currentPathRef.current = newSearch;
     }
 
     if (shouldScroll) {
@@ -131,9 +146,18 @@ export function AppContent() {
     }
   };
 
-  const navigate = (path: string) => {
-    window.history.pushState({}, '', path);
-    setCurrentPath(path);
+  const navigate = (path: string, options?: { replace?: boolean }) => {
+    const previousFullUrl = currentPathRef.current;
+    recordNavigationSource(path, previousFullUrl);
+    if (options?.replace) {
+      window.history.replaceState({}, '', path);
+    } else {
+      window.history.pushState({}, '', path);
+    }
+    currentPathRef.current = path;
+    setCurrentPath(path.split('?')[0].split('#')[0]);
+    window.dispatchEvent(new Event('app:navigate'));
+    window.dispatchEvent(new PopStateEvent('popstate'));
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -167,7 +191,14 @@ export function AppContent() {
     );
   }
 
-  const isProductRoute = currentPath.startsWith('/products/');
+  const normalizedPath = currentPath.split('?')[0].split('#')[0];
+  const reviewsRouteMatch = normalizedPath.match(/^\/products\/([^/]+)\/reviews\/?$/i);
+  const isProductReviewsRoute = Boolean(reviewsRouteMatch);
+  const productRouteMatch = !isProductReviewsRoute && normalizedPath.match(/^\/products\/([^/]+)\/?$/i);
+  const isProductRoute = Boolean(productRouteMatch);
+
+  const reviewsSlug = reviewsRouteMatch ? decodeURIComponent(reviewsRouteMatch[1]) : '';
+  const productSlug = productRouteMatch ? decodeURIComponent(productRouteMatch[1]) : '';
   const isCategoryRoute = currentPath === '/hair-care' || currentPath === '/skin-care' || currentPath === '/tribal-wellness';
   const isB2BRoute = currentPath === '/b2b-enquiry' || currentPath === '/b2b' || currentPath === '/export-enquiry';
 
@@ -177,20 +208,60 @@ export function AppContent() {
       <SeoSchemaInjector />
 
       {/* Customer Header */}
-      <Header selectedCategory={selectedCategory} onSelectCategory={handleSelectCategory} />
+      <div className={isProductRoute ? 'hidden md:block' : ''}>
+        <Header selectedCategory={selectedCategory} onSelectCategory={handleSelectCategory} />
+      </div>
 
       <main className="flex-1">
-        {isProductRoute ? (
+        {isProductReviewsRoute ? (
+          <ReviewsErrorBoundary
+            onReturn={() => {
+              if (reviewsSlug) {
+                navigate(`/products/${reviewsSlug}`, { replace: true });
+              } else {
+                navigate('/', { replace: true });
+              }
+            }}
+          >
+            <Suspense fallback={<SectionSkeleton />}>
+              <ProductReviewsPage
+                slug={reviewsSlug}
+                onReturnToProduct={() => {
+                  if (reviewsSlug) {
+                    navigate(`/products/${reviewsSlug}`, { replace: true });
+                  } else {
+                    navigate('/', { replace: true });
+                  }
+                }}
+                onNavigateHome={() => navigate('/', { replace: true })}
+                onNavigateProduct={(product) => {
+                  navigate(getProductUrl(product));
+                }}
+              />
+            </Suspense>
+          </ReviewsErrorBoundary>
+        ) : isProductRoute ? (
           <Suspense fallback={<SectionSkeleton />}>
             <ProductDetailPage
-              slug={currentPath.replace('/products/', '')}
-              onNavigateHome={() => navigate('/')}
+              slug={productSlug}
+              onNavigateHome={() => navigate('/', { replace: true })}
               onNavigateCategory={(catName) => {
-                navigate('/');
-                setTimeout(() => handleSelectCategory(catName, true), 50);
+                const catRoute = getCategoryRouteFromId(catName);
+                if (catRoute !== '/') {
+                  navigate(catRoute, { replace: true });
+                } else {
+                  navigate('/', { replace: true });
+                  setTimeout(() => handleSelectCategory(catName, true), 50);
+                }
               }}
               onNavigateProduct={(product) => {
                 navigate(getProductUrl(product));
+              }}
+              onNavigateReviews={(product) => {
+                navigate(getProductReviewsUrl(product));
+              }}
+              onNavigateBack={(destination) => {
+                navigate(destination, { replace: true });
               }}
             />
           </Suspense>
@@ -246,8 +317,10 @@ export function AppContent() {
         )}
       </main>
 
-      {/* Customer Footer */}
-      <Footer />
+      {/* Customer Footer (Hidden on mobile Product Detail Page) */}
+      <div className={isProductRoute ? 'hidden md:block' : ''}>
+        <Footer />
+      </div>
 
       {/* Customer Interactive Overlays (Lazy Loaded) */}
       <Suspense fallback={null}>

@@ -5,6 +5,8 @@ import {
   ZoomIn,
   Maximize2,
   Sparkles,
+  Heart,
+  Share2,
 } from 'lucide-react';
 import { ProductFullscreenViewer } from './ProductFullscreenViewer';
 
@@ -15,6 +17,9 @@ interface ProductGalleryProps {
   discountPct?: number;
   sku?: string;
   selectedVariantImage?: string;
+  isInWishlist?: boolean;
+  onToggleWishlist?: () => void;
+  onShare?: () => void;
 }
 
 export const ProductGallery: React.FC<ProductGalleryProps> = ({
@@ -24,6 +29,9 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
   discountPct = 0,
   sku,
   selectedVariantImage,
+  isInWishlist = false,
+  onToggleWishlist,
+  onShare,
 }) => {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const [isFullscreenOpen, setIsFullscreenOpen] = useState(false);
@@ -195,6 +203,42 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
               <span className="bg-[#123F2A]/90 text-[var(--brand-gold)] text-[10px] uppercase font-mono font-bold tracking-wider px-2.5 py-1 rounded-full border border-[var(--brand-gold)]/30 backdrop-blur-xs shadow-xs">
                 {sku}
               </span>
+            )}
+          </div>
+
+          {/* Mobile Overlay Action Icons: Share & Wishlist (Stacked in bottom-right corner) */}
+          <div className="flex md:hidden absolute bottom-3 right-3 z-20 flex-col gap-2 pointer-events-auto">
+            {onShare && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onShare();
+                }}
+                className="w-9 h-9 rounded-full bg-white/90 dark:bg-black/75 text-[#123F2A] dark:text-white border border-[#E7E1D5] dark:border-white/20 shadow-md backdrop-blur-xs flex items-center justify-center active:scale-90 transition-all cursor-pointer hover:bg-white hover:border-[var(--brand-gold)]"
+                aria-label="Share product formulation"
+                title="Share product"
+              >
+                <Share2 className="w-4 h-4 text-[#123F2A] dark:text-slate-100" />
+              </button>
+            )}
+            {onToggleWishlist && (
+              <button
+                type="button"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onToggleWishlist();
+                }}
+                className={`w-9 h-9 rounded-full border shadow-md backdrop-blur-xs flex items-center justify-center active:scale-90 transition-all cursor-pointer ${
+                  isInWishlist
+                    ? 'bg-rose-500 border-rose-500 text-white shadow-rose-500/30'
+                    : 'bg-white/90 dark:bg-black/75 border-[#E7E1D5] dark:border-white/20 text-[#123F2A] dark:text-white hover:border-rose-400'
+                }`}
+                aria-label={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                title={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
+              >
+                <Heart className={`w-4 h-4 ${isInWishlist ? 'fill-current text-white' : 'text-[#123F2A] dark:text-slate-100'}`} />
+              </button>
             )}
           </div>
 

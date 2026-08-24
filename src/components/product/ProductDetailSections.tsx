@@ -17,12 +17,17 @@ import {
 } from 'lucide-react';
 import { Product } from '../../types/store';
 import { ProductReviewsSection } from './ProductReviewsSection';
+import { ProductReviewsSummaryCard } from './ProductReviewsSummaryCard';
 
 interface ProductDetailSectionsProps {
   product: Product;
+  onViewAllReviews?: () => void;
 }
 
-export const ProductDetailSections: React.FC<ProductDetailSectionsProps> = ({ product }) => {
+export const ProductDetailSections: React.FC<ProductDetailSectionsProps> = ({
+  product,
+  onViewAllReviews,
+}) => {
   const [activeTab, setActiveTab] = useState<string>('description');
   const [openAccordions, setOpenAccordions] = useState<{ [key: string]: boolean }>({
     description: true,
@@ -378,7 +383,17 @@ export const ProductDetailSections: React.FC<ProductDetailSectionsProps> = ({ pr
 
           {/* 6. Customer Reviews */}
           <div id="section-reviews">
-            <ProductReviewsSection product={product} />
+            {/* Mobile View: Compact Summary Card */}
+            <div className="block md:hidden">
+              <ProductReviewsSummaryCard
+                product={product}
+                onViewAllReviews={onViewAllReviews}
+              />
+            </div>
+            {/* Desktop View: Full Reviews Dashboard */}
+            <div className="hidden md:block">
+              <ProductReviewsSection product={product} />
+            </div>
           </div>
         </div>
 

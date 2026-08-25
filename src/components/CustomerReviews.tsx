@@ -11,8 +11,8 @@ export const CustomerReviews: React.FC = () => {
     : reviews;
 
   return (
-    <section className="py-20 bg-[var(--brand-primary-dark)] relative">
-      <div className="max-w-7xl mx-auto px-6 sm:px-12">
+    <section className="py-20 bg-[var(--brand-primary-dark)] relative overflow-hidden w-full max-w-full">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 w-full">
         <div className="flex flex-col lg:flex-row lg:items-end justify-between mb-12 border-b border-white/10 pb-8">
           <div>
             <span className="text-[var(--brand-gold)] font-sans text-xs uppercase tracking-[0.28em] font-bold block mb-2">
@@ -38,7 +38,7 @@ export const CustomerReviews: React.FC = () => {
         </div>
 
         {/* Filter Tabs */}
-        <div className="flex items-center gap-3 mb-8 overflow-x-auto pb-2 font-sans text-xs font-semibold">
+        <div className="flex items-center gap-3 mb-8 overflow-x-auto pb-2 font-sans text-xs font-semibold w-full max-w-full scrollbar-none no-scrollbar">
           <span className="text-slate-400 uppercase text-[10px] tracking-wider shrink-0">Filter By Stars:</span>
           <button
             onClick={() => setStarFilter(null)}

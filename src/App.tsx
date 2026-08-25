@@ -212,7 +212,7 @@ export function AppContent() {
         <Header selectedCategory={selectedCategory} onSelectCategory={handleSelectCategory} />
       </div>
 
-      <main className="flex-1">
+      <main className="flex-1 w-full max-w-full overflow-x-clip">
         {isProductReviewsRoute ? (
           <ReviewsErrorBoundary
             onReturn={() => {

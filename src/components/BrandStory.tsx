@@ -70,14 +70,14 @@ export const BrandStory: React.FC = () => {
   const seoTitle = content?.seoImageTitle || 'Ancestral Hakki-Pikki Herbal Hair Oil Brewing Tradition';
 
   return (
-    <section id="brand-story" className="py-24 bg-[var(--brand-primary-dark)] relative overflow-hidden">
+    <section id="brand-story" className="py-24 bg-[var(--brand-primary-dark)] relative overflow-hidden w-full max-w-full">
       {/* Anchor for Tribal Heritage navigation target */}
       <div id="tribal-heritage" className="absolute top-0 left-0 scroll-mt-24 pointer-events-none" />
 
       {/* Background Decorative Gradient */}
       <div className="absolute top-0 right-0 w-96 h-96 bg-[var(--brand-gold)]/5 rounded-full blur-3xl pointer-events-none"></div>
 
-      <div className="max-w-7xl mx-auto px-6 sm:px-12 space-y-16">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 space-y-16 w-full">
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
           {/* Left Visual Hero */}
           <div className="lg:col-span-6 relative">

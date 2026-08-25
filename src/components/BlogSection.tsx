@@ -8,8 +8,8 @@ export const BlogSection: React.FC = () => {
   const [activeBlog, setActiveBlog] = useState<BlogArticle | null>(null);
 
   return (
-    <section id="blogs" className="py-20 bg-[var(--brand-primary-deep)] border-t border-b border-white/10 relative">
-      <div className="max-w-7xl mx-auto px-6 sm:px-12">
+    <section id="blogs" className="py-20 bg-[var(--brand-primary-deep)] border-t border-b border-white/10 relative overflow-hidden w-full max-w-full">
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 w-full">
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-12">
           <div>
             <span className="text-[var(--brand-gold)] font-sans text-xs uppercase tracking-[0.28em] font-bold block mb-2">

@@ -254,7 +254,7 @@ export const HeroSlider: React.FC = () => {
       onMouseLeave={handleMouseLeave}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      className="relative w-full h-[540px] sm:h-[580px] lg:h-[620px] overflow-visible select-none flex items-center bg-white dark:bg-[var(--brand-primary-dark,#0B1D13)]"
+      className="relative w-full max-w-full h-[540px] sm:h-[580px] lg:h-[620px] overflow-hidden sm:overflow-x-clip sm:overflow-y-visible select-none flex items-center bg-white dark:bg-[var(--brand-primary-dark,#0B1D13)]"
     >
       {/* 1. CLIPPED MEDIA & OVERLAY LAYER (z-index: 1) */}
       <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none" style={{ zIndex: 1 }}>
@@ -344,7 +344,7 @@ export const HeroSlider: React.FC = () => {
       </div>
 
       {/* 2. DEDICATED 3D LAYERED FOREGROUND OVERFLOW (z-index: 10) */}
-      <div className="absolute inset-0 pointer-events-none overflow-visible" style={{ zIndex: 10 }}>
+      <div className="absolute inset-0 pointer-events-none overflow-hidden sm:overflow-visible w-full max-w-full" style={{ zIndex: 10 }}>
         {slidesToRender.map((slide, idx) => {
           if (!slide.enable3dOverflow || !slide.foregroundCutoutUrl) return null;
           const isActive = idx === currentSlideIndex;
@@ -357,9 +357,9 @@ export const HeroSlider: React.FC = () => {
           const dOverflow = slide.desktopBottomOverflow ?? 130;
 
           // Mobile positioning settings
-          const mPosX = slide.mobilePosX ?? 60;
+          const mPosX = Math.min(55, Math.max(35, slide.mobilePosX ?? 50));
           const mPosY = slide.mobilePosY ?? 0;
-          const mWidth = slide.mobileWidth ?? 260;
+          const mWidth = Math.min(240, slide.mobileWidth ?? 220);
           const mOverflow = slide.mobileBottomOverflow ?? 65;
           const disableMobile = slide.disableMobileOverflow ?? false;
 
@@ -395,7 +395,7 @@ export const HeroSlider: React.FC = () => {
               {/* Mobile 3D Cutout Layer (Adjusted overflow & position for small viewports) */}
               {!disableMobile && (
                 <div
-                  className="block sm:hidden absolute select-none pointer-events-none"
+                  className="block sm:hidden absolute select-none pointer-events-none max-w-[calc(100vw-32px)]"
                   style={{
                     left: `${mPosX}%`,
                     bottom: `-${mOverflow}px`,
@@ -406,7 +406,7 @@ export const HeroSlider: React.FC = () => {
                   <img
                     src={cutoutUrl}
                     alt={slide.title || '3D Foreground Subject Cutout'}
-                    className="w-full h-auto object-contain pointer-events-none select-none hero-3d-overflow-shadow"
+                    className="w-full h-auto max-w-full object-contain pointer-events-none select-none hero-3d-overflow-shadow"
                     loading="eager"
                     decoding="async"
                   />
@@ -418,7 +418,7 @@ export const HeroSlider: React.FC = () => {
       </div>
 
       {/* 3 & 4. HERO CONTENT LAYER: CTA BUTTONS (z-index: 20) & AI TRICHOLOGY ENGINE (z-index: 30) */}
-      <div className="absolute inset-0 pointer-events-none overflow-visible" style={{ zIndex: 20 }}>
+      <div className="absolute inset-0 pointer-events-none overflow-hidden sm:overflow-visible w-full max-w-full" style={{ zIndex: 20 }}>
         {slidesToRender.map((slide, idx) => {
           const isActive = idx === currentSlideIndex;
 

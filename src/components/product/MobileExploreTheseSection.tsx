@@ -103,7 +103,7 @@ export const MobileExploreTheseSection: React.FC<MobileExploreTheseSectionProps>
   } = useSmoothAutoScroll({
     itemCount,
     repeatCount,
-    speed: 0.55,
+    pixelsPerSecond: 32,
     pauseDuration: 2500,
   });
 

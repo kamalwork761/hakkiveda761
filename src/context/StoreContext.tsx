@@ -206,8 +206,10 @@ interface StoreContextType {
 
   // Wishlist
   wishlist: Product[];
-  toggleWishlist: (product: Product) => void;
-  isInWishlist: (productId: string) => boolean;
+  toggleWishlist: (productOrId: Product | string) => void;
+  isInWishlist: (productIdOrProduct: string | Product | undefined | null) => boolean;
+  removeFromWishlist: (productIdOrProduct: string | Product) => void;
+  clearWishlist: () => void;
 
   // Orders
   orders: Order[];
@@ -1563,7 +1565,36 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Cart & Wishlist
   const [cart, setCart] = useState<CartItem[]>(() => getStored('cart', []));
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(() => getStored('applied_coupon', null));
-  const [wishlist, setWishlist] = useState<Product[]>(() => getStored('wishlist', []));
+  const [wishlist, setWishlist] = useState<Product[]>(() => {
+    try {
+      const raw = localStorage.getItem('hakkiveda_wishlist');
+      if (!raw) return [];
+      const parsed = JSON.parse(raw);
+      if (!Array.isArray(parsed)) return [];
+
+      const result: Product[] = [];
+      const seenIds = new Set<string>();
+
+      for (const item of parsed) {
+        if (!item) continue;
+        const itemId = typeof item === 'string' ? item : item.id;
+        if (!itemId || seenIds.has(itemId)) continue;
+
+        const fromCatalog = INITIAL_PRODUCTS.find((p) => p.id === itemId);
+        if (fromCatalog) {
+          result.push(typeof item === 'object' ? { ...fromCatalog, ...item } : fromCatalog);
+          seenIds.add(itemId);
+        } else if (typeof item === 'object' && item.name && typeof item.priceINR === 'number') {
+          result.push(item as Product);
+          seenIds.add(itemId);
+        }
+      }
+      return result;
+    } catch (e) {
+      console.warn('[StoreContext] Failed to load wishlist from localStorage:', e);
+      return [];
+    }
+  });
   const [currentUser, setCurrentUser] = useState<User | null>(() => getStored('current_user', null));
 
   // Hydrate public state directly from SQLite Server Database (/app/data/hakkiveda.db)
@@ -1781,17 +1812,118 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   // Wishlist Actions
-  const toggleWishlist = (product: Product) => {
+  const toggleWishlist = (productOrId: Product | string) => {
     soundManager.play('wishlist');
     setWishlist((prev) => {
-      const exists = prev.some((p) => p.id === product.id);
-      const updated = exists ? prev.filter((p) => p.id !== product.id) : [...prev, product];
-      setStored('wishlist', updated);
+      const targetId = typeof productOrId === 'string' ? productOrId : productOrId?.id;
+      if (!targetId) return prev;
+
+      const exists = prev.some((p) => {
+        if (!p) return false;
+        const pid = typeof p === 'string' ? p : p.id;
+        return pid === targetId;
+      });
+
+      let updated: Product[];
+      if (exists) {
+        // Remove product with this targetId
+        updated = prev.filter((p) => {
+          if (!p) return false;
+          const pid = typeof p === 'string' ? p : p.id;
+          return pid !== targetId;
+        });
+      } else {
+        // Find full product object to add
+        let prodToAdd: Product | undefined;
+        if (typeof productOrId === 'object' && productOrId !== null && productOrId.id) {
+          prodToAdd = productOrId;
+        } else {
+          prodToAdd = products.find((p) => p.id === targetId) || INITIAL_PRODUCTS.find((p) => p.id === targetId);
+        }
+
+        if (prodToAdd) {
+          // Remove any possible prior item with same id and append resolved full product
+          const cleanPrev = prev.filter((p) => {
+            if (!p) return false;
+            const pid = typeof p === 'string' ? p : p.id;
+            return pid !== targetId;
+          });
+          updated = [...cleanPrev, prodToAdd];
+        } else {
+          updated = prev;
+        }
+      }
+
+      // Persist to localStorage safely
+      try {
+        localStorage.setItem('hakkiveda_wishlist', JSON.stringify(updated));
+      } catch (e) {
+        console.warn('[StoreContext] Could not save wishlist to localStorage:', e);
+      }
+
       return updated;
     });
   };
 
-  const isInWishlist = (productId: string) => wishlist.some((p) => p.id === productId);
+  const isInWishlist = (productIdOrProduct: string | Product | undefined | null): boolean => {
+    if (!productIdOrProduct) return false;
+    const targetId = typeof productIdOrProduct === 'string' ? productIdOrProduct : productIdOrProduct?.id;
+    if (!targetId) return false;
+    return wishlist.some((p) => {
+      if (!p) return false;
+      const pid = typeof p === 'string' ? p : p.id;
+      return pid === targetId;
+    });
+  };
+
+  const removeFromWishlist = (productIdOrProduct: string | Product) => {
+    const targetId = typeof productIdOrProduct === 'string' ? productIdOrProduct : productIdOrProduct?.id;
+    if (!targetId) return;
+    setWishlist((prev) => {
+      const updated = prev.filter((p) => {
+        if (!p) return false;
+        const pid = typeof p === 'string' ? p : p.id;
+        return pid !== targetId;
+      });
+      try {
+        localStorage.setItem('hakkiveda_wishlist', JSON.stringify(updated));
+      } catch (e) {}
+      return updated;
+    });
+  };
+
+  const clearWishlist = () => {
+    setWishlist([]);
+    try {
+      localStorage.setItem('hakkiveda_wishlist', JSON.stringify([]));
+    } catch (e) {}
+  };
+
+  // Sync wishlist product details whenever catalog updates
+  useEffect(() => {
+    if (products.length > 0) {
+      setWishlist((prev) => {
+        let hasChanges = false;
+        const updated = prev.map((item) => {
+          if (!item) return item;
+          const fresh = products.find((p) => p.id === item.id);
+          if (fresh && (fresh.name !== item.name || fresh.priceINR !== item.priceINR || fresh.image !== item.image || fresh.stock !== item.stock)) {
+            hasChanges = true;
+            return { ...item, ...fresh };
+          }
+          return item;
+        }).filter(Boolean);
+
+        if (hasChanges) {
+          try {
+            localStorage.setItem('hakkiveda_wishlist', JSON.stringify(updated));
+          } catch (e) {}
+          return updated;
+        }
+        return prev;
+      });
+    }
+  }, [products]);
 
   // Quick view
   const openQuickView = (product: Product) => {
@@ -2774,6 +2906,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         wishlist,
         toggleWishlist,
         isInWishlist,
+        removeFromWishlist,
+        clearWishlist,
         orders,
         addOrder,
         refreshOrders,

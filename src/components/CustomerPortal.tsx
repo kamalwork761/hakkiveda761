@@ -32,9 +32,13 @@ import {
   ChevronRight,
   AlertCircle,
   Check,
+  Star,
+  ShoppingBag,
+  ArrowRight,
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { SavedAddress, Order, Product } from '../types/store';
+import { getProductUrl } from '../utils/productUtils';
 
 export const CustomerPortal: React.FC = () => {
   const {
@@ -197,6 +201,35 @@ export const CustomerPortal: React.FC = () => {
       setEditAvatar(currentUser.avatar || '');
     }
   }, [currentUser]);
+
+  // Navigation Helpers for Wishlist
+  const handleNavigateToProduct = (prod: Product) => {
+    playSound('nav_click');
+    setIsWishlistOpen(false);
+    setIsAuthModalOpen(false);
+    const targetUrl = getProductUrl(prod);
+    window.history.pushState({}, '', targetUrl);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  };
+
+  const handleExploreProducts = () => {
+    playSound('nav_click');
+    setIsWishlistOpen(false);
+    setIsAuthModalOpen(false);
+    if (window.location.pathname !== '/') {
+      window.history.pushState({}, '', '/');
+      window.dispatchEvent(new PopStateEvent('popstate'));
+    }
+    setTimeout(() => {
+      const el = document.getElementById('products') || document.getElementById('featured-products');
+      if (el) {
+        el.scrollIntoView({ behavior: 'smooth' });
+      } else {
+        window.scrollTo({ top: 400, behavior: 'smooth' });
+      }
+    }, 120);
+  };
 
   // Esc key handler
   useEffect(() => {
@@ -895,7 +928,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                         const isActive = activeTab === tab.id;
                         return (
                           <button
-                            key={tab.id}
+                            key={`portal-tab-${tab.id}`}
                             data-active={isActive ? 'true' : 'false'}
                             onClick={() => {
                               playSound('nav_click');
@@ -1026,9 +1059,9 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                         </div>
                       ) : (
                         <div className="space-y-4">
-                          {userOrders.map((order) => (
+                          {userOrders.map((order, oIdx) => (
                             <div
-                              key={order.id}
+                              key={order.id ? `cust-order-${order.id}` : `cust-order-${order.orderNumber || oIdx}`}
                               className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-5 space-y-4 shadow-lg hover:border-[var(--brand-gold)]/40 transition-all"
                             >
                               {/* Order Header */}
@@ -1075,7 +1108,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                               {/* Order Items */}
                               <div className="space-y-2">
                                 {order.items.map((item, idx) => (
-                                  <div key={idx} className="flex items-center gap-3 bg-[var(--brand-primary-deep)] p-2.5 rounded-xl">
+                                  <div key={`order-${order.id || oIdx}-item-${item.product?.id || idx}-${idx}`} className="flex items-center gap-3 bg-[var(--brand-primary-deep)] p-2.5 rounded-xl">
                                     <img
                                       src={item.product.image}
                                       alt={item.product.name}
@@ -1140,48 +1173,143 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
 
                   {/* 3. WISHLIST TAB */}
                   {activeTab === 'wishlist' && (
-                    <div className="space-y-4 animate-in fade-in">
+                    <div className="space-y-6 animate-in fade-in">
                       <div className="flex items-center justify-between">
-                        <h4 className="text-lg font-bold font-serif-luxury text-slate-100">Saved Wishlist</h4>
-                        <span className="text-xs text-[var(--brand-gold)] font-bold">{wishlist.length} Formulations Saved</span>
+                        <div>
+                          <h4 className="text-lg font-bold font-serif-luxury text-slate-100">Saved Wishlist</h4>
+                          <p className="text-xs text-slate-400">Your personalized collection of Ayurvedic hair formulations</p>
+                        </div>
+                        <span className="text-xs text-[var(--brand-gold)] font-bold px-2.5 py-1 rounded-full bg-[var(--brand-gold)]/10 border border-[var(--brand-gold)]/30">
+                          {wishlist.length} {wishlist.length === 1 ? 'Formulation' : 'Formulations'} Saved
+                        </span>
                       </div>
 
                       {wishlist.length === 0 ? (
-                        <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-12 text-center space-y-3">
-                          <Heart className="w-12 h-12 text-slate-500 mx-auto" />
-                          <h5 className="font-serif-luxury text-base font-bold text-slate-200">Wishlist is empty</h5>
-                          <p className="text-xs text-slate-400">Save your favorite herbal hair products here for quick access.</p>
+                        <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-10 sm:p-14 text-center space-y-4">
+                          <div className="w-16 h-16 rounded-full bg-black/40 border border-[var(--brand-gold)]/30 flex items-center justify-center mx-auto text-[var(--brand-gold)] shadow-inner">
+                            <Heart className="w-8 h-8 fill-current/20" />
+                          </div>
+                          <div className="space-y-1.5">
+                            <h5 className="font-serif-luxury text-base sm:text-lg font-bold uppercase tracking-wider text-slate-100">
+                              YOUR WISHLIST IS EMPTY
+                            </h5>
+                            <p className="text-xs sm:text-sm text-slate-400 max-w-sm mx-auto">
+                              Save products you love and find them here later.
+                            </p>
+                          </div>
+                          <div className="pt-2">
+                            <button
+                              type="button"
+                              onClick={handleExploreProducts}
+                              className="bg-[var(--brand-gold)] hover:bg-[#E5C158] text-[var(--brand-primary-dark)] px-6 py-3 rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg hover:shadow-[var(--brand-gold)]/20 active:scale-98 transition-all cursor-pointer inline-flex items-center gap-2"
+                            >
+                              <span>EXPLORE PRODUCTS</span>
+                              <ArrowRight className="w-4 h-4" />
+                            </button>
+                          </div>
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          {wishlist.map((prod) => (
-                            <div
-                              key={prod.id}
-                              className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-4 flex gap-3 items-center justify-between"
-                            >
-                              <img src={prod.image} alt={prod.name} className="w-16 h-16 object-contain rounded-xl shrink-0 bg-black/30 p-1 border border-white/10" />
-                              <div className="flex-1 min-w-0">
-                                <h5 className="font-bold font-serif-luxury text-xs text-white truncate">{prod.name}</h5>
-                                <span className="text-xs text-[var(--brand-gold)] font-bold block mt-0.5">
-                                  {formatPrice(prod.priceINR)}
-                                </span>
+                          {wishlist.map((prod, pIdx) => {
+                            const discountPct = prod.originalPriceINR && prod.originalPriceINR > prod.priceINR
+                              ? Math.round(((prod.originalPriceINR - prod.priceINR) / prod.originalPriceINR) * 100)
+                              : 0;
+
+                            return (
+                              <div
+                                key={prod.id ? `wishlist-item-${prod.id}` : `wishlist-idx-${pIdx}`}
+                                className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-4 flex flex-col justify-between gap-4 hover:border-[var(--brand-gold)]/40 transition-all group"
+                              >
+                                <div className="flex gap-3.5 items-start">
+                                  {/* Product Image Clickable */}
+                                  <div
+                                    onClick={() => handleNavigateToProduct(prod)}
+                                    className="relative w-20 h-20 rounded-xl bg-black/30 p-1 border border-white/10 shrink-0 cursor-pointer overflow-hidden flex items-center justify-center group-hover:border-[var(--brand-gold)]/50 transition-colors"
+                                  >
+                                    <img
+                                      src={prod.image || 'https://images.unsplash.com/photo-1608248597359-0a6311656816?auto=format&fit=crop&w=400&q=80'}
+                                      alt={prod.name}
+                                      className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+                                      loading="lazy"
+                                    />
+                                    {discountPct > 0 && (
+                                      <span className="absolute top-1 left-1 bg-emerald-600 text-white text-[8px] font-bold px-1 rounded shadow-xs">
+                                        {discountPct}% OFF
+                                      </span>
+                                    )}
+                                  </div>
+
+                                  {/* Details */}
+                                  <div className="flex-1 min-w-0">
+                                    <h5
+                                      onClick={() => handleNavigateToProduct(prod)}
+                                      className="font-bold font-serif-luxury text-sm text-white hover:text-[var(--brand-gold)] cursor-pointer truncate transition-colors"
+                                      title={prod.name}
+                                    >
+                                      {prod.name}
+                                    </h5>
+                                    {prod.volume && (
+                                      <span className="text-[10px] text-slate-400 block mt-0.5">
+                                        {prod.volume}
+                                      </span>
+                                    )}
+
+                                    {/* Rating */}
+                                    <div className="flex items-center gap-1.5 mt-1 text-[11px] text-slate-300">
+                                      <div className="flex items-center text-[var(--brand-gold)]">
+                                        <Star className="w-3 h-3 fill-current" />
+                                        <span className="ml-1 font-bold">{prod.rating || 4.9}</span>
+                                      </div>
+                                      <span className="text-slate-500">({prod.reviewCount || 48})</span>
+                                    </div>
+
+                                    {/* Price and Stock */}
+                                    <div className="flex items-center gap-2 mt-2">
+                                      <span className="text-sm text-[var(--brand-gold)] font-bold">
+                                        {formatPrice(prod.priceINR)}
+                                      </span>
+                                      {prod.originalPriceINR && prod.originalPriceINR > prod.priceINR && (
+                                        <span className="text-xs text-slate-500 line-through">
+                                          {formatPrice(prod.originalPriceINR)}
+                                        </span>
+                                      )}
+                                      <span className={`text-[9px] px-1.5 py-0.5 rounded font-bold uppercase ${
+                                        prod.inStock !== false ? 'bg-emerald-950/80 text-emerald-300 border border-emerald-500/30' : 'bg-rose-950/80 text-rose-300 border border-rose-500/30'
+                                      }`}>
+                                        {prod.inStock !== false ? 'In Stock' : 'Sold Out'}
+                                      </span>
+                                    </div>
+                                  </div>
+                                </div>
+
+                                {/* Actions */}
+                                <div className="flex items-center gap-2 pt-2 border-t border-white/5">
+                                  <button
+                                    type="button"
+                                    onClick={() => addToCart(prod, 1)}
+                                    disabled={prod.inStock === false}
+                                    className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all ${
+                                      prod.inStock !== false
+                                        ? 'bg-[var(--brand-gold)] hover:bg-[#E5C158] text-[var(--brand-primary-dark)] cursor-pointer shadow-md'
+                                        : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                                    }`}
+                                  >
+                                    <ShoppingBag className="w-3.5 h-3.5" />
+                                    <span>Add to Bag</span>
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => toggleWishlist(prod)}
+                                    className="p-2 rounded-lg bg-black/30 hover:bg-rose-950/50 border border-white/10 text-slate-400 hover:text-rose-400 transition-colors cursor-pointer"
+                                    aria-label="Remove from Wishlist"
+                                    title="Remove from Wishlist"
+                                  >
+                                    <Trash2 className="w-4 h-4" />
+                                  </button>
+                                </div>
                               </div>
-                              <div className="flex flex-col gap-1 shrink-0">
-                                <button
-                                  onClick={() => addToCart(prod, 1)}
-                                  className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-3 py-1.5 rounded-lg text-[10px] font-bold uppercase hover:bg-white"
-                                >
-                                  Add to Cart
-                                </button>
-                                <button
-                                  onClick={() => toggleWishlist(prod)}
-                                  className="text-slate-400 hover:text-rose-400 text-[10px] text-center underline pt-0.5"
-                                >
-                                  Remove
-                                </button>
-                              </div>
-                            </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       )}
                     </div>
@@ -1210,9 +1338,9 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                         </div>
                       ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          {currentUser.addresses.map((addr) => (
+                          {currentUser.addresses.map((addr, addrIdx) => (
                             <div
-                              key={addr.id}
+                              key={addr.id ? `addr-item-${addr.id}` : `addr-idx-${addrIdx}`}
                               className={`bg-[var(--brand-primary-dark)] border rounded-2xl p-5 space-y-3 relative ${
                                 addr.isDefault ? 'border-[var(--brand-gold)] shadow-xl' : 'border-white/10'
                               }`}
@@ -1287,9 +1415,9 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                       </p>
 
                       <div className="space-y-3 pt-2">
-                        {(currentUser.savedPayments || []).map((pay) => (
+                        {(currentUser.savedPayments || []).map((pay, payIdx) => (
                           <div
-                            key={pay.id}
+                            key={pay.id ? `saved-pay-${pay.id}` : `saved-pay-${payIdx}`}
                             className="bg-[var(--brand-primary-deep)] border border-white/10 p-4 rounded-xl flex items-center justify-between"
                           >
                             <div className="flex items-center gap-3">
@@ -1387,9 +1515,9 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                       <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-6 space-y-4 text-xs">
                         <h4 className="text-base font-bold font-serif-luxury text-slate-100">Available Promotional Codes</h4>
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                          {coupons.map((c) => (
+                          {coupons.map((c, cIdx) => (
                             <div
-                              key={c.code}
+                              key={c.code ? `coupon-${c.code}` : `coupon-idx-${cIdx}`}
                               className="bg-[var(--brand-primary-deep)] border border-[var(--brand-gold)]/30 p-4 rounded-xl flex items-center justify-between"
                             >
                               <div>
@@ -1595,7 +1723,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                   <div className="pt-2 border-t border-white/10 space-y-1.5 max-h-36 overflow-y-auto">
                     <span className="text-[10px] uppercase text-slate-400 font-bold block">Checkpoint History:</span>
                     {liveTrackingData.scans.map((scan: any, idx: number) => (
-                      <div key={idx} className="text-[11px] text-slate-300 font-mono flex justify-between gap-2 bg-black/30 p-1.5 rounded">
+                      <div key={`track-scan-${idx}-${scan.date || ''}-${scan.activity || ''}`} className="text-[11px] text-slate-300 font-mono flex justify-between gap-2 bg-black/30 p-1.5 rounded">
                         <span>{scan.activity} ({scan.location})</span>
                         <span className="text-slate-400 shrink-0">{scan.date}</span>
                       </div>
@@ -1616,7 +1744,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
               ].map((step, idx) => {
                 const isCompleted = trackingOrder.trackingStatus === 'DELIVERED' || idx <= 2;
                 return (
-                  <div key={idx} className="flex items-start gap-3 relative">
+                  <div key={`tracking-step-${step.status}-${idx}`} className="flex items-start gap-3 relative">
                     <div
                       className={`w-7 h-7 rounded-full flex items-center justify-center font-bold text-xs shrink-0 z-10 ${
                         isCompleted
@@ -1845,62 +1973,179 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
       {isWishlistOpen && (
         <div className="fixed inset-0 z-50 overflow-hidden">
           <div
-            className="absolute inset-0 bg-black/80 backdrop-blur-sm"
+            className="fixed inset-0 bg-black/80 backdrop-blur-sm transition-opacity"
             onClick={() => setIsWishlistOpen(false)}
           ></div>
 
-          <div className="fixed inset-y-0 right-0 max-w-full flex pl-10 z-10">
-            <div className="w-screen max-w-md bg-[var(--brand-primary-deep)] border-l border-[var(--brand-gold)]/40 text-slate-100 shadow-2xl flex flex-col justify-between font-sans">
-              <div className="p-6 bg-[var(--brand-primary-dark)] border-b border-white/10 flex items-center justify-between">
-                <div className="flex items-center gap-2">
-                  <Heart className="w-5 h-5 text-[var(--brand-gold)] fill-current" />
-                  <h2 className="text-xl font-bold font-serif-luxury text-slate-100">Saved Wishlist</h2>
+          <div className="fixed inset-y-0 right-0 max-w-full flex z-10 w-full sm:w-auto">
+            <div className="w-full sm:w-screen sm:max-w-md bg-[var(--brand-primary-deep)] border-l border-[var(--brand-gold)]/40 text-slate-100 shadow-2xl flex flex-col justify-between font-sans h-full">
+              {/* Header */}
+              <div className="p-4 sm:p-5 bg-[var(--brand-primary-dark)] border-b border-white/10 flex items-center justify-between shrink-0">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-full bg-[var(--brand-gold)]/10 border border-[var(--brand-gold)]/30 flex items-center justify-center text-[var(--brand-gold)]">
+                    <Heart className="w-4 h-4 fill-current" />
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold font-serif-luxury text-slate-100 flex items-center gap-2">
+                      Saved Wishlist
+                      <span className="px-2 py-0.5 rounded-full text-[11px] font-bold bg-[var(--brand-gold)]/20 text-[var(--brand-gold)] border border-[var(--brand-gold)]/40">
+                        {wishlist.length}
+                      </span>
+                    </h2>
+                  </div>
                 </div>
                 <button
                   onClick={() => setIsWishlistOpen(false)}
-                  className="text-slate-400 hover:text-white p-1"
+                  className="w-10 h-10 min-w-[44px] min-h-[44px] flex items-center justify-center text-slate-400 hover:text-white hover:bg-white/10 rounded-full transition-colors cursor-pointer"
+                  aria-label="Close Wishlist"
                 >
-                  <X className="w-6 h-6" />
+                  <X className="w-5 h-5" />
                 </button>
               </div>
 
-              <div className="flex-1 p-6 overflow-y-auto space-y-4">
+              {/* Scrollable Body */}
+              <div className="flex-1 p-4 sm:p-6 overflow-y-auto space-y-3">
                 {wishlist.length === 0 ? (
-                  <div className="text-center py-16 space-y-3">
-                    <Heart className="w-16 h-16 text-slate-600 mx-auto" />
-                    <p className="text-slate-300 text-sm font-serif-luxury">No saved formulations yet.</p>
+                  <div className="h-full flex flex-col items-center justify-center py-12 px-4 text-center space-y-5">
+                    <div className="w-20 h-20 rounded-full bg-black/40 border border-[var(--brand-gold)]/30 flex items-center justify-center text-[var(--brand-gold)] shadow-inner">
+                      <Heart className="w-10 h-10 fill-current/20" />
+                    </div>
+                    <div className="space-y-2">
+                      <h3 className="text-lg sm:text-xl font-bold font-serif-luxury uppercase tracking-wider text-slate-100">
+                        YOUR WISHLIST IS EMPTY
+                      </h3>
+                      <p className="text-xs sm:text-sm text-slate-400 max-w-xs mx-auto leading-relaxed">
+                        Save products you love and find them here later.
+                      </p>
+                    </div>
+                    <div className="pt-2 w-full max-w-xs">
+                      <button
+                        type="button"
+                        onClick={handleExploreProducts}
+                        className="w-full bg-[var(--brand-gold)] hover:bg-[#E5C158] text-[var(--brand-primary-dark)] py-3 px-6 rounded-xl font-bold text-xs uppercase tracking-wider shadow-lg hover:shadow-[var(--brand-gold)]/20 active:scale-98 transition-all cursor-pointer flex items-center justify-center gap-2"
+                      >
+                        <span>EXPLORE PRODUCTS</span>
+                        <ArrowRight className="w-4 h-4" />
+                      </button>
+                    </div>
                   </div>
                 ) : (
-                  wishlist.map((prod) => (
-                    <div
-                      key={prod.id}
-                      className="flex gap-4 p-3 bg-[var(--brand-primary-dark)] border border-white/10 rounded-xl items-center justify-between"
-                    >
-                      <img src={prod.image} alt={prod.name} className="w-16 h-16 object-contain rounded-lg bg-black/30 p-1 border border-white/10" />
-                      <div className="flex-1 px-2">
-                        <h4 className="text-xs font-bold font-serif-luxury text-slate-100 line-clamp-1">
-                          {prod.name}
-                        </h4>
-                        <span className="text-xs text-[var(--brand-gold)] font-bold">{formatPrice(prod.priceINR)}</span>
+                  wishlist.map((prod, pIdx) => {
+                    const discountPct = prod.originalPriceINR && prod.originalPriceINR > prod.priceINR
+                      ? Math.round(((prod.originalPriceINR - prod.priceINR) / prod.originalPriceINR) * 100)
+                      : 0;
+
+                    return (
+                      <div
+                        key={prod.id ? `drawer-wishlist-${prod.id}` : `drawer-wishlist-idx-${pIdx}`}
+                        className="p-3.5 bg-[var(--brand-primary-dark)] border border-white/10 rounded-xl hover:border-[var(--brand-gold)]/30 transition-all flex flex-col gap-3 group"
+                      >
+                        <div className="flex gap-3 items-start">
+                          {/* Image */}
+                          <div
+                            onClick={() => handleNavigateToProduct(prod)}
+                            className="relative w-18 h-18 rounded-lg bg-black/30 p-1 border border-white/10 shrink-0 cursor-pointer overflow-hidden flex items-center justify-center group-hover:border-[var(--brand-gold)]/40 transition-colors"
+                          >
+                            <img
+                              src={prod.image || 'https://images.unsplash.com/photo-1608248597359-0a6311656816?auto=format&fit=crop&w=400&q=80'}
+                              alt={prod.name}
+                              className="w-full h-full object-contain group-hover:scale-105 transition-transform"
+                              loading="lazy"
+                            />
+                            {discountPct > 0 && (
+                              <span className="absolute top-1 left-1 bg-emerald-600 text-white text-[8px] font-bold px-1 rounded shadow-xs">
+                                {discountPct}% OFF
+                              </span>
+                            )}
+                          </div>
+
+                          {/* Info */}
+                          <div className="flex-1 min-w-0">
+                            <h4
+                              onClick={() => handleNavigateToProduct(prod)}
+                              className="text-xs sm:text-sm font-bold font-serif-luxury text-slate-100 hover:text-[var(--brand-gold)] line-clamp-2 cursor-pointer transition-colors"
+                              title={prod.name}
+                            >
+                              {prod.name}
+                            </h4>
+                            {prod.volume && (
+                              <span className="text-[10px] text-slate-400 block mt-0.5 truncate">
+                                {prod.volume}
+                              </span>
+                            )}
+
+                            <div className="flex items-center gap-1.5 mt-1 text-[11px]">
+                              <div className="flex items-center text-[var(--brand-gold)]">
+                                <Star className="w-3 h-3 fill-current" />
+                                <span className="ml-1 font-bold">{prod.rating || 4.9}</span>
+                              </div>
+                              <span className="text-slate-500">({prod.reviewCount || 48})</span>
+                            </div>
+
+                            <div className="flex items-center gap-2 mt-1.5">
+                              <span className="text-xs font-bold text-[var(--brand-gold)]">
+                                {formatPrice(prod.priceINR)}
+                              </span>
+                              {prod.originalPriceINR && prod.originalPriceINR > prod.priceINR && (
+                                <span className="text-[10px] text-slate-500 line-through">
+                                  {formatPrice(prod.originalPriceINR)}
+                                </span>
+                              )}
+                              <span className={`text-[8px] px-1 py-0.5 rounded font-bold uppercase ${
+                                prod.inStock !== false ? 'bg-emerald-950/80 text-emerald-300' : 'bg-rose-950/80 text-rose-300'
+                              }`}>
+                                {prod.inStock !== false ? 'In Stock' : 'Sold Out'}
+                              </span>
+                            </div>
+                          </div>
+
+                          {/* Delete Button */}
+                          <button
+                            type="button"
+                            onClick={() => toggleWishlist(prod)}
+                            className="text-slate-400 hover:text-rose-400 p-1.5 rounded-lg hover:bg-rose-950/30 transition-colors cursor-pointer shrink-0"
+                            aria-label="Remove item"
+                            title="Remove from Wishlist"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+
+                        {/* Add to Bag CTA */}
+                        <div className="pt-2 border-t border-white/5 flex gap-2">
+                          <button
+                            type="button"
+                            onClick={() => addToCart(prod, 1)}
+                            disabled={prod.inStock === false}
+                            className={`flex-1 py-2 px-3 rounded-lg text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all ${
+                              prod.inStock !== false
+                                ? 'bg-[var(--brand-gold)] hover:bg-[#E5C158] text-[var(--brand-primary-dark)] cursor-pointer shadow-md'
+                                : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                            }`}
+                          >
+                            <ShoppingBag className="w-3.5 h-3.5" />
+                            <span>Add To Bag</span>
+                          </button>
+                        </div>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => addToCart(prod, 1)}
-                          className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-3 py-1.5 rounded text-[10px] font-bold uppercase"
-                        >
-                          Add
-                        </button>
-                        <button
-                          onClick={() => toggleWishlist(prod)}
-                          className="text-slate-400 hover:text-rose-400 p-1"
-                        >
-                          <X className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </div>
-                  ))
+                    );
+                  })
                 )}
               </div>
+
+              {/* Drawer Footer */}
+              {wishlist.length > 0 && (
+                <div className="p-4 bg-[var(--brand-primary-dark)] border-t border-white/10 shrink-0 space-y-2">
+                  <button
+                    type="button"
+                    onClick={handleExploreProducts}
+                    className="w-full py-2.5 px-4 rounded-xl border border-[var(--brand-gold)]/40 text-[var(--brand-gold)] hover:bg-[var(--brand-gold)]/10 font-bold text-xs uppercase tracking-wider transition-all flex items-center justify-center gap-2 cursor-pointer"
+                  >
+                    <span>Explore More Formulations</span>
+                    <ArrowRight className="w-3.5 h-3.5" />
+                  </button>
+                </div>
+              )}
             </div>
           </div>
         </div>

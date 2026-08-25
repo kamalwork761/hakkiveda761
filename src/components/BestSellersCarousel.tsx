@@ -7,7 +7,7 @@ import { getProductUrl } from '../utils/productUtils';
 export const BestSellersCarousel: React.FC = () => {
   const { products, formatPrice, addToCart, toggleWishlist, isInWishlist, openQuickView, playSound } = useStore();
   const scrollContainerRef = useRef<HTMLDivElement>(null);
-  const [addedToast, setAddedToast] = useState<string | null>(null);
+  const [addedProductId, setAddedProductId] = useState<string | null>(null);
 
   // Mouse dragging state
   const [isDragging, setIsDragging] = useState(false);
@@ -67,8 +67,8 @@ export const BestSellersCarousel: React.FC = () => {
     e.stopPropagation();
     playSound('add_to_cart');
     addToCart(product, 1);
-    setAddedToast(product.name);
-    setTimeout(() => setAddedToast(null), 3000);
+    setAddedProductId(product.id);
+    setTimeout(() => setAddedProductId(null), 1800);
   };
 
   const handleBuyNow = (e: React.MouseEvent, product: Product) => {
@@ -81,14 +81,6 @@ export const BestSellersCarousel: React.FC = () => {
 
   return (
     <section id="bestsellers" className="py-12 sm:py-16 bg-white dark:bg-[var(--brand-primary-deep,#0A1810)] text-[#123F2A] dark:text-white relative overflow-hidden border-b border-[var(--color-border,#E7E1D5)] dark:border-white/10">
-      {/* Toast Notification */}
-      {addedToast && (
-        <div className="fixed bottom-8 left-8 z-50 bg-[var(--brand-gold)] text-[#0B2F20] px-5 py-3 rounded-xl shadow-2xl font-sans text-xs font-bold flex items-center gap-3 animate-in slide-in-from-bottom duration-300">
-          <Check className="w-5 h-5 bg-[#0B2F20] text-[var(--brand-gold)] rounded-full p-1" />
-          <span>Added '{addedToast}' to your cart!</span>
-        </div>
-      )}
-
       <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
         {/* Header & Arrow Controls */}
         <div className="flex items-end justify-between mb-8 pb-4 border-b border-[var(--color-border,#E7E1D5)] dark:border-white/10">
@@ -186,14 +178,15 @@ export const BestSellersCarousel: React.FC = () => {
                       playSound('wishlist_toggle');
                       toggleWishlist(product.id);
                     }}
-                    className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-all shadow-md z-10 cursor-pointer ${
+                    className={`absolute top-2.5 right-2.5 sm:top-3 sm:right-3 w-10 h-10 rounded-full transition-all duration-200 shadow-md flex items-center justify-center z-10 cursor-pointer active:scale-95 ${
                       inWishlist
-                        ? 'bg-rose-500 text-white'
-                        : 'bg-black/40 text-white hover:bg-white hover:text-rose-500'
+                        ? 'bg-[#0B4A35] text-[var(--brand-gold,#C9A84E)] border border-[var(--brand-gold,#C9A84E)]/60 shadow-[0_2px_8px_rgba(11,74,53,0.35)]'
+                        : 'bg-white/95 text-[#0B4A35] border border-[rgba(201,168,76,0.35)] hover:border-[#0B4A35]/50 hover:bg-white hover:text-[#0B4A35] hover:scale-105'
                     }`}
-                    aria-label={`Add ${product.name} to wishlist`}
+                    aria-label={inWishlist ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
+                    title={inWishlist ? 'In Wishlist' : 'Add to Wishlist'}
                   >
-                    <Heart className={`w-4 h-4 ${inWishlist ? 'fill-current' : ''}`} />
+                    <Heart className={`w-4 h-4 transition-transform ${inWishlist ? 'fill-current scale-105' : ''}`} />
                   </button>
 
                   {/* Overlay Quick View Button on Hover */}
@@ -258,10 +251,23 @@ export const BestSellersCarousel: React.FC = () => {
                       <button
                         type="button"
                         onClick={(e) => handleAddToCart(e, product)}
-                        className="w-full py-2 px-2 bg-[#123F2A] hover:bg-[#0B2F20] text-white rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-colors cursor-pointer shadow-sm active:scale-95"
+                        className={`w-full py-2 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95 ${
+                          addedProductId === product.id
+                            ? 'bg-emerald-700 text-white'
+                            : 'bg-[#123F2A] hover:bg-[#0B2F20] text-white'
+                        }`}
                       >
-                        <ShoppingBag className="w-3.5 h-3.5" />
-                        <span>Add</span>
+                        {addedProductId === product.id ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-[var(--brand-gold,#C9A84E)] stroke-[3]" />
+                            <span>Added</span>
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingBag className="w-3.5 h-3.5" />
+                            <span>Add</span>
+                          </>
+                        )}
                       </button>
                       <button
                         type="button"

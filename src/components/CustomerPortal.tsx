@@ -96,6 +96,7 @@ export const CustomerPortal: React.FC = () => {
   const [activeTab, setActiveTab] = useState<
     'profile' | 'orders' | 'wishlist' | 'addresses' | 'payments' | 'preferences' | 'rewards' | 'support' | 'settings'
   >('profile');
+  const [addedWishlistProductId, setAddedWishlistProductId] = useState<string | null>(null);
 
   // Edit Profile State
   const [isEditingProfile, setIsEditingProfile] = useState(false);
@@ -1286,16 +1287,31 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                                 <div className="flex items-center gap-2 pt-2 border-t border-white/5">
                                   <button
                                     type="button"
-                                    onClick={() => addToCart(prod, 1)}
+                                    onClick={() => {
+                                      addToCart(prod, 1);
+                                      setAddedWishlistProductId(prod.id);
+                                      setTimeout(() => setAddedWishlistProductId(null), 1800);
+                                    }}
                                     disabled={prod.inStock === false}
                                     className={`flex-1 py-2 px-3 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all ${
-                                      prod.inStock !== false
-                                        ? 'bg-[var(--brand-gold)] hover:bg-[#E5C158] text-[var(--brand-primary-dark)] cursor-pointer shadow-md'
-                                        : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                                      prod.inStock === false
+                                        ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                                        : addedWishlistProductId === prod.id
+                                        ? 'bg-emerald-600 text-white cursor-pointer shadow-md'
+                                        : 'bg-[var(--brand-gold)] hover:bg-[#E5C158] text-[var(--brand-primary-dark)] cursor-pointer shadow-md'
                                     }`}
                                   >
-                                    <ShoppingBag className="w-3.5 h-3.5" />
-                                    <span>Add to Bag</span>
+                                    {addedWishlistProductId === prod.id ? (
+                                      <>
+                                        <Check className="w-3.5 h-3.5 text-white stroke-[3]" />
+                                        <span>Added</span>
+                                      </>
+                                    ) : (
+                                      <>
+                                        <ShoppingBag className="w-3.5 h-3.5" />
+                                        <span>Add to Bag</span>
+                                      </>
+                                    )}
                                   </button>
                                   <button
                                     type="button"
@@ -2115,16 +2131,31 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                         <div className="pt-2 border-t border-white/5 flex gap-2">
                           <button
                             type="button"
-                            onClick={() => addToCart(prod, 1)}
+                            onClick={() => {
+                              addToCart(prod, 1);
+                              setAddedWishlistProductId(prod.id);
+                              setTimeout(() => setAddedWishlistProductId(null), 1800);
+                            }}
                             disabled={prod.inStock === false}
                             className={`flex-1 py-2 px-3 rounded-lg text-[11px] font-bold uppercase tracking-wider flex items-center justify-center gap-1.5 transition-all ${
-                              prod.inStock !== false
-                                ? 'bg-[var(--brand-gold)] hover:bg-[#E5C158] text-[var(--brand-primary-dark)] cursor-pointer shadow-md'
-                                : 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                              prod.inStock === false
+                                ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                                : addedWishlistProductId === prod.id
+                                ? 'bg-emerald-600 text-white cursor-pointer shadow-md'
+                                : 'bg-[var(--brand-gold)] hover:bg-[#E5C158] text-[var(--brand-primary-dark)] cursor-pointer shadow-md'
                             }`}
                           >
-                            <ShoppingBag className="w-3.5 h-3.5" />
-                            <span>Add To Bag</span>
+                            {addedWishlistProductId === prod.id ? (
+                              <>
+                                <Check className="w-3.5 h-3.5 text-white stroke-[3]" />
+                                <span>Added</span>
+                              </>
+                            ) : (
+                              <>
+                                <ShoppingBag className="w-3.5 h-3.5" />
+                                <span>Add To Bag</span>
+                              </>
+                            )}
                           </button>
                         </div>
                       </div>

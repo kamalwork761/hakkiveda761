@@ -232,7 +232,7 @@ export const CategoryPageTemplate: React.FC<CategoryPageTemplateProps> = ({
     playSound,
   } = useStore();
 
-  const [addedToast, setAddedToast] = useState<string | null>(null);
+  const [addedProductId, setAddedProductId] = useState<string | null>(null);
   const [openFaqIndex, setOpenFaqIndex] = useState<number | null>(0);
   const [searchQuery, setSearchQuery] = useState<string>('');
   const [inStockOnly, setInStockOnly] = useState<boolean>(false);
@@ -423,8 +423,8 @@ export const CategoryPageTemplate: React.FC<CategoryPageTemplateProps> = ({
     e.stopPropagation();
     playSound('add_to_cart');
     addToCart(product, 1);
-    setAddedToast(product.name);
-    setTimeout(() => setAddedToast(null), 3000);
+    setAddedProductId(product.id);
+    setTimeout(() => setAddedProductId(null), 1800);
   };
 
   const handleBuyNow = (e: React.MouseEvent, product: Product) => {
@@ -453,14 +453,6 @@ export const CategoryPageTemplate: React.FC<CategoryPageTemplateProps> = ({
 
   return (
     <div className="category-page min-h-screen pb-24 sm:pb-12 bg-white dark:bg-[#0E281C] text-[#123F2A] dark:text-white selection:bg-[var(--brand-gold,#C9A84E)] selection:text-[#0E281C] transition-colors duration-300">
-      {/* Toast Notification */}
-      {addedToast && (
-        <div className="fixed bottom-20 sm:bottom-8 left-4 sm:left-8 z-50 bg-[#123F2A] text-white dark:bg-[var(--brand-gold)] dark:text-[#0E281C] px-5 py-3 rounded-xl shadow-2xl font-sans text-xs font-bold flex items-center gap-3 animate-in slide-in-from-bottom duration-300">
-          <Check className="w-5 h-5 bg-[#C9A84E] text-[#123F2A] rounded-full p-1" />
-          <span>Added '{addedToast}' to your cart!</span>
-        </div>
-      )}
-
       {/* 1. HERO BANNER (Breadcrumb + Pure Artwork) */}
       <CategoryHeroBanner
         config={pageConfig}
@@ -632,14 +624,15 @@ export const CategoryPageTemplate: React.FC<CategoryPageTemplateProps> = ({
                         playSound('wishlist_toggle');
                         toggleWishlist(product.id);
                       }}
-                      className={`absolute top-1.5 right-1.5 sm:top-3 sm:right-3 p-1.5 sm:p-2 rounded-full backdrop-blur-md transition-all shadow-md z-10 cursor-pointer ${
+                      className={`absolute top-2 right-2 sm:top-3 sm:right-3 w-10 h-10 rounded-full transition-all duration-200 shadow-md flex items-center justify-center z-10 cursor-pointer active:scale-95 ${
                         inWishlist
-                          ? 'bg-rose-500 text-white'
-                          : 'bg-black/40 text-white hover:bg-white hover:text-rose-500'
+                          ? 'bg-[#0B4A35] text-[var(--brand-gold,#C9A84E)] border border-[var(--brand-gold,#C9A84E)]/60 shadow-[0_2px_8px_rgba(11,74,53,0.35)]'
+                          : 'bg-white/95 text-[#0B4A35] border border-[rgba(201,168,76,0.35)] hover:border-[#0B4A35]/50 hover:bg-white hover:text-[#0B4A35] hover:scale-105'
                       }`}
-                      aria-label={`Wishlist ${product.name}`}
+                      aria-label={inWishlist ? `Remove ${product.name} from wishlist` : `Wishlist ${product.name}`}
+                      title={inWishlist ? 'In Wishlist' : 'Add to Wishlist'}
                     >
-                      <Heart className={`w-3.5 h-3.5 sm:w-4 sm:h-4 ${inWishlist ? 'fill-current' : ''}`} />
+                      <Heart className={`w-4 h-4 transition-transform ${inWishlist ? 'fill-current scale-105' : ''}`} />
                     </button>
 
                     {/* Quick View Indicator Overlay (Desktop Only) */}
@@ -697,10 +690,18 @@ export const CategoryPageTemplate: React.FC<CategoryPageTemplateProps> = ({
                       <button
                         type="button"
                         onClick={(e) => handleAddToCart(e, product)}
-                        className="sm:hidden w-7 h-7 bg-[#123F2A] text-white hover:bg-[#B8891E] active:scale-90 rounded-full flex items-center justify-center shadow-md transition-all cursor-pointer border border-[#E5D8B5]/40 shrink-0"
+                        className={`sm:hidden w-7 h-7 rounded-full flex items-center justify-center shadow-md transition-all cursor-pointer border border-[#E5D8B5]/40 shrink-0 ${
+                          addedProductId === product.id
+                            ? 'bg-emerald-700 text-white'
+                            : 'bg-[#123F2A] text-white hover:bg-[#B8891E] active:scale-90'
+                        }`}
                         aria-label={`Add ${product.name} to cart`}
                       >
-                        <ShoppingBag className="w-3.5 h-3.5" />
+                        {addedProductId === product.id ? (
+                          <Check className="w-3.5 h-3.5 text-[var(--brand-gold,#C9A84E)] stroke-[3]" />
+                        ) : (
+                          <ShoppingBag className="w-3.5 h-3.5" />
+                        )}
                       </button>
 
                       {/* Desktop: Full Action Buttons */}
@@ -708,10 +709,23 @@ export const CategoryPageTemplate: React.FC<CategoryPageTemplateProps> = ({
                         <button
                           type="button"
                           onClick={(e) => handleAddToCart(e, product)}
-                          className="w-full py-2 px-2 bg-[#FAF8F2] dark:bg-[#0E281C] hover:bg-[#E5D8B5] text-[#123F2A] dark:text-[#E4C86A] rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-colors shadow-xs active:scale-95 border border-[#E5D8B5] dark:border-white/10"
+                          className={`w-full py-2 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 cursor-pointer transition-all shadow-xs active:scale-95 border ${
+                            addedProductId === product.id
+                              ? 'bg-emerald-700 text-white border-emerald-600'
+                              : 'bg-[#FAF8F2] dark:bg-[#0E281C] hover:bg-[#E5D8B5] text-[#123F2A] dark:text-[#E4C86A] border-[#E5D8B5] dark:border-white/10'
+                          }`}
                         >
-                          <ShoppingBag className="w-3.5 h-3.5" />
-                          <span>Add</span>
+                          {addedProductId === product.id ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-[var(--brand-gold,#C9A84E)] stroke-[3]" />
+                              <span>Added</span>
+                            </>
+                          ) : (
+                            <>
+                              <ShoppingBag className="w-3.5 h-3.5" />
+                              <span>Add</span>
+                            </>
+                          )}
                         </button>
                         <button
                           type="button"

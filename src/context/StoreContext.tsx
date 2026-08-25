@@ -203,6 +203,9 @@ interface StoreContextType {
   removeCoupon: () => void;
   discountAmountINR: number;
   cartTotalINR: number;
+  cartToast: { show: boolean; message: string; productName?: string } | null;
+  showCartToast: (message?: string, productName?: string) => void;
+  hideCartToast: () => void;
 
   // Wishlist
   wishlist: Product[];
@@ -1697,6 +1700,27 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isB2BModalOpen, setIsB2BModalOpen] = useState(false);
   const [isQuizOpen, setIsQuizOpen] = useState(false);
 
+  // Non-blocking Cart Toast System
+  const [cartToast, setCartToast] = useState<{ show: boolean; message: string; productName?: string } | null>(null);
+  const cartToastTimerRef = useRef<NodeJS.Timeout | null>(null);
+
+  const showCartToast = (message: string = 'Added to cart', productName?: string) => {
+    if (cartToastTimerRef.current) {
+      clearTimeout(cartToastTimerRef.current);
+    }
+    setCartToast({ show: true, message, productName });
+    cartToastTimerRef.current = setTimeout(() => {
+      setCartToast(null);
+    }, 3800);
+  };
+
+  const hideCartToast = () => {
+    if (cartToastTimerRef.current) {
+      clearTimeout(cartToastTimerRef.current);
+    }
+    setCartToast(null);
+  };
+
   // Cart Calculations
   const cartItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
   const cartSubtotalINR = cart.reduce((sum, item) => sum + item.product.priceINR * item.quantity, 0);
@@ -1746,7 +1770,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setStored('cart', updated);
       return updated;
     });
-    setIsCartOpen(true);
+
+    // Show non-blocking toast confirmation (Cart drawer stays closed)
+    showCartToast('Added to cart', product.name);
   };
 
   const removeFromCart = (productIdOrKey: string) => {
@@ -1930,26 +1956,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     soundManager.play('menu_toggle');
     setQuickViewProduct(product);
     setIsQuickViewOpen(true);
-
-    try {
-      const slug = product.name.toLowerCase().trim().replace(/[^\w\s-]/g, '').replace(/[\s_]+/g, '-');
-      const newPath = `/products/${slug}`;
-      if (window.location.pathname !== newPath) {
-        window.history.pushState({ productId: product.id }, '', newPath);
-      }
-    } catch (e) {}
   };
 
   const closeQuickView = () => {
     soundManager.play('menu_toggle');
     setIsQuickViewOpen(false);
     setQuickViewProduct(null);
-
-    try {
-      if (window.location.pathname.startsWith('/products/')) {
-        window.history.pushState({}, '', '/');
-      }
-    } catch (e) {}
   };
 
   // Orders
@@ -2903,6 +2915,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         removeCoupon,
         discountAmountINR,
         cartTotalINR,
+        cartToast,
+        showCartToast,
+        hideCartToast,
         wishlist,
         toggleWishlist,
         isInWishlist,

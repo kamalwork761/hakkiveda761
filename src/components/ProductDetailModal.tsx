@@ -17,6 +17,7 @@ export const ProductDetailModal: React.FC = () => {
 
   const [quantity, setQuantity] = useState(1);
   const [selectedImageIndex, setSelectedImageIndex] = useState(0);
+  const [isAdded, setIsAdded] = useState(false);
   const [activeTab, setActiveTab] = useState<'benefits' | 'ingredients' | 'ritual' | 'reviews'>('benefits');
   const [isAddingReview, setIsAddingReview] = useState(false);
   const [newRating, setNewRating] = useState(5);
@@ -70,6 +71,8 @@ export const ProductDetailModal: React.FC = () => {
 
   const handleAddToCart = () => {
     addToCart(product, quantity);
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 1800);
   };
 
   const handleNextImage = () => {
@@ -496,10 +499,23 @@ export const ProductDetailModal: React.FC = () => {
                   <button
                     type="button"
                     onClick={handleAddToCart}
-                    className="flex-1 bg-[#123F2B] text-white min-h-[48px] py-3 px-4 rounded-lg font-sans text-xs sm:text-sm font-bold uppercase tracking-wider hover:bg-[#245C3A] transition-all flex items-center justify-center gap-2 shadow-xl cursor-pointer"
+                    className={`flex-1 min-h-[48px] py-3 px-4 rounded-lg font-sans text-xs sm:text-sm font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-xl cursor-pointer ${
+                      isAdded
+                        ? 'bg-emerald-700 text-white border border-emerald-500'
+                        : 'bg-[#123F2B] text-white hover:bg-[#245C3A]'
+                    }`}
                   >
-                    <ShoppingBag className="w-4 h-4 shrink-0 text-[#D4AF37]" />
-                    <span>Add To Bag • {formatPrice(product.priceINR * quantity)}</span>
+                    {isAdded ? (
+                      <>
+                        <Check className="w-4 h-4 shrink-0 text-[var(--brand-gold,#D4AF37)] stroke-[3]" />
+                        <span>✓ ADDED TO CART</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingBag className="w-4 h-4 shrink-0 text-[#D4AF37]" />
+                        <span>Add To Bag • {formatPrice(product.priceINR * quantity)}</span>
+                      </>
+                    )}
                   </button>
 
                   <button

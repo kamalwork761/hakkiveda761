@@ -10,6 +10,7 @@ import { Footer } from './components/Footer';
 import { WhatsAppButton } from './components/WhatsAppButton';
 import { AmbientSoundControl } from './components/AmbientSoundControl';
 import { SeoSchemaInjector } from './components/SeoSchemaInjector';
+import { CartToast } from './components/CartToast';
 
 // Dynamic / Lazy-loaded Below-the-fold sections
 const BeforeAfterSlider = lazy(() => import('./components/BeforeAfterSlider').then(m => ({ default: m.BeforeAfterSlider })));
@@ -76,10 +77,6 @@ export function AppContent() {
     const handleLocationChange = () => {
       const pathname = window.location.pathname;
       const nextFullUrl = `${window.location.pathname}${window.location.search}${window.location.hash}`;
-      const previousFullUrl = currentPathRef.current;
-
-      // Safely record source transition before updating state
-      recordNavigationSource(nextFullUrl, previousFullUrl);
       currentPathRef.current = nextFullUrl;
       setCurrentPath(pathname);
 
@@ -158,7 +155,7 @@ export function AppContent() {
     setCurrentPath(path.split('?')[0].split('#')[0]);
     window.dispatchEvent(new Event('app:navigate'));
     window.dispatchEvent(new PopStateEvent('popstate'));
-    window.scrollTo({ top: 0, behavior: 'smooth' });
+    window.scrollTo({ top: 0, behavior: 'instant' });
   };
 
   const isAdminRoute = currentPath.startsWith('/admin');
@@ -216,10 +213,12 @@ export function AppContent() {
         {isProductReviewsRoute ? (
           <ReviewsErrorBoundary
             onReturn={() => {
-              if (reviewsSlug) {
-                navigate(`/products/${reviewsSlug}`, { replace: true });
+              if (typeof window !== 'undefined' && window.history.length > 1) {
+                window.history.back();
+              } else if (reviewsSlug) {
+                navigate(`/products/${reviewsSlug}`);
               } else {
-                navigate('/', { replace: true });
+                navigate('/');
               }
             }}
           >
@@ -227,13 +226,15 @@ export function AppContent() {
               <ProductReviewsPage
                 slug={reviewsSlug}
                 onReturnToProduct={() => {
-                  if (reviewsSlug) {
-                    navigate(`/products/${reviewsSlug}`, { replace: true });
+                  if (typeof window !== 'undefined' && window.history.length > 1) {
+                    window.history.back();
+                  } else if (reviewsSlug) {
+                    navigate(`/products/${reviewsSlug}`);
                   } else {
-                    navigate('/', { replace: true });
+                    navigate('/');
                   }
                 }}
-                onNavigateHome={() => navigate('/', { replace: true })}
+                onNavigateHome={() => navigate('/')}
                 onNavigateProduct={(product) => {
                   navigate(getProductUrl(product));
                 }}
@@ -244,13 +245,13 @@ export function AppContent() {
           <Suspense fallback={<SectionSkeleton />}>
             <ProductDetailPage
               slug={productSlug}
-              onNavigateHome={() => navigate('/', { replace: true })}
+              onNavigateHome={() => navigate('/')}
               onNavigateCategory={(catName) => {
                 const catRoute = getCategoryRouteFromId(catName);
                 if (catRoute !== '/') {
-                  navigate(catRoute, { replace: true });
+                  navigate(catRoute);
                 } else {
-                  navigate('/', { replace: true });
+                  navigate('/');
                   setTimeout(() => handleSelectCategory(catName, true), 50);
                 }
               }}
@@ -261,7 +262,11 @@ export function AppContent() {
                 navigate(getProductReviewsUrl(product));
               }}
               onNavigateBack={(destination) => {
-                navigate(destination, { replace: true });
+                if (typeof window !== 'undefined' && window.history.length > 1) {
+                  window.history.back();
+                } else {
+                  navigate(destination || '/');
+                }
               }}
             />
           </Suspense>
@@ -323,6 +328,7 @@ export function AppContent() {
       </div>
 
       {/* Customer Interactive Overlays (Lazy Loaded) */}
+      <CartToast />
       <Suspense fallback={null}>
         <VideoPopupModal onSelectProduct={(p) => navigate(getProductUrl(p))} />
         <ProductDetailModal />

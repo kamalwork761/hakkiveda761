@@ -40,6 +40,7 @@ export const ShoppableReelsSection: React.FC<ShoppableReelsSectionProps> = ({
   const [isMuted, setIsMuted] = useState(true);
   const [isPlaying, setIsPlaying] = useState(true);
   const [expandedCaption, setExpandedCaption] = useState(false);
+  const [isAdded, setIsAdded] = useState(false);
 
   // Filter active reels and sort by sortOrder
   const activeReels = shoppableReels
@@ -523,11 +524,28 @@ export const ShoppableReelsSection: React.FC<ShoppableReelsSectionProps> = ({
 
                       {activeReel.showAddToCartButton !== false && (
                         <button
-                          onClick={() => addToCart(activeProduct, 1)}
-                          className="flex items-center justify-center gap-1 py-2 px-2 rounded-xl bg-white/10 hover:bg-white/20 text-white font-semibold text-xs border border-white/20 transition-all cursor-pointer"
+                          onClick={() => {
+                            addToCart(activeProduct, 1);
+                            setIsAdded(true);
+                            setTimeout(() => setIsAdded(false), 1800);
+                          }}
+                          className={`flex items-center justify-center gap-1 py-2 px-2 rounded-xl font-semibold text-xs transition-all cursor-pointer ${
+                            isAdded
+                              ? 'bg-emerald-700 text-white border border-emerald-500'
+                              : 'bg-white/10 hover:bg-white/20 text-white border border-white/20'
+                          }`}
                         >
-                          <ShoppingBag className="w-3.5 h-3.5" />
-                          <span>Add</span>
+                          {isAdded ? (
+                            <>
+                              <CheckCircle2 className="w-3.5 h-3.5 text-[var(--brand-gold,#D4AF37)]" />
+                              <span>Added</span>
+                            </>
+                          ) : (
+                            <>
+                              <ShoppingBag className="w-3.5 h-3.5" />
+                              <span>Add</span>
+                            </>
+                          )}
                         </button>
                       )}
 

@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { ShoppingBag, Sparkles, Plus, Minus } from 'lucide-react';
+import { ShoppingBag, Sparkles, Plus, Minus, Check } from 'lucide-react';
 import { Product, ProductVariant } from '../../types/store';
 
 interface ProductStickyBarProps {
@@ -10,6 +10,7 @@ interface ProductStickyBarProps {
   onAddToCart: () => void;
   onBuyNow: () => void;
   formatPrice: (priceINR: number) => string;
+  isAdded?: boolean;
 }
 
 export const ProductStickyBar: React.FC<ProductStickyBarProps> = ({
@@ -20,6 +21,7 @@ export const ProductStickyBar: React.FC<ProductStickyBarProps> = ({
   onAddToCart,
   onBuyNow,
   formatPrice,
+  isAdded = false,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -106,11 +108,25 @@ export const ProductStickyBar: React.FC<ProductStickyBarProps> = ({
           <button
             type="button"
             onClick={onAddToCart}
-            className="h-10 px-3.5 sm:px-5 rounded-xl bg-[#123F2A] hover:bg-[#0B2F20] dark:bg-white dark:text-[#0B2F20] text-white font-sans text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-md active:scale-98 cursor-pointer"
+            className={`h-10 px-3.5 sm:px-5 rounded-xl font-sans text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-md active:scale-98 cursor-pointer ${
+              isAdded
+                ? 'bg-emerald-700 text-white border border-emerald-500'
+                : 'bg-[#123F2A] hover:bg-[#0B2F20] dark:bg-white dark:text-[#0B2F20] text-white'
+            }`}
           >
-            <ShoppingBag className="w-3.5 h-3.5 text-[var(--brand-gold)] dark:text-[#0B2F20]" />
-            <span className="hidden xs:inline">Add to Bag</span>
-            <span className="xs:hidden">Add</span>
+            {isAdded ? (
+              <>
+                <Check className="w-3.5 h-3.5 text-[var(--brand-gold,#C9A84E)] stroke-[3]" />
+                <span className="hidden xs:inline">✓ Added</span>
+                <span className="xs:hidden">Added</span>
+              </>
+            ) : (
+              <>
+                <ShoppingBag className="w-3.5 h-3.5 text-[var(--brand-gold)] dark:text-[#0B2F20]" />
+                <span className="hidden xs:inline">Add to Bag</span>
+                <span className="xs:hidden">Add</span>
+              </>
+            )}
           </button>
 
           {/* Buy Now */}

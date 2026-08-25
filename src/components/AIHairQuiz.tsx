@@ -155,7 +155,6 @@ export const AIHairQuiz: React.FC = () => {
     } else {
       recs.forEach((p) => addToCart(p, 1));
     }
-    setIsCartOpen(true);
     setIsQuizOpen(false);
   };
 

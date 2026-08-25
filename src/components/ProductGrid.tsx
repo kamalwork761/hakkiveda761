@@ -11,7 +11,7 @@ interface ProductGridProps {
 
 export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSelectCategory }) => {
   const { products, categories, formatPrice, addToCart, toggleWishlist, isInWishlist, openQuickView, playSound } = useStore();
-  const [addedToast, setAddedToast] = useState<string | null>(null);
+  const [addedProductId, setAddedProductId] = useState<string | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [sortBy, setSortBy] = useState<'bestseller' | 'price-asc' | 'price-desc' | 'rating' | 'name'>('bestseller');
   const [inStockOnly, setInStockOnly] = useState(false);
@@ -80,8 +80,8 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
     e.stopPropagation();
     playSound('add_to_cart');
     addToCart(product, 1);
-    setAddedToast(product.name);
-    setTimeout(() => setAddedToast(null), 3000);
+    setAddedProductId(product.id);
+    setTimeout(() => setAddedProductId(null), 1800);
   };
 
   const handleCategoryTabClick = (catName: string) => {
@@ -93,13 +93,6 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
   return (
     <section id="products" className="py-16 sm:py-20 bg-[var(--brand-primary-dark)] relative scroll-mt-12">
       <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
-        {/* Toast Notification */}
-        {addedToast && (
-          <div className="fixed bottom-8 left-8 z-50 bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-5 py-3 rounded-xl shadow-2xl font-sans text-xs font-bold flex items-center gap-3 animate-in slide-in-from-bottom duration-300">
-            <Check className="w-5 h-5 bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] rounded-full p-1" />
-            <span>Added '{addedToast}' to your cart!</span>
-          </div>
-        )}
 
         {/* Dynamic Breadcrumbs */}
         <nav className="flex items-center gap-2 text-xs font-sans text-slate-300 mb-6 overflow-x-auto whitespace-nowrap">
@@ -327,16 +320,21 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
 
                     {/* Wishlist Button */}
                     <button
+                      type="button"
                       onClick={(e) => {
                         e.stopPropagation();
+                        playSound('wishlist_toggle');
                         toggleWishlist(product);
                       }}
-                      className={`absolute top-4 right-4 z-10 w-9 h-9 rounded-full backdrop-blur-md flex items-center justify-center transition-all ${
-                        inWish ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)]' : 'bg-black/40 text-white hover:text-[var(--brand-gold)]'
+                      className={`absolute top-2.5 right-2.5 sm:top-3 sm:right-3 w-10 h-10 rounded-full transition-all duration-200 shadow-md flex items-center justify-center z-10 cursor-pointer active:scale-95 ${
+                        inWish
+                          ? 'bg-[#0B4A35] text-[var(--brand-gold,#C9A84E)] border border-[var(--brand-gold,#C9A84E)]/60 shadow-[0_2px_8px_rgba(11,74,53,0.35)]'
+                          : 'bg-white/95 text-[#0B4A35] border border-[rgba(201,168,76,0.35)] hover:border-[#0B4A35]/50 hover:bg-white hover:text-[#0B4A35] hover:scale-105'
                       }`}
-                      title={inWish ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                      aria-label={inWish ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
+                      title={inWish ? 'In Wishlist' : 'Add to Wishlist'}
                     >
-                      <Heart className={`w-4 h-4 ${inWish ? 'fill-current' : ''}`} />
+                      <Heart className={`w-4 h-4 transition-transform ${inWish ? 'fill-current scale-105' : ''}`} />
                     </button>
 
                     {/* Quick View Hover Overlay */}
@@ -398,10 +396,23 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
 
                       <button
                         onClick={(e) => handleAddToCart(e, product)}
-                        className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-white transition-all flex items-center gap-1.5 shadow-md active:scale-95"
+                        className={`px-4 py-2.5 rounded-lg text-xs font-bold uppercase tracking-wider transition-all flex items-center gap-1.5 shadow-md active:scale-95 cursor-pointer ${
+                          addedProductId === product.id
+                            ? 'bg-emerald-600 text-white'
+                            : 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] hover:bg-white'
+                        }`}
                       >
-                        <ShoppingBag className="w-3.5 h-3.5" />
-                        <span>Add</span>
+                        {addedProductId === product.id ? (
+                          <>
+                            <Check className="w-3.5 h-3.5 text-white stroke-[3]" />
+                            <span>Added</span>
+                          </>
+                        ) : (
+                          <>
+                            <ShoppingBag className="w-3.5 h-3.5" />
+                            <span>Add</span>
+                          </>
+                        )}
                       </button>
                     </div>
                   </div>

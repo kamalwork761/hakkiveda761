@@ -60,7 +60,9 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
 
   const [quantity, setQuantity] = useState(1);
   const [selectedVariant, setSelectedVariant] = useState<ProductVariant | null>(null);
-  const [addedToast, setAddedToast] = useState<string | null>(null);
+  const [isAdded, setIsAdded] = useState(false);
+  const [addedRelProductId, setAddedRelProductId] = useState<string | null>(null);
+  const [copiedToast, setCopiedToast] = useState(false);
 
   // Find product by slug
   const product = useMemo(() => {
@@ -166,15 +168,12 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
       .slice(0, 4);
   }, [product, products]);
 
-  const handleAddToCart = (shouldNotify: boolean = true) => {
+  const handleAddToCart = () => {
     if (isOutOfStock) return;
     playSound('add_to_cart');
     addToCart(product, quantity, selectedVariant || undefined);
-    if (shouldNotify) {
-      const variantLabel = selectedVariant ? ` (${selectedVariant.name})` : '';
-      setAddedToast(`${product.name}${variantLabel} × ${quantity}`);
-      setTimeout(() => setAddedToast(null), 3500);
-    }
+    setIsAdded(true);
+    setTimeout(() => setIsAdded(false), 1800);
   };
 
   const handleBuyNow = () => {
@@ -195,18 +194,21 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
       } catch (_) {}
     } else {
       navigator.clipboard.writeText(window.location.href);
-      setAddedToast('Product link copied to clipboard!');
-      setTimeout(() => setAddedToast(null), 2500);
+      setCopiedToast(true);
+      setTimeout(() => setCopiedToast(false), 2500);
     }
   };
 
   const handleBack = () => {
     playSound('nav_click');
-    const destination = resolveProductBackDestination(product, slug);
-    if (onNavigateBack) {
+    if (typeof window !== 'undefined' && window.history.length > 1) {
+      window.history.back();
+    } else if (onNavigateBack) {
+      const destination = resolveProductBackDestination(product, slug);
       onNavigateBack(destination);
-    } else if (onNavigateCategory && (destination === '/hair-care' || destination === '/skin-care' || destination === '/tribal-wellness')) {
-      onNavigateCategory(destination);
+    } else if (onNavigateCategory && (product.category === 'Hair Care' || product.category === 'Skin Care' || product.category === 'Tribal Wellness')) {
+      const catRoute = getProductCategoryRoute(product);
+      onNavigateCategory(catRoute);
     } else {
       onNavigateHome();
     }
@@ -221,11 +223,11 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
         onNavigateProduct={onNavigateProduct}
       />
 
-      {/* Toast Notification */}
-      {addedToast && (
+      {/* Copy link toast Notification */}
+      {copiedToast && (
         <div className="fixed bottom-24 sm:bottom-8 left-4 sm:left-8 z-50 bg-[#123F2A] text-[var(--brand-gold)] dark:bg-[var(--brand-gold)] dark:text-[#0B2F20] px-5 py-3.5 rounded-xl shadow-2xl font-sans text-xs font-bold flex items-center gap-3 border border-[var(--brand-gold)]/40 animate-in slide-in-from-bottom duration-300">
           <Check className="w-5 h-5 bg-[var(--brand-gold)] text-[#123F2A] rounded-full p-1 shrink-0" />
-          <span>{addedToast}</span>
+          <span>Product link copied to clipboard!</span>
         </div>
       )}
 
@@ -456,15 +458,28 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   <button
                     type="button"
                     disabled={isOutOfStock}
-                    onClick={() => handleAddToCart(true)}
-                    className="hidden sm:flex flex-1 h-12 px-6 rounded-xl bg-[#123F2A] hover:bg-[#0B2F20] dark:bg-white dark:text-[#0B2F20] text-white font-sans text-xs sm:text-sm font-bold uppercase tracking-wider transition-all items-center justify-center gap-2 shadow-lg active:scale-98 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
+                    onClick={handleAddToCart}
+                    className={`hidden sm:flex flex-1 h-12 px-6 rounded-xl font-sans text-xs sm:text-sm font-bold uppercase tracking-wider transition-all items-center justify-center gap-2 shadow-lg active:scale-98 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
+                      isAdded
+                        ? 'bg-emerald-700 hover:bg-emerald-800 text-white border border-emerald-500 shadow-emerald-900/30'
+                        : 'bg-[#123F2A] hover:bg-[#0B2F20] dark:bg-white dark:text-[#0B2F20] text-white'
+                    }`}
                   >
-                    <ShoppingBag className="w-4 h-4 text-[var(--brand-gold)] dark:text-[#0B2F20]" />
-                    <span>
-                      {isOutOfStock
-                        ? 'Sold Out'
-                        : `Add to Bag • ${formatPrice(activePriceINR * quantity)}`}
-                    </span>
+                    {isAdded ? (
+                      <>
+                        <Check className="w-4 h-4 text-[var(--brand-gold,#C9A84E)] stroke-[3]" />
+                        <span>✓ ADDED TO CART</span>
+                      </>
+                    ) : (
+                      <>
+                        <ShoppingBag className="w-4 h-4 text-[var(--brand-gold)] dark:text-[#0B2F20]" />
+                        <span>
+                          {isOutOfStock
+                            ? 'Sold Out'
+                            : `Add to Bag • ${formatPrice(activePriceINR * quantity)}`}
+                        </span>
+                      </>
+                    )}
                   </button>
 
                   {/* Wishlist Button (Desktop only - mobile uses gallery heart overlay) */}
@@ -639,14 +654,15 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                           playSound('wishlist_toggle');
                           toggleWishlist(relProduct.id);
                         }}
-                        className={`absolute top-3 right-3 p-2 rounded-full backdrop-blur-md transition-all shadow-md z-10 cursor-pointer ${
+                        className={`absolute top-2.5 right-2.5 sm:top-3 sm:right-3 w-10 h-10 rounded-full transition-all duration-200 shadow-md flex items-center justify-center z-10 cursor-pointer active:scale-95 ${
                           relInWish
-                            ? 'bg-rose-500 text-white'
-                            : 'bg-black/40 text-white hover:bg-white hover:text-rose-500'
+                            ? 'bg-[#0B4A35] text-[var(--brand-gold,#C9A84E)] border border-[var(--brand-gold,#C9A84E)]/60 shadow-[0_2px_8px_rgba(11,74,53,0.35)]'
+                            : 'bg-white/95 text-[#0B4A35] border border-[rgba(201,168,76,0.35)] hover:border-[#0B4A35]/50 hover:bg-white hover:text-[#0B4A35] hover:scale-105'
                         }`}
-                        aria-label={`Add ${relProduct.name} to wishlist`}
+                        aria-label={relInWish ? `Remove ${relProduct.name} from wishlist` : `Add ${relProduct.name} to wishlist`}
+                        title={relInWish ? 'In Wishlist' : 'Add to Wishlist'}
                       >
-                        <Heart className={`w-4 h-4 ${relInWish ? 'fill-current' : ''}`} />
+                        <Heart className={`w-4 h-4 transition-transform ${relInWish ? 'fill-current scale-105' : ''}`} />
                       </button>
 
                       {/* Quick View Button on Hover */}
@@ -699,13 +715,26 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                             e.stopPropagation();
                             playSound('add_to_cart');
                             addToCart(relProduct, 1);
-                            setAddedToast(`Added '${relProduct.name}' to cart`);
-                            setTimeout(() => setAddedToast(null), 3000);
+                            setAddedRelProductId(relProduct.id);
+                            setTimeout(() => setAddedRelProductId(null), 1800);
                           }}
-                          className="py-1.5 px-3 bg-[#123F2A] hover:bg-[#0B2F20] text-white rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer transition-colors shadow-xs"
+                          className={`py-1.5 px-3 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer transition-all shadow-xs active:scale-95 ${
+                            addedRelProductId === relProduct.id
+                              ? 'bg-emerald-700 text-white'
+                              : 'bg-[#123F2A] hover:bg-[#0B2F20] text-white'
+                          }`}
                         >
-                          <ShoppingBag className="w-3.5 h-3.5" />
-                          <span>Add</span>
+                          {addedRelProductId === relProduct.id ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-[var(--brand-gold,#C9A84E)] stroke-[3]" />
+                              <span>Added</span>
+                            </>
+                          ) : (
+                            <>
+                              <ShoppingBag className="w-3.5 h-3.5" />
+                              <span>Add</span>
+                            </>
+                          )}
                         </button>
                       </div>
                     </div>
@@ -723,9 +752,10 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
         selectedVariant={selectedVariant}
         quantity={quantity}
         onQuantityChange={setQuantity}
-        onAddToCart={() => handleAddToCart(true)}
+        onAddToCart={handleAddToCart}
         onBuyNow={handleBuyNow}
         formatPrice={formatPrice}
+        isAdded={isAdded}
       />
     </div>
   );

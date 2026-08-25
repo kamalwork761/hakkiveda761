@@ -86,7 +86,11 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
       setCurrentPathname(window.location.pathname);
     };
     window.addEventListener('popstate', handlePopState);
-    return () => window.removeEventListener('popstate', handlePopState);
+    window.addEventListener('app:navigate', handlePopState);
+    return () => {
+      window.removeEventListener('popstate', handlePopState);
+      window.removeEventListener('app:navigate', handlePopState);
+    };
   }, []);
 
   // Determine if this is a Product Detail Page or Category Listing Page

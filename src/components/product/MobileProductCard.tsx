@@ -77,14 +77,15 @@ export const MobileProductCard: React.FC<MobileProductCardProps> = ({
         <button
           type="button"
           onClick={handleWishlistClick}
-          aria-label={inWishlist ? 'Remove from wishlist' : 'Add to wishlist'}
-          className={`absolute top-2 right-2 p-1.5 rounded-full backdrop-blur-md transition-all shadow-xs z-10 ${
+          aria-label={inWishlist ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
+          title={inWishlist ? 'In Wishlist' : 'Add to Wishlist'}
+          className={`absolute top-2 right-2 w-10 h-10 rounded-full transition-all duration-200 shadow-md flex items-center justify-center z-10 cursor-pointer active:scale-95 ${
             inWishlist
-              ? 'bg-rose-500 text-white'
-              : 'bg-black/35 text-white hover:bg-white hover:text-rose-500'
+              ? 'bg-[#0B4A35] text-[var(--brand-gold,#C9A84E)] border border-[var(--brand-gold,#C9A84E)]/60 shadow-[0_2px_8px_rgba(11,74,53,0.35)]'
+              : 'bg-white/95 text-[#0B4A35] border border-[rgba(201,168,76,0.35)] hover:border-[#0B4A35]/50 hover:bg-white hover:text-[#0B4A35]'
           }`}
         >
-          <Heart className={`w-3.5 h-3.5 ${inWishlist ? 'fill-current' : ''}`} />
+          <Heart className={`w-4 h-4 transition-transform ${inWishlist ? 'fill-current scale-105' : ''}`} />
         </button>
       </div>
 

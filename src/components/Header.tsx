@@ -25,6 +25,7 @@ import { useStore } from '../context/StoreContext';
 import { NavLink } from '../types/store';
 import { HakkivedaWordmark } from './HakkivedaWordmark';
 import { MobileBottomNav } from './MobileBottomNav';
+import { MobileNavDrawer } from './MobileNavDrawer';
 import { SoundToggle } from './SoundToggle';
 import { getProductUrl } from '../utils/productUtils';
 
@@ -72,9 +73,13 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
     navLinks,
     headerLayoutSettings,
     trackNavClick,
+    mobileNavConfig,
   } = useStore();
 
+  const isBottomNavEnabled = mobileNavConfig?.bottomNavEnabled === true;
+
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [isMobileSearchOpen, setIsMobileSearchOpen] = useState(false);
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState('');
   const [isSearchFocused, setIsSearchFocused] = useState(false);
@@ -513,36 +518,227 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
         </div>
       )}
 
-      {/* Main Header Container */}
-      <div className="bg-[var(--brand-primary-dark)]/95 backdrop-blur-md border-b border-[var(--brand-gold)]/20 px-3 sm:px-8 py-2 sm:py-2.5 flex items-center justify-between shadow-2xl relative">
+      {/* NEW MOBILE HEADER CONTAINER (lg:hidden) */}
+      <div className="flex lg:hidden bg-[var(--brand-primary-dark)]/95 backdrop-blur-md border-b border-[var(--brand-gold)]/20 px-2.5 sm:px-4 py-2 items-center justify-between shadow-2xl relative z-40">
+        {/* Left Area: Hamburger Menu + Compact Round Search */}
+        <div className="flex items-center gap-1.5 xs:gap-2 shrink-0 z-10">
+          <button
+            onClick={() => {
+              playSound('menu_toggle');
+              setIsMobileSearchOpen(false);
+              setIsMobileMenuOpen(!isMobileMenuOpen);
+            }}
+            className="w-8.5 h-8.5 xs:w-9 xs:h-9 flex items-center justify-center rounded-full bg-black/25 border border-[var(--brand-gold)]/30 text-slate-200 hover:text-[var(--brand-gold)] active:scale-95 transition-all shadow-xs"
+            id="mobile-menu-btn"
+            aria-label="Toggle navigation menu"
+            title="Menu"
+          >
+            {isMobileMenuOpen ? (
+              <X className="w-4.5 h-4.5 text-[var(--brand-gold)]" />
+            ) : (
+              <Menu className="w-4.5 h-4.5 text-[var(--brand-gold)]" />
+            )}
+          </button>
+
+          <button
+            onClick={() => {
+              playSound('search');
+              setIsMobileMenuOpen(false);
+              setIsMobileSearchOpen(!isMobileSearchOpen);
+            }}
+            className={`w-8.5 h-8.5 xs:w-9 xs:h-9 flex items-center justify-center rounded-full border transition-all active:scale-95 shadow-xs ${
+              isMobileSearchOpen
+                ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] border-[var(--brand-gold)] shadow-md'
+                : 'bg-black/25 border-[var(--brand-gold)]/30 text-slate-200 hover:text-[var(--brand-gold)]'
+            }`}
+            id="mobile-search-toggle-btn"
+            aria-label="Toggle search"
+            title="Search products"
+          >
+            <Search className="w-4 h-4" />
+          </button>
+        </div>
+
+        {/* Center Area: HV Logo + Animated HAKKIVEDA Word Branding */}
+        <div className="flex-1 flex items-center justify-center min-w-0 px-1">
+          <a
+            href="/"
+            onClick={handleHomeClick}
+            className="flex items-center gap-1.5 xs:gap-2 group cursor-pointer transition-opacity duration-200 hover:opacity-90 active:scale-[0.99] min-w-0 max-w-full justify-center"
+            title="Return to Homepage"
+            id="mobile-header-home-logo-link"
+          >
+            {uploadedLogoUrl && !logoLoadError ? (
+              <div className="flex items-center justify-center shrink-0">
+                <img
+                  src={mobileUploadedLogoUrl || uploadedLogoUrl}
+                  alt={brandIdentity?.brandName || siteSettings?.companyName || 'HAKKIVEDA Logo'}
+                  className="h-7 max-h-7 max-w-[28px] xs:h-8 xs:max-h-8 xs:max-w-[32px] w-auto object-contain transition-transform duration-300"
+                  onError={() => setLogoLoadError(true)}
+                  loading="eager"
+                  decoding="async"
+                />
+              </div>
+            ) : (
+              <div className="w-6.5 h-6.5 xs:w-7.5 xs:h-7.5 border border-[var(--brand-gold,#D4AF37)] flex items-center justify-center rotate-45 group-hover:bg-[var(--brand-gold,#D4AF37)] transition-all duration-300 shadow-sm shrink-0">
+                <span className="-rotate-45 font-bold font-brand text-[var(--brand-gold,#D4AF37)] group-hover:text-[#123F2A] text-[9px] xs:text-[10px] tracking-tighter">
+                  {brandIdentity?.brandInitials || siteSettings?.logoInitials || 'HV'}
+                </span>
+              </div>
+            )}
+
+            <div className="flex flex-col justify-center min-w-0 text-left">
+              <HakkivedaWordmark size="sm" theme="dark-header" className="max-w-[105px] xs:max-w-[125px] sm:max-w-[145px]" />
+              <span className="text-[6px] xs:text-[7px] tracking-[0.14em] xs:tracking-[0.18em] font-sans text-[var(--brand-gold)]/85 font-semibold uppercase -mt-0.5 truncate drop-shadow-xs">
+                {brandIdentity?.brandSubtitle || siteSettings?.logoSubtext || 'Hakki-Pikki Tribe & Ayurveda'}
+              </span>
+            </div>
+          </a>
+        </div>
+
+        {/* Right Area: Cart Icon + Account Icon (Wishlist removed from top mobile header) */}
+        <div className="flex items-center gap-1.5 xs:gap-2 shrink-0 z-10">
+          {/* Cart Icon with Counter Badge */}
+          <button
+            onClick={() => {
+              playSound('menu_toggle');
+              setIsCartOpen(true);
+            }}
+            className="w-8.5 h-8.5 xs:w-9 xs:h-9 flex items-center justify-center rounded-full bg-black/25 border border-[var(--brand-gold)]/30 text-[var(--brand-gold)] hover:text-white transition-colors active:scale-95 relative shadow-xs"
+            id="mobile-cart-btn"
+            aria-label={`Cart (${cartItemsCount} items)`}
+            title="Shopping Bag"
+          >
+            <ShoppingBag className="w-4 h-4" />
+            {cartItemsCount > 0 && (
+              <span className="absolute -top-1 -right-1 bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] text-[9px] font-black rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center shadow-md">
+                {cartItemsCount}
+              </span>
+            )}
+          </button>
+
+          {/* User Account */}
+          <button
+            onClick={() => {
+              playSound('nav_click');
+              setIsAuthModalOpen(true);
+            }}
+            className="w-8.5 h-8.5 xs:w-9 xs:h-9 flex items-center justify-center rounded-full bg-black/25 border border-[var(--brand-gold)]/30 text-slate-200 hover:text-[var(--brand-gold)] transition-colors active:scale-95 relative shadow-xs"
+            title={currentUser ? `Account: ${currentUser.name}` : 'Login / Register'}
+            id="mobile-user-account-btn"
+            aria-label="User Account"
+          >
+            <User className="w-4 h-4" />
+            {currentUser && <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[var(--brand-gold)] shadow-xs"></span>}
+          </button>
+        </div>
+      </div>
+
+      {/* MOBILE COMPACT SEARCH EXPANDABLE BAR (lg:hidden) */}
+      {isMobileSearchOpen && (
+        <div className="lg:hidden bg-[var(--brand-primary-deeper)] border-b border-[var(--brand-gold)]/30 px-3 py-2.5 shadow-2xl animate-in slide-in-from-top duration-200 z-50 relative">
+          <div className="relative flex items-center gap-2">
+            <div className="relative flex-1">
+              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--brand-gold)]" />
+              <input
+                type="text"
+                autoFocus
+                placeholder="Search products, herbs..."
+                value={searchQuery}
+                onChange={(e) => setSearchQuery(e.target.value)}
+                className="w-full bg-black/40 border border-[var(--brand-gold)]/40 rounded-full pl-8 pr-8 py-1.5 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[var(--brand-gold)] transition-all"
+              />
+              {searchQuery && (
+                <button
+                  onClick={() => setSearchQuery('')}
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-0.5"
+                  aria-label="Clear search text"
+                >
+                  <X className="w-3.5 h-3.5" />
+                </button>
+              )}
+            </div>
+            <button
+              onClick={() => {
+                setIsMobileSearchOpen(false);
+                setSearchQuery('');
+              }}
+              className="text-[11px] font-bold text-[var(--brand-gold)] uppercase tracking-wider px-2 py-1 rounded hover:bg-white/5 shrink-0"
+            >
+              Cancel
+            </button>
+          </div>
+
+          {/* Live Mobile Search Autocomplete Results */}
+          {filteredProducts.length > 0 && searchQuery.trim() && (
+            <div className="mt-2 bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/30 rounded-xl p-2 max-h-60 overflow-y-auto space-y-1.5 shadow-2xl">
+              <div className="text-[9px] uppercase font-bold text-[var(--brand-gold)] px-2 py-0.5 tracking-wider border-b border-white/10 flex items-center justify-between">
+                <span>Matching Formulations</span>
+                <span className="text-slate-400">{filteredProducts.length} results</span>
+              </div>
+              {filteredProducts.map((prod) => (
+                <div
+                  key={prod.id}
+                  onClick={() => {
+                    playSound('nav_click');
+                    setIsMobileSearchOpen(false);
+                    setSearchQuery('');
+                    window.history.pushState({}, '', getProductUrl(prod));
+                    window.dispatchEvent(new PopStateEvent('popstate'));
+                    window.scrollTo({ top: 0, behavior: 'instant' });
+                  }}
+                  className="flex items-center gap-2.5 p-2 hover:bg-[var(--brand-primary-deeper)] rounded-lg cursor-pointer transition-colors"
+                >
+                  <img
+                    src={prod.image}
+                    alt={prod.name}
+                    className="w-9 h-9 object-contain rounded bg-black/30 p-0.5 border border-white/10 shrink-0"
+                  />
+                  <div className="min-w-0 flex-1">
+                    <div className="font-bold text-white text-xs truncate">{prod.name}</div>
+                    <div className="text-[10px] text-[var(--brand-gold)] truncate">{prod.subtitle}</div>
+                  </div>
+                  <div className="text-xs font-bold text-white shrink-0">
+                    ₹{prod.price}
+                  </div>
+                </div>
+              ))}
+            </div>
+          )}
+
+          {searchQuery.trim() && filteredProducts.length === 0 && (
+            <div className="mt-2 text-center py-3 text-xs text-slate-400">
+              No herbal formulations found for "{searchQuery}"
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* DESKTOP HEADER CONTAINER (hidden lg:flex) */}
+      <div className="hidden lg:flex bg-[var(--brand-primary-dark)]/95 backdrop-blur-md border-b border-[var(--brand-gold)]/20 px-8 py-2.5 items-center justify-between shadow-2xl relative">
         {/* Brand Logo & Wordmark (Navigates to "/" Homepage on click) */}
         <a
           href="/"
           onClick={handleHomeClick}
-          className="flex items-center gap-2.5 sm:gap-3.5 group min-w-0 shrink cursor-pointer transition-opacity duration-200 hover:opacity-90 active:scale-[0.99]"
+          className="flex items-center gap-3.5 group min-w-0 shrink cursor-pointer transition-opacity duration-200 hover:opacity-90 active:scale-[0.99]"
           title="Return to Homepage"
           id="header-home-logo-link"
         >
           {uploadedLogoUrl && !logoLoadError ? (
             <div className="flex items-center justify-center shrink-0">
-              <picture className="flex items-center">
-                {mobileUploadedLogoUrl !== uploadedLogoUrl && (
-                  <source media="(max-width: 639px)" srcSet={mobileUploadedLogoUrl} />
-                )}
-                <img
-                  src={uploadedLogoUrl}
-                  alt={brandIdentity?.brandName || siteSettings?.companyName || 'HAKKIVEDA Header Logo'}
-                  className="h-[44px] max-h-[44px] max-w-[44px] sm:h-[50px] sm:max-h-[50px] sm:max-w-[50px] lg:h-[58px] lg:max-h-[58px] lg:max-w-[58px] w-auto object-contain transition-transform duration-300 group-hover:scale-105"
-                  style={{ objectFit: 'contain' }}
-                  onError={() => setLogoLoadError(true)}
-                  loading="eager"
-                  decoding="async"
-                />
-              </picture>
+              <img
+                src={uploadedLogoUrl}
+                alt={brandIdentity?.brandName || siteSettings?.companyName || 'HAKKIVEDA Header Logo'}
+                className="h-[58px] max-h-[58px] max-w-[58px] w-auto object-contain transition-transform duration-300 group-hover:scale-105"
+                style={{ objectFit: 'contain' }}
+                onError={() => setLogoLoadError(true)}
+                loading="eager"
+                decoding="async"
+              />
             </div>
           ) : (
-            <div className="w-9 h-9 sm:w-11 sm:h-11 lg:w-12 lg:h-12 border-2 border-[var(--brand-gold,#D4AF37)] flex items-center justify-center rotate-45 group-hover:bg-[var(--brand-gold,#D4AF37)] transition-all duration-500 shadow-lg shrink-0">
-              <span className="-rotate-45 font-bold font-brand text-[var(--brand-gold,#D4AF37)] group-hover:text-[#123F2A] text-xs sm:text-sm lg:text-base tracking-tighter">
+            <div className="w-12 h-12 border-2 border-[var(--brand-gold,#D4AF37)] flex items-center justify-center rotate-45 group-hover:bg-[var(--brand-gold,#D4AF37)] transition-all duration-500 shadow-lg shrink-0">
+              <span className="-rotate-45 font-bold font-brand text-[var(--brand-gold,#D4AF37)] group-hover:text-[#123F2A] text-base tracking-tighter">
                 {brandIdentity?.brandInitials || siteSettings?.logoInitials || 'HV'}
               </span>
             </div>
@@ -550,7 +746,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
 
           <div className="flex flex-col justify-center min-w-0">
             <HakkivedaWordmark size="md" theme="dark-header" />
-            <span className="text-[7px] sm:text-[9px] tracking-[0.16em] sm:tracking-[0.28em] font-sans text-[#123F2A] font-semibold uppercase -mt-0.5 truncate drop-shadow-xs">
+            <span className="text-[9px] tracking-[0.28em] font-sans text-[#123F2A] font-semibold uppercase -mt-0.5 truncate drop-shadow-xs">
               {brandIdentity?.brandSubtitle || siteSettings?.logoSubtext || 'Hakki-Pikki Tribe & Ayurveda'}
             </span>
           </div>
@@ -558,7 +754,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
 
         {/* Dynamic Desktop Navigation Links */}
         {headerSettings.showMenu && (
-          <nav className="hidden lg:flex items-center gap-6 font-sans text-[11px] uppercase tracking-[0.2em] font-medium text-slate-200">
+          <nav className="flex items-center gap-6 font-sans text-[11px] uppercase tracking-[0.2em] font-medium text-slate-200">
             {rootNavLinks.map((item) => {
               const subLinks = getSubNavLinks(item.id);
               const hasMegaMenu = item.megaMenu?.enabled;
@@ -713,10 +909,10 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
           </nav>
         )}
 
-        {/* Header Right Actions */}
-        <div className="flex items-center gap-1.5 sm:gap-3 lg:gap-4 shrink-0">
+        {/* Desktop Header Right Actions */}
+        <div className="flex items-center gap-4 shrink-0">
           {/* Quick Search */}
-          <div className="relative hidden md:block w-44 lg:w-56">
+          <div className="relative w-44 lg:w-56">
             <div className="relative">
               <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--brand-gold)]" />
               <input
@@ -748,7 +944,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
                       setSearchQuery('');
                       window.history.pushState({}, '', getProductUrl(prod));
                       window.dispatchEvent(new PopStateEvent('popstate'));
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
+                      window.scrollTo({ top: 0, behavior: 'instant' });
                     }}
                     className="flex items-center gap-3 p-2 hover:bg-[var(--brand-primary-dark)] rounded-lg cursor-pointer transition-colors"
                   >
@@ -764,9 +960,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
           </div>
 
           {/* Sound Toggle Button (Desktop/Tablet) */}
-          <div className="hidden sm:block">
-            <SoundToggle variant="header" />
-          </div>
+          <SoundToggle variant="header" />
 
           {/* User Account */}
           <button
@@ -806,226 +1000,25 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
               playSound('menu_toggle');
               setIsCartOpen(true);
             }}
-            className="text-[var(--brand-gold)] hover:text-white transition-colors p-1 relative flex items-center gap-1.5 bg-black/30 border border-[var(--brand-gold)]/40 px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full"
+            className="text-[var(--brand-gold)] hover:text-white transition-colors p-1 relative flex items-center gap-1.5 bg-black/30 border border-[var(--brand-gold)]/40 px-3 py-1.5 rounded-full"
             id="cart-btn"
           >
             <ShoppingBag className="w-4 h-4" />
             <span className="text-xs font-bold">{cartItemsCount}</span>
           </button>
-
-          {/* Mobile Menu Toggle */}
-          <button
-            onClick={() => {
-              playSound('menu_toggle');
-              setIsMobileMenuOpen(!isMobileMenuOpen);
-            }}
-            className="lg:hidden text-slate-200 hover:text-[var(--brand-gold)] p-1.5 rounded-lg bg-black/20 border border-[var(--brand-gold)]/30 active:scale-95 transition-all"
-            id="mobile-menu-btn"
-            aria-label="Toggle navigation menu"
-          >
-            {isMobileMenuOpen ? <X className="w-5 h-5 text-[var(--brand-gold)]" /> : <Menu className="w-5 h-5 text-[var(--brand-gold)]" />}
-          </button>
         </div>
       </div>
 
-      {/* Mobile Drawer Menu */}
-      {isMobileMenuOpen && (
-        <div className="lg:hidden bg-[var(--brand-primary-deeper)] border-b border-[var(--brand-gold)]/30 px-5 py-5 space-y-3 font-sans text-xs uppercase tracking-widest shadow-2xl animate-in slide-in-from-top duration-300 z-50 relative">
-          {/* Mobile Search Box */}
-          <div className="relative pb-2">
-            <Search className="w-3.5 h-3.5 absolute left-3 top-3 text-[var(--brand-gold)]" />
-            <input
-              type="text"
-              placeholder="Search products or herbs..."
-              value={searchQuery}
-              onChange={(e) => setSearchQuery(e.target.value)}
-              className="w-full bg-[var(--brand-primary-deeper)] border border-[var(--brand-gold)]/30 rounded-xl pl-8 pr-3 py-2 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[var(--brand-gold)]"
-            />
-            {filteredProducts.length > 0 && searchQuery.trim() && (
-              <div className="mt-2 bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/30 rounded-lg p-2 max-h-48 overflow-y-auto space-y-2">
-                {filteredProducts.map((prod) => (
-                  <div
-                    key={prod.id}
-                    onClick={() => {
-                      setIsMobileMenuOpen(false);
-                      setSearchQuery('');
-                      window.history.pushState({}, '', getProductUrl(prod));
-                      window.dispatchEvent(new PopStateEvent('popstate'));
-                      window.scrollTo({ top: 0, behavior: 'smooth' });
-                    }}
-                    className="flex items-center gap-2 p-1.5 hover:bg-[var(--brand-primary-deeper)] rounded cursor-pointer"
-                  >
-                    <img src={prod.image} alt={prod.name} className="w-8 h-8 object-contain rounded bg-black/30 p-0.5 border border-white/10" />
-                    <div>
-                      <div className="font-bold text-white text-[11px] normal-case">{prod.name}</div>
-                      <div className="text-[9px] text-[var(--brand-gold)] normal-case">{prod.subtitle}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
+      {/* Mobile Navigation Drawer (Phase 2 Redesign) */}
+      <MobileNavDrawer
+        isOpen={isMobileMenuOpen}
+        onClose={() => setIsMobileMenuOpen(false)}
+        selectedCategory={selectedCategory}
+        onSelectCategory={onSelectCategory}
+      />
 
-          {/* Collections & Categories Section */}
-          <div className="border-b border-white/10 pb-2">
-            <div className="flex items-center justify-between py-1 text-[var(--brand-gold)] font-bold text-[10px] tracking-widest uppercase">
-              <span>Botanical Categories</span>
-            </div>
-            <div className="grid grid-cols-2 gap-1.5 mt-1.5">
-              <button
-                onClick={() => {
-                  if (onSelectCategory) onSelectCategory('ALL');
-                  setIsMobileMenuOpen(false);
-                }}
-                className={`text-left p-2 rounded-lg text-[11px] font-semibold transition-all ${
-                  selectedCategory === 'ALL'
-                    ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold'
-                    : 'bg-[var(--brand-primary-dark)] text-slate-200 hover:text-[var(--brand-gold)]'
-                }`}
-              >
-                All Formulations
-              </button>
-              {categories
-                .filter((c) => (c.status || 'ACTIVE') === 'ACTIVE' && c.showInNav !== false)
-                .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
-                .map((cat) => (
-                <button
-                  key={cat.id}
-                  onClick={() => {
-                    if (onSelectCategory) onSelectCategory(cat.name);
-                    setIsMobileMenuOpen(false);
-                  }}
-                  className={`text-left p-2 rounded-lg text-[11px] font-semibold transition-all line-clamp-1 ${
-                    selectedCategory === cat.name
-                      ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold'
-                      : 'bg-[var(--brand-primary-dark)] text-slate-200 hover:text-[var(--brand-gold)]'
-                  }`}
-                >
-                  {cat.name}
-                </button>
-              ))}
-            </div>
-          </div>
-
-          {/* Dynamic Mobile Nav Links */}
-          <div className="space-y-2 pt-1">
-            {activeNavLinks
-              .filter((l) => l.showOnMobile !== false && !l.parentId)
-              .map((link) => {
-                const subLinks = getSubNavLinks(link.id);
-
-                return (
-                  <div key={link.id} className="space-y-1">
-                    <button
-                      onClick={() => {
-                        setIsMobileMenuOpen(false);
-                        handleNavClick(link);
-                      }}
-                      className="w-full text-left py-2 px-3 bg-[var(--brand-primary-dark)] rounded-xl text-slate-200 hover:text-[var(--brand-gold)] font-semibold text-xs flex items-center justify-between border border-white/5"
-                    >
-                      <div className="flex items-center gap-2">
-                        {renderNavIcon(link.icon, 'w-4 h-4 text-[var(--brand-gold)]')}
-                        <span>{link.label}</span>
-                      </div>
-                      {renderBadgeTag(link.badge, link.badgeCustomText)}
-                    </button>
-
-                    {/* Sub Links in Mobile */}
-                    {subLinks.length > 0 && (
-                      <div className="ml-4 space-y-1 pl-2 border-l border-[var(--brand-gold)]/30">
-                        {subLinks.map((sub) => (
-                          <button
-                            key={sub.id}
-                            onClick={() => {
-                              setIsMobileMenuOpen(false);
-                              handleNavClick(sub);
-                            }}
-                            className="w-full text-left py-1.5 px-2 text-xs text-slate-300 hover:text-[var(--brand-gold)] flex items-center justify-between"
-                          >
-                            <span>{sub.label}</span>
-                            {renderBadgeTag(sub.badge, sub.badgeCustomText)}
-                          </button>
-                        ))}
-                      </div>
-                    )}
-
-                    {/* Mega Menu Columns in Mobile */}
-                    {link.megaMenu?.enabled && link.megaMenu.columns && link.megaMenu.columns.length > 0 && (
-                      <div className="ml-3 space-y-2.5 pl-3 border-l border-[var(--brand-gold)]/30 pt-1 pb-1">
-                        {link.megaMenu.columns
-                          .filter((c) => c.enabled !== false)
-                          .map((col) => (
-                            <div key={col.id} className="space-y-1">
-                              <div className="text-[10px] font-bold uppercase tracking-wider text-[var(--brand-gold)]">
-                                {col.title}
-                              </div>
-                              <div className="space-y-1 pl-1">
-                                {(col.links || [])
-                                  .filter((l) => l.enabled !== false)
-                                  .map((lnk, lIdx) => {
-                                    const isValid = Boolean(lnk.url && lnk.url.trim() && lnk.url !== '#');
-                                    return (
-                                      <button
-                                        key={lIdx}
-                                        onClick={() => {
-                                          if (isValid) {
-                                            handleMegaMenuLinkClick(lnk.url, lnk.label);
-                                          }
-                                        }}
-                                        className={`w-full text-left py-1 px-1.5 text-xs flex items-center justify-between rounded ${
-                                          isValid
-                                            ? 'text-slate-300 hover:text-[var(--brand-gold)] hover:bg-white/5'
-                                            : 'text-slate-500 opacity-60 cursor-not-allowed'
-                                        }`}
-                                      >
-                                        <span>{lnk.label}</span>
-                                        {renderBadgeTag(lnk.badge as any, lnk.badgeCustomText)}
-                                      </button>
-                                    );
-                                  })}
-                              </div>
-                            </div>
-                          ))}
-
-                        {link.megaMenu.featuredImageUrl && link.megaMenu.featuredImageUrl.trim() !== '' && (
-                          <div
-                            onClick={() => {
-                              if (link.megaMenu?.featuredImageLink) {
-                                handleMegaMenuLinkClick(link.megaMenu.featuredImageLink, link.megaMenu.featuredImageTitle);
-                              }
-                            }}
-                            className={`mt-2 bg-[var(--brand-primary-deeper)] p-2 rounded-lg border border-white/10 flex items-center gap-2.5 ${
-                              link.megaMenu?.featuredImageLink ? 'cursor-pointer' : ''
-                            }`}
-                          >
-                            <img
-                              src={link.megaMenu.featuredImageUrl}
-                              alt={link.megaMenu.featuredImageTitle || 'Featured'}
-                              className="w-12 h-12 rounded object-cover border border-white/10 shrink-0"
-                            />
-                            <div className="flex-1 min-w-0">
-                              <div className="text-xs font-bold text-slate-100 truncate">
-                                {link.megaMenu.featuredImageTitle || 'Featured Formulation'}
-                              </div>
-                              {link.megaMenu.featuredImageSubtitle && (
-                                <div className="text-[10px] text-slate-400 truncate">
-                                  {link.megaMenu.featuredImageSubtitle}
-                                </div>
-                              )}
-                            </div>
-                          </div>
-                        )}
-                      </div>
-                    )}
-                  </div>
-                );
-              })}
-          </div>
-        </div>
-      )}
-
-      {/* Floating Mobile Bottom Navigation Bar (Homepage / General views only) */}
-      {!isSpecialBarPage && (
+      {/* Floating Mobile Bottom Navigation Bar (Homepage / General views only - When Enabled in Admin) */}
+      {!isSpecialBarPage && isBottomNavEnabled && (
         <MobileBottomNav
           onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
           isMobileMenuOpen={isMobileMenuOpen}

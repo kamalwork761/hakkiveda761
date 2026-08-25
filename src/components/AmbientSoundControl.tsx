@@ -14,7 +14,10 @@ export const AmbientSoundControl: React.FC = () => {
     setAmbientPreset,
     adminMutedSound,
     playSound,
+    mobileNavConfig,
   } = useStore();
+
+  const isBottomNavEnabled = mobileNavConfig?.bottomNavEnabled === true;
 
   const [isOpen, setIsOpen] = useState(false);
   const [hasInteracted, setHasInteracted] = useState(false);
@@ -80,7 +83,9 @@ export const AmbientSoundControl: React.FC = () => {
     ? 'calc(76px + env(safe-area-inset-bottom, 0px))'
     : isCategory
     ? 'calc(62px + env(safe-area-inset-bottom, 0px))'
-    : 'calc(68px + env(safe-area-inset-bottom, 0px))';
+    : isBottomNavEnabled
+    ? 'calc(68px + env(safe-area-inset-bottom, 0px))'
+    : 'calc(18px + env(safe-area-inset-bottom, 0px))';
 
   return (
     <>

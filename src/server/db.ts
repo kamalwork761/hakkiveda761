@@ -29,6 +29,7 @@ import {
   INITIAL_SHOPPABLE_REELS,
   INITIAL_CATEGORY_PAGES,
   INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG,
+  INITIAL_MOBILE_NAV_CONFIG,
 } from '../data/initialData';
 
 const dbDir = process.env.DB_DIR || path.join(process.cwd(), 'data');
@@ -148,6 +149,7 @@ export async function getDb() {
       shoppable_reels: INITIAL_SHOPPABLE_REELS,
       category_pages: INITIAL_CATEGORY_PAGES,
       homepage_quiz_banner_config: INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG,
+      mobile_nav_config: INITIAL_MOBILE_NAV_CONFIG,
       max_bestsellers_count: 8,
       seeded: true,
     };
@@ -156,6 +158,11 @@ export async function getDb() {
     await flushToDisk();
     console.log('[File DB] Successfully seeded initial store records!');
   } else {
+    // Ensure mobile_nav_config is seeded if missing in existing database
+    if (!store.mobile_nav_config) {
+      store.mobile_nav_config = INITIAL_MOBILE_NAV_CONFIG;
+      await flushToDisk();
+    }
     console.log('[File DB] Loaded existing database from', dbPath);
   }
 
@@ -166,6 +173,7 @@ export async function getStoreValue<T = any>(key: string): Promise<T | null> {
   const store = loadMemoryFromDisk();
   if (!(key in store)) {
     if (key === 'homepage_quiz_banner_config') return INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG as unknown as T;
+    if (key === 'mobile_nav_config') return INITIAL_MOBILE_NAV_CONFIG as unknown as T;
     return null;
   }
   return store[key] as T;

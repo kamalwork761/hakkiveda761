@@ -36,6 +36,7 @@ import {
   ShiprocketSettings,
   CategoryPageConfig,
   HomepageQuizBannerConfig,
+  MobileNavConfig,
 } from '../types/store';
 import {
   INITIAL_CURRENCIES,
@@ -68,6 +69,7 @@ import {
   INITIAL_SHOPPABLE_REELS,
   INITIAL_CATEGORY_PAGES,
   INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG,
+  INITIAL_MOBILE_NAV_CONFIG,
 } from '../data/initialData';
 import { hashPassword, DEFAULT_ADMIN_EMAIL, DEFAULT_ADMIN_PASSWORD_PLAIN } from '../utils/auth';
 import { idbGet, idbSet, idbClear } from '../utils/idbStorage';
@@ -341,6 +343,11 @@ interface StoreContextType {
   // Best Sellers Settings
   maxBestSellersCount: number;
   updateMaxBestSellersCount: (count: number) => Promise<boolean>;
+
+  // Mobile Navigation Manager (Phase 3)
+  mobileNavConfig: MobileNavConfig;
+  updateMobileNavConfig: (partial: Partial<MobileNavConfig>) => Promise<boolean>;
+  resetMobileNavConfig: () => Promise<boolean>;
 
   dbSyncStatus: 'loading' | 'synced' | 'saving' | 'error';
   serverSaveError: string | null;
@@ -1055,6 +1062,47 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   };
 
+  // Mobile Navigation Manager (Phase 3)
+  const [mobileNavConfig, setMobileNavConfig] = useState<MobileNavConfig>(() =>
+    getStored('mobile_nav_config', INITIAL_MOBILE_NAV_CONFIG)
+  );
+
+  const updateMobileNavConfig = async (partial: Partial<MobileNavConfig>): Promise<boolean> => {
+    const next: MobileNavConfig = { ...mobileNavConfig, ...partial };
+    setMobileNavConfig(next);
+    setStored('mobile_nav_config', next);
+    setDbSyncStatus('saving');
+    try {
+      const res = await fetch('/api/store/mobile_nav_config', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: next, data: next }),
+      });
+      if (!res.ok) throw new Error(`HTTP ${res.status}`);
+      setDbSyncStatus('synced');
+      return true;
+    } catch (err) {
+      console.error('[StoreContext] Failed to persist mobile_nav_config:', err);
+      setDbSyncStatus('error');
+      return false;
+    }
+  };
+
+  const resetMobileNavConfig = async (): Promise<boolean> => {
+    setMobileNavConfig(INITIAL_MOBILE_NAV_CONFIG);
+    setStored('mobile_nav_config', INITIAL_MOBILE_NAV_CONFIG);
+    try {
+      await fetch('/api/store/mobile_nav_config', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ value: INITIAL_MOBILE_NAV_CONFIG, data: INITIAL_MOBILE_NAV_CONFIG }),
+      });
+      return true;
+    } catch (err) {
+      return false;
+    }
+  };
+
   // Nav Links
   const [navLinks, setNavLinks] = useState<NavLink[]>(() => {
     const raw = getStored('nav_links', INITIAL_NAV_LINKS);
@@ -1676,6 +1724,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           if (Array.isArray(d.payment_logs)) setPaymentLogs(d.payment_logs);
           if (Array.isArray(d.category_pages)) setCategoryPages(d.category_pages);
           if (typeof d.max_bestsellers_count === 'number') setMaxBestSellersCount(d.max_bestsellers_count);
+          if (d.mobile_nav_config) setMobileNavConfig(d.mobile_nav_config);
 
           setDbSyncStatus('synced');
         }
@@ -3038,6 +3087,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         reorderCategoryPages,
         maxBestSellersCount,
         updateMaxBestSellersCount,
+        mobileNavConfig,
+        updateMobileNavConfig,
+        resetMobileNavConfig,
         dbSyncStatus,
         serverSaveError,
         resetToDefaults,

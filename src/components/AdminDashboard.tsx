@@ -20,12 +20,14 @@ import { AdminShiprocketManager } from './AdminShiprocketManager';
 import { AdminOrderManager } from './AdminOrderManager';
 import { AdminCategoryPageManager } from './AdminCategoryPageManager';
 import { AdminProductManager } from './admin/AdminProductManager';
+import { AdminMobileNavManager } from './AdminMobileNavManager';
 import {
   Lock,
   LayoutDashboard,
   Package,
   Layers,
   Sliders,
+  Smartphone,
   ShoppingBag,
   Building2,
   Tag,
@@ -690,6 +692,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             >
               <Navigation className="w-4 h-4" />
               <span>Navigation Menu</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('mobile_nav')}
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
+                activeTab === 'mobile_nav' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
+              }`}
+            >
+              <Smartphone className="w-4 h-4" />
+              <span>Mobile Navigation</span>
             </button>
             <button
               onClick={() => setActiveTab('reviews')}
@@ -1413,6 +1424,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
 
         {/* Tab 7: Navigation Menu */}
         {activeTab === 'nav' && <AdminNavManager showToast={showToast} />}
+
+        {/* Tab 7.5: Mobile Navigation Manager (Phase 3) */}
+        {activeTab === 'mobile_nav' && <AdminMobileNavManager showToast={showToast} />}
 
         {/* Reviews & Ratings Module */}
         {activeTab === 'reviews' && <AdminReviewsManager showToast={showToast} />}

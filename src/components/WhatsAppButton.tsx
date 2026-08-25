@@ -1,12 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { MessageCircle, X, PhoneCall, Sparkles } from 'lucide-react';
+import { useStore } from '../context/StoreContext';
 
 export const WhatsAppButton: React.FC = () => {
+  const { mobileNavConfig } = useStore();
   const [showTooltip, setShowTooltip] = useState(false);
   const [pathname, setPathname] = useState(window.location.pathname);
   const phoneNumber = '917619536831';
   const displayPhone = '+91 76195 36831';
   const defaultMessage = 'Namaste HAKKIVEDA! I have a question about your 42-herb tribal hair oil and products.';
+
+  const isBottomNavEnabled = mobileNavConfig?.bottomNavEnabled === true;
 
   const whatsappUrl = `https://wa.me/${phoneNumber}?text=${encodeURIComponent(defaultMessage)}`;
 
@@ -33,18 +37,21 @@ export const WhatsAppButton: React.FC = () => {
     pathname === '/tribal-wellness' ||
     pathname.startsWith('/categories/');
 
-  // Dynamic mobile bottom offset based on page sticky bars
+  // Dynamic mobile bottom offset based on page sticky bars & bottom navigation setting:
   // PDP: Add to Cart / Buy Now bar (~64px) -> offset ~76px
   // Category: Sort/Filter bar (~48px) -> offset ~62px
   // Reviews: No sticky bar -> offset ~18px
-  // Homepage / Others: Global Bottom Nav (~56px) -> offset ~68px
+  // Homepage / Others with Bottom Nav ON: offset ~68px
+  // Homepage / Others with Bottom Nav OFF: sits cleanly above bottom safe area (~18px)
   const mobileBottomStyle = isReviewsPage
     ? 'calc(18px + env(safe-area-inset-bottom, 0px))'
     : isPdp
     ? 'calc(76px + env(safe-area-inset-bottom, 0px))'
     : isCategory
     ? 'calc(62px + env(safe-area-inset-bottom, 0px))'
-    : 'calc(68px + env(safe-area-inset-bottom, 0px))';
+    : isBottomNavEnabled
+    ? 'calc(68px + env(safe-area-inset-bottom, 0px))'
+    : 'calc(18px + env(safe-area-inset-bottom, 0px))';
 
   return (
     <div

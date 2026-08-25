@@ -1013,3 +1013,79 @@ export interface CategoryPageConfig {
   sections: CategoryPageSection[];
 }
 
+export type MobileNavBadgeType = 'gold' | 'green' | 'amber' | 'red' | 'purple';
+
+export interface MobileNavChildLink {
+  id: string;
+  label: string;
+  route: string;
+  icon?: string;
+  enabled: boolean;
+  sortOrder: number;
+  badge?: 'NONE' | 'NEW' | 'HOT' | 'SALE' | 'B2B' | 'CUSTOM';
+  badgeText?: string;
+  badgeType?: MobileNavBadgeType;
+  openInNewTab?: boolean;
+  isModal?: boolean;
+  modalType?: 'quiz' | 'auth' | 'wishlist' | 'shipping' | 'faq' | 'b2b';
+}
+
+export interface MobileNavItem {
+  id: string;
+  type: 'STATIC' | 'CATEGORY_GROUP' | 'ACCORDION' | 'LINK' | 'CUSTOM';
+  label: string;
+  route: string;
+  icon?: string;
+  enabled: boolean;
+  sortOrder: number;
+  badge?: 'NONE' | 'NEW' | 'HOT' | 'SALE' | 'B2B' | 'CUSTOM';
+  badgeText?: string;
+  badgeType?: MobileNavBadgeType;
+  openInNewTab?: boolean;
+  isModal?: boolean;
+  modalType?: 'quiz' | 'auth' | 'wishlist' | 'cart' | 'b2b' | 'faq' | 'shipping';
+  isAccordion?: boolean;
+  children?: MobileNavChildLink[];
+}
+
+export interface MobileNavCategoryOverride {
+  show?: boolean;
+  customLabel?: string;
+  customIcon?: string;
+  sortOrder?: number;
+  showSubcategories?: boolean;
+}
+
+export interface MobileNavCategorySettings {
+  showCategories: boolean;
+  showSubcategories: boolean;
+  categoryOverrides: Record<string, MobileNavCategoryOverride>;
+}
+
+export interface MobileNavSocialLink {
+  id: string;
+  platform: 'facebook' | 'instagram' | 'youtube' | 'whatsapp' | 'twitter' | 'linkedin';
+  url: string;
+  enabled: boolean;
+  sortOrder: number;
+}
+
+export interface MobileNavAuthBarConfig {
+  show: boolean;
+  signInText: string;
+  registerText: string;
+  accountText: string;
+  logoutText: string;
+}
+
+export interface MobileNavConfig {
+  enabled: boolean;
+  bottomNavEnabled?: boolean;
+  authBar: MobileNavAuthBarConfig;
+  categorySettings: MobileNavCategorySettings;
+  menuItems: MobileNavItem[];
+  socialLinks: MobileNavSocialLink[];
+  copyrightText: string;
+}
+
+

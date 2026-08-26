@@ -84,11 +84,10 @@ export const B2BSection: React.FC = () => {
                   className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover:scale-105"
                   loading="lazy"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent pointer-events-none" />
                 
                 {/* Floating International Quality Badge */}
                 <div className="absolute bottom-3 left-3 right-3 flex items-center justify-between pointer-events-none">
-                  <span className="bg-[#123F2B]/90 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-semibold px-3 py-1 rounded-full border border-white/20 shadow-sm flex items-center gap-1.5">
+                  <span className="bg-[#123F2B]/90 backdrop-blur-md text-white text-[10px] sm:text-[11px] font-semibold px-3 py-1 rounded-full border border-white/20 shadow-md flex items-center gap-1.5">
                     <Sparkles className="w-3 h-3 text-[#C5A059]" />
                     <span>Mysore Tribal Source • Direct Export</span>
                   </span>

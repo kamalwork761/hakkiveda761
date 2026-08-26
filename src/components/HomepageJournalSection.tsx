@@ -111,10 +111,9 @@ export const HomepageJournalSection: React.FC<HomepageJournalSectionProps> = ({ 
                         decoding="async"
                         className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-500"
                       />
-                      <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 pointer-events-none" />
                       
                       {/* Category Tag */}
-                      <span className="absolute top-3 left-3 bg-black/65 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-semibold text-[var(--brand-gold)] border border-[var(--brand-gold)]/30 uppercase tracking-wider">
+                      <span className="absolute top-3 left-3 bg-black/75 backdrop-blur-md px-2.5 py-1 rounded-full text-[11px] font-semibold text-[var(--brand-gold)] border border-[var(--brand-gold)]/30 uppercase tracking-wider shadow-sm">
                         {article.category || 'Hair Rituals'}
                       </span>
                     </div>
@@ -180,9 +179,8 @@ export const HomepageJournalSection: React.FC<HomepageJournalSectionProps> = ({ 
                   decoding="async"
                   className="w-full h-full object-cover object-center transform group-hover:scale-105 transition-transform duration-500"
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-50 pointer-events-none" />
 
-                <span className="absolute top-3 left-3 bg-black/65 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-[var(--brand-gold)] border border-[var(--brand-gold)]/30 uppercase tracking-wider">
+                <span className="absolute top-3 left-3 bg-black/75 backdrop-blur-md px-3 py-1 rounded-full text-xs font-semibold text-[var(--brand-gold)] border border-[var(--brand-gold)]/30 uppercase tracking-wider shadow-sm">
                   {article.category || 'Hair Rituals'}
                 </span>
               </div>

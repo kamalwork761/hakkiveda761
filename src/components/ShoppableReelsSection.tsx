@@ -250,12 +250,6 @@ export const ShoppableReelsSection: React.FC<ShoppableReelsSectionProps> = ({
       tabIndex={0}
       aria-label="Shoppable Video Rituals Spotlight Carousel"
     >
-      {/* Background Decorative Ambient Radial Glow */}
-      <div
-        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[700px] h-[450px] bg-[var(--brand-gold)]/8 blur-[130px] rounded-full pointer-events-none"
-        aria-hidden="true"
-      />
-
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
         {/* Section Header */}
         <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12 space-y-2.5">
@@ -362,10 +356,10 @@ export const ShoppableReelsSection: React.FC<ShoppableReelsSectionProps> = ({
                       ? 'none'
                       : 'transform 0.55s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1), filter 0.55s cubic-bezier(0.22, 1, 0.36, 1)',
                   }}
-                  className={`absolute top-1/2 left-1/2 w-[76vw] sm:w-[280px] md:w-[320px] max-w-[320px] aspect-[9/16] rounded-2xl md:rounded-3xl overflow-hidden shadow-2xl cursor-pointer group bg-slate-900 border-2 transition-colors duration-300 ${
+                  className={`absolute top-1/2 left-1/2 w-[76vw] sm:w-[280px] md:w-[320px] max-w-[320px] aspect-[9/16] rounded-2xl md:rounded-3xl overflow-hidden cursor-pointer group bg-[#0A1810] transition-all duration-300 ${
                     isActive
-                      ? 'border-[#C5A059] ring-2 ring-[#C5A059]/40 shadow-[#C5A059]/15'
-                      : 'border-white/20 hover:border-[#C5A059]/70'
+                      ? 'border border-[#C5A059] shadow-lg shadow-black/25'
+                      : 'border border-white/20 shadow-md shadow-black/20 hover:border-[#C5A059]/60'
                   }`}
                 >
                   {/* Center Video (Active Card) vs Poster Image (Side Cards) */}

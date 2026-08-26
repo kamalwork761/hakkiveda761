@@ -49,10 +49,9 @@ export const HomepageEditorialSections: React.FC<HomepageEditorialSectionsProps>
                     decoding="async"
                     className="w-full aspect-[4/3] object-cover object-center transform group-hover:scale-105 transition-transform duration-700 ease-out"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 pointer-events-none" />
                   
-                  {/* Subtle Badge */}
-                  <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 text-xs font-semibold text-white/90">
+                  {/* Subtle Badge with dedicated contrast */}
+                  <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 flex items-center gap-2 bg-black/75 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 text-xs font-semibold text-white shadow-md">
                     <Sparkles className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
                     <span>Mysuru Tribal Heritage</span>
                   </div>
@@ -130,10 +129,9 @@ export const HomepageEditorialSections: React.FC<HomepageEditorialSectionsProps>
                     decoding="async"
                     className="w-full aspect-[4/3] object-cover object-center transform group-hover:scale-105 transition-transform duration-700 ease-out"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 pointer-events-none" />
                   
-                  {/* Subtle Badge */}
-                  <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 text-xs font-semibold text-white/90">
+                  {/* Subtle Badge with dedicated contrast */}
+                  <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 flex items-center gap-2 bg-black/75 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 text-xs font-semibold text-white shadow-md">
                     <ShieldCheck className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
                     <span>21-Day Slow Decoction</span>
                   </div>
@@ -157,10 +155,9 @@ export const HomepageEditorialSections: React.FC<HomepageEditorialSectionsProps>
                     decoding="async"
                     className="w-full aspect-[4/3] object-cover object-center transform group-hover:scale-105 transition-transform duration-700 ease-out"
                   />
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent opacity-60 pointer-events-none" />
                   
-                  {/* Subtle Badge */}
-                  <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 flex items-center gap-2 bg-black/60 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/10 text-xs font-semibold text-white/90">
+                  {/* Subtle Badge with dedicated contrast */}
+                  <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 flex items-center gap-2 bg-black/75 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 text-xs font-semibold text-white shadow-md">
                     <Heart className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
                     <span>Empowering Artisan Families</span>
                   </div>

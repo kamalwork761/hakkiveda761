@@ -15,13 +15,13 @@ export const HakkivedaWordmark: React.FC<HakkivedaWordmarkProps> = ({
 
   // Dimensions based on size
   const sizeClasses = {
-    sm: 'h-5 sm:h-6 w-32 sm:w-44',
+    sm: 'h-5 xs:h-5.5 sm:h-6 w-auto max-w-[130px] xs:max-w-[155px] sm:max-w-[180px]',
     md: 'h-6 sm:h-8 w-36 sm:w-56',
     lg: 'h-8 sm:h-10 w-48 sm:w-72',
   }[size];
 
-  // Colors derived from Forest Green palette (#123F2A primary / #0B2F20 deep shade)
-  const strokeColor = '#123F2A';
+  // Colors derived from Forest Green palette (#0F2E22 primary / #0B2F20 deep shade)
+  const strokeColor = '#0F2E22';
 
   return (
     <div className={`relative inline-flex items-center select-none ${className}`}>
@@ -48,7 +48,7 @@ export const HakkivedaWordmark: React.FC<HakkivedaWordmarkProps> = ({
 
           {/* Premium Forest Green Fill Gradient */}
           <linearGradient id="forest-green-luxury" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#123F2A" />
+            <stop offset="0%" stopColor="#0F2E22" />
             <stop offset="60%" stopColor="#123F2A" />
             <stop offset="100%" stopColor="#0B2F20" />
           </linearGradient>

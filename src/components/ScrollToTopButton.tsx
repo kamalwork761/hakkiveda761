@@ -14,8 +14,8 @@ export const ScrollToTopButton: React.FC = () => {
 
   useEffect(() => {
     const handleScroll = () => {
-      // Show button after scrolling approximately 400-600px
-      if (window.scrollY > 400) {
+      // Show button after user scrolls past 350px
+      if (window.scrollY > 350) {
         setIsVisible(true);
       } else {
         setIsVisible(false);
@@ -46,7 +46,7 @@ export const ScrollToTopButton: React.FC = () => {
     return null;
   }
 
-  // Determine active mobile context for bottom positioning (exact parity with WhatsApp button)
+  // Determine active mobile context for bottom positioning (stacked directly above WhatsApp)
   const isReviewsPage = pathname.endsWith('/reviews');
   const isPdp = pathname.startsWith('/products/') && !isReviewsPage;
   const isCategory =
@@ -55,6 +55,7 @@ export const ScrollToTopButton: React.FC = () => {
     pathname === '/tribal-wellness' ||
     pathname.startsWith('/categories/');
 
+  // Mobile bottom offset: sits at bottom-left baseline, matching bottom spacing
   const mobileBottomStyle = isReviewsPage
     ? 'calc(18px + env(safe-area-inset-bottom, 0px))'
     : isPdp
@@ -76,18 +77,18 @@ export const ScrollToTopButton: React.FC = () => {
   return (
     <button
       type="button"
-      id="mobile-scroll-to-top-button"
+      id="scroll-to-top-button"
       onClick={handleScrollToTop}
       style={{ bottom: mobileBottomStyle }}
-      className={`md:hidden fixed left-4 z-35 w-11 h-11 rounded-full bg-[#FAF7F2] hover:bg-white text-[#0F2E22] border border-[#D8CDAF] shadow-lg shadow-[#0F2E22]/15 flex items-center justify-center transition-all duration-300 active:scale-95 cursor-pointer ${
+      className={`fixed left-3.5 sm:left-auto sm:right-8 sm:!bottom-24 z-40 w-11 h-11 sm:w-12 sm:h-12 rounded-full bg-[#FAF7F2] hover:bg-white text-[#0F2E22] border border-[#D8CDAF] hover:border-[#C5A059] shadow-xl shadow-[#0F2E22]/15 flex items-center justify-center transition-all duration-300 active:scale-95 cursor-pointer ${
         isVisible
           ? 'opacity-100 translate-y-0 pointer-events-auto'
           : 'opacity-0 translate-y-4 pointer-events-none'
       }`}
-      aria-label="Scroll back to top"
+      aria-label="Back to top"
       title="Scroll to top"
     >
-      <ArrowUp className="w-5 h-5 text-[#0F2E22] stroke-[2.2]" />
+      <ArrowUp className="w-5 h-5 text-[#0F2E22] stroke-[2.4]" />
     </button>
   );
 };

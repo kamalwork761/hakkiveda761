@@ -68,7 +68,7 @@ export const AmbientSoundControl: React.FC = () => {
     setHasInteracted(true);
   };
 
-  // Determine active mobile context for bottom positioning
+  // Determine active mobile context for bottom positioning (Nature button elevated to top/start line of green footer)
   const isReviewsPage = pathname.endsWith('/reviews');
   const isPdp = pathname.startsWith('/products/') && !isReviewsPage;
   const isCategory =
@@ -77,15 +77,16 @@ export const AmbientSoundControl: React.FC = () => {
     pathname === '/tribal-wellness' ||
     pathname.startsWith('/categories/');
 
+  // Elevated mobile position: sits above the bottom-left arrow, around the green footer top line
   const mobileBottomStyle = isReviewsPage
-    ? 'calc(18px + env(safe-area-inset-bottom, 0px))'
+    ? 'calc(78px + env(safe-area-inset-bottom, 0px))'
     : isPdp
-    ? 'calc(76px + env(safe-area-inset-bottom, 0px))'
+    ? 'calc(136px + env(safe-area-inset-bottom, 0px))'
     : isCategory
-    ? 'calc(62px + env(safe-area-inset-bottom, 0px))'
+    ? 'calc(122px + env(safe-area-inset-bottom, 0px))'
     : isBottomNavEnabled
-    ? 'calc(68px + env(safe-area-inset-bottom, 0px))'
-    : 'calc(18px + env(safe-area-inset-bottom, 0px))';
+    ? 'calc(128px + env(safe-area-inset-bottom, 0px))'
+    : 'calc(78px + env(safe-area-inset-bottom, 0px))';
 
   return (
     <>
@@ -115,11 +116,11 @@ export const AmbientSoundControl: React.FC = () => {
       <div
         id="floating-sound-control-container"
         style={{ bottom: mobileBottomStyle }}
-        className="fixed left-3 sm:left-auto sm:right-28 sm:!bottom-6 z-35 font-sans transition-all duration-300 pointer-events-auto"
+        className="fixed left-3.5 sm:left-auto sm:right-28 sm:!bottom-6 z-40 font-sans transition-all duration-300 pointer-events-auto"
       >
         {/* Popover Menu */}
         {isOpen && (
-          <div className="mb-2.5 w-72 sm:w-80 max-w-[calc(100vw-24px)] bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/50 rounded-2xl p-4 shadow-2xl backdrop-blur-xl text-slate-100 animate-in fade-in slide-in-from-bottom-2 duration-200">
+          <div className="mb-2.5 absolute left-0 sm:left-auto sm:relative w-72 sm:w-80 max-w-[calc(100vw-28px)] bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/50 rounded-2xl p-4 shadow-2xl backdrop-blur-xl text-slate-100 animate-in fade-in slide-in-from-bottom-2 duration-200">
             <div className="flex items-center justify-between border-b border-[var(--brand-gold)]/20 pb-2 mb-3">
               <div className="flex items-center gap-2">
                 <Trees className="w-4 h-4 text-[var(--brand-gold)] animate-pulse" />

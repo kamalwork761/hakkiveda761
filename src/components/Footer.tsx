@@ -1,12 +1,46 @@
 import React, { useState } from 'react';
-import { Mail, Phone, MapPin, Send, Sparkles, ShieldAlert } from 'lucide-react';
+import {
+  Mail,
+  Phone,
+  MapPin,
+  Send,
+  Sparkles,
+  ShieldCheck,
+  CheckCircle2,
+  ArrowRight,
+  HelpCircle,
+  ExternalLink,
+} from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { HakkivedaWordmark } from './HakkivedaWordmark';
 import { SoundToggle } from './SoundToggle';
 import { PaymentIcons } from './PaymentIcons';
 
+const VERIFICATION_POINTS = [
+  {
+    id: 'brand',
+    title: 'CHECK THE HAKKIVEDA BRAND NAME',
+    description: 'Confirm authentic HAKKIVEDA branding before purchasing.',
+  },
+  {
+    id: 'packaging',
+    title: 'CHECK THE PACKAGING',
+    description: 'Inspect the label, seal and product batch information.',
+  },
+  {
+    id: 'channels',
+    title: 'BUY FROM TRUSTED CHANNELS',
+    description: 'Prefer HAKKIVEDA and our authorized sales channels.',
+  },
+  {
+    id: 'unsure',
+    title: 'UNSURE ABOUT A PRODUCT?',
+    description: 'Contact HAKKIVEDA for verification assistance.',
+  },
+];
+
 export const Footer: React.FC = () => {
-  const { footerConfig, siteSettings, setIsB2BModalOpen, setIsQuizOpen, playSound } = useStore();
+  const { footerConfig, siteSettings, setIsQuizOpen, playSound } = useStore();
   const [newsletterEmail, setNewsletterEmail] = useState('');
   const [subscribed, setSubscribed] = useState(false);
 
@@ -23,41 +57,134 @@ export const Footer: React.FC = () => {
     }, 4000);
   };
 
-  const addressText = cfg.address || siteSettings?.address || 'Door No. 574, V.P. Bore, Hunsur, Mysore, Karnataka, India - 571105';
+  const addressText =
+    cfg.address ||
+    siteSettings?.address ||
+    'Door No. 574, V.P. Bore, Hunsur, Mysore, Karnataka, India - 571105';
   const phoneText = cfg.phone || siteSettings?.phone || '+91 76195 36831';
   const whatsappNum = cfg.whatsappNumber || siteSettings?.whatsappNumber || '917619536831';
   const emailText = cfg.email || siteSettings?.email || 'hakkiveda@gmail.com';
-  const brandDesc = cfg.brandDescription || siteSettings?.footerAbout || 'Blend of Hakki-Pikki Tribe & Ayurveda. Handcrafted in small batches with 42 wild mountain herbs slow-cooked over woodfire in copper cauldrons for 21 days.';
-  const copyrightStr = cfg.copyrightText || siteSettings?.footerCopyright || `© ${new Date().getFullYear()} HAKKIVEDA Herbal Enterprises. All Rights Reserved. Door No. 574, V.P. Bore, Hunsur, Mysore.`;
+  const brandDesc =
+    cfg.brandDescription ||
+    siteSettings?.footerAbout ||
+    'Blend of Hakki-Pikki Tribe & Ayurveda. Handcrafted in small batches with 42 wild mountain herbs slow-cooked over woodfire in copper cauldrons for 21 days.';
+  const currentYear = new Date().getFullYear();
+  const copyrightStr =
+    cfg.copyrightText ||
+    siteSettings?.footerCopyright ||
+    `© ${currentYear} HAKKIVEDA Herbal Enterprises. All Rights Reserved. Door No. 574, V.P. Bore, Hunsur, Mysore.`;
 
-  // Mobile Footer Configurations
+  // Mobile & Shared Advisory Configurations
   const mobileCfg = cfg.mobileFooter || {};
-  const showMobileWarning = mobileCfg.showWarningSection !== false;
-  const mobileWarningHeading = mobileCfg.warningHeading || 'BEWARE OF FAKE & DUPLICATE ADIVASI HAIR OILS';
-  const defaultMobileWarningLines = [
-    'Beware of scammers and duplicate Adivasi hair oils.',
-    'Authentic HAKKIVEDA products carry our official branding.',
-    'Our formulations are rooted in Hakki-Pikki tribal knowledge from Mysuru.',
-    'Always check the HAKKIVEDA name and product label before purchasing.',
-    'Avoid sellers using copied images or misleading tribal claims.',
-    'Never share OTPs, banking passwords or card PINs with anyone.',
-    'HAKKIVEDA will never ask for confidential banking credentials.',
-    'Purchase only through our official website or authorised sellers.',
-    'Check product packaging, batch information and authenticity details.',
-    'Report suspicious sellers or fake HAKKIVEDA products to our support team.',
-    'Protect your purchase. Choose authentic HAKKIVEDA.',
-    'Traditional wisdom deserves genuine products.',
-  ];
-  const mobileWarningLines = Array.isArray(mobileCfg.warningLines) && mobileCfg.warningLines.length > 0
-    ? mobileCfg.warningLines
-    : defaultMobileWarningLines;
-  const mobileCopyrightText = mobileCfg.copyrightText || '© 2026 HAKKIVEDA';
+  const showWarningSection = mobileCfg.showWarningSection !== false;
+  const warningHeading = mobileCfg.warningHeading || 'BEWARE OF COUNTERFEIT PRODUCTS';
   const mobileSloganText = mobileCfg.sloganText || 'Blend of Hakki-Pikki Tribe & Ayurveda';
+  const mobileCopyrightText = mobileCfg.copyrightText || `© ${currentYear} HAKKIVEDA`;
+
+  const whatsappVerifyUrl = `https://wa.me/${whatsappNum.replace(
+    /[^0-9]/g,
+    ''
+  )}?text=${encodeURIComponent(
+    'Namaste HAKKIVEDA! I would like to verify the authenticity of my product.'
+  )}`;
 
   return (
-    <footer className="w-full">
+    <footer className="w-full bg-[#FAF7F2] font-sans" id="site-footer">
       {/* ========================================================================= */}
-      {/* 1. DESKTOP FOOTER (UNTOUCHED - RETAINS ALL COLUMNS, LOGO, SHIPPING, ETC) */}
+      {/* 1. AUTHENTICITY & CONSUMER NOTICE (SHARED LUXURY BANNER - NO SLOP/RED)     */}
+      {/* ========================================================================= */}
+      {showWarningSection && (
+        <section
+          id="authenticity-notice-section"
+          className="w-full bg-[#FAF7F2] border-t border-[#E5D8B5] py-10 sm:py-14 select-none relative overflow-hidden"
+          aria-label="Authenticity and Consumer Notice"
+        >
+          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+            <div className="bg-white border border-[#E5D8B5] rounded-2xl sm:rounded-3xl p-5 sm:p-8 md:p-10 shadow-sm space-y-6">
+              {/* Header Row */}
+              <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 border-b border-[#E5D8B5] pb-5">
+                <div className="space-y-1.5">
+                  <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0F2E22]/5 border border-[#8E7026]/30 text-[10px] sm:text-xs font-bold text-[#8E7026] tracking-[0.2em] uppercase">
+                    <ShieldCheck className="w-3.5 h-3.5 text-[#8E7026]" />
+                    <span>BUY GENUINE. STAY INFORMED.</span>
+                  </div>
+                  <h3 className="text-xl sm:text-2xl md:text-3xl font-serif-luxury font-bold text-[#0F2E22] tracking-tight">
+                    {warningHeading}
+                  </h3>
+                </div>
+
+                <a
+                  href={whatsappVerifyUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="inline-flex items-center justify-center gap-2 px-5 py-2.5 rounded-xl bg-[#0F2E22] hover:bg-[#1A4535] text-white hover:text-amber-200 border border-[#C5A059]/40 font-sans text-xs font-bold uppercase tracking-[0.14em] transition-all duration-200 shadow-sm shrink-0 w-full sm:w-auto"
+                >
+                  <span>VERIFY A PRODUCT</span>
+                  <ArrowRight className="w-3.5 h-3.5 text-[#C5A059]" />
+                </a>
+              </div>
+
+              {/* Supporting Copy */}
+              <p className="text-xs sm:text-sm text-[#37463D] leading-relaxed font-sans max-w-3xl">
+                Counterfeit and imitation products may be sold using similar &ldquo;Adivasi Hair Oil&rdquo; names,
+                packaging or promotional content. For genuine HAKKIVEDA products, always check the brand name, packaging and
+                seller before purchasing. Purchase through HAKKIVEDA or our authorized sales channels whenever possible. If you are
+                unsure about a product, contact HAKKIVEDA before use.
+              </p>
+
+              {/* 4 Compact Verification Points */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 pt-1">
+                {VERIFICATION_POINTS.map((point) => (
+                  <div
+                    key={point.id}
+                    className="bg-[#FAF7F2] border border-[#E5D8B5] hover:border-[#C5A059]/60 rounded-xl p-3.5 transition-all duration-200 shadow-2xs flex items-start gap-2.5"
+                  >
+                    <div className="w-5 h-5 rounded-full bg-[#0F2E22]/10 flex items-center justify-center shrink-0 mt-0.5">
+                      <CheckCircle2 className="w-3.5 h-3.5 text-[#0F2E22]" />
+                    </div>
+                    <div className="min-w-0">
+                      <h4 className="text-[11px] font-bold text-[#0F2E22] font-sans uppercase tracking-wider">
+                        {point.title}
+                      </h4>
+                      <p className="text-[11px] text-[#37463D] font-sans leading-snug mt-0.5">
+                        {point.description}
+                      </p>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </section>
+      )}
+
+      {/* ========================================================================= */}
+      {/* 2. MINIMAL MOBILE FOOTER (CLEAN, COMPACT, ~100PX, ZERO OVERSIZED MENUS)   */}
+      {/* ========================================================================= */}
+      <div className="block md:hidden bg-[#0A2319] text-[#FAF7F2] text-center border-t border-[#D4AF37]/25 select-none">
+        <div
+          className="py-6 px-4 space-y-2 max-w-sm mx-auto"
+          style={{ paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))' }}
+        >
+          {/* Brand Name / Slogan */}
+          <div className="space-y-1">
+            <h4 className="text-base font-serif-luxury font-bold tracking-[0.2em] text-[#C5A059]">
+              HAKKIVEDA
+            </h4>
+            <p className="text-[11px] text-slate-300 font-serif tracking-wide font-normal">
+              {mobileSloganText}
+            </p>
+          </div>
+
+          {/* Dynamic Copyright Year */}
+          <p className="text-[10px] text-slate-400 font-sans tracking-wider pt-1">
+            {mobileCopyrightText}
+          </p>
+        </div>
+      </div>
+
+      {/* ========================================================================= */}
+      {/* 3. DESKTOP FOOTER (UNTOUCHED - RETAINS ALL COLUMNS, LOGO, SHIPPING, ETC) */}
       {/* ========================================================================= */}
       <div className="hidden md:block bg-[var(--brand-primary-deeper)] text-slate-100 font-sans border-t border-[var(--brand-gold)]/30 pt-16 pb-12 relative">
         <div className="max-w-7xl mx-auto px-6 sm:px-12">
@@ -77,7 +204,11 @@ export const Footer: React.FC = () => {
                   title="Return to Homepage"
                 >
                   {cfg.brandLogo ? (
-                    <img src={cfg.brandLogo} alt={cfg.brandLogoText || 'Brand Logo'} className="h-9 w-auto object-contain transition-transform duration-200 group-hover:scale-105" />
+                    <img
+                      src={cfg.brandLogo}
+                      alt={cfg.brandLogoText || 'Brand Logo'}
+                      className="h-9 w-auto object-contain transition-transform duration-200 group-hover:scale-105"
+                    />
                   ) : (
                     <>
                       <span className="w-8 h-8 rounded-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] flex items-center justify-center font-serif font-bold text-lg shrink-0 transition-transform duration-200 group-hover:scale-105">
@@ -213,7 +344,8 @@ export const Footer: React.FC = () => {
                   {cfg.newsletterHeading || 'Tribal Secrets Newsletter'}
                 </h4>
                 <p className="text-xs text-slate-300 leading-relaxed font-light">
-                  {cfg.newsletterSubtext || 'Subscribe to receive ancestral scalp care tips, lunar harvesting calendars, and 10% off your first order.'}
+                  {cfg.newsletterSubtext ||
+                    'Subscribe to receive ancestral scalp care tips, lunar harvesting calendars, and 10% off your first order.'}
                 </p>
 
                 {subscribed ? (
@@ -268,67 +400,6 @@ export const Footer: React.FC = () => {
           </div>
         </div>
       </div>
-
-      {/* ========================================================================= */}
-      {/* 2. COMPACT MOBILE FOOTER (ANTI-FRAUD TRUST ADVISORY + COMPACT COPYRIGHT)   */}
-      {/* ========================================================================= */}
-      <div className="block md:hidden font-sans">
-        {/* Mobile Trust / Anti-Fraud Section */}
-        {showMobileWarning && (
-          <section
-            id="mobile-anti-fraud-trust-section"
-            className="bg-[#FAF7F2] text-[#0F2E22] py-8 px-5 border-t border-[#D8CDAF] text-center relative overflow-hidden"
-          >
-            <div className="max-w-sm mx-auto space-y-4">
-              {/* Gold Security Badge */}
-              <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-[#0F2E22]/5 border border-[#8E7026]/30 text-[10px] font-bold text-[#8E7026] tracking-[0.2em] uppercase">
-                <ShieldAlert className="w-3.5 h-3.5 text-[#8E7026]" />
-                <span>OFFICIAL CONSUMER ADVISORY</span>
-              </div>
-
-              {/* Warning Heading */}
-              <h3 className="text-sm font-serif font-bold text-[#0F2E22] tracking-wider uppercase leading-snug px-2">
-                {mobileWarningHeading}
-              </h3>
-
-              {/* Subtle Botanical Divider Motif */}
-              <div className="flex items-center justify-center gap-2 py-0.5">
-                <div className="h-[1px] w-10 bg-[#8E7026]/30"></div>
-                <div className="w-1.5 h-1.5 rotate-45 bg-[#8E7026]"></div>
-                <div className="h-[1px] w-10 bg-[#8E7026]/30"></div>
-              </div>
-
-              {/* 10-12 Readable Short Lines */}
-              <div className="space-y-2 text-[11px] sm:text-xs text-[#0F2E22]/85 font-normal leading-relaxed">
-                {mobileWarningLines.map((line, idx) => (
-                  <p key={idx} className="tracking-wide">
-                    {line}
-                  </p>
-                ))}
-              </div>
-
-              {/* Tribal Wisdom Sign-off */}
-              <div className="pt-2 text-[10px] font-bold uppercase tracking-[0.2em] text-[#8E7026]">
-                🌿 HAKKI-PIKKI TRIBAL WISDOM • MYSURU
-              </div>
-            </div>
-          </section>
-        )}
-
-        {/* Compact Mobile Copyright & Slogan Footer */}
-        <div
-          id="mobile-compact-copyright-footer"
-          className="bg-[#0A2319] text-[#FAF7F2] py-4 px-4 text-center border-t border-[#D4AF37]/25 space-y-1"
-        >
-          <p className="text-[11px] font-bold tracking-wider text-slate-200 uppercase">
-            {mobileCopyrightText}
-          </p>
-          <p className="text-[10px] text-[var(--brand-gold)] font-serif tracking-wide font-medium">
-            {mobileSloganText}
-          </p>
-        </div>
-      </div>
     </footer>
   );
 };
-

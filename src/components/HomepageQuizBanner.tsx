@@ -1,9 +1,27 @@
-import React from 'react';
-import { ArrowRight, Bot } from 'lucide-react';
+import React, { useState } from 'react';
+import { ArrowRight, Bot, Sparkles } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+
+/**
+ * Resolves media URLs safely for development, Docker containers, and production VPS environments.
+ */
+function resolveMediaUrl(url?: string): string {
+  if (!url) return '';
+  let cleaned = url.trim();
+  // Strip any accidental localhost / 127.0.0.1 development origin
+  cleaned = cleaned.replace(/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?/, '');
+  // Normalize relative uploads path
+  if (cleaned.startsWith('uploads/')) {
+    cleaned = '/' + cleaned;
+  } else if (cleaned.startsWith('images/')) {
+    cleaned = '/' + cleaned;
+  }
+  return cleaned;
+}
 
 export const HomepageQuizBanner: React.FC = () => {
   const { homepageQuizBannerConfig, setIsQuizOpen, playSound } = useStore();
+  const [imgError, setImgError] = useState(false);
 
   if (homepageQuizBannerConfig && !homepageQuizBannerConfig.enabled) {
     return null;
@@ -13,10 +31,10 @@ export const HomepageQuizBanner: React.FC = () => {
     enabled: true,
     desktopBanner: '/images/hakkiveda_108_oil_gold.jpg',
     mobileBanner: '/images/hakkiveda_108_oil_gold.jpg',
-    heading: 'Find the Right HAKKIVEDA Hair Ritual',
-    subheading: 'PERSONALIZED HAIR ANALYSIS',
+    heading: 'Discover Your Personalized Hair Ritual',
+    subheading: 'AI-POWERED HAIR ANALYSIS',
     description:
-      'Answer a few quick questions about your hair type, scalp condition and concerns to receive personalized HAKKIVEDA product recommendations.',
+      'Take our quick hair quiz and discover the HAKKIVEDA ritual suited to your hair concerns.',
     ctaText: 'START AI HAIR QUIZ',
     ctaAction: 'OPEN_QUIZ',
     buttonPosition: 'bottom-left',
@@ -27,68 +45,137 @@ export const HomepageQuizBanner: React.FC = () => {
     setIsQuizOpen(true);
   };
 
-  const desktopImg = config.desktopBanner || '/images/hakkiveda_108_oil_gold.jpg';
-  const mobileImg = config.mobileBanner || desktopImg;
+  const defaultFallbackImage = '/images/hakkiveda_108_oil_gold.jpg';
+  const resolvedDesktop = resolveMediaUrl(config.desktopBanner);
+  const resolvedMobile = resolveMediaUrl(config.mobileBanner);
 
-  const getOverlayPosClass = (pos?: string) => {
-    switch (pos) {
-      case 'bottom-center':
-        return 'items-end justify-center';
-      case 'bottom-right':
-        return 'items-end justify-end';
-      case 'center-left':
-        return 'items-center justify-start';
-      case 'center':
-        return 'items-center justify-center';
-      case 'center-right':
-        return 'items-center justify-end';
-      case 'top-left':
-        return 'items-start justify-start';
-      case 'top-center':
-        return 'items-start justify-center';
-      case 'top-right':
-        return 'items-start justify-end';
-      case 'bottom-left':
-      default:
-        return 'items-end justify-start';
-    }
-  };
+  // Seamless fallback: mobile uses desktop if mobile not uploaded, and vice versa
+  const desktopImg = resolvedDesktop || resolvedMobile || defaultFallbackImage;
+  const mobileImg = resolvedMobile || resolvedDesktop || defaultFallbackImage;
 
-  const positionClass = getOverlayPosClass(config.buttonPosition);
+  const headingText = config.heading || 'Discover Your Personalized Hair Ritual';
+  const subheadingText = config.subheading || 'AI-POWERED HAIR ANALYSIS';
+  const descriptionText =
+    config.description ||
+    'Take our quick hair quiz and discover the HAKKIVEDA ritual suited to your hair concerns.';
+  const ctaButtonText = config.ctaText || 'START AI HAIR QUIZ';
 
   return (
-    <section className="py-8 sm:py-14 bg-[#FAF8F2] dark:bg-[var(--brand-primary-deep,#0A1810)] border-t border-b border-[var(--color-border,#E7E1D5)] dark:border-white/10 relative overflow-hidden">
+    <section className="py-6 sm:py-10 bg-[#FAF8F2] dark:bg-[var(--brand-primary-deep,#0A1810)] border-t border-b border-[var(--color-border,#E7E1D5)] dark:border-white/10 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
-        <div className="relative w-full rounded-2xl sm:rounded-3xl overflow-hidden shadow-2xl border border-[var(--brand-gold)]/30 group bg-transparent">
-          {/* Full Width Responsive Banner Artwork */}
-          <picture className="w-full block">
-            <source media="(min-width: 768px)" srcSet={desktopImg} />
+        {/* 1. MOBILE RESPONSIVE BANNER (md:hidden) — Height approx 270–320px */}
+        <div className="block md:hidden relative w-full h-[280px] xs:h-[300px] rounded-2xl overflow-hidden shadow-xl border border-[var(--brand-gold,#C9A84E)]/30 group bg-[#0A1810]">
+          {/* Background Image */}
+          {!imgError ? (
             <img
               src={mobileImg}
               alt="HAKKIVEDA AI Hair Quiz"
               loading="lazy"
               decoding="async"
-              width={1920}
-              height={700}
-              className="w-full h-auto block object-contain rounded-2xl sm:rounded-3xl transition-transform duration-700 group-hover:scale-[1.005]"
+              onError={() => setImgError(true)}
+              className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-105"
             />
-          </picture>
+          ) : (
+            <div className="w-full h-full bg-gradient-to-br from-[#0B2F20] via-[#0E3D2B] to-[#061B12]" />
+          )}
 
-          {/* Overlay Container for CTA Button */}
-          <div className={`absolute inset-0 p-4 sm:p-8 md:p-10 flex pointer-events-none ${positionClass}`}>
-            <button
-              type="button"
-              onClick={handleStartQuiz}
-              className="pointer-events-auto bg-[var(--brand-gold)] hover:bg-[#c49f2f] text-[#0B2F20] font-extrabold text-xs sm:text-base px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl transition-all shadow-2xl hover:scale-105 active:scale-95 flex items-center justify-center gap-2.5 cursor-pointer border border-white/20 group/btn"
-            >
-              <Bot className="w-4 h-4 sm:w-5 sm:h-5 text-[#0B2F20]" />
-              <span>{config.ctaText || 'START AI HAIR QUIZ'}</span>
-              <ArrowRight className="w-4 h-4 sm:w-5 sm:h-5 text-[#0B2F20] group-hover/btn:translate-x-1 transition-transform" />
-            </button>
+          {/* Gradient Overlay Scrim for Crisp Contrast */}
+          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/25 flex flex-col justify-between p-4 xs:p-5 text-white" />
+
+          {/* Content Container */}
+          <div className="absolute inset-0 flex flex-col justify-between p-4 xs:p-5 text-white z-10">
+            {/* Top Pill / Eyebrow */}
+            <div className="flex items-center gap-1.5 self-start bg-black/50 backdrop-blur-xs px-2.5 py-1 rounded-full border border-[var(--brand-gold,#C9A84E)]/40">
+              <Bot className="w-3.5 h-3.5 text-[var(--brand-gold,#C9A84E)]" />
+              <span className="text-[10px] uppercase font-extrabold tracking-wider text-[var(--brand-gold,#C9A84E)] font-sans">
+                {subheadingText}
+              </span>
+            </div>
+
+            {/* Bottom Content & CTA */}
+            <div className="space-y-2">
+              <h3 className="font-serif-luxury font-bold text-lg xs:text-xl text-white leading-snug drop-shadow-md">
+                {headingText}
+              </h3>
+              <p className="text-xs text-slate-200/90 font-sans line-clamp-2 leading-relaxed drop-shadow-xs">
+                {descriptionText}
+              </p>
+
+              <div className="pt-1">
+                <button
+                  type="button"
+                  onClick={handleStartQuiz}
+                  className="w-full min-h-[46px] bg-[var(--brand-gold,#C9A84E)] hover:bg-[#b8891e] active:scale-98 text-[#0B2F20] font-extrabold text-xs xs:text-sm px-5 py-3 rounded-xl transition-all shadow-xl flex items-center justify-center gap-2 cursor-pointer border border-white/20 font-sans"
+                  aria-label="Start AI Hair Quiz"
+                >
+                  <Sparkles className="w-4 h-4 text-[#0B2F20]" />
+                  <span>{ctaButtonText}</span>
+                  <ArrowRight className="w-4 h-4 text-[#0B2F20]" />
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        {/* 2. DESKTOP RESPONSIVE BANNER (hidden md:block) — Aspect 16:5.5 */}
+        <div className="hidden md:block relative w-full aspect-[16/5.5] min-h-[280px] max-h-[380px] rounded-3xl overflow-hidden shadow-2xl border border-[var(--brand-gold,#C9A84E)]/30 group bg-[#0A1810]">
+          {/* Background Image */}
+          {!imgError ? (
+            <img
+              src={desktopImg}
+              alt="HAKKIVEDA AI Hair Quiz"
+              loading="lazy"
+              decoding="async"
+              onError={() => setImgError(true)}
+              className="w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-[1.02]"
+            />
+          ) : (
+            <div className="w-full h-full bg-gradient-to-r from-[#0B2F20] via-[#0E3D2B] to-[#061B12]" />
+          )}
+
+          {/* Gradient Scrim for Readability */}
+          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-transparent flex items-center p-8 lg:p-12 text-white" />
+
+          {/* Content Container */}
+          <div className="absolute inset-0 flex items-center p-8 lg:p-12 z-10">
+            <div className="max-w-xl space-y-3.5 text-white">
+              {/* Eyebrow */}
+              <div className="inline-flex items-center gap-2 bg-black/40 backdrop-blur-xs px-3 py-1 rounded-full border border-[var(--brand-gold,#C9A84E)]/40">
+                <Bot className="w-4 h-4 text-[var(--brand-gold,#C9A84E)]" />
+                <span className="text-xs uppercase font-extrabold tracking-[0.2em] text-[var(--brand-gold,#C9A84E)] font-sans">
+                  {subheadingText}
+                </span>
+              </div>
+
+              {/* Heading */}
+              <h2 className="font-serif-luxury font-bold text-2xl lg:text-3xl text-white leading-tight drop-shadow-md">
+                {headingText}
+              </h2>
+
+              {/* Description */}
+              <p className="text-sm text-slate-200/90 font-sans line-clamp-2 leading-relaxed max-w-lg drop-shadow-xs">
+                {descriptionText}
+              </p>
+
+              {/* CTA Button */}
+              <div className="pt-2">
+                <button
+                  type="button"
+                  onClick={handleStartQuiz}
+                  className="bg-[var(--brand-gold,#C9A84E)] hover:bg-white text-[#0B2F20] font-extrabold text-sm px-7 py-3.5 rounded-xl transition-all shadow-2xl hover:scale-105 active:scale-95 flex items-center gap-2.5 cursor-pointer border border-white/20 group/btn font-sans"
+                  aria-label="Start AI Hair Quiz"
+                >
+                  <Bot className="w-4 h-4 text-[#0B2F20]" />
+                  <span>{ctaButtonText}</span>
+                  <ArrowRight className="w-4 h-4 text-[#0B2F20] group-hover/btn:translate-x-1 transition-transform" />
+                </button>
+              </div>
+            </div>
           </div>
         </div>
       </div>
     </section>
   );
 };
+
 

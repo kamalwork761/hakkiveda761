@@ -21,6 +21,7 @@ import { AdminOrderManager } from './AdminOrderManager';
 import { AdminCategoryPageManager } from './AdminCategoryPageManager';
 import { AdminProductManager } from './admin/AdminProductManager';
 import { AdminMobileNavManager } from './AdminMobileNavManager';
+import { AdminEditorialStoriesManager } from './AdminEditorialStoriesManager';
 import {
   Lock,
   LayoutDashboard,
@@ -217,6 +218,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
     | 'before_after'
     | 'videos'
     | 'blogs'
+    | 'editorial_stories'
     | 'quiz'
     | 'homepage_quiz'
     | 'media'
@@ -727,7 +729,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               }`}
             >
               <Video className="w-4 h-4" />
-              <span>Video Testimonials</span>
+              <span>YouTube Video Guides</span>
             </button>
             <button
               onClick={() => setActiveTab('video_popup')}
@@ -746,6 +748,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             >
               <Film className="w-4 h-4" />
               <span>Shoppable Video Reels</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('editorial_stories')}
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
+                activeTab === 'editorial_stories' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
+              }`}
+            >
+              <Layers className="w-4 h-4" />
+              <span>Editorial Stories</span>
             </button>
             <button
               onClick={() => setActiveTab('blogs')}
@@ -1442,6 +1453,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
 
         {/* Shoppable Reels Module */}
         {activeTab === 'shoppable_reels' && <AdminShoppableReelsManager showToast={showToast} />}
+
+        {/* Editorial Stories Module */}
+        {activeTab === 'editorial_stories' && <AdminEditorialStoriesManager showToast={showToast} />}
 
         {/* Journal & Articles Module */}
         {activeTab === 'blogs' && <AdminBlogManager showToast={showToast} />}

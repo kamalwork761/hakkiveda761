@@ -37,6 +37,7 @@ import {
   CategoryPageConfig,
   HomepageQuizBannerConfig,
   MobileNavConfig,
+  HomepageEditorialConfig,
 } from '../types/store';
 import {
   INITIAL_CURRENCIES,
@@ -70,6 +71,7 @@ import {
   INITIAL_CATEGORY_PAGES,
   INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG,
   INITIAL_MOBILE_NAV_CONFIG,
+  INITIAL_HOMEPAGE_EDITORIAL_CONFIG,
 } from '../data/initialData';
 import { hashPassword, DEFAULT_ADMIN_EMAIL, DEFAULT_ADMIN_PASSWORD_PLAIN } from '../utils/auth';
 import { idbGet, idbSet, idbClear } from '../utils/idbStorage';
@@ -134,6 +136,10 @@ interface StoreContextType {
   // Homepage AI Hair Quiz Banner Configuration
   homepageQuizBannerConfig: HomepageQuizBannerConfig;
   updateHomepageQuizBannerConfig: (updater: Partial<HomepageQuizBannerConfig> | ((prev: HomepageQuizBannerConfig) => HomepageQuizBannerConfig)) => Promise<boolean>;
+
+  // Homepage Editorial Stories Configuration
+  homepageEditorialConfig: HomepageEditorialConfig;
+  updateHomepageEditorialConfig: (updater: Partial<HomepageEditorialConfig> | ((prev: HomepageEditorialConfig) => HomepageEditorialConfig)) => Promise<boolean>;
 
   // Shoppable Video Reels
   shoppableReels: ShoppableReel[];
@@ -755,6 +761,27 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       localStorage.setItem('hakkiveda_homepage_quiz_banner_config', JSON.stringify(next));
     } catch (_) {}
     return await setStored('homepage_quiz_banner_config', next);
+  };
+
+  // Homepage Editorial Stories Config State & Functions
+  const [homepageEditorialConfig, setHomepageEditorialConfig] = useState<HomepageEditorialConfig>(() =>
+    getStored('homepage_editorial_config', INITIAL_HOMEPAGE_EDITORIAL_CONFIG)
+  );
+
+  const updateHomepageEditorialConfig = async (
+    updater: Partial<HomepageEditorialConfig> | ((prev: HomepageEditorialConfig) => HomepageEditorialConfig)
+  ): Promise<boolean> => {
+    let next: HomepageEditorialConfig;
+    if (typeof updater === 'function') {
+      next = updater(homepageEditorialConfig);
+    } else {
+      next = { ...homepageEditorialConfig, ...updater };
+    }
+    setHomepageEditorialConfig(next);
+    try {
+      localStorage.setItem('hakkiveda_homepage_editorial_config', JSON.stringify(next));
+    } catch (_) {}
+    return await setStored('homepage_editorial_config', next);
   };
 
   // Shoppable Video Reels State & Functions
@@ -1711,6 +1738,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           if (d.footer_config) setFooterConfig(d.footer_config);
           if (d.b2b_section_config) setB2BSectionConfig(d.b2b_section_config);
           if (d.video_popup_config) setVideoPopupConfig(d.video_popup_config);
+          if (d.homepage_quiz_banner_config) setHomepageQuizBannerConfig(d.homepage_quiz_banner_config);
+          if (d.homepage_editorial_config) setHomepageEditorialConfig(d.homepage_editorial_config);
           if (Array.isArray(d.shoppable_reels)) setShoppableReels(d.shoppable_reels);
           if (Array.isArray(d.nav_links)) setNavLinks(d.nav_links);
           if (Array.isArray(d.currencies)) {
@@ -3037,6 +3066,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         updateVideoPopupConfig,
         homepageQuizBannerConfig,
         updateHomepageQuizBannerConfig,
+        homepageEditorialConfig,
+        updateHomepageEditorialConfig,
         shoppableReels,
         addShoppableReel,
         updateShoppableReel,

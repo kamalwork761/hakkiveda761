@@ -128,7 +128,7 @@ export const HeroSlider: React.FC = () => {
   // Render a clean hero loading state while store data is hydrating from server
   if (dbSyncStatus === 'loading') {
     return (
-      <section className="relative w-full h-[520px] sm:h-[580px] lg:h-[620px] flex items-center justify-center bg-[var(--brand-primary-dark)] overflow-hidden">
+      <section className="relative w-full h-[clamp(460px,66vh,540px)] sm:h-[580px] lg:h-[620px] flex items-center justify-center bg-[var(--brand-primary-dark)] overflow-hidden">
         <div className="absolute inset-0 bg-gradient-to-r from-black/80 via-black/50 to-black/80 animate-pulse" />
         <div className="relative z-10 max-w-7xl mx-auto px-6 sm:px-12 w-full space-y-6">
           <div className="h-6 w-48 bg-white/10 rounded-full animate-pulse" />
@@ -152,9 +152,9 @@ export const HeroSlider: React.FC = () => {
   const handleTouchEnd = (e: React.TouchEvent) => {
     if (!heroSliderSettings?.swipeSupport || touchStartX.current === null) return;
     const deltaX = e.changedTouches[0].clientX - touchStartX.current;
-    if (deltaX > 50) {
+    if (deltaX > 40) {
       setCurrentSlideIndex((prev) => (prev - 1 + slidesToRender.length) % slidesToRender.length);
-    } else if (deltaX < -50) {
+    } else if (deltaX < -40) {
       setCurrentSlideIndex((prev) => (prev + 1) % slidesToRender.length);
     }
     touchStartX.current = null;
@@ -254,7 +254,7 @@ export const HeroSlider: React.FC = () => {
       onMouseLeave={handleMouseLeave}
       onTouchStart={handleTouchStart}
       onTouchEnd={handleTouchEnd}
-      className="relative w-full max-w-full h-[540px] sm:h-[580px] lg:h-[620px] overflow-hidden sm:overflow-x-clip sm:overflow-y-visible select-none flex items-center bg-white dark:bg-[var(--brand-primary-dark,#0B1D13)]"
+      className="relative w-full max-w-full h-[clamp(460px,66vh,540px)] sm:h-[580px] lg:h-[620px] overflow-hidden sm:overflow-x-clip sm:overflow-y-visible select-none flex items-center bg-white dark:bg-[var(--brand-primary-dark,#0B1D13)]"
     >
       {/* 1. CLIPPED MEDIA & OVERLAY LAYER (z-index: 1) */}
       <div className="absolute inset-0 w-full h-full overflow-hidden pointer-events-none" style={{ zIndex: 1 }}>
@@ -303,7 +303,7 @@ export const HeroSlider: React.FC = () => {
                   onError={(e) => {
                     e.currentTarget.style.display = 'none';
                   }}
-                  className="w-full h-full object-cover transform scale-105"
+                  className="w-full h-full object-cover object-center sm:scale-105"
                 />
               ) : (
                 <picture className="w-full h-full block">
@@ -319,7 +319,7 @@ export const HeroSlider: React.FC = () => {
                         e.currentTarget.src = fallback;
                       }
                     }}
-                    className="w-full h-full object-cover transform scale-105"
+                    className="w-full h-full object-cover object-center sm:scale-105"
                     loading="eager"
                     decoding="async"
                   />
@@ -425,7 +425,7 @@ export const HeroSlider: React.FC = () => {
           return (
             <div
               key={`slide-content-${slide.id || idx}`}
-              className={`hero-content absolute inset-0 max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 w-full flex items-end sm:items-center pb-16 sm:pb-0 transition-all ease-in-out ${
+              className={`hero-content absolute inset-0 max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 w-full flex items-end sm:items-center pb-10 sm:pb-0 transition-all ease-in-out ${
                 isActive
                   ? 'opacity-100 translate-y-0 pointer-events-auto visible'
                   : 'opacity-0 translate-y-4 pointer-events-none invisible hidden'
@@ -437,10 +437,10 @@ export const HeroSlider: React.FC = () => {
                 transitionDuration: `${transitionSpeed}ms`,
               }}
             >
-              <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-end sm:items-center">
+              <div className="w-full grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8 items-end sm:items-center">
                 {/* Left Column: CTA Button(s) (z-index: 20) */}
                 <div
-                  className={`relative lg:col-span-7 flex flex-wrap items-center gap-3 sm:gap-4 ${
+                  className={`relative lg:col-span-7 flex flex-wrap items-center gap-2.5 sm:gap-3.5 ${
                     slide.textPosition === 'CENTER'
                       ? 'justify-center mx-auto lg:col-span-12'
                       : slide.textPosition === 'RIGHT'
@@ -449,7 +449,7 @@ export const HeroSlider: React.FC = () => {
                   }`}
                   style={{ zIndex: 20 }}
                 >
-                  {/* Main CTA Button */}
+                  {/* Main Primary CTA Button */}
                   {Boolean(slide.ctaText || 'Shop Tribal Elixir') && (() => {
                     const rawMainLink = slide.ctaLink?.trim();
                     const mainCtaDestination = rawMainLink && rawMainLink !== '#products'
@@ -467,15 +467,15 @@ export const HeroSlider: React.FC = () => {
                           }
                           handleCtaClick(slide.id, mainCtaDestination);
                         }}
-                        className="bg-[var(--brand-gold,#C9A84E)] text-[#123F2A] hover:bg-white text-xs sm:text-sm font-bold uppercase tracking-[0.2em] px-7 sm:px-9 py-3.5 sm:py-4 rounded-xl shadow-2xl transition-all duration-300 hover:scale-105 flex items-center gap-2.5 cursor-pointer font-sans select-none"
+                        className="bg-[var(--brand-gold,#C9A84E)] text-[#0F2E22] hover:bg-white text-xs sm:text-sm font-bold uppercase tracking-[0.14em] sm:tracking-[0.2em] px-5 xs:px-6 sm:px-9 py-3 sm:py-4 rounded-xl shadow-xl transition-all duration-300 hover:scale-105 active:scale-95 flex items-center justify-center gap-2 cursor-pointer font-sans select-none min-h-[46px] sm:min-h-[48px]"
                       >
-                        <span>{slide.ctaText || 'Shop Tribal Elixir'}</span>
-                        <ChevronRight className="w-4 h-4" />
+                        <span className="font-bold">{slide.ctaText || 'Shop Tribal Elixir'}</span>
+                        <ChevronRight className="w-4 h-4 text-[#0F2E22] shrink-0" />
                       </a>
                     );
                   })()}
 
-                  {/* Optional Secondary CTA Button */}
+                  {/* Secondary CTA Button (Ivory / Forest Green / Gold Highlight) */}
                   {slide.secondaryCtaText && (
                     <a
                       href={slide.secondaryCtaLink || '#ai-quiz'}
@@ -485,10 +485,10 @@ export const HeroSlider: React.FC = () => {
                         }
                         handleCtaClick(slide.id, slide.secondaryCtaLink || '#ai-quiz');
                       }}
-                      className="border border-[var(--brand-gold,#C9A84E)]/70 text-white hover:text-[var(--brand-gold,#C9A84E)] px-6 sm:px-8 py-3.5 sm:py-4 font-sans text-xs sm:text-sm font-bold uppercase tracking-[0.18em] backdrop-blur-md bg-black/40 hover:bg-black/60 transition-all rounded-xl flex items-center gap-2 cursor-pointer shadow-lg select-none"
+                      className="bg-[#FFFDF5] hover:bg-[#FAF7F2] active:bg-[#F3EDE2] text-[#0F2E22] border border-[#C9A84E]/70 px-5 xs:px-6 sm:px-8 py-3 sm:py-4 font-sans text-xs sm:text-sm font-bold uppercase tracking-[0.12em] sm:tracking-[0.18em] transition-all duration-300 hover:scale-105 active:scale-95 rounded-xl flex items-center justify-center gap-2 cursor-pointer shadow-md select-none min-h-[46px] sm:min-h-[48px]"
                     >
-                      <Sparkles className="w-4 h-4 text-[var(--brand-gold,#C9A84E)]" />
-                      <span>{slide.secondaryCtaText}</span>
+                      <Sparkles className="w-4 h-4 text-[#C9A84E] shrink-0" />
+                      <span className="text-[#0F2E22] font-bold">{slide.secondaryCtaText}</span>
                     </a>
                   )}
                 </div>
@@ -537,11 +537,12 @@ export const HeroSlider: React.FC = () => {
       {/* 5. SLIDER CONTROLS & DOTS NAVIGATION (z-index: 40) */}
       {slidesToRender.length > 1 && (
         <div className="pointer-events-none" style={{ zIndex: 40 }}>
+          {/* Desktop Only Navigation Arrows (Hidden on Mobile/Tablet viewports < 1024px) */}
           <button
             onClick={() =>
               setCurrentSlideIndex((prev) => (prev - 1 + slidesToRender.length) % slidesToRender.length)
             }
-            className="absolute left-3 sm:left-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 border border-white/20 text-white flex items-center justify-center hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all cursor-pointer pointer-events-auto"
+            className="hidden lg:flex absolute left-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/50 border border-white/20 text-white items-center justify-center hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all cursor-pointer pointer-events-auto shadow-lg"
             style={{ zIndex: 40 }}
             aria-label="Previous Slide"
           >
@@ -549,23 +550,26 @@ export const HeroSlider: React.FC = () => {
           </button>
           <button
             onClick={() => setCurrentSlideIndex((prev) => (prev + 1) % slidesToRender.length)}
-            className="absolute right-3 sm:right-4 top-1/2 -translate-y-1/2 w-10 h-10 rounded-full bg-black/50 border border-white/20 text-white flex items-center justify-center hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all cursor-pointer pointer-events-auto"
+            className="hidden lg:flex absolute right-4 top-1/2 -translate-y-1/2 w-11 h-11 rounded-full bg-black/50 border border-white/20 text-white items-center justify-center hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all cursor-pointer pointer-events-auto shadow-lg"
             style={{ zIndex: 40 }}
             aria-label="Next Slide"
           >
             <ChevronRight className="w-5 h-5" />
           </button>
 
+          {/* Dots Pagination */}
           <div
-            className="absolute bottom-5 sm:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-2 pointer-events-auto"
+            className="absolute bottom-3 sm:bottom-6 left-1/2 -translate-x-1/2 flex items-center gap-1.5 sm:gap-2 pointer-events-auto"
             style={{ zIndex: 40 }}
           >
             {slidesToRender.map((_, idx) => (
               <button
                 key={idx}
                 onClick={() => setCurrentSlideIndex(idx)}
-                className={`h-1.5 rounded-full transition-all duration-500 cursor-pointer ${
-                  idx === currentSlideIndex ? 'w-8 bg-[var(--brand-gold)]' : 'w-2 bg-white/50'
+                className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
+                  idx === currentSlideIndex
+                    ? 'w-6 sm:w-8 bg-[var(--brand-gold,#C9A84E)] shadow-xs'
+                    : 'w-2 bg-white/50 hover:bg-white/80'
                 }`}
                 aria-label={`Go to slide ${idx + 1}`}
               />

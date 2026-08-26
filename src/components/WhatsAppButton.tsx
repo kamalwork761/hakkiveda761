@@ -57,7 +57,7 @@ export const WhatsAppButton: React.FC = () => {
     <div
       id="floating-whatsapp-container"
       style={{ bottom: mobileBottomStyle }}
-      className="fixed right-3.5 sm:right-8 sm:!bottom-6 z-35 font-sans transition-all duration-300 pointer-events-auto"
+      className="fixed right-3.5 sm:right-8 sm:!bottom-6 z-40 font-sans transition-all duration-300 pointer-events-auto"
     >
       {/* Expanded Tooltip / Quick Card */}
       {showTooltip && (

@@ -5,6 +5,7 @@ interface UseSmoothAutoScrollOptions {
   repeatCount: number;
   pixelsPerSecond?: number; // default ~32px/s (smooth, slow ecommerce marquee)
   pauseDuration?: number; // ms to pause after interaction (default 2500ms)
+  isPaused?: boolean; // programmatic pause (e.g. video playing)
 }
 
 export function useSmoothAutoScroll({
@@ -12,6 +13,7 @@ export function useSmoothAutoScroll({
   repeatCount,
   pixelsPerSecond = 32,
   pauseDuration = 2500,
+  isPaused = false,
 }: UseSmoothAutoScrollOptions) {
   const containerRef = useRef<HTMLDivElement>(null);
   const isInteractingRef = useRef(false);
@@ -76,7 +78,7 @@ export function useSmoothAutoScroll({
       const deltaMs = Math.min(currentTime - lastTimeRef.current, 100); // cap delta to avoid jumps
       lastTimeRef.current = currentTime;
 
-      if (!isInteractingRef.current && isVisibleRef.current && container) {
+      if (!isInteractingRef.current && isVisibleRef.current && !isPaused && container) {
         const distance = (pixelsPerSecond * deltaMs) / 1000;
         subpixelAccumulatorRef.current += distance;
 
@@ -109,7 +111,7 @@ export function useSmoothAutoScroll({
       }
       lastTimeRef.current = null;
     };
-  }, [itemCount, repeatCount, pixelsPerSecond, isReducedMotion]);
+  }, [itemCount, repeatCount, pixelsPerSecond, isReducedMotion, isPaused]);
 
   const handleTouchStart = (e: React.TouchEvent | React.MouseEvent) => {
     isInteractingRef.current = true;

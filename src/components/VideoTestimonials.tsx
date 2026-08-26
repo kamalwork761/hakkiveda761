@@ -1,31 +1,47 @@
-import React, { useState } from 'react';
-import { Play, Star, MapPin, X } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import {
+  Play,
+  X,
+  ExternalLink,
+  ChevronLeft,
+  ChevronRight,
+  Youtube,
+  Sparkles,
+  Layers,
+  Flame,
+  BookOpen,
+} from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { useSmoothAutoScroll } from '../hooks/useSmoothAutoScroll';
+import { TestimonialVideo } from '../types/store';
 
-interface VideoTestimonial {
+export interface VideoGuideItem {
   id: string;
-  name: string;
-  location: string;
-  headline: string;
+  title: string;
+  category: 'Preparation' | 'Application' | 'Herbal Ritual' | 'Product Guide' | string;
   duration: string;
   thumbnail: string;
   videoUrl: string;
+  description?: string;
+  customerName?: string;
+  location?: string;
 }
 
 export function extractYouTubeId(url: string): string {
   if (!url) return '';
-  if (url.includes('youtu.be/')) {
-    return url.split('youtu.be/')[1]?.split('?')[0]?.split('&')[0] || '';
+  const trimmed = url.trim();
+  if (trimmed.includes('youtu.be/')) {
+    return trimmed.split('youtu.be/')[1]?.split('?')[0]?.split('&')[0] || '';
   }
-  if (url.includes('youtube.com/shorts/')) {
-    return url.split('youtube.com/shorts/')[1]?.split('?')[0]?.split('&')[0] || '';
+  if (trimmed.includes('youtube.com/shorts/')) {
+    return trimmed.split('youtube.com/shorts/')[1]?.split('?')[0]?.split('&')[0] || '';
   }
-  if (url.includes('youtube.com/watch')) {
-    const urlParams = new URLSearchParams(url.split('?')[1] || '');
+  if (trimmed.includes('youtube.com/watch')) {
+    const urlParams = new URLSearchParams(trimmed.split('?')[1] || '');
     return urlParams.get('v') || '';
   }
-  if (url.includes('youtube.com/embed/')) {
-    return url.split('youtube.com/embed/')[1]?.split('?')[0]?.split('&')[0] || '';
+  if (trimmed.includes('youtube.com/embed/')) {
+    return trimmed.split('youtube.com/embed/')[1]?.split('?')[0]?.split('&')[0] || '';
   }
   return '';
 }
@@ -35,7 +51,7 @@ export function getYouTubeThumbnailUrl(url: string, fallbackThumbnail?: string):
   if (videoId) {
     return `https://img.youtube.com/vi/${videoId}/hqdefault.jpg`;
   }
-  return fallbackThumbnail || '';
+  return fallbackThumbnail || '/images/hakkiveda_108_oil_gold.jpg';
 }
 
 export function getYouTubeEmbedUrl(url: string): string {
@@ -44,214 +60,392 @@ export function getYouTubeEmbedUrl(url: string): string {
   if (videoId) {
     const origin = typeof window !== 'undefined' && window.location ? window.location.origin : '';
     const originParam = origin ? `&origin=${encodeURIComponent(origin)}` : '';
-    return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1${originParam}`;
+    return `https://www.youtube.com/embed/${videoId}?autoplay=1&rel=0&playsinline=1&modestbranding=1${originParam}`;
   }
   if (url.includes('youtube.com/embed/')) return url;
   return url;
 }
 
-const DEFAULT_TESTIMONIAL_VIDEOS: VideoTestimonial[] = [
+const DEFAULT_VIDEO_GUIDES: VideoGuideItem[] = [
   {
     id: 'vid-1',
-    name: 'DILJIT KUMAR',
-    location: 'London, UK',
-    headline: 'How HAKKIVEDA stopped my post-covid hair shedding in 30 days',
+    title: 'Traditional 21-Day Woodfire Decoction Method',
+    category: 'Preparation',
     duration: '1:45',
     thumbnail: 'https://img.youtube.com/vi/1jzF9v5PEBY/hqdefault.jpg',
     videoUrl: 'https://youtu.be/1jzF9v5PEBY?si=AWftq4EOQ5cOXjt4',
+    description: 'Watch how 108 wildcrafted herbs are simmered in copper cauldrons over woodfire.',
+    customerName: 'HAKKIVEDA Rituals',
+    location: 'Pakshirajapura, Karnataka',
   },
   {
     id: 'vid-2',
-    name: 'Arjun Verma',
-    location: 'Singapore',
-    headline: 'My crown thinning filled up after 2 bottles of Tribal Gold Oil',
+    title: 'Warm Scalp Massage & Night Ritual Guide',
+    category: 'Application',
     duration: '0:58',
     thumbnail: 'https://img.youtube.com/vi/XV-Y5vXaKqU/hqdefault.jpg',
     videoUrl: 'https://youtube.com/shorts/XV-Y5vXaKqU?si=FTdChnp0Ei3dnLlS',
+    description: 'Step-by-step tribal technique for deep root penetration and follicle activation.',
+    customerName: 'Application Masterclass',
+    location: 'Hakki-Pikki Heritage',
   },
   {
     id: 'vid-3',
-    name: 'Priya Sundaram',
-    location: 'Bengaluru, India',
-    headline: 'The 42-herb formulation cured my severe scalp itching & dandruff',
+    title: 'Pure Forest Herbs & Botanical Sourcing',
+    category: 'Herbal Ritual',
     duration: '0:45',
     thumbnail: 'https://img.youtube.com/vi/5Q9IpbVpgZM/hqdefault.jpg',
     videoUrl: 'https://youtube.com/shorts/5Q9IpbVpgZM?si=5MBNXibq_8n0mLZB',
-  }
+    description: 'Ethically foraged Bhringraj, Brahmi, and rare root botanicals in their purest state.',
+    customerName: 'Herbal Potency',
+    location: 'Western Ghats',
+  },
+  {
+    id: 'vid-4',
+    title: 'Choosing the Right Oil Formulation for Your Dosha',
+    category: 'Product Guide',
+    duration: '1:15',
+    thumbnail: 'https://img.youtube.com/vi/1jzF9v5PEBY/hqdefault.jpg',
+    videoUrl: 'https://youtu.be/1jzF9v5PEBY?si=AWftq4EOQ5cOXjt4',
+    description: 'Understand the difference between 108 Herb Gold and Root Revival Elixir.',
+    customerName: 'Product Education',
+    location: 'HAKKIVEDA Lab',
+  },
 ];
 
 export const VideoTestimonials: React.FC = () => {
-  const [activeVideo, setActiveVideo] = useState<VideoTestimonial | null>(null);
-  const [playingInlineId, setPlayingInlineId] = useState<string | null>(null);
-  const { testimonialVideos } = useStore();
+  const [activeVideo, setActiveVideo] = useState<VideoGuideItem | null>(null);
+  const { testimonialVideos, brandIdentity } = useStore();
 
-  const displayVideos: VideoTestimonial[] = testimonialVideos && testimonialVideos.length > 0
-    ? testimonialVideos.map((v) => ({
-        id: v.id,
-        name: v.customerName,
-        location: v.location,
-        headline: v.reviewText,
-        duration: '1:30',
-        thumbnail: getYouTubeThumbnailUrl(v.videoUrl, v.thumbnail),
-        videoUrl: v.videoUrl,
-      }))
-    : DEFAULT_TESTIMONIAL_VIDEOS.map((v) => ({
-        ...v,
-        thumbnail: getYouTubeThumbnailUrl(v.videoUrl, v.thumbnail),
-      }));
+  const rawVideos: VideoGuideItem[] = useMemo(() => {
+    if (testimonialVideos && testimonialVideos.length > 0) {
+      const activeOnly = testimonialVideos.filter((v) => v.active !== false && v.showOnHomepage !== false);
+      if (activeOnly.length > 0) {
+        return activeOnly.map((v: TestimonialVideo, idx: number) => {
+          const fallbackCat = ['Preparation', 'Application', 'Herbal Ritual', 'Product Guide'][idx % 4];
+          return {
+            id: v.id,
+            title: v.title || v.reviewText || v.customerName || `HAKKIVEDA Ritual Guide #${idx + 1}`,
+            category: (v.category as VideoGuideItem['category']) || fallbackCat,
+            duration: v.duration || '1:30',
+            thumbnail: getYouTubeThumbnailUrl(v.videoUrl, v.thumbnail),
+            videoUrl: v.videoUrl,
+            description: v.reviewText,
+            customerName: v.customerName,
+            location: v.location || v.country,
+          };
+        });
+      }
+    }
+    return DEFAULT_VIDEO_GUIDES;
+  }, [testimonialVideos]);
+
+  // Multiply items for smooth continuous carousel auto-scrolling
+  const REPEAT_COUNT = 4;
+  const displayItems = useMemo(() => {
+    return Array.from({ length: REPEAT_COUNT }).flatMap(() => rawVideos);
+  }, [rawVideos]);
+
+  const {
+    containerRef,
+    handleTouchStart,
+    handleTouchMove,
+    handleTouchEnd,
+    handleScroll,
+    isDragging,
+  } = useSmoothAutoScroll({
+    itemCount: rawVideos.length,
+    repeatCount: REPEAT_COUNT,
+    pixelsPerSecond: 18, // Slow, elegant marquee (16–22px/sec target)
+    pauseDuration: 2500,
+    isPaused: Boolean(activeVideo), // Pause immediately while a video is playing
+  });
+
+  const handleCardClick = (item: VideoGuideItem) => {
+    if (isDragging()) return;
+    setActiveVideo(item);
+  };
+
+  const handleDesktopScroll = (direction: 'LEFT' | 'RIGHT') => {
+    const container = containerRef.current;
+    if (!container) return;
+    const scrollAmount = 340;
+    container.scrollBy({
+      left: direction === 'LEFT' ? -scrollAmount : scrollAmount,
+      behavior: 'smooth',
+    });
+  };
+
+  const youtubeChannelUrl = brandIdentity?.socialYoutube || 'https://youtube.com/@hakkiveda';
+
+  const getCategoryIcon = (category: string) => {
+    switch (category) {
+      case 'Preparation':
+        return <Flame className="w-3 h-3 text-[var(--brand-gold)]" />;
+      case 'Application':
+        return <Sparkles className="w-3 h-3 text-[var(--brand-gold)]" />;
+      case 'Herbal Ritual':
+        return <Layers className="w-3 h-3 text-[var(--brand-gold)]" />;
+      case 'Product Guide':
+      default:
+        return <BookOpen className="w-3 h-3 text-[var(--brand-gold)]" />;
+    }
+  };
 
   return (
-    <section className="py-20 bg-[var(--brand-primary-deep)] border-t border-b border-white/10 relative overflow-hidden w-full max-w-full">
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 w-full">
-        <div className="text-center max-w-2xl mx-auto mb-14 space-y-3">
-          <span className="text-[var(--brand-gold)] font-sans text-xs uppercase tracking-[0.28em] font-bold block">
-            Video Testimonials
-          </span>
-          <h2 className="text-3xl sm:text-5xl font-serif-luxury font-bold text-slate-100">
-            Hear From Our Global Customers
+    <section
+      id="youtube-video-guides-section"
+      className="py-12 sm:py-16 md:py-20 bg-[var(--brand-primary-deep)] border-t border-b border-white/10 relative overflow-hidden w-full max-w-full text-white"
+    >
+      {/* Background Decorative Ambient Radial Glow */}
+      <div
+        className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[350px] bg-[var(--brand-gold)]/5 blur-[120px] rounded-full pointer-events-none"
+        aria-hidden="true"
+      />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 w-full relative z-10">
+        {/* Section Header */}
+        <div className="text-center max-w-3xl mx-auto mb-8 sm:mb-12 space-y-2.5">
+          <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-black/40 border border-[var(--brand-gold)]/30 backdrop-blur-sm">
+            <Youtube className="w-3.5 h-3.5 text-red-500 fill-current" />
+            <span className="text-[var(--brand-gold)] font-sans text-[11px] uppercase tracking-[0.25em] font-bold">
+              Official YouTube Series
+            </span>
+          </div>
+
+          <h2 className="text-2xl sm:text-4xl md:text-5xl font-serif-luxury font-bold text-slate-100 tracking-tight leading-tight">
+            WATCH HAKKIVEDA ON YOUTUBE
           </h2>
-          <p className="text-xs sm:text-sm text-slate-300 font-sans leading-relaxed">
-            Real unedited stories from customers in Singapore, India, Malaysia, Fiji, and Mauritius.
+
+          <p className="text-xs sm:text-sm text-slate-300 font-sans leading-relaxed max-w-2xl mx-auto font-normal">
+            Preparation methods, application guides, herbal rituals and product education.
           </p>
         </div>
 
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-          {displayVideos.map((item) => {
-            const isPlayingInline = playingInlineId === item.id;
-            return (
-              <div
-                key={item.id}
-                className="group bg-white border border-[rgba(212,175,55,0.30)] rounded-2xl overflow-hidden hover:border-[var(--brand-gold)] transition-all duration-300 shadow-xl flex flex-col"
-              >
-                <div className="relative h-60 sm:h-72 overflow-hidden bg-slate-900">
-                  {isPlayingInline ? (
-                    <div className="relative w-full h-full">
-                      <button
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPlayingInlineId(null);
-                        }}
-                        className="absolute top-3 right-3 z-20 bg-black/80 text-white hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] p-2 rounded-full transition-colors shadow-lg cursor-pointer"
-                        title="Close Video"
-                      >
-                        <X className="w-4 h-4" />
-                      </button>
-                      <iframe
-                        src={getYouTubeEmbedUrl(item.videoUrl)}
-                        title={item.name}
-                        className="w-full h-full border-0"
-                        allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                        allowFullScreen
-                      ></iframe>
-                    </div>
-                  ) : (
-                    <div
-                      onClick={() => setPlayingInlineId(item.id)}
-                      className="relative w-full h-full cursor-pointer group overflow-hidden"
-                    >
-                      {/* Fully visible video thumbnail with natural colors */}
+        {/* Carousel Container */}
+        <div className="relative group/carousel">
+          {/* Desktop Navigation Arrows (Hidden on Mobile) */}
+          <button
+            onClick={() => handleDesktopScroll('LEFT')}
+            className="hidden md:flex absolute -left-4 lg:-left-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-black/80 hover:bg-[var(--brand-gold)] text-white hover:text-[var(--brand-primary-dark)] border border-white/20 hover:border-[var(--brand-gold)] items-center justify-center shadow-xl transition-all duration-200 cursor-pointer backdrop-blur-md opacity-0 group-hover/carousel:opacity-100 focus:opacity-100"
+            aria-label="Scroll videos left"
+          >
+            <ChevronLeft className="w-6 h-6" />
+          </button>
+
+          <button
+            onClick={() => handleDesktopScroll('RIGHT')}
+            className="hidden md:flex absolute -right-4 lg:-right-6 top-1/2 -translate-y-1/2 z-20 w-11 h-11 rounded-full bg-black/80 hover:bg-[var(--brand-gold)] text-white hover:text-[var(--brand-primary-dark)] border border-white/20 hover:border-[var(--brand-gold)] items-center justify-center shadow-xl transition-all duration-200 cursor-pointer backdrop-blur-md opacity-0 group-hover/carousel:opacity-100 focus:opacity-100"
+            aria-label="Scroll videos right"
+          >
+            <ChevronRight className="w-6 h-6" />
+          </button>
+
+          {/* Horizontal Swipeable Track */}
+          <div
+            ref={containerRef}
+            onTouchStart={handleTouchStart}
+            onTouchMove={handleTouchMove}
+            onTouchEnd={handleTouchEnd}
+            onMouseDown={handleTouchStart}
+            onMouseMove={handleTouchMove}
+            onMouseUp={handleTouchEnd}
+            onScroll={handleScroll}
+            className="flex gap-3 sm:gap-3.5 md:gap-4 overflow-x-auto no-scrollbar scroll-smooth cursor-grab active:cursor-grabbing touch-pan-x pb-4 pt-1"
+            style={{
+              scrollbarWidth: 'none',
+              msOverflowStyle: 'none',
+              WebkitOverflowScrolling: 'touch',
+            }}
+          >
+            {displayItems.map((item, index) => {
+              const videoId = extractYouTubeId(item.videoUrl);
+              const hasValidVideo = Boolean(videoId || item.videoUrl);
+
+              return (
+                <div
+                  key={`${item.id}-${index}`}
+                  onClick={() => handleCardClick(item)}
+                  className="w-[47vw] min-w-[165px] max-w-[210px] sm:w-[220px] md:w-[270px] lg:w-[290px] shrink-0 bg-slate-900/90 border border-white/12 rounded-xl sm:rounded-2xl overflow-hidden hover:border-[var(--brand-gold)] transition-all duration-300 shadow-lg flex flex-col cursor-pointer group"
+                >
+                  {/* Thumbnail Container (16:9 Aspect Ratio) */}
+                  <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-950">
+                    {hasValidVideo ? (
                       <img
                         src={item.thumbnail}
-                        alt={item.name}
+                        alt={item.title}
+                        loading="lazy"
+                        referrerPolicy="no-referrer"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
+                        onError={(e) => {
+                          // Fallback on broken thumbnail
+                          (e.target as HTMLImageElement).src = '/images/hakkiveda_108_oil_gold.jpg';
+                        }}
                       />
+                    ) : (
+                      <div className="w-full h-full flex flex-col items-center justify-center p-3 text-center bg-slate-900 text-slate-400">
+                        <Youtube className="w-6 h-6 text-red-500 mb-1" />
+                        <span className="text-[10px]">HAKKIVEDA Video</span>
+                      </div>
+                    )}
 
-                      {/* Small badge top-left */}
-                      <div className="testimonial-thumbnail-overlay absolute top-3 left-3 z-10">
-                        <span className="bg-black/75 backdrop-blur-md border border-white/15 text-[var(--brand-gold)] text-[10px] font-sans font-bold px-2.5 py-1 rounded-full shadow-md flex items-center gap-1.5">
-                          <span className="w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse"></span>
-                          <span>Verified Customer</span>
+                    {/* Gradient Shade on thumbnail */}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
+
+                    {/* Category Label (Top-Left) */}
+                    <div className="absolute top-2 left-2 z-10">
+                      <span className="bg-black/80 backdrop-blur-md border border-white/20 text-[var(--brand-gold)] text-[9px] sm:text-[10px] font-sans font-bold px-2 py-0.5 rounded-md shadow-sm flex items-center gap-1">
+                        {getCategoryIcon(item.category)}
+                        <span>{item.category}</span>
+                      </span>
+                    </div>
+
+                    {/* Duration Badge (Bottom-Right) */}
+                    {item.duration && (
+                      <div className="absolute bottom-2 right-2 z-10">
+                        <span className="bg-black/85 backdrop-blur-md text-white text-[9px] sm:text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded border border-white/15">
+                          {item.duration}
                         </span>
                       </div>
+                    )}
 
-                      {/* Centered Play Button */}
-                      <div className="absolute inset-0 flex items-center justify-center z-10">
-                        <div className="w-14 h-14 sm:w-16 sm:h-16 rounded-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] flex items-center justify-center shadow-2xl group-hover:scale-110 group-hover:bg-amber-300 transition-all duration-300 ring-4 ring-black/40">
-                          <Play className="w-6 h-6 sm:w-7 sm:h-7 fill-current translate-x-0.5 text-[var(--brand-primary-dark)]" />
-                        </div>
+                    {/* Centered Play Button Overlay */}
+                    <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] flex items-center justify-center shadow-xl group-hover:scale-115 group-hover:bg-amber-300 transition-all duration-300 ring-2 ring-black/40">
+                        <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-current translate-x-0.5 text-[var(--brand-primary-dark)]" />
                       </div>
-
-                      {/* Small duration pill bottom-right */}
-                      <span className="testimonial-thumbnail-overlay absolute bottom-3 right-3 z-10 bg-black/80 backdrop-blur-md text-white text-[10px] font-mono font-bold px-2.5 py-1 rounded-md border border-white/15 shadow-md">
-                        {item.duration}
-                      </span>
                     </div>
-                  )}
-                </div>
-
-                <div className="testimonial-card-body p-5 flex-1 flex flex-col justify-between space-y-3 bg-white text-[#173A25]">
-                  <div>
-                    <div className="flex items-center justify-between text-xs font-sans mb-1">
-                      <span className="font-bold customer-name text-[#123F2B]">{item.name}</span>
-                      <span className="flex items-center gap-1 location text-[#B8891E]">
-                        <MapPin className="w-3 h-3 text-[#B8891E]" />
-                        <span>{item.location}</span>
-                      </span>
-                    </div>
-
-                    <h4
-                      onClick={() => setActiveVideo(item)}
-                      className="quote text-sm font-bold font-serif-luxury text-[#173A25] hover:text-[#B8891E] transition-colors leading-snug cursor-pointer"
-                    >
-                      "{item.headline}"
-                    </h4>
                   </div>
 
-                  <div className="flex items-center justify-between border-t border-slate-200 pt-3">
-                    <div className="flex items-center gap-1 rating text-[#8A6A18] text-xs font-sans font-semibold">
-                      <Star className="w-3.5 h-3.5 fill-current text-[#B8891E]" />
-                      <span>5.0 Verified Review</span>
+                  {/* Card Content */}
+                  <div className="p-3 sm:p-4 flex-1 flex flex-col justify-between space-y-2 bg-[#0c2317]">
+                    <div>
+                      <h3 className="text-xs sm:text-sm font-bold font-serif-luxury text-slate-100 group-hover:text-[var(--brand-gold)] transition-colors leading-snug line-clamp-2">
+                        {item.title}
+                      </h3>
+                      {item.description && (
+                        <p className="text-[10px] sm:text-[11px] text-slate-300 font-sans mt-1 line-clamp-2 leading-relaxed opacity-90 hidden sm:block">
+                          {item.description}
+                        </p>
+                      )}
                     </div>
 
-                    <button
-                      onClick={() => setActiveVideo(item)}
-                      className="text-[11px] font-sans text-[#245C3A] hover:text-[#B8891E] underline font-medium cursor-pointer"
-                    >
-                      Pop-out Modal
-                    </button>
+                    <div className="pt-1.5 border-t border-white/10 flex items-center justify-between text-[10px] sm:text-xs text-slate-300">
+                      <span className="text-[var(--brand-gold)] font-sans font-medium flex items-center gap-1 group-hover:underline">
+                        <span>Play Video</span>
+                        <Play className="w-2.5 h-2.5 fill-current" />
+                      </span>
+                      <span className="text-slate-400 text-[10px] truncate max-w-[90px]">
+                        YouTube HD
+                      </span>
+                    </div>
                   </div>
                 </div>
-              </div>
-            );
-          })}
+              );
+            })}
+          </div>
+        </div>
+
+        {/* Watch More on YouTube CTA */}
+        <div className="mt-8 sm:mt-10 text-center">
+          <a
+            href={youtubeChannelUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="inline-flex items-center gap-2.5 px-6 py-3 rounded-full bg-gradient-to-r from-red-700 via-red-600 to-red-700 text-white font-sans font-bold text-xs sm:text-sm tracking-wide uppercase shadow-xl hover:shadow-red-900/40 hover:scale-[1.02] active:scale-[0.98] transition-all border border-red-400/30"
+          >
+            <Youtube className="w-4 h-4 text-white fill-current" />
+            <span>WATCH MORE ON YOUTUBE →</span>
+          </a>
         </div>
       </div>
 
-      {/* Video Modal Player */}
+      {/* Full 16:9 Video Modal Player */}
       {activeVideo && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-          <div className="relative w-full max-w-3xl bg-black rounded-2xl overflow-hidden border border-[var(--brand-gold)]/40 shadow-2xl">
-            <button
-              onClick={() => setActiveVideo(null)}
-              className="absolute top-4 right-4 z-20 w-10 h-10 rounded-full bg-black/60 text-white hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all flex items-center justify-center"
-            >
-              <X className="w-5 h-5" />
-            </button>
-
-            <div className="p-4 bg-[var(--brand-primary-deep)] border-b border-white/10 flex items-center justify-between">
-              <div>
-                <h3 className="text-sm font-bold text-slate-100 font-serif-luxury">{activeVideo.name} ({activeVideo.location})</h3>
-                <p className="text-[11px] text-[var(--brand-gold)]">Verified Customer Story</p>
+        <div
+          className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-4 md:p-6 bg-black/90 backdrop-blur-md animate-in fade-in duration-200"
+          onClick={() => setActiveVideo(null)}
+        >
+          <div
+            className="relative w-full max-w-3xl bg-slate-950 rounded-2xl overflow-hidden border border-[var(--brand-gold)]/40 shadow-2xl"
+            onClick={(e) => e.stopPropagation()}
+          >
+            {/* Modal Header */}
+            <div className="p-3 sm:p-4 bg-[var(--brand-primary-deep)] border-b border-white/15 flex items-center justify-between gap-3">
+              <div className="min-w-0 flex-1">
+                <div className="flex items-center gap-2 mb-0.5">
+                  <span className="text-[10px] font-sans font-bold text-[var(--brand-gold)] uppercase tracking-wider bg-black/40 px-2 py-0.5 rounded border border-[var(--brand-gold)]/30">
+                    {activeVideo.category}
+                  </span>
+                  {activeVideo.duration && (
+                    <span className="text-[10px] text-slate-300 font-mono">
+                      • {activeVideo.duration}
+                    </span>
+                  )}
+                </div>
+                <h3 className="text-xs sm:text-sm font-bold text-slate-100 font-serif-luxury truncate">
+                  {activeVideo.title}
+                </h3>
               </div>
-              <a
-                href={activeVideo.videoUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="text-[11px] font-sans font-bold text-[var(--brand-gold)] hover:text-white bg-black/40 border border-[var(--brand-gold)]/40 px-3 py-1.5 rounded-full transition-colors flex items-center gap-1.5"
-              >
-                <span>Watch on YouTube</span>
-              </a>
+
+              <div className="flex items-center gap-2 shrink-0">
+                <a
+                  href={activeVideo.videoUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="hidden sm:inline-flex text-[11px] font-sans font-bold text-white hover:text-[var(--brand-gold)] bg-black/60 border border-white/20 hover:border-[var(--brand-gold)] px-3 py-1.5 rounded-full transition-colors items-center gap-1.5"
+                >
+                  <ExternalLink className="w-3.5 h-3.5" />
+                  <span>Open in YouTube</span>
+                </a>
+
+                <button
+                  onClick={() => setActiveVideo(null)}
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-black/60 text-white hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-colors flex items-center justify-center border border-white/20"
+                  aria-label="Close Video Player"
+                >
+                  <X className="w-4 h-4 sm:w-5 sm:h-5" />
+                </button>
+              </div>
             </div>
 
-            <div className="aspect-video w-full bg-black">
-              <iframe
-                src={getYouTubeEmbedUrl(activeVideo.videoUrl)}
-                title={activeVideo.name}
-                className="w-full h-full border-0"
-                allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-                allowFullScreen
-              ></iframe>
+            {/* Responsive 16:9 Video Player */}
+            <div className="aspect-video w-full bg-black relative">
+              {extractYouTubeId(activeVideo.videoUrl) ? (
+                <iframe
+                  src={getYouTubeEmbedUrl(activeVideo.videoUrl)}
+                  title={activeVideo.title}
+                  className="w-full h-full border-0"
+                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+                  allowFullScreen
+                />
+              ) : (
+                <div className="w-full h-full flex flex-col items-center justify-center p-6 text-center text-slate-300 space-y-3">
+                  <Youtube className="w-12 h-12 text-red-500" />
+                  <p className="text-sm font-sans">
+                    Video link is unavailable or being updated.
+                  </p>
+                  <a
+                    href={activeVideo.videoUrl}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] text-xs font-bold"
+                  >
+                    <span>View on External Source</span>
+                    <ExternalLink className="w-3.5 h-3.5" />
+                  </a>
+                </div>
+              )}
             </div>
+
+            {/* Modal Footer with Video Details */}
+            {activeVideo.description && (
+              <div className="p-3 sm:p-4 bg-slate-900/90 border-t border-white/10 flex items-center justify-between text-xs text-slate-300">
+                <p className="line-clamp-2 leading-relaxed">
+                  {activeVideo.description}
+                </p>
+              </div>
+            )}
           </div>
         </div>
       )}

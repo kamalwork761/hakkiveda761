@@ -409,6 +409,9 @@ export interface TestimonialVideo {
   videoUrl: string;
   thumbnail: string;
   reviewText: string;
+  title?: string;
+  category?: 'Preparation' | 'Application' | 'Herbal Ritual' | 'Product Guide' | string;
+  duration?: string;
   customerPhoto?: string;
   country?: string;
   productUsed?: string;
@@ -1098,6 +1101,24 @@ export interface MobileNavConfig {
   menuItems: MobileNavItem[];
   socialLinks: MobileNavSocialLink[];
   copyrightText: string;
+}
+
+export interface HomepageEditorialSectionItem {
+  id: string;
+  enabled: boolean;
+  eyebrow: string;
+  heading: string;
+  description: string;
+  image: string;
+  imageAlt?: string;
+  ctaText: string;
+  ctaLink: string;
+}
+
+export interface HomepageEditorialConfig {
+  section1: HomepageEditorialSectionItem; // OUR ROOTS -> ROOTED IN TRIBAL WISDOM -> /our-tribal-roots
+  section2: HomepageEditorialSectionItem; // OUR CRAFT -> INSIDE HAKKIVEDA -> /how-hakkiveda-is-made
+  section3: HomepageEditorialSectionItem; // OUR JOURNEY -> THE HAKKIVEDA STORY -> /our-story
 }
 
 

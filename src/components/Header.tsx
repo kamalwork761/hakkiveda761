@@ -520,24 +520,24 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
       )}
 
       {/* NEW MOBILE HEADER CONTAINER (lg:hidden) */}
-      <div className="flex lg:hidden bg-[var(--brand-primary-dark)]/95 backdrop-blur-md border-b border-[var(--brand-gold)]/20 px-2.5 sm:px-4 py-2 items-center justify-between shadow-2xl relative z-40">
+      <div className="flex lg:hidden bg-[#FAF7F2] border-b border-[#D8CDAF]/70 px-2 xs:px-3 sm:px-4 py-2 min-h-[54px] max-h-[58px] items-center justify-between shadow-xs relative z-40">
         {/* Left Area: Hamburger Menu + Compact Round Search */}
-        <div className="flex items-center gap-1.5 xs:gap-2 shrink-0 z-10">
+        <div className="flex items-center justify-start gap-1 xs:gap-1.5 shrink-0 w-[80px] xs:w-[90px] sm:w-[96px] z-10">
           <button
             onClick={() => {
               playSound('menu_toggle');
               setIsMobileSearchOpen(false);
               setIsMobileMenuOpen(!isMobileMenuOpen);
             }}
-            className="w-8.5 h-8.5 xs:w-9 xs:h-9 flex items-center justify-center rounded-full bg-black/25 border border-[var(--brand-gold)]/30 text-slate-200 hover:text-[var(--brand-gold)] active:scale-95 transition-all shadow-xs"
+            className="w-9 h-9 xs:w-10 xs:h-10 sm:w-11 sm:h-11 min-w-[36px] min-h-[36px] xs:min-w-[40px] xs:min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center rounded-full bg-[#FAF7F2] hover:bg-[#0F2E22]/5 active:bg-[#0F2E22]/10 border border-[#D8CDAF]/60 hover:border-[#C9A84E] text-[#0F2E22] active:scale-95 transition-all shadow-xs cursor-pointer"
             id="mobile-menu-btn"
             aria-label="Toggle navigation menu"
             title="Menu"
           >
             {isMobileMenuOpen ? (
-              <X className="w-4.5 h-4.5 text-[var(--brand-gold)]" />
+              <X className="w-5 h-5 text-[#0F2E22] stroke-[2]" />
             ) : (
-              <Menu className="w-4.5 h-4.5 text-[var(--brand-gold)]" />
+              <Menu className="w-5 h-5 text-[#0F2E22] stroke-[2]" />
             )}
           </button>
 
@@ -547,16 +547,16 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
               setIsMobileMenuOpen(false);
               setIsMobileSearchOpen(!isMobileSearchOpen);
             }}
-            className={`w-8.5 h-8.5 xs:w-9 xs:h-9 flex items-center justify-center rounded-full border transition-all active:scale-95 shadow-xs ${
+            className={`w-9 h-9 xs:w-10 xs:h-10 sm:w-11 sm:h-11 min-w-[36px] min-h-[36px] xs:min-w-[40px] xs:min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center rounded-full border transition-all active:scale-95 shadow-xs cursor-pointer ${
               isMobileSearchOpen
-                ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] border-[var(--brand-gold)] shadow-md'
-                : 'bg-black/25 border-[var(--brand-gold)]/30 text-slate-200 hover:text-[var(--brand-gold)]'
+                ? 'bg-[#0F2E22] text-[#FAF7F2] border-[#0F2E22] shadow-sm'
+                : 'bg-[#FAF7F2] hover:bg-[#0F2E22]/5 active:bg-[#0F2E22]/10 border-[#D8CDAF]/60 hover:border-[#C9A84E] text-[#0F2E22]'
             }`}
             id="mobile-search-toggle-btn"
             aria-label="Toggle search"
             title="Search products"
           >
-            <Search className="w-4 h-4" />
+            <Search className="w-5 h-5 stroke-[2]" />
           </button>
         </div>
 
@@ -574,23 +574,23 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
                 <img
                   src={mobileUploadedLogoUrl || uploadedLogoUrl}
                   alt={brandIdentity?.brandName || siteSettings?.companyName || 'HAKKIVEDA Logo'}
-                  className="h-7 max-h-7 max-w-[28px] xs:h-8 xs:max-h-8 xs:max-w-[32px] w-auto object-contain transition-transform duration-300"
+                  className="h-8 max-h-8.5 xs:h-9 xs:max-h-9.5 w-auto object-contain transition-transform duration-300"
                   onError={() => setLogoLoadError(true)}
                   loading="eager"
                   decoding="async"
                 />
               </div>
             ) : (
-              <div className="w-6.5 h-6.5 xs:w-7.5 xs:h-7.5 border border-[var(--brand-gold,#D4AF37)] flex items-center justify-center rotate-45 group-hover:bg-[var(--brand-gold,#D4AF37)] transition-all duration-300 shadow-sm shrink-0">
-                <span className="-rotate-45 font-bold font-brand text-[var(--brand-gold,#D4AF37)] group-hover:text-[#123F2A] text-[9px] xs:text-[10px] tracking-tighter">
+              <div className="w-7 h-7 xs:w-8 xs:h-8 border border-[#C9A84E] bg-[#FAF7F2] flex items-center justify-center rotate-45 group-hover:bg-[#C9A84E]/10 transition-all duration-300 shadow-xs shrink-0">
+                <span className="-rotate-45 font-bold font-brand text-[#0F2E22] text-[10px] xs:text-[11px] tracking-tight">
                   {brandIdentity?.brandInitials || siteSettings?.logoInitials || 'HV'}
                 </span>
               </div>
             )}
 
             <div className="flex flex-col justify-center min-w-0 text-left">
-              <HakkivedaWordmark size="sm" theme="dark-header" className="max-w-[105px] xs:max-w-[125px] sm:max-w-[145px]" />
-              <span className="text-[6px] xs:text-[7px] tracking-[0.14em] xs:tracking-[0.18em] font-sans text-[var(--brand-gold)]/85 font-semibold uppercase -mt-0.5 truncate drop-shadow-xs">
+              <HakkivedaWordmark size="sm" theme="light-footer" className="max-w-[125px] xs:max-w-[150px] sm:max-w-[175px]" />
+              <span className="text-[7px] xs:text-[7.5px] tracking-[0.16em] xs:tracking-[0.2em] font-sans text-[#8E7026] font-bold uppercase -mt-0.5 truncate">
                 {brandIdentity?.brandSubtitle || siteSettings?.logoSubtext || 'Hakki-Pikki Tribe & Ayurveda'}
               </span>
             </div>
@@ -598,21 +598,21 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
         </div>
 
         {/* Right Area: Cart Icon + Account Icon (Wishlist removed from top mobile header) */}
-        <div className="flex items-center gap-1.5 xs:gap-2 shrink-0 z-10">
+        <div className="flex items-center justify-end gap-1 xs:gap-1.5 shrink-0 w-[80px] xs:w-[90px] sm:w-[96px] z-10">
           {/* Cart Icon with Counter Badge */}
           <button
             onClick={() => {
               playSound('menu_toggle');
               setIsCartOpen(true);
             }}
-            className="w-8.5 h-8.5 xs:w-9 xs:h-9 flex items-center justify-center rounded-full bg-black/25 border border-[var(--brand-gold)]/30 text-[var(--brand-gold)] hover:text-white transition-colors active:scale-95 relative shadow-xs"
+            className="w-9 h-9 xs:w-10 xs:h-10 sm:w-11 sm:h-11 min-w-[36px] min-h-[36px] xs:min-w-[40px] xs:min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center rounded-full bg-[#FAF7F2] hover:bg-[#0F2E22]/5 active:bg-[#0F2E22]/10 border border-[#D8CDAF]/60 hover:border-[#C9A84E] text-[#0F2E22] transition-colors active:scale-95 relative shadow-xs cursor-pointer"
             id="mobile-cart-btn"
             aria-label={`Cart (${cartItemsCount} items)`}
             title="Shopping Bag"
           >
-            <ShoppingBag className="w-4 h-4" />
+            <ShoppingBag className="w-5 h-5 stroke-[2] text-[#0F2E22]" />
             {cartItemsCount > 0 && (
-              <span className="absolute -top-1 -right-1 bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] text-[9px] font-black rounded-full min-w-[16px] h-4 px-1 flex items-center justify-center shadow-md">
+              <span className="absolute -top-1 -right-1 bg-[#0F2E22] text-[#FAF7F2] border border-[#C9A84E]/70 text-[9px] font-black rounded-full min-w-[18px] h-[18px] px-1 flex items-center justify-center shadow-md leading-none">
                 {cartItemsCount}
               </span>
             )}
@@ -628,35 +628,35 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
                 openAuthModal('SIGN_IN');
               }
             }}
-            className="w-8.5 h-8.5 xs:w-9 xs:h-9 flex items-center justify-center rounded-full bg-black/25 border border-[var(--brand-gold)]/30 text-slate-200 hover:text-[var(--brand-gold)] transition-colors active:scale-95 relative shadow-xs"
+            className="w-9 h-9 xs:w-10 xs:h-10 sm:w-11 sm:h-11 min-w-[36px] min-h-[36px] xs:min-w-[40px] xs:min-h-[40px] sm:min-w-[44px] sm:min-h-[44px] flex items-center justify-center rounded-full bg-[#FAF7F2] hover:bg-[#0F2E22]/5 active:bg-[#0F2E22]/10 border border-[#D8CDAF]/60 hover:border-[#C9A84E] text-[#0F2E22] transition-colors active:scale-95 relative shadow-xs cursor-pointer"
             title={currentUser ? `Account: ${currentUser.name}` : 'Sign In'}
             id="mobile-user-account-btn"
             aria-label="User Account"
           >
-            <User className="w-4 h-4" />
-            {currentUser && <span className="absolute top-1 right-1 w-2 h-2 rounded-full bg-[var(--brand-gold)] shadow-xs"></span>}
+            <User className="w-5 h-5 stroke-[2] text-[#0F2E22]" />
+            {currentUser && <span className="absolute top-1 right-1 w-2.5 h-2.5 rounded-full bg-[#C9A84E] border-2 border-[#FAF7F2] shadow-xs"></span>}
           </button>
         </div>
       </div>
 
       {/* MOBILE COMPACT SEARCH EXPANDABLE BAR (lg:hidden) */}
       {isMobileSearchOpen && (
-        <div className="lg:hidden bg-[var(--brand-primary-deeper)] border-b border-[var(--brand-gold)]/30 px-3 py-2.5 shadow-2xl animate-in slide-in-from-top duration-200 z-50 relative">
+        <div className="lg:hidden bg-[#FAF7F2] border-b border-[#D8CDAF] px-3 py-2.5 shadow-xl animate-in slide-in-from-top duration-200 z-50 relative">
           <div className="relative flex items-center gap-2">
             <div className="relative flex-1">
-              <Search className="w-3.5 h-3.5 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--brand-gold)]" />
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[#0F2E22]/70" />
               <input
                 type="text"
                 autoFocus
-                placeholder="Search products, herbs..."
+                placeholder="Search herbal oils, shampoos, quiz..."
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                className="w-full bg-black/40 border border-[var(--brand-gold)]/40 rounded-full pl-8 pr-8 py-1.5 text-xs text-slate-100 placeholder-slate-400 focus:outline-none focus:border-[var(--brand-gold)] transition-all"
+                className="w-full bg-white border border-[#D8CDAF] rounded-full pl-9 pr-8 py-2 text-xs text-[#0F2E22] placeholder-[#0F2E22]/50 focus:outline-none focus:border-[#C9A84E] focus:ring-1 focus:ring-[#C9A84E] transition-all shadow-xs"
               />
               {searchQuery && (
                 <button
                   onClick={() => setSearchQuery('')}
-                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-white p-0.5"
+                  className="absolute right-2.5 top-1/2 -translate-y-1/2 text-[#0F2E22]/60 hover:text-[#0F2E22] p-1"
                   aria-label="Clear search text"
                 >
                   <X className="w-3.5 h-3.5" />
@@ -668,7 +668,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
                 setIsMobileSearchOpen(false);
                 setSearchQuery('');
               }}
-              className="text-[11px] font-bold text-[var(--brand-gold)] uppercase tracking-wider px-2 py-1 rounded hover:bg-white/5 shrink-0"
+              className="text-[11px] font-bold text-[#0F2E22] uppercase tracking-wider px-2 py-1.5 rounded hover:bg-[#0F2E22]/5 shrink-0"
             >
               Cancel
             </button>
@@ -676,10 +676,10 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
 
           {/* Live Mobile Search Autocomplete Results */}
           {filteredProducts.length > 0 && searchQuery.trim() && (
-            <div className="mt-2 bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/30 rounded-xl p-2 max-h-60 overflow-y-auto space-y-1.5 shadow-2xl">
-              <div className="text-[9px] uppercase font-bold text-[var(--brand-gold)] px-2 py-0.5 tracking-wider border-b border-white/10 flex items-center justify-between">
+            <div className="mt-2.5 bg-white border border-[#D8CDAF] rounded-xl p-2 max-h-60 overflow-y-auto space-y-1.5 shadow-xl">
+              <div className="text-[9px] uppercase font-bold text-[#8E7026] px-2 py-1 tracking-wider border-b border-[#D8CDAF]/40 flex items-center justify-between">
                 <span>Matching Formulations</span>
-                <span className="text-slate-400">{filteredProducts.length} results</span>
+                <span className="text-[#0F2E22]/60">{filteredProducts.length} results</span>
               </div>
               {filteredProducts.map((prod) => (
                 <div
@@ -692,18 +692,18 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
                     window.dispatchEvent(new PopStateEvent('popstate'));
                     window.scrollTo({ top: 0, behavior: 'instant' });
                   }}
-                  className="flex items-center gap-2.5 p-2 hover:bg-[var(--brand-primary-deeper)] rounded-lg cursor-pointer transition-colors"
+                  className="flex items-center gap-2.5 p-2 hover:bg-[#FAF7F2] rounded-lg cursor-pointer transition-colors border border-transparent hover:border-[#D8CDAF]/40"
                 >
                   <img
                     src={prod.image}
                     alt={prod.name}
-                    className="w-9 h-9 object-contain rounded bg-black/30 p-0.5 border border-white/10 shrink-0"
+                    className="w-10 h-10 object-contain rounded bg-[#FAF7F2] p-0.5 border border-[#D8CDAF]/50 shrink-0"
                   />
                   <div className="min-w-0 flex-1">
-                    <div className="font-bold text-white text-xs truncate">{prod.name}</div>
-                    <div className="text-[10px] text-[var(--brand-gold)] truncate">{prod.subtitle}</div>
+                    <div className="font-bold text-[#0F2E22] text-xs truncate">{prod.name}</div>
+                    <div className="text-[10px] text-[#8E7026] truncate font-medium">{prod.subtitle}</div>
                   </div>
-                  <div className="text-xs font-bold text-white shrink-0">
+                  <div className="text-xs font-bold text-[#0F2E22] shrink-0">
                     ₹{prod.price}
                   </div>
                 </div>
@@ -712,7 +712,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
           )}
 
           {searchQuery.trim() && filteredProducts.length === 0 && (
-            <div className="mt-2 text-center py-3 text-xs text-slate-400">
+            <div className="mt-2.5 text-center py-3 text-xs text-[#0F2E22]/70 bg-white rounded-xl border border-[#D8CDAF]/50">
               No herbal formulations found for "{searchQuery}"
             </div>
           )}

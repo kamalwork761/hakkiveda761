@@ -28,6 +28,7 @@ import {
   CategoryPageConfig,
   HomepageQuizBannerConfig,
   MobileNavConfig,
+  HomepageEditorialConfig,
 } from '../types/store';
 import {
   WORLD_COUNTRIES,
@@ -1239,30 +1240,51 @@ export const INITIAL_NAV_LINKS: NavLink[] = [
 export const INITIAL_TESTIMONIAL_VIDEOS: TestimonialVideo[] = [
   {
     id: 'vid-1',
-    customerName: 'Shalini Patel',
-    location: 'London, UK',
+    customerName: 'HAKKIVEDA Rituals',
+    location: 'Pakshirajapura, Karnataka',
     rating: 5,
+    title: 'Traditional 21-Day Woodfire Decoction Method',
+    category: 'Preparation',
+    duration: '1:45',
     videoUrl: 'https://youtu.be/1jzF9v5PEBY?si=AWftq4EOQ5cOXjt4',
     thumbnail: 'https://img.youtube.com/vi/1jzF9v5PEBY/hqdefault.jpg',
-    reviewText: 'My hair fall stopped within 3 weeks of using HAKKIVEDA oil!',
+    reviewText: 'Watch how 108 wildcrafted herbs are simmered in copper cauldrons over woodfire.',
   },
   {
     id: 'vid-2',
-    customerName: 'Arjun Verma',
-    location: 'Singapore',
+    customerName: 'Application Masterclass',
+    location: 'Hakki-Pikki Heritage',
     rating: 5,
+    title: 'Warm Scalp Massage & Night Ritual Guide',
+    category: 'Application',
+    duration: '0:58',
     videoUrl: 'https://youtube.com/shorts/XV-Y5vXaKqU?si=FTdChnp0Ei3dnLlS',
     thumbnail: 'https://img.youtube.com/vi/XV-Y5vXaKqU/hqdefault.jpg',
-    reviewText: 'Massive growth in density at my temples. Highly recommended!',
+    reviewText: 'Step-by-step tribal technique for deep root penetration and follicle activation.',
   },
   {
     id: 'vid-3',
-    customerName: 'Priya Sundaram',
-    location: 'Bengaluru, India',
+    customerName: 'Herbal Potency',
+    location: 'Western Ghats',
     rating: 5,
+    title: 'Pure Forest Herbs & Botanical Sourcing',
+    category: 'Herbal Ritual',
+    duration: '0:45',
     videoUrl: 'https://youtube.com/shorts/5Q9IpbVpgZM?si=5MBNXibq_8n0mLZB',
     thumbnail: 'https://img.youtube.com/vi/5Q9IpbVpgZM/hqdefault.jpg',
-    reviewText: 'The 42-herb formulation cured my severe scalp itching & hair fall.',
+    reviewText: 'Ethically foraged Bhringraj, Brahmi, and rare root botanicals in their purest state.',
+  },
+  {
+    id: 'vid-4',
+    customerName: 'Product Education',
+    location: 'HAKKIVEDA Lab',
+    rating: 5,
+    title: 'Choosing the Right Oil Formulation for Your Dosha',
+    category: 'Product Guide',
+    duration: '1:15',
+    videoUrl: 'https://youtu.be/1jzF9v5PEBY?si=AWftq4EOQ5cOXjt4',
+    thumbnail: 'https://img.youtube.com/vi/1jzF9v5PEBY/hqdefault.jpg',
+    reviewText: 'Understand the difference between 108 Herb Gold and Root Revival Elixir.',
   },
 ];
 
@@ -1910,7 +1932,7 @@ export const INITIAL_FOOTER_CONFIG: FooterConfig = {
   mobileFooter: {
     enabled: true,
     showWarningSection: true,
-    warningHeading: 'BEWARE OF FAKE & DUPLICATE ADIVASI HAIR OILS',
+    warningHeading: 'BEWARE OF COUNTERFEIT PRODUCTS',
     warningLines: [
       'Beware of scammers and duplicate Adivasi hair oils.',
       'Authentic HAKKIVEDA products carry our official branding.',
@@ -1935,12 +1957,12 @@ export const INITIAL_B2B_SECTION_CONFIG: B2BSectionConfig = {
   enabled: true,
   bannerImage: 'https://images.unsplash.com/photo-1608248597289-53e30f146a7d?auto=format&fit=crop&w=1200&q=80',
   backgroundImage: 'https://images.unsplash.com/photo-1540555700478-4be289fbecef?auto=format&fit=crop&w=1600&q=80',
-  badgeText: 'WHOLESALE & EXPORT PARTNERSHIPS',
-  heading: 'Partner with HAKKIVEDA for Bulk Distribution & Spa Supply',
-  subheading: 'Direct Factory Supply & Custom Private Label Formulation',
-  description: 'We export authentic 42-herb Ayurvedic hair care formulations to luxury wellness spas, salon chains, and herbal distributors across India, Singapore, Malaysia, Fiji, Mauritius, UAE, North America, United Kingdom, and Europe.',
-  ctaText: 'Submit Export Enquiry',
-  ctaUrl: '#b2b',
+  badgeText: 'GLOBAL PARTNERSHIPS',
+  heading: 'PARTNER WITH HAKKIVEDA',
+  subheading: 'Wholesale, Distribution & Export',
+  description: 'Bring authentic HAKKIVEDA herbal rituals to your market. We welcome wholesale, distribution and international partnership enquiries.',
+  ctaText: 'BECOME A PARTNER',
+  ctaUrl: '/b2b-enquiry',
   features: [
     {
       id: 'feat-1',
@@ -2567,6 +2589,45 @@ export const INITIAL_MOBILE_NAV_CONFIG: MobileNavConfig = {
     },
   ],
   copyrightText: '© 2026 HAKKIVEDA',
+};
+
+export const INITIAL_HOMEPAGE_EDITORIAL_CONFIG: HomepageEditorialConfig = {
+  section1: {
+    id: 'editorial-roots',
+    enabled: true,
+    eyebrow: 'OUR ROOTS',
+    heading: 'ROOTED IN TRIBAL WISDOM',
+    description:
+      'Inspired by generations of Hakki-Pikki herbal knowledge from Mysuru, HAKKIVEDA brings traditional botanical wisdom into thoughtfully crafted modern hair and wellness rituals.',
+    image: '/images/hero_tribal_elders.jpg',
+    imageAlt: 'Hakki-Pikki tribal elders in Mysuru forests',
+    ctaText: 'KNOW MORE →',
+    ctaLink: '/our-tribal-roots',
+  },
+  section2: {
+    id: 'editorial-craft',
+    enabled: true,
+    eyebrow: 'OUR CRAFT',
+    heading: 'INSIDE HAKKIVEDA',
+    description:
+      'Discover the botanical preparation behind HAKKIVEDA — from carefully selected herbs and traditional processing to the quality checks behind every finished formulation.',
+    image: '/images/hakkiveda_108_herbs_infographic.jpg',
+    imageAlt: 'Hand-selected mountain botanicals and copper cauldron preparation',
+    ctaText: 'DISCOVER MORE →',
+    ctaLink: '/how-hakkiveda-is-made',
+  },
+  section3: {
+    id: 'editorial-story',
+    enabled: true,
+    eyebrow: 'OUR JOURNEY',
+    heading: 'THE HAKKIVEDA STORY',
+    description:
+      'A journey connecting Hakki-Pikki botanical traditions with a modern vision: preserving knowledge, creating authentic formulations and sharing those rituals with customers around the world.',
+    image: '/images/hakkiveda_oil_couple_herbs.jpg',
+    imageAlt: 'HAKKIVEDA authentic herbal artisans and formulations',
+    ctaText: 'READ OUR STORY →',
+    ctaLink: '/our-story',
+  },
 };
 
 

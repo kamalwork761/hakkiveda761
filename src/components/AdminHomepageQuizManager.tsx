@@ -330,6 +330,56 @@ export const AdminHomepageQuizManager: React.FC<AdminHomepageQuizManagerProps> =
             </div>
           </div>
 
+          {/* Content & Typography Section */}
+          <div className="bg-[var(--brand-primary-deep)] border border-white/10 rounded-2xl p-5 space-y-4 shadow-md">
+            <h3 className="text-sm font-bold font-serif-luxury text-slate-100 border-b border-white/10 pb-3 flex items-center gap-2">
+              <Bot className="w-4 h-4 text-[var(--brand-gold)]" />
+              <span>Promotional Text & Copy</span>
+            </h3>
+
+            <div className="space-y-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  Eyebrow / Subheading
+                </label>
+                <input
+                  type="text"
+                  value={form.subheading}
+                  onChange={(e) => handleChange('subheading', e.target.value)}
+                  placeholder="AI-POWERED HAIR ANALYSIS"
+                  className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)] font-sans"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  Main Headline / Title *
+                </label>
+                <input
+                  type="text"
+                  required
+                  value={form.heading}
+                  onChange={(e) => handleChange('heading', e.target.value)}
+                  placeholder="Discover Your Personalized Hair Ritual"
+                  className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)] font-serif-luxury text-sm"
+                />
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  Description Text
+                </label>
+                <textarea
+                  rows={2}
+                  value={form.description}
+                  onChange={(e) => handleChange('description', e.target.value)}
+                  placeholder="Take our quick hair quiz and discover the HAKKIVEDA ritual suited to your hair concerns."
+                  className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)] font-sans"
+                />
+              </div>
+            </div>
+          </div>
+
           {/* CTA Button & Overlay Position Section */}
           <div className="bg-[var(--brand-primary-deep)] border border-white/10 rounded-2xl p-5 space-y-4 shadow-md">
             <h3 className="text-sm font-bold font-serif-luxury text-slate-100 border-b border-white/10 pb-3 flex items-center gap-2">
@@ -442,30 +492,73 @@ export const AdminHomepageQuizManager: React.FC<AdminHomepageQuizManagerProps> =
                 previewDevice === 'mobile' ? 'max-w-xs' : 'w-full'
               }`}
             >
-              <div className="relative w-full rounded-2xl overflow-hidden border border-[var(--brand-gold)]/40 shadow-xl bg-[#0E281C] group">
-                <img
-                  src={
-                    previewDevice === 'mobile'
-                      ? form.mobileBanner || form.desktopBanner || '/images/hakkiveda_108_oil_gold.jpg'
-                      : form.desktopBanner || '/images/hakkiveda_108_oil_gold.jpg'
-                  }
-                  alt="Preview"
-                  className="w-full h-auto block object-contain rounded-2xl"
-                />
-
-                {/* Overlay CTA Button */}
-                <div
-                  className={`absolute inset-0 p-3 sm:p-4 flex pointer-events-none ${getOverlayPosClass(
-                    form.buttonPosition
-                  )}`}
-                >
-                  <div className="bg-[var(--brand-gold)] text-[#0E281C] font-extrabold text-[11px] sm:text-xs px-4 py-2 rounded-xl flex items-center gap-2 shadow-xl border border-white/20">
-                    <Bot className="w-3.5 h-3.5" />
-                    <span>{form.ctaText || 'START AI HAIR QUIZ'}</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
+              {previewDevice === 'mobile' ? (
+                <div className="relative w-full h-[260px] rounded-2xl overflow-hidden shadow-xl border border-[var(--brand-gold,#C9A84E)]/30 group bg-[#0A1810]">
+                  <img
+                    src={form.mobileBanner || form.desktopBanner || '/images/hakkiveda_108_oil_gold.jpg'}
+                    alt="Mobile Preview"
+                    className="w-full h-full object-cover object-center"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/25 flex flex-col justify-between p-4 text-white" />
+                  <div className="absolute inset-0 flex flex-col justify-between p-4 text-white z-10">
+                    <div className="flex items-center gap-1.5 self-start bg-black/50 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-[var(--brand-gold,#C9A84E)]/40">
+                      <Bot className="w-3 h-3 text-[var(--brand-gold,#C9A84E)]" />
+                      <span className="text-[9px] uppercase font-extrabold tracking-wider text-[var(--brand-gold,#C9A84E)] font-sans">
+                        {form.subheading || 'AI-POWERED HAIR ANALYSIS'}
+                      </span>
+                    </div>
+                    <div className="space-y-1.5">
+                      <h4 className="font-serif-luxury font-bold text-sm text-white leading-snug">
+                        {form.heading || 'Discover Your Personalized Hair Ritual'}
+                      </h4>
+                      <p className="text-[11px] text-slate-200 font-sans line-clamp-2 leading-tight">
+                        {form.description ||
+                          'Take our quick hair quiz and discover the HAKKIVEDA ritual suited to your hair concerns.'}
+                      </p>
+                      <div className="pt-1">
+                        <div className="w-full bg-[var(--brand-gold,#C9A84E)] text-[#0B2F20] font-extrabold text-[11px] px-3 py-2 rounded-xl flex items-center justify-center gap-1.5 shadow-lg border border-white/20">
+                          <Bot className="w-3.5 h-3.5" />
+                          <span>{form.ctaText || 'START AI HAIR QUIZ'}</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
-              </div>
+              ) : (
+                <div className="relative w-full aspect-[16/6] min-h-[180px] rounded-2xl overflow-hidden shadow-xl border border-[var(--brand-gold,#C9A84E)]/30 group bg-[#0A1810]">
+                  <img
+                    src={form.desktopBanner || form.mobileBanner || '/images/hakkiveda_108_oil_gold.jpg'}
+                    alt="Desktop Preview"
+                    className="w-full h-full object-cover object-center"
+                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-transparent flex items-center p-5 text-white" />
+                  <div className="absolute inset-0 flex items-center p-5 z-10">
+                    <div className="max-w-[280px] space-y-2 text-white">
+                      <div className="inline-flex items-center gap-1.5 bg-black/40 backdrop-blur-xs px-2.5 py-0.5 rounded-full border border-[var(--brand-gold,#C9A84E)]/40">
+                        <Bot className="w-3 h-3 text-[var(--brand-gold,#C9A84E)]" />
+                        <span className="text-[10px] uppercase font-extrabold tracking-wider text-[var(--brand-gold,#C9A84E)] font-sans">
+                          {form.subheading || 'AI-POWERED HAIR ANALYSIS'}
+                        </span>
+                      </div>
+                      <h4 className="font-serif-luxury font-bold text-base text-white leading-snug">
+                        {form.heading || 'Discover Your Personalized Hair Ritual'}
+                      </h4>
+                      <p className="text-[11px] text-slate-200 font-sans line-clamp-2 leading-relaxed">
+                        {form.description ||
+                          'Take our quick hair quiz and discover the HAKKIVEDA ritual suited to your hair concerns.'}
+                      </p>
+                      <div className="pt-1">
+                        <div className="inline-flex items-center gap-1.5 bg-[var(--brand-gold,#C9A84E)] text-[#0B2F20] font-extrabold text-[11px] px-4 py-1.5 rounded-xl shadow-lg border border-white/20">
+                          <Bot className="w-3 h-3" />
+                          <span>{form.ctaText || 'START AI HAIR QUIZ'}</span>
+                          <ArrowRight className="w-3 h-3" />
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              )}
             </div>
 
             <p className="text-[11px] text-slate-400 font-sans text-center">

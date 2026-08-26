@@ -16,12 +16,22 @@ import { CartToast } from './components/CartToast';
 // Dynamic / Lazy-loaded Below-the-fold sections
 const BeforeAfterSlider = lazy(() => import('./components/BeforeAfterSlider').then(m => ({ default: m.BeforeAfterSlider })));
 const BrandStory = lazy(() => import('./components/BrandStory').then(m => ({ default: m.BrandStory })));
+const HomepageEditorialSections = lazy(() => import('./components/HomepageEditorialSections').then(m => ({ default: m.HomepageEditorialSections })));
+const HomepageJournalSection = lazy(() => import('./components/HomepageJournalSection').then(m => ({ default: m.HomepageJournalSection })));
 const VideoTestimonials = lazy(() => import('./components/VideoTestimonials').then(m => ({ default: m.VideoTestimonials })));
 const ShoppableReelsSection = lazy(() => import('./components/ShoppableReelsSection').then(m => ({ default: m.ShoppableReelsSection })));
 const CustomerReviews = lazy(() => import('./components/CustomerReviews').then(m => ({ default: m.CustomerReviews })));
 const BlogSection = lazy(() => import('./components/BlogSection').then(m => ({ default: m.BlogSection })));
 const B2BSection = lazy(() => import('./components/B2BSection').then(m => ({ default: m.B2BSection })));
 const B2BEnquiryPage = lazy(() => import('./pages/B2BEnquiryPage').then(m => ({ default: m.B2BEnquiryPage })));
+
+// Dedicated Brand & Journal Pages
+const OurTribalRootsPage = lazy(() => import('./components/OurTribalRootsPage').then(m => ({ default: m.OurTribalRootsPage })));
+const HowHakkivedaIsMadePage = lazy(() => import('./components/HowHakkivedaIsMadePage').then(m => ({ default: m.HowHakkivedaIsMadePage })));
+const OurStoryPage = lazy(() => import('./components/OurStoryPage').then(m => ({ default: m.OurStoryPage })));
+const JournalListingPage = lazy(() => import('./components/JournalListingPage').then(m => ({ default: m.JournalListingPage })));
+const BlogArticlePage = lazy(() => import('./components/BlogArticlePage').then(m => ({ default: m.BlogArticlePage })));
+const VideoRitualsPage = lazy(() => import('./pages/VideoRitualsPage').then(m => ({ default: m.VideoRitualsPage })));
 
 // Dynamic Modals & Drawers
 const ProductDetailModal = lazy(() => import('./components/ProductDetailModal').then(m => ({ default: m.ProductDetailModal })));
@@ -199,6 +209,22 @@ export function AppContent() {
   const productSlug = productRouteMatch ? decodeURIComponent(productRouteMatch[1]) : '';
   const isCategoryRoute = currentPath === '/hair-care' || currentPath === '/skin-care' || currentPath === '/tribal-wellness';
   const isB2BRoute = currentPath === '/b2b-enquiry' || currentPath === '/b2b' || currentPath === '/export-enquiry';
+  const isVideoRitualsRoute = normalizedPath === '/video-rituals' || normalizedPath === '/rituals' || normalizedPath === '/reels';
+
+  // Editorial & Journal Routes
+  const isOurTribalRootsRoute = normalizedPath === '/our-tribal-roots' || normalizedPath === '/tribal-heritage';
+  const isHowMadeRoute = normalizedPath === '/how-hakkiveda-is-made' || normalizedPath === '/craft' || normalizedPath === '/how-it-is-made';
+  const isOurStoryRoute = normalizedPath === '/our-story' || normalizedPath === '/story' || normalizedPath === '/about-us';
+
+  const journalArticleRouteMatch = normalizedPath.match(/^\/(?:journal|blog)\/([^/]+)\/?$/i);
+  const isJournalArticleRoute = Boolean(journalArticleRouteMatch);
+  const journalArticleSlug = journalArticleRouteMatch ? decodeURIComponent(journalArticleRouteMatch[1]) : '';
+  const isJournalListingRoute = !isJournalArticleRoute && (
+    normalizedPath === '/journal' ||
+    normalizedPath === '/blog' ||
+    normalizedPath === '/blogs' ||
+    normalizedPath === '/the-journal'
+  );
 
   return (
     <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-text)] flex flex-col font-sans selection:bg-[var(--brand-gold)] selection:text-[var(--color-button-text)] transition-colors duration-300">
@@ -206,7 +232,7 @@ export function AppContent() {
       <SeoSchemaInjector />
 
       {/* Customer Header */}
-      <div className={isProductRoute ? 'hidden md:block' : ''}>
+      <div className={isProductRoute ? 'hidden md:block' : isVideoRitualsRoute ? 'hidden' : ''}>
         <Header selectedCategory={selectedCategory} onSelectCategory={handleSelectCategory} />
       </div>
 
@@ -271,11 +297,68 @@ export function AppContent() {
               }}
             />
           </Suspense>
+        ) : isOurTribalRootsRoute ? (
+          <Suspense fallback={<SectionSkeleton />}>
+            <OurTribalRootsPage
+              onReturnHome={() => navigate('/')}
+              onNavigateJournal={(slug) => (slug ? navigate(`/journal/${slug}`) : navigate('/journal'))}
+              onNavigateProducts={() => {
+                navigate('/');
+                setTimeout(() => handleSelectCategory('Hair Care', true), 50);
+              }}
+            />
+          </Suspense>
+        ) : isHowMadeRoute ? (
+          <Suspense fallback={<SectionSkeleton />}>
+            <HowHakkivedaIsMadePage
+              onReturnHome={() => navigate('/')}
+              onNavigateJournal={(slug) => (slug ? navigate(`/journal/${slug}`) : navigate('/journal'))}
+              onNavigateProducts={() => {
+                navigate('/');
+                setTimeout(() => handleSelectCategory('Hair Care', true), 50);
+              }}
+            />
+          </Suspense>
+        ) : isOurStoryRoute ? (
+          <Suspense fallback={<SectionSkeleton />}>
+            <OurStoryPage
+              onReturnHome={() => navigate('/')}
+              onNavigateJournal={(slug) => (slug ? navigate(`/journal/${slug}`) : navigate('/journal'))}
+              onNavigateProducts={() => {
+                navigate('/');
+                setTimeout(() => handleSelectCategory('Hair Care', true), 50);
+              }}
+            />
+          </Suspense>
+        ) : isJournalArticleRoute ? (
+          <Suspense fallback={<SectionSkeleton />}>
+            <BlogArticlePage
+              slugOrId={journalArticleSlug}
+              onReturnToJournal={() => navigate('/journal')}
+              onReturnHome={() => navigate('/')}
+              onNavigateArticle={(slug) => navigate(`/journal/${slug}`)}
+              onNavigateProduct={(p) => navigate(getProductUrl(p))}
+            />
+          </Suspense>
+        ) : isJournalListingRoute ? (
+          <Suspense fallback={<SectionSkeleton />}>
+            <JournalListingPage
+              onReturnHome={() => navigate('/')}
+              onSelectArticle={(slug) => navigate(`/journal/${slug}`)}
+            />
+          </Suspense>
         ) : isCategoryRoute ? (
           <CategoryLandingPage
             categoryPath={currentPath}
             onReturnHome={() => navigate('/')}
           />
+        ) : isVideoRitualsRoute ? (
+          <Suspense fallback={<SectionSkeleton />}>
+            <VideoRitualsPage
+              onReturnHome={() => navigate('/')}
+              onSelectProduct={(p) => navigate(getProductUrl(p))}
+            />
+          </Suspense>
         ) : isB2BRoute ? (
           <Suspense fallback={<SectionSkeleton />}>
             <B2BEnquiryPage onReturnHome={() => navigate('/')} />
@@ -298,23 +381,26 @@ export function AppContent() {
             <HomepageQuizBanner />
 
             <Suspense fallback={<SectionSkeleton />}>
+              {/* Shoppable Video Reels (HAKKIVEDA Video Rituals) */}
+              <ShoppableReelsSection
+                onSelectProduct={(p) => navigate(getProductUrl(p))}
+                onExploreMore={() => navigate('/video-rituals')}
+              />
+
               {/* Before & After Interactive Comparison */}
               <BeforeAfterSlider />
 
-              {/* Brand Lore Story */}
-              <BrandStory />
+              {/* Editorial Brand Story Sections */}
+              <HomepageEditorialSections onNavigate={(url) => navigate(url)} />
 
-              {/* Video Testimonials */}
+              {/* The Journal — Explore Our Latest Stories */}
+              <HomepageJournalSection onNavigate={(url) => navigate(url)} />
+
+              {/* Video Testimonials (Watch Us on YouTube) */}
               <VideoTestimonials />
-
-              {/* Shoppable Video Reels */}
-              <ShoppableReelsSection onSelectProduct={(p) => navigate(getProductUrl(p))} />
 
               {/* Customer Reviews */}
               <CustomerReviews />
-
-              {/* Blog & Tribal Journal */}
-              <BlogSection />
 
               {/* B2B Wholesale Export */}
               <B2BSection />
@@ -323,8 +409,8 @@ export function AppContent() {
         )}
       </main>
 
-      {/* Customer Footer (Hidden on mobile Product Detail Page) */}
-      <div className={isProductRoute ? 'hidden md:block' : ''}>
+      {/* Customer Footer (Hidden on mobile Product Detail Page & Video Rituals) */}
+      <div className={isProductRoute ? 'hidden md:block' : isVideoRitualsRoute ? 'hidden' : ''}>
         <Footer />
       </div>
 

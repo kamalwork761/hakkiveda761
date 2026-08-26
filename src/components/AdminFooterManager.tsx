@@ -845,7 +845,7 @@ export const AdminFooterManager: React.FC<AdminFooterManagerProps> = ({ showToas
               <label className="block font-bold text-slate-300 mb-1">Advisory Heading (Serif)</label>
               <input
                 type="text"
-                value={formData.mobileFooter?.warningHeading || 'BEWARE OF FAKE & DUPLICATE ADIVASI HAIR OILS'}
+                value={formData.mobileFooter?.warningHeading || 'BEWARE OF COUNTERFEIT PRODUCTS'}
                 onChange={(e) =>
                   setFormData((prev) => ({
                     ...prev,
@@ -856,7 +856,7 @@ export const AdminFooterManager: React.FC<AdminFooterManagerProps> = ({ showToas
                   }))
                 }
                 className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100 font-bold tracking-wide"
-                placeholder="BEWARE OF FAKE & DUPLICATE ADIVASI HAIR OILS"
+                placeholder="BEWARE OF COUNTERFEIT PRODUCTS"
               />
             </div>
 

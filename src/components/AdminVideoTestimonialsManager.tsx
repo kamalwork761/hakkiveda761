@@ -56,6 +56,9 @@ export const AdminVideoTestimonialsManager: React.FC<AdminVideoTestimonialsManag
 
   // Form State
   const [customerName, setCustomerName] = useState('');
+  const [title, setTitle] = useState('');
+  const [category, setCategory] = useState<string>('Preparation');
+  const [duration, setDuration] = useState('1:30');
   const [customerPhoto, setCustomerPhoto] = useState('');
   const [country, setCountry] = useState('India');
   const [productUsed, setProductUsed] = useState('');
@@ -71,6 +74,9 @@ export const AdminVideoTestimonialsManager: React.FC<AdminVideoTestimonialsManag
   const resetForm = () => {
     setEditingVideo(null);
     setCustomerName('');
+    setTitle('');
+    setCategory('Preparation');
+    setDuration('1:30');
     setCustomerPhoto('');
     setCountry('India');
     setProductUsed(products[0]?.name || 'Hakki-Pikki Herbal Hair Oil');
@@ -93,6 +99,9 @@ export const AdminVideoTestimonialsManager: React.FC<AdminVideoTestimonialsManag
   const handleOpenEdit = (vid: TestimonialVideo) => {
     setEditingVideo(vid);
     setCustomerName(vid.customerName || '');
+    setTitle(vid.title || vid.reviewText || '');
+    setCategory(vid.category || 'Preparation');
+    setDuration(vid.duration || '1:30');
     setCustomerPhoto(vid.customerPhoto || '');
     setCountry(vid.country || vid.location || 'India');
     setProductUsed(vid.productUsed || products[0]?.name || 'Hakki-Pikki Herbal Hair Oil');
@@ -125,12 +134,15 @@ export const AdminVideoTestimonialsManager: React.FC<AdminVideoTestimonialsManag
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (!customerName.trim() || !videoUrl) {
-      showToast('Please enter customer name and provide a video file or link.', 'error');
+      showToast('Please enter customer name/creator and provide a video file or link.', 'error');
       return;
     }
 
     const videoData = {
       customerName,
+      title: title.trim() || reviewText.trim() || customerName,
+      category,
+      duration,
       customerPhoto,
       location: country,
       country,
@@ -146,10 +158,10 @@ export const AdminVideoTestimonialsManager: React.FC<AdminVideoTestimonialsManag
 
     if (editingVideo) {
       updateTestimonialVideo(editingVideo.id, videoData);
-      showToast('Video testimonial updated successfully.', 'success');
+      showToast('YouTube Video Guide updated successfully.', 'success');
     } else {
       addTestimonialVideo(videoData);
-      showToast('New video testimonial published.', 'success');
+      showToast('New YouTube Video Guide published.', 'success');
     }
 
     resetForm();
@@ -213,13 +225,13 @@ export const AdminVideoTestimonialsManager: React.FC<AdminVideoTestimonialsManag
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-5">
         <div>
           <span className="text-[var(--brand-gold)] text-xs font-bold uppercase tracking-wider block mb-1 font-sans">
-            Video Reviews & Proof
+            YouTube Video Guides & Tutorials
           </span>
           <h1 className="text-2xl sm:text-3xl font-bold font-serif-luxury text-slate-100">
-            Video Testimonials Manager
+            YouTube Video Guides Manager
           </h1>
           <p className="text-xs text-slate-300 font-sans mt-1">
-            Manage customer video stories (MP4/WebM uploads or YouTube/Vimeo links).
+            Manage preparation methods, application guides, herbal rituals, and product education videos shown on the homepage.
           </p>
         </div>
 
@@ -228,7 +240,7 @@ export const AdminVideoTestimonialsManager: React.FC<AdminVideoTestimonialsManag
           className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-5 py-2.5 rounded-xl font-bold hover:bg-white transition-all shadow-lg text-xs flex items-center justify-center gap-2 cursor-pointer shrink-0"
         >
           <Plus className="w-4 h-4" />
-          <span>Add Video Testimonial</span>
+          <span>Add YouTube Guide</span>
         </button>
       </div>
 
@@ -330,47 +342,32 @@ export const AdminVideoTestimonialsManager: React.FC<AdminVideoTestimonialsManag
 
                 {/* Info Block */}
                 <div className="p-4 space-y-3">
-                  <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                      {v.customerPhoto ? (
-                        <img
-                          src={v.customerPhoto}
-                          alt={v.customerName}
-                          className="w-8 h-8 rounded-full object-cover border border-[var(--brand-gold)]/40"
-                        />
-                      ) : (
-                        <div className="w-8 h-8 rounded-full bg-[var(--brand-primary-dark)] border border-white/15 flex items-center justify-center text-xs font-bold text-slate-200">
-                          {v.customerName.charAt(0)}
-                        </div>
-                      )}
-                      <div>
-                        <h4 className="text-xs font-bold text-slate-100">{v.customerName}</h4>
-                        <span className="text-[10px] text-slate-400 block">
-                          {v.country || v.location || 'India'}
-                        </span>
-                      </div>
-                    </div>
-
-                    <div className="flex text-[var(--brand-gold)]">
-                      {[...Array(5)].map((_, i) => (
-                        <Star
-                          key={i}
-                          className={`w-3 h-3 ${
-                            i < (v.rating || 5) ? 'fill-current' : 'text-slate-600'
-                          }`}
-                        />
-                      ))}
-                    </div>
+                  <div className="flex items-center justify-between gap-2">
+                    <span className="bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] border border-[var(--brand-gold)]/30 text-[10px] font-bold px-2 py-0.5 rounded-md">
+                      {v.category || 'Preparation'}
+                    </span>
+                    {v.duration && (
+                      <span className="text-[10px] text-slate-400 font-mono">
+                        {v.duration}
+                      </span>
+                    )}
                   </div>
 
-                  <p className="text-xs text-slate-300 font-sans line-clamp-3 font-light">
-                    "{v.reviewText}"
-                  </p>
+                  <h3 className="text-sm font-bold text-slate-100 font-serif-luxury line-clamp-2">
+                    {v.title || v.reviewText || v.customerName}
+                  </h3>
 
-                  {v.productUsed && (
-                    <span className="inline-block bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] border border-[var(--brand-gold)]/30 text-[10px] font-bold px-2 py-0.5 rounded-md">
-                      Product: {v.productUsed}
+                  <div className="flex items-center justify-between border-t border-white/10 pt-2 text-xs">
+                    <span className="text-slate-300 font-medium">{v.customerName}</span>
+                    <span className="text-[10px] text-slate-400">
+                      {v.country || v.location || 'India'}
                     </span>
+                  </div>
+
+                  {v.reviewText && v.title && (
+                    <p className="text-xs text-slate-400 font-sans line-clamp-2 font-light">
+                      {v.reviewText}
+                    </p>
                   )}
                 </div>
 
@@ -465,13 +462,53 @@ export const AdminVideoTestimonialsManager: React.FC<AdminVideoTestimonialsManag
             </div>
 
             <form onSubmit={handleSubmit} className="p-6 space-y-4 max-h-[80vh] overflow-y-auto">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">Video Title / Topic *</label>
+                <input
+                  type="text"
+                  required
+                  placeholder="e.g. Traditional 21-Day Woodfire Decoction Method"
+                  value={title}
+                  onChange={(e) => setTitle(e.target.value)}
+                  className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[var(--brand-gold)]"
+                />
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Customer Name *</label>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Category / Guide Type</label>
+                  <select
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-100 focus:outline-none focus:border-[var(--brand-gold)]"
+                  >
+                    <option value="Preparation">Preparation</option>
+                    <option value="Application">Application</option>
+                    <option value="Herbal Ritual">Herbal Ritual</option>
+                    <option value="Product Guide">Product Guide</option>
+                    <option value="Testimonial">Testimonial</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Duration (e.g. 1:45)</label>
+                  <input
+                    type="text"
+                    placeholder="1:45"
+                    value={duration}
+                    onChange={(e) => setDuration(e.target.value)}
+                    className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[var(--brand-gold)]"
+                  />
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Creator / Customer / Host *</label>
                   <input
                     type="text"
                     required
-                    placeholder="e.g. Meera Reddy"
+                    placeholder="e.g. HAKKIVEDA Rituals or Meera Reddy"
                     value={customerName}
                     onChange={(e) => setCustomerName(e.target.value)}
                     className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[var(--brand-gold)]"
@@ -479,10 +516,10 @@ export const AdminVideoTestimonialsManager: React.FC<AdminVideoTestimonialsManag
                 </div>
 
                 <div>
-                  <label className="block text-xs font-bold text-slate-300 mb-1">Country / City</label>
+                  <label className="block text-xs font-bold text-slate-300 mb-1">Location / Origin</label>
                   <input
                     type="text"
-                    placeholder="e.g. London, UK / Kerala, India"
+                    placeholder="e.g. Pakshirajapura, Karnataka"
                     value={country}
                     onChange={(e) => setCountry(e.target.value)}
                     className="w-full bg-[var(--brand-primary-dark)] border border-white/15 rounded-xl px-3 py-2 text-xs text-slate-100 placeholder-slate-500 focus:outline-none focus:border-[var(--brand-gold)]"

@@ -30,6 +30,7 @@ import {
   INITIAL_CATEGORY_PAGES,
   INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG,
   INITIAL_MOBILE_NAV_CONFIG,
+  INITIAL_HOMEPAGE_EDITORIAL_CONFIG,
 } from '../data/initialData';
 
 const dbDir = process.env.DB_DIR || path.join(process.cwd(), 'data');
@@ -150,6 +151,7 @@ export async function getDb() {
       category_pages: INITIAL_CATEGORY_PAGES,
       homepage_quiz_banner_config: INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG,
       mobile_nav_config: INITIAL_MOBILE_NAV_CONFIG,
+      homepage_editorial_config: INITIAL_HOMEPAGE_EDITORIAL_CONFIG,
       max_bestsellers_count: 8,
       seeded: true,
     };
@@ -158,9 +160,21 @@ export async function getDb() {
     await flushToDisk();
     console.log('[File DB] Successfully seeded initial store records!');
   } else {
-    // Ensure mobile_nav_config is seeded if missing in existing database
+    // Ensure missing configs are seeded in existing database
+    let needsFlush = false;
     if (!store.mobile_nav_config) {
       store.mobile_nav_config = INITIAL_MOBILE_NAV_CONFIG;
+      needsFlush = true;
+    }
+    if (!store.homepage_quiz_banner_config) {
+      store.homepage_quiz_banner_config = INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG;
+      needsFlush = true;
+    }
+    if (!store.homepage_editorial_config) {
+      store.homepage_editorial_config = INITIAL_HOMEPAGE_EDITORIAL_CONFIG;
+      needsFlush = true;
+    }
+    if (needsFlush) {
       await flushToDisk();
     }
     console.log('[File DB] Loaded existing database from', dbPath);

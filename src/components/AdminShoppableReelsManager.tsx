@@ -475,13 +475,14 @@ export const AdminShoppableReelsManager: React.FC<AdminShoppableReelsManagerProp
               {/* Linked Product Selection */}
               <div>
                 <label className="text-xs font-bold text-slate-700 block mb-1">
-                  Linked Product (Shoppable Integration) *
+                  Linked Product (Shoppable Integration)
                 </label>
                 <select
                   value={linkedProductId}
                   onChange={(e) => setLinkedProductId(e.target.value)}
                   className="w-full px-3 py-2 rounded-xl border border-slate-300 text-sm bg-white"
                 >
+                  <option value="">None (No linked product)</option>
                   {products.map((p) => (
                     <option key={p.id} value={p.id}>
                       {p.name} — {formatAdminINR(p.priceINR)}

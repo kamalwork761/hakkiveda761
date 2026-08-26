@@ -994,6 +994,33 @@ export const INITIAL_SITE_SETTINGS: SiteSettings = {
   announcementActive: true,
   announcementBgColor: '#D4AF37',
   announcementTextColor: '#1C550E',
+  announcementMode: 'slide',
+  announcementPauseDuration: 3,
+  announcementTransitionSpeed: 'normal',
+  announcementDirection: 'right_to_left',
+  announcementMessages: [
+    {
+      id: 'ann-1',
+      text: 'Worldwide Express Shipping • 100% Authentic 42 Mountain Herbs Formula',
+      link: '',
+      enabled: true,
+      sortOrder: 1,
+    },
+    {
+      id: 'ann-2',
+      text: 'Handcrafted in 21-Day Slow Woodfire Decoction by Hakki-Pikki Tribe',
+      link: '#about',
+      enabled: true,
+      sortOrder: 2,
+    },
+    {
+      id: 'ann-3',
+      text: 'Complimentary Express Delivery on Orders Over ₹999 / $50',
+      link: '#products',
+      enabled: true,
+      sortOrder: 3,
+    },
+  ],
 
   logoText: 'HAKKIVEDA',
   logoSubtext: 'Hakki-Pikki Tribe & Ayurveda',

@@ -738,12 +738,29 @@ export interface BrandIdentityConfig {
   blackLogo?: string;
 }
 
+export interface AnnouncementMessage {
+  id: string;
+  text: string;
+  link?: string;
+  enabled: boolean;
+  sortOrder: number;
+}
+
+export type AnnouncementAnimationMode = 'slide' | 'marquee' | 'static';
+export type AnnouncementSlideDirection = 'right_to_left' | 'left_to_right';
+export type AnnouncementTransitionSpeed = 'fast' | 'normal' | 'slow';
+
 export interface SiteSettings {
   // Announcement Bar
   announcementText: string;
   announcementActive: boolean;
   announcementBgColor: string;
   announcementTextColor: string;
+  announcementMode?: AnnouncementAnimationMode;
+  announcementPauseDuration?: number; // 2, 3, 4, 5, 6 seconds (default 3)
+  announcementTransitionSpeed?: AnnouncementTransitionSpeed; // fast (300ms), normal (500ms), slow (700ms)
+  announcementDirection?: AnnouncementSlideDirection; // 'right_to_left' | 'left_to_right' (default 'right_to_left')
+  announcementMessages?: AnnouncementMessage[];
 
   // Logo & Branding
   logoText: string;

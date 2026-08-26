@@ -22,6 +22,7 @@ import { AdminCategoryPageManager } from './AdminCategoryPageManager';
 import { AdminProductManager } from './admin/AdminProductManager';
 import { AdminMobileNavManager } from './AdminMobileNavManager';
 import { AdminEditorialStoriesManager } from './AdminEditorialStoriesManager';
+import { AdminAnnouncementManager } from './AdminAnnouncementManager';
 import {
   Lock,
   LayoutDashboard,
@@ -1356,73 +1357,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
         )}
 
         {/* Tab 5: Announcement Bar */}
-        {activeTab === 'announcement' && (
-          <div className="space-y-6 animate-in fade-in">
-            <div>
-              <h1 className="text-2xl font-bold font-serif-luxury text-slate-100">Announcement Bar Manager</h1>
-              <p className="text-xs text-slate-300">Edit top announcement text, background color, and active state.</p>
-            </div>
-
-            <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-6 rounded-2xl space-y-4 font-sans text-xs">
-              <div>
-                <label className="block font-bold text-slate-300 mb-1">Announcement Text *</label>
-                <input
-                  type="text"
-                  value={siteSettings.announcementText}
-                  onChange={(e) => updateSiteSettings({ announcementText: e.target.value })}
-                  className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100"
-                />
-              </div>
-
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block font-bold text-slate-300 mb-1">Background Color</label>
-                  <input
-                    type="color"
-                    value={siteSettings.announcementBgColor}
-                    onChange={(e) => updateSiteSettings({ announcementBgColor: e.target.value })}
-                    className="w-full h-10 bg-[var(--brand-primary-deep)] border border-white/20 rounded-xl cursor-pointer p-1"
-                  />
-                </div>
-                <div>
-                  <label className="block font-bold text-slate-300 mb-1">Text Color</label>
-                  <input
-                    type="color"
-                    value={siteSettings.announcementTextColor}
-                    onChange={(e) => updateSiteSettings({ announcementTextColor: e.target.value })}
-                    className="w-full h-10 bg-[var(--brand-primary-deep)] border border-white/20 rounded-xl cursor-pointer p-1"
-                  />
-                </div>
-              </div>
-
-              <div className="flex items-center gap-3 pt-2">
-                <input
-                  type="checkbox"
-                  id="ann-active"
-                  checked={siteSettings.announcementActive}
-                  onChange={(e) => updateSiteSettings({ announcementActive: e.target.checked })}
-                  className="w-4 h-4 accent-[var(--brand-gold)]"
-                />
-                <label htmlFor="ann-active" className="font-bold text-slate-200">
-                  Show Announcement Bar on Header
-                </label>
-              </div>
-
-              <div className="pt-4 border-t border-white/10">
-                <p className="text-[10px] uppercase text-[var(--brand-gold)] font-bold mb-2">Live Bar Preview:</p>
-                <div
-                  style={{
-                    backgroundColor: siteSettings.announcementBgColor,
-                    color: siteSettings.announcementTextColor,
-                  }}
-                  className="p-3 text-center text-xs font-bold uppercase tracking-widest rounded-xl shadow-lg"
-                >
-                  {siteSettings.announcementText}
-                </div>
-              </div>
-            </div>
-          </div>
-        )}
+        {activeTab === 'announcement' && <AdminAnnouncementManager showToast={showToast} />}
 
         {/* Tab 6: Hero Slider */}
         {activeTab === 'hero' && <AdminHeroSliderManager showToast={showToast} />}

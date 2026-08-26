@@ -27,6 +27,7 @@ import { HakkivedaWordmark } from './HakkivedaWordmark';
 import { MobileBottomNav } from './MobileBottomNav';
 import { MobileNavDrawer } from './MobileNavDrawer';
 import { SoundToggle } from './SoundToggle';
+import { AnnouncementBar } from './AnnouncementBar';
 import { getProductUrl } from '../utils/productUtils';
 
 interface HeaderProps {
@@ -459,65 +460,12 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
 
   return (
     <header className="sticky top-0 z-40 w-full transition-all duration-300">
-      {/* Premium Top Running Announcement Bar */}
-      {showBar && (
-        <div
-          style={{
-            backgroundColor: siteSettings?.announcementBgColor || 'var(--brand-gold)',
-            color: siteSettings?.announcementTextColor || 'var(--brand-primary-dark)',
-          }}
-          className="relative py-1.5 px-2 text-xs font-bold font-sans uppercase tracking-[0.18em] overflow-hidden z-50 border-b border-[var(--brand-primary-dark)]/10 flex items-center justify-between"
-        >
-          {/* Continuous Running Ticker Track */}
-          <div className="overflow-hidden flex-1 relative flex items-center py-0.5">
-            <div className="animate-marquee whitespace-nowrap flex items-center">
-              <div className="flex items-center gap-8 px-4 shrink-0">
-                <span className="flex items-center gap-2">
-                  <Sparkles className="w-3.5 h-3.5 animate-pulse shrink-0" />
-                  <span>{textToDisplay}</span>
-                </span>
-                <span className="flex items-center gap-2">
-                  <Sparkles className="w-3.5 h-3.5 animate-pulse shrink-0" />
-                  <span>{textToDisplay}</span>
-                </span>
-                <span className="flex items-center gap-2">
-                  <Sparkles className="w-3.5 h-3.5 animate-pulse shrink-0" />
-                  <span>{textToDisplay}</span>
-                </span>
-              </div>
-              <div className="flex items-center gap-8 px-4 shrink-0">
-                <span className="flex items-center gap-2">
-                  <Sparkles className="w-3.5 h-3.5 animate-pulse shrink-0" />
-                  <span>{textToDisplay}</span>
-                </span>
-                <span className="flex items-center gap-2">
-                  <Sparkles className="w-3.5 h-3.5 animate-pulse shrink-0" />
-                  <span>{textToDisplay}</span>
-                </span>
-                <span className="flex items-center gap-2">
-                  <Sparkles className="w-3.5 h-3.5 animate-pulse shrink-0" />
-                  <span>{textToDisplay}</span>
-                </span>
-              </div>
-            </div>
-          </div>
-
-          {/* Global Country & Currency Switcher Pinned Right */}
-          <div className="relative shrink-0 z-10 pl-3 pr-2 flex items-center gap-3">
-            <span className="hidden lg:inline text-[10px] tracking-wider uppercase opacity-80 font-bold">Country:</span>
-            <button
-              onClick={() => setIsCountryModalOpen(true)}
-              className="flex items-center gap-1.5 bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] px-2.5 py-1 rounded text-[11px] font-semibold hover:bg-[var(--brand-primary-deeper)] transition-colors shadow-sm border border-[var(--brand-gold)]/30 active:scale-95"
-              id="country-selector-btn"
-              title="Change Country"
-            >
-              <span className="text-sm leading-none">{selectedCountry.flag}</span>
-              <span>{selectedCountry.name}</span>
-              <ChevronDown className="w-3 h-3 text-[var(--brand-gold)]" />
-            </button>
-          </div>
-        </div>
-      )}
+      {/* Top Announcement Bar (Slide / Marquee / Static with Admin Control) */}
+      <AnnouncementBar
+        siteSettings={siteSettings}
+        selectedCountry={selectedCountry}
+        onOpenCountryModal={() => setIsCountryModalOpen(true)}
+      />
 
       {/* NEW MOBILE HEADER CONTAINER (lg:hidden) */}
       <div className="flex lg:hidden bg-[#FAF7F2] border-b border-[#D8CDAF]/70 px-2 xs:px-3 sm:px-4 py-2 min-h-[54px] max-h-[58px] items-center justify-between shadow-xs relative z-40">

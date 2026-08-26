@@ -63,6 +63,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
     setIsCartOpen,
     setIsWishlistOpen,
     setIsAuthModalOpen,
+    openAuthModal,
     setIsB2BModalOpen,
     setIsQuizOpen,
     currentUser,
@@ -621,10 +622,14 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
           <button
             onClick={() => {
               playSound('nav_click');
-              setIsAuthModalOpen(true);
+              if (currentUser) {
+                setIsAuthModalOpen(true);
+              } else {
+                openAuthModal('SIGN_IN');
+              }
             }}
             className="w-8.5 h-8.5 xs:w-9 xs:h-9 flex items-center justify-center rounded-full bg-black/25 border border-[var(--brand-gold)]/30 text-slate-200 hover:text-[var(--brand-gold)] transition-colors active:scale-95 relative shadow-xs"
-            title={currentUser ? `Account: ${currentUser.name}` : 'Login / Register'}
+            title={currentUser ? `Account: ${currentUser.name}` : 'Sign In'}
             id="mobile-user-account-btn"
             aria-label="User Account"
           >
@@ -966,10 +971,14 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
           <button
             onClick={() => {
               playSound('nav_click');
-              setIsAuthModalOpen(true);
+              if (currentUser) {
+                setIsAuthModalOpen(true);
+              } else {
+                openAuthModal('SIGN_IN');
+              }
             }}
             className="text-slate-200 hover:text-[var(--brand-gold)] transition-colors p-1 relative"
-            title={currentUser ? `Account: ${currentUser.name}` : 'Login / Register'}
+            title={currentUser ? `Account: ${currentUser.name}` : 'Sign In'}
             id="user-account-btn"
           >
             <User className="w-5 h-5" />

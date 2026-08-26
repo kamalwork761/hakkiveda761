@@ -75,6 +75,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
     siteSettings,
     mobileNavConfig: storeMobileNavConfig,
     setIsAuthModalOpen,
+    openAuthModal,
     setIsWishlistOpen,
     setIsQuizOpen,
     playSound,
@@ -211,7 +212,19 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
     setIsQuizOpen(true);
   };
 
-  const handleAuthClick = () => {
+  const handleSignInClick = () => {
+    playSound('nav_click');
+    onClose();
+    openAuthModal('SIGN_IN');
+  };
+
+  const handleRegisterClick = () => {
+    playSound('nav_click');
+    onClose();
+    openAuthModal('CREATE_ACCOUNT');
+  };
+
+  const handleAccountClick = () => {
     playSound('nav_click');
     onClose();
     setIsAuthModalOpen(true);
@@ -360,16 +373,18 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
               <div className="flex items-center justify-start gap-4 text-xs font-bold uppercase tracking-widest text-[#123F2A]">
                 <button
                   type="button"
-                  onClick={handleAuthClick}
+                  onClick={handleSignInClick}
                   className="hover:text-[#0A5A2A] transition-colors py-1 cursor-pointer"
+                  id="mobile-drawer-signin-btn"
                 >
                   {authBarConfig.signInText || 'Sign In'}
                 </button>
                 <span className="text-[#C8BEA7] font-normal select-none">|</span>
                 <button
                   type="button"
-                  onClick={handleAuthClick}
+                  onClick={handleRegisterClick}
                   className="hover:text-[#0A5A2A] transition-colors py-1 cursor-pointer"
+                  id="mobile-drawer-register-btn"
                 >
                   {authBarConfig.registerText || 'Register'}
                 </button>
@@ -378,8 +393,9 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
               <div className="flex items-center justify-between text-xs font-bold tracking-wider text-[#123F2A]">
                 <button
                   type="button"
-                  onClick={handleAuthClick}
+                  onClick={handleAccountClick}
                   className="flex items-center gap-2 hover:text-[#0A5A2A] transition-colors py-1 cursor-pointer"
+                  id="mobile-drawer-account-btn"
                 >
                   <div className="w-6 h-6 rounded-full bg-[#0A5A2A] text-white flex items-center justify-center text-[10px] font-bold uppercase">
                     {currentUser.name ? currentUser.name.charAt(0) : 'U'}

@@ -56,6 +56,7 @@ export const CustomerPortal: React.FC = () => {
     exportCustomerData,
     isAuthModalOpen,
     setIsAuthModalOpen,
+    authInitialTab,
     isWishlistOpen,
     setIsWishlistOpen,
     wishlist,
@@ -82,12 +83,23 @@ export const CustomerPortal: React.FC = () => {
   const [authSuccess, setAuthSuccess] = useState('');
 
   // Registration state
-  const [regName, setRegName] = useState('');
+  const [regFirstName, setRegFirstName] = useState('');
+  const [regLastName, setRegLastName] = useState('');
   const [regEmail, setRegEmail] = useState('');
   const [regPhone, setRegPhone] = useState('');
   const [regPassword, setRegPassword] = useState('');
   const [regConfirmPassword, setRegConfirmPassword] = useState('');
   const [showRegPassword, setShowRegPassword] = useState(false);
+  const [showRegConfirmPassword, setShowRegConfirmPassword] = useState(false);
+
+  // Sync auth tab when opening modal
+  useEffect(() => {
+    if (isAuthModalOpen && authInitialTab) {
+      setAuthTab(authInitialTab);
+      setAuthError('');
+      setAuthSuccess('');
+    }
+  }, [isAuthModalOpen, authInitialTab]);
 
   // Policy Modal state
   const [policyModal, setPolicyModal] = useState<'PRIVACY' | 'TERMS' | null>(null);
@@ -252,7 +264,23 @@ export const CustomerPortal: React.FC = () => {
     e.preventDefault();
     setAuthError('');
     setAuthSuccess('');
-    const res = loginUser(signInEmail, signInPassword);
+
+    if (!signInEmail.trim()) {
+      setAuthError('Please enter your email address.');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(signInEmail.trim())) {
+      setAuthError('Please enter a valid email address.');
+      return;
+    }
+    if (!signInPassword) {
+      setAuthError('Please enter your password.');
+      return;
+    }
+
+    playSound('cta_click');
+    const res = loginUser(signInEmail.trim(), signInPassword);
     if (!res.success) {
       setAuthError(res.message);
     } else {
@@ -266,25 +294,52 @@ export const CustomerPortal: React.FC = () => {
     e.preventDefault();
     setAuthError('');
     setAuthSuccess('');
-    if (!regName || !regEmail) {
-      setAuthError('Please fill in all required fields.');
+
+    if (!regFirstName.trim()) {
+      setAuthError('Please enter your first name.');
       return;
     }
-    if (regPassword && regConfirmPassword && regPassword !== regConfirmPassword) {
+    if (!regEmail.trim()) {
+      setAuthError('Please enter your email address.');
+      return;
+    }
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(regEmail.trim())) {
+      setAuthError('Please enter a valid email address.');
+      return;
+    }
+    if (!regPhone.trim()) {
+      setAuthError('Please enter your mobile number.');
+      return;
+    }
+    if (!regPassword) {
+      setAuthError('Please enter your password.');
+      return;
+    }
+    if (regPassword.length < 6) {
+      setAuthError('Password must be at least 6 characters.');
+      return;
+    }
+    if (regPassword !== regConfirmPassword) {
       setAuthError('Passwords do not match. Please verify your entries.');
       return;
     }
+
+    playSound('cta_click');
+    const fullName = `${regFirstName.trim()} ${regLastName.trim()}`.trim();
     const res = registerUser({
-      name: regName,
-      email: regEmail,
-      phone: regPhone,
+      name: fullName,
+      email: regEmail.trim(),
+      phone: regPhone.trim(),
       password: regPassword,
     });
+
     if (!res.success) {
       setAuthError(res.message);
     } else {
       setAuthSuccess(res.message);
-      setRegName('');
+      setRegFirstName('');
+      setRegLastName('');
       setRegEmail('');
       setRegPhone('');
       setRegPassword('');
@@ -296,11 +351,16 @@ export const CustomerPortal: React.FC = () => {
     e.preventDefault();
     playSound('form_submit');
     setAuthError('');
-    if (!signInEmail) {
+    if (!signInEmail.trim()) {
       setAuthError('Please enter your registered email address.');
       return;
     }
-    setAuthSuccess(`A password reset link has been dispatched to ${signInEmail}. Please check your inbox.`);
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(signInEmail.trim())) {
+      setAuthError('Please enter a valid email address.');
+      return;
+    }
+    setAuthSuccess(`Password reset request received for ${signInEmail.trim()}. Our dedicated customer care team has been notified and will assist you.`);
   };
 
   const handleQuickLogin = (email: string) => {
@@ -455,326 +515,447 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
           ></div>
 
           {!currentUser ? (
-            /* LARGE CENTERED LUXURY MODAL FOR AUTH */
-            <div className="relative w-full max-w-xl bg-[#06261d] border border-[var(--brand-gold)]/30 rounded-3xl shadow-2xl p-6 sm:p-10 text-slate-100 font-sans z-10 animate-in fade-in zoom-in-95 duration-300 my-auto">
-              {/* Top Bar with Brand Title & Close Button */}
-              <div className="flex items-center justify-between border-b border-[var(--brand-gold)]/20 pb-5 mb-6">
-                <div>
-                  <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-[var(--brand-gold)] block mb-1 font-serif-luxury">
-                    HAKKIVEDA TRIBAL AYURVEDA
-                  </span>
-                  <h2 className="text-2xl sm:text-3xl font-serif-luxury font-bold text-slate-100 tracking-tight">
-                    {authTab === 'SIGN_IN' && 'Sign In'}
-                    {authTab === 'CREATE_ACCOUNT' && 'Create Account'}
-                    {authTab === 'FORGOT_PASSWORD' && 'Forgot Password'}
-                  </h2>
-                </div>
+            /* CENTERED PREMIUM LIGHT AUTH CARD */
+            <div
+              className={`relative w-full ${
+                authTab === 'CREATE_ACCOUNT' ? 'max-w-[520px]' : 'max-w-[450px]'
+              } bg-[#FAF7F2] border border-[#D8CDAF] rounded-2xl sm:rounded-3xl shadow-2xl p-6 sm:p-8 text-[#0F2E22] font-sans z-10 animate-in fade-in zoom-in-95 duration-200 my-auto`}
+            >
+              {/* Top Bar Navigation (Back Button & Close Button) */}
+              <div className="flex items-center justify-between mb-4">
+                {authTab !== 'SIGN_IN' ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      playSound('nav_click');
+                      setAuthTab('SIGN_IN');
+                      setAuthError('');
+                      setAuthSuccess('');
+                    }}
+                    className="flex items-center gap-1.5 text-xs font-semibold text-[#0F2E22]/75 hover:text-[#0F2E22] transition-colors py-1 cursor-pointer"
+                  >
+                    <ChevronLeft className="w-4 h-4" />
+                    <span>Back to Sign In</span>
+                  </button>
+                ) : (
+                  <div></div>
+                )}
 
                 <button
+                  type="button"
                   onClick={() => {
                     playSound('nav_click');
                     setIsAuthModalOpen(false);
                   }}
-                  className="w-10 h-10 rounded-full bg-[var(--brand-primary-dark)] text-slate-300 hover:text-white hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] transition-all flex items-center justify-center border border-[var(--brand-gold)]/30 shrink-0"
-                  title="Close Modal (Esc)"
+                  className="w-8 h-8 sm:w-9 sm:h-9 rounded-full bg-[#EFE9DC] hover:bg-[#0F2E22] text-[#0F2E22] hover:text-[#FAF7F2] border border-[#D8CDAF] flex items-center justify-center transition-all cursor-pointer ml-auto shrink-0"
+                  title="Close (Esc)"
+                  aria-label="Close"
                 >
-                  <X className="w-5 h-5" />
+                  <X className="w-4 h-4" />
                 </button>
               </div>
 
-              {/* Minimal Clean Tabs */}
-              <div className="flex items-center border-b border-white/10 mb-8 text-xs sm:text-sm font-medium">
-                <button
-                  type="button"
-                  onClick={() => {
-                    playSound('nav_click');
-                    setAuthTab('SIGN_IN');
-                    setAuthError('');
-                    setAuthSuccess('');
-                  }}
-                  className={`pb-3 px-3 sm:px-5 transition-all relative font-serif-luxury ${
-                    authTab === 'SIGN_IN'
-                      ? 'text-[var(--brand-gold)] font-bold'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  Sign In
-                  {authTab === 'SIGN_IN' && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--brand-gold)] rounded-full"></span>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    playSound('nav_click');
-                    setAuthTab('CREATE_ACCOUNT');
-                    setAuthError('');
-                    setAuthSuccess('');
-                  }}
-                  className={`pb-3 px-3 sm:px-5 transition-all relative font-serif-luxury ${
-                    authTab === 'CREATE_ACCOUNT'
-                      ? 'text-[var(--brand-gold)] font-bold'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  Create Account
-                  {authTab === 'CREATE_ACCOUNT' && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--brand-gold)] rounded-full"></span>
-                  )}
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() => {
-                    playSound('nav_click');
-                    setAuthTab('FORGOT_PASSWORD');
-                    setAuthError('');
-                    setAuthSuccess('');
-                  }}
-                  className={`pb-3 px-3 sm:px-5 transition-all relative font-serif-luxury ${
-                    authTab === 'FORGOT_PASSWORD'
-                      ? 'text-[var(--brand-gold)] font-bold'
-                      : 'text-slate-400 hover:text-slate-200'
-                  }`}
-                >
-                  Forgot Password
-                  {authTab === 'FORGOT_PASSWORD' && (
-                    <span className="absolute bottom-0 left-0 right-0 h-0.5 bg-[var(--brand-gold)] rounded-full"></span>
-                  )}
-                </button>
+              {/* Centered HAKKIVEDA Branding */}
+              <div className="flex flex-col items-center justify-center text-center mb-6">
+                <div className="w-10 h-10 border border-[#D4AF37] flex items-center justify-center rotate-45 mb-3 bg-[#0F2E22] shadow-sm">
+                  <span className="-rotate-45 font-bold font-serif text-[#D4AF37] text-xs tracking-tighter">
+                    HV
+                  </span>
+                </div>
+                <span className="text-[10px] uppercase font-bold tracking-[0.25em] text-[#8E7026] block">
+                  HAKKIVEDA TRIBAL AYURVEDA
+                </span>
+                <h2 className="text-xl sm:text-2xl font-serif font-bold text-[#0F2E22] tracking-tight mt-1 uppercase">
+                  {authTab === 'SIGN_IN' && 'WELCOME BACK'}
+                  {authTab === 'CREATE_ACCOUNT' && 'CREATE YOUR ACCOUNT'}
+                  {authTab === 'FORGOT_PASSWORD' && 'RESET PASSWORD'}
+                </h2>
+                <p className="text-xs text-[#0F2E22]/70 font-sans mt-1">
+                  {authTab === 'SIGN_IN' && 'Sign in to your HAKKIVEDA account'}
+                  {authTab === 'CREATE_ACCOUNT' && 'Join HAKKIVEDA for a more personalised shopping experience.'}
+                  {authTab === 'FORGOT_PASSWORD' && 'Request assistance from our customer care team.'}
+                </p>
               </div>
 
               {/* Feedback Messages */}
               {authError && (
-                <div className="bg-rose-950/90 border border-rose-500/40 p-3.5 rounded-xl flex items-center gap-3 text-xs text-rose-200 mb-6 animate-in fade-in">
-                  <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
-                  <span>{authError}</span>
+                <div className="bg-rose-50 border border-rose-200 p-3.5 rounded-xl flex items-start gap-2.5 text-xs text-rose-800 mb-5 animate-in fade-in">
+                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                  <span className="font-medium leading-relaxed">{authError}</span>
                 </div>
               )}
 
               {authSuccess && (
-                <div className="bg-emerald-950/90 border border-emerald-500/40 p-3.5 rounded-xl flex items-center gap-3 text-xs text-emerald-200 mb-6 animate-in fade-in">
-                  <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
-                  <span>{authSuccess}</span>
+                <div className="bg-emerald-50 border border-emerald-200 p-3.5 rounded-xl flex items-start gap-2.5 text-xs text-emerald-800 mb-5 animate-in fade-in">
+                  <CheckCircle2 className="w-4 h-4 text-emerald-600 shrink-0 mt-0.5" />
+                  <span className="font-medium leading-relaxed">{authSuccess}</span>
                 </div>
               )}
 
-              {/* SIGN IN TAB */}
+              {/* ========================================================= */}
+              {/* SCREEN A: SIGN IN */}
+              {/* ========================================================= */}
               {authTab === 'SIGN_IN' && (
-                <form onSubmit={handleSignInSubmit} className="space-y-5 animate-in fade-in">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                      Email *
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={signInEmail}
-                      onChange={(e) => setSignInEmail(e.target.value)}
-                      placeholder="e.g. name@domain.com"
-                      className="w-full bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/25 rounded-xl p-3.5 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[var(--brand-gold)] focus:ring-1 focus:ring-[var(--brand-gold)]/50 transition-all"
-                    />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between items-center mb-2">
-                      <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider">
-                        Password *
+                <div className="animate-in fade-in duration-200">
+                  <form onSubmit={handleSignInSubmit} className="space-y-4">
+                    <div>
+                      <label
+                        className="block text-[11px] font-bold text-[#0F2E22] uppercase tracking-wider mb-1.5"
+                        htmlFor="customer-signin-email"
+                      >
+                        EMAIL ADDRESS *
                       </label>
-                    </div>
-                    <div className="relative">
                       <input
-                        type={showPassword ? 'text' : 'password'}
+                        id="customer-signin-email"
+                        type="email"
                         required
-                        value={signInPassword}
-                        onChange={(e) => setSignInPassword(e.target.value)}
-                        placeholder="••••••••"
-                        className="w-full bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/25 rounded-xl p-3.5 pr-10 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[var(--brand-gold)] focus:ring-1 focus:ring-[var(--brand-gold)]/50 transition-all"
+                        value={signInEmail}
+                        onChange={(e) => setSignInEmail(e.target.value)}
+                        placeholder="name@domain.com"
+                        className="w-full h-12 bg-white border border-[#D8CDAF] rounded-xl px-4 text-sm text-[#0F2E22] placeholder-[#0F2E22]/40 focus:outline-none focus:border-[#0F2E22] focus:ring-1 focus:ring-[#0F2E22]/30 transition-all"
                       />
+                    </div>
+
+                    <div>
+                      <label
+                        className="block text-[11px] font-bold text-[#0F2E22] uppercase tracking-wider mb-1.5"
+                        htmlFor="customer-signin-password"
+                      >
+                        PASSWORD *
+                      </label>
+                      <div className="relative">
+                        <input
+                          id="customer-signin-password"
+                          type={showPassword ? 'text' : 'password'}
+                          required
+                          value={signInPassword}
+                          onChange={(e) => setSignInPassword(e.target.value)}
+                          placeholder="••••••••"
+                          className="w-full h-12 bg-white border border-[#D8CDAF] rounded-xl pl-4 pr-11 text-sm text-[#0F2E22] placeholder-[#0F2E22]/40 focus:outline-none focus:border-[#0F2E22] focus:ring-1 focus:ring-[#0F2E22]/30 transition-all"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                          className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0F2E22]/50 hover:text-[#0F2E22] p-1.5 transition-colors cursor-pointer"
+                          title={showPassword ? 'Hide password' : 'Show password'}
+                          aria-label={showPassword ? 'Hide password' : 'Show password'}
+                        >
+                          {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        </button>
+                      </div>
+                    </div>
+
+                    <div className="flex items-center justify-between pt-0.5">
+                      <label className="flex items-center gap-2 cursor-pointer text-xs text-[#0F2E22]/80 select-none">
+                        <input
+                          type="checkbox"
+                          checked={rememberMe}
+                          onChange={(e) => setRememberMe(e.target.checked)}
+                          className="w-4 h-4 rounded border-[#D8CDAF] text-[#0F2E22] focus:ring-[#0F2E22] accent-[#0F2E22] cursor-pointer"
+                        />
+                        <span>Remember Me</span>
+                      </label>
+
                       <button
                         type="button"
-                        onClick={() => setShowPassword(!showPassword)}
-                        className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[var(--brand-gold)] transition-colors"
-                        title={showPassword ? 'Hide password' : 'Show password'}
+                        onClick={() => {
+                          playSound('nav_click');
+                          setAuthTab('FORGOT_PASSWORD');
+                          setAuthError('');
+                          setAuthSuccess('');
+                        }}
+                        className="text-xs font-semibold text-[#8E7026] hover:text-[#0F2E22] underline underline-offset-2 transition-colors cursor-pointer"
+                        id="customer-forgot-password-link"
                       >
-                        {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                        Forgot Password?
                       </button>
                     </div>
+
+                    <button
+                      type="submit"
+                      className="w-full h-12 bg-[#0F2E22] text-[#FAF7F2] rounded-xl font-bold font-serif uppercase tracking-[0.18em] text-xs hover:bg-[#163f2f] shadow-md transition-all active:scale-[0.99] mt-2 cursor-pointer"
+                      id="customer-signin-submit-btn"
+                    >
+                      SIGN IN
+                    </button>
+                  </form>
+
+                  {/* Subtle Divider */}
+                  <div className="relative flex items-center justify-center my-6">
+                    <div className="w-full border-t border-[#E5DEC9]"></div>
+                    <span className="absolute bg-[#FAF7F2] px-4 text-[11px] font-bold text-[#8E7026] uppercase tracking-widest">
+                      OR
+                    </span>
                   </div>
 
-                  <div className="flex items-center justify-between pt-1">
-                    <label className="flex items-center gap-2.5 cursor-pointer text-xs text-slate-300 select-none">
-                      <input
-                        type="checkbox"
-                        checked={rememberMe}
-                        onChange={(e) => setRememberMe(e.target.checked)}
-                        className="w-4 h-4 rounded border-[var(--brand-gold)]/40 bg-[var(--brand-primary-dark)] accent-[var(--brand-gold)] focus:ring-0 cursor-pointer"
-                      />
-                      <span>Remember Me</span>
-                    </label>
-
+                  {/* New to HakkiVeda Section */}
+                  <div className="text-center space-y-2">
+                    <h3 className="text-xs font-bold uppercase tracking-wider text-[#0F2E22]">
+                      NEW TO HAKKIVEDA?
+                    </h3>
+                    <p className="text-xs text-[#0F2E22]/70 leading-relaxed max-w-sm mx-auto">
+                      Create your account to manage orders, save your favourite formulations and enjoy a faster checkout.
+                    </p>
                     <button
                       type="button"
                       onClick={() => {
-                        setAuthTab('FORGOT_PASSWORD');
+                        playSound('nav_click');
+                        setAuthTab('CREATE_ACCOUNT');
                         setAuthError('');
                         setAuthSuccess('');
                       }}
-                      className="text-xs text-[var(--brand-gold)] hover:underline font-serif-luxury"
+                      className="w-full h-12 border-2 border-[#0F2E22] text-[#0F2E22] hover:bg-[#0F2E22] hover:text-[#FAF7F2] rounded-xl font-bold font-serif uppercase tracking-[0.18em] text-xs transition-all active:scale-[0.99] mt-2 cursor-pointer"
+                      id="customer-switch-to-register-btn"
                     >
-                      Forgot Password?
+                      CREATE ACCOUNT
                     </button>
                   </div>
-
-                  <button
-                    type="submit"
-                    className="w-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] py-4 rounded-xl font-bold font-serif-luxury text-xs uppercase tracking-[0.2em] hover:bg-[#d8b45c] transition-all shadow-lg active:scale-[0.99] mt-2"
-                  >
-                    Sign In
-                  </button>
-                </form>
+                </div>
               )}
 
-              {/* CREATE ACCOUNT TAB */}
+              {/* ========================================================= */}
+              {/* SCREEN B: CREATE ACCOUNT */}
+              {/* ========================================================= */}
               {authTab === 'CREATE_ACCOUNT' && (
-                <form onSubmit={handleRegisterSubmit} className="space-y-4 animate-in fade-in">
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                      Full Name *
-                    </label>
-                    <input
-                      type="text"
-                      required
-                      value={regName}
-                      onChange={(e) => setRegName(e.target.value)}
-                      placeholder="e.g. Maharani Gayatri Devi"
-                      className="w-full bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/25 rounded-xl p-3.5 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[var(--brand-gold)] focus:ring-1 focus:ring-[var(--brand-gold)]/50 transition-all"
-                    />
-                  </div>
-
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                        Mobile Number *
-                      </label>
-                      <input
-                        type="tel"
-                        required
-                        value={regPhone}
-                        onChange={(e) => setRegPhone(e.target.value)}
-                        placeholder="+91 98000 00000"
-                        className="w-full bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/25 rounded-xl p-3.5 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[var(--brand-gold)] focus:ring-1 focus:ring-[var(--brand-gold)]/50 transition-all"
-                      />
+                <div className="animate-in fade-in duration-200">
+                  <form onSubmit={handleRegisterSubmit} className="space-y-3.5">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label
+                          className="block text-[11px] font-bold text-[#0F2E22] uppercase tracking-wider mb-1.5"
+                          htmlFor="reg-first-name"
+                        >
+                          FIRST NAME *
+                        </label>
+                        <input
+                          id="reg-first-name"
+                          type="text"
+                          required
+                          value={regFirstName}
+                          onChange={(e) => setRegFirstName(e.target.value)}
+                          placeholder="First name"
+                          className="w-full h-11 sm:h-12 bg-white border border-[#D8CDAF] rounded-xl px-4 text-sm text-[#0F2E22] placeholder-[#0F2E22]/40 focus:outline-none focus:border-[#0F2E22] focus:ring-1 focus:ring-[#0F2E22]/30 transition-all"
+                        />
+                      </div>
+                      <div>
+                        <label
+                          className="block text-[11px] font-bold text-[#0F2E22] uppercase tracking-wider mb-1.5"
+                          htmlFor="reg-last-name"
+                        >
+                          LAST NAME
+                        </label>
+                        <input
+                          id="reg-last-name"
+                          type="text"
+                          value={regLastName}
+                          onChange={(e) => setRegLastName(e.target.value)}
+                          placeholder="Last name"
+                          className="w-full h-11 sm:h-12 bg-white border border-[#D8CDAF] rounded-xl px-4 text-sm text-[#0F2E22] placeholder-[#0F2E22]/40 focus:outline-none focus:border-[#0F2E22] focus:ring-1 focus:ring-[#0F2E22]/30 transition-all"
+                        />
+                      </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                        Email *
+                      <label
+                        className="block text-[11px] font-bold text-[#0F2E22] uppercase tracking-wider mb-1.5"
+                        htmlFor="reg-email"
+                      >
+                        EMAIL ADDRESS *
                       </label>
                       <input
+                        id="reg-email"
                         type="email"
                         required
                         value={regEmail}
                         onChange={(e) => setRegEmail(e.target.value)}
                         placeholder="name@domain.com"
-                        className="w-full bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/25 rounded-xl p-3.5 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[var(--brand-gold)] focus:ring-1 focus:ring-[var(--brand-gold)]/50 transition-all"
+                        className="w-full h-11 sm:h-12 bg-white border border-[#D8CDAF] rounded-xl px-4 text-sm text-[#0F2E22] placeholder-[#0F2E22]/40 focus:outline-none focus:border-[#0F2E22] focus:ring-1 focus:ring-[#0F2E22]/30 transition-all"
                       />
                     </div>
-                  </div>
 
-                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                     <div>
-                      <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                        Password *
+                      <label
+                        className="block text-[11px] font-bold text-[#0F2E22] uppercase tracking-wider mb-1.5"
+                        htmlFor="reg-phone"
+                      >
+                        MOBILE NUMBER *
                       </label>
-                      <div className="relative">
-                        <input
-                          type={showRegPassword ? 'text' : 'password'}
-                          required
-                          value={regPassword}
-                          onChange={(e) => setRegPassword(e.target.value)}
-                          placeholder="Create password"
-                          className="w-full bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/25 rounded-xl p-3.5 pr-10 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[var(--brand-gold)] focus:ring-1 focus:ring-[var(--brand-gold)]/50 transition-all"
-                        />
-                        <button
-                          type="button"
-                          onClick={() => setShowRegPassword(!showRegPassword)}
-                          className="absolute right-3.5 top-1/2 -translate-y-1/2 text-slate-400 hover:text-[var(--brand-gold)] transition-colors"
+                      <input
+                        id="reg-phone"
+                        type="tel"
+                        required
+                        value={regPhone}
+                        onChange={(e) => setRegPhone(e.target.value)}
+                        placeholder="+91 98000 00000"
+                        className="w-full h-11 sm:h-12 bg-white border border-[#D8CDAF] rounded-xl px-4 text-sm text-[#0F2E22] placeholder-[#0F2E22]/40 focus:outline-none focus:border-[#0F2E22] focus:ring-1 focus:ring-[#0F2E22]/30 transition-all"
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                      <div>
+                        <label
+                          className="block text-[11px] font-bold text-[#0F2E22] uppercase tracking-wider mb-1.5"
+                          htmlFor="reg-password"
                         >
-                          {showRegPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
-                        </button>
+                          PASSWORD *
+                        </label>
+                        <div className="relative">
+                          <input
+                            id="reg-password"
+                            type={showRegPassword ? 'text' : 'password'}
+                            required
+                            value={regPassword}
+                            onChange={(e) => setRegPassword(e.target.value)}
+                            placeholder="Create password"
+                            className="w-full h-11 sm:h-12 bg-white border border-[#D8CDAF] rounded-xl pl-4 pr-10 text-sm text-[#0F2E22] placeholder-[#0F2E22]/40 focus:outline-none focus:border-[#0F2E22] focus:ring-1 focus:ring-[#0F2E22]/30 transition-all"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowRegPassword(!showRegPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0F2E22]/50 hover:text-[#0F2E22] p-1.5 transition-colors cursor-pointer"
+                            title={showRegPassword ? 'Hide password' : 'Show password'}
+                            aria-label={showRegPassword ? 'Hide password' : 'Show password'}
+                          >
+                            {showRegPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
+                      </div>
+
+                      <div>
+                        <label
+                          className="block text-[11px] font-bold text-[#0F2E22] uppercase tracking-wider mb-1.5"
+                          htmlFor="reg-confirm-password"
+                        >
+                          CONFIRM PASSWORD *
+                        </label>
+                        <div className="relative">
+                          <input
+                            id="reg-confirm-password"
+                            type={showRegConfirmPassword ? 'text' : 'password'}
+                            required
+                            value={regConfirmPassword}
+                            onChange={(e) => setRegConfirmPassword(e.target.value)}
+                            placeholder="Confirm password"
+                            className="w-full h-11 sm:h-12 bg-white border border-[#D8CDAF] rounded-xl pl-4 pr-10 text-sm text-[#0F2E22] placeholder-[#0F2E22]/40 focus:outline-none focus:border-[#0F2E22] focus:ring-1 focus:ring-[#0F2E22]/30 transition-all"
+                          />
+                          <button
+                            type="button"
+                            onClick={() => setShowRegConfirmPassword(!showRegConfirmPassword)}
+                            className="absolute right-3 top-1/2 -translate-y-1/2 text-[#0F2E22]/50 hover:text-[#0F2E22] p-1.5 transition-colors cursor-pointer"
+                            title={showRegConfirmPassword ? 'Hide password' : 'Show password'}
+                            aria-label={showRegConfirmPassword ? 'Hide password' : 'Show password'}
+                          >
+                            {showRegConfirmPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                          </button>
+                        </div>
                       </div>
                     </div>
 
+                    <button
+                      type="submit"
+                      className="w-full h-12 bg-[#0F2E22] text-[#FAF7F2] rounded-xl font-bold font-serif uppercase tracking-[0.18em] text-xs hover:bg-[#163f2f] shadow-md transition-all active:scale-[0.99] mt-3 cursor-pointer"
+                      id="customer-register-submit-btn"
+                    >
+                      CREATE ACCOUNT
+                    </button>
+
+                    <div className="text-center pt-4 mt-2 border-t border-[#E5DEC9] text-xs text-[#0F2E22]/70">
+                      <span>Already have an account? </span>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          playSound('nav_click');
+                          setAuthTab('SIGN_IN');
+                          setAuthError('');
+                          setAuthSuccess('');
+                        }}
+                        className="font-bold text-[#0F2E22] hover:text-[#8E7026] uppercase tracking-wider underline underline-offset-4 ml-1 transition-colors cursor-pointer"
+                        id="customer-switch-to-signin-btn"
+                      >
+                        SIGN IN
+                      </button>
+                    </div>
+                  </form>
+                </div>
+              )}
+
+              {/* ========================================================= */}
+              {/* SCREEN C: FORGOT PASSWORD */}
+              {/* ========================================================= */}
+              {authTab === 'FORGOT_PASSWORD' && (
+                <div className="animate-in fade-in duration-200">
+                  <form onSubmit={handleForgotSubmit} className="space-y-4">
+                    <p className="text-xs text-[#0F2E22]/80 leading-relaxed font-sans">
+                      Please enter your registered email address below. For security and authentic tribal support, our dedicated customer care team will assist you in restoring access.
+                    </p>
+
                     <div>
-                      <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-1.5">
-                        Confirm Password *
+                      <label
+                        className="block text-[11px] font-bold text-[#0F2E22] uppercase tracking-wider mb-1.5"
+                        htmlFor="forgot-email"
+                      >
+                        EMAIL ADDRESS *
                       </label>
                       <input
-                        type="password"
+                        id="forgot-email"
+                        type="email"
                         required
-                        value={regConfirmPassword}
-                        onChange={(e) => setRegConfirmPassword(e.target.value)}
-                        placeholder="Confirm password"
-                        className="w-full bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/25 rounded-xl p-3.5 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[var(--brand-gold)] focus:ring-1 focus:ring-[var(--brand-gold)]/50 transition-all"
+                        value={signInEmail}
+                        onChange={(e) => setSignInEmail(e.target.value)}
+                        placeholder="name@domain.com"
+                        className="w-full h-12 bg-white border border-[#D8CDAF] rounded-xl px-4 text-sm text-[#0F2E22] placeholder-[#0F2E22]/40 focus:outline-none focus:border-[#0F2E22] focus:ring-1 focus:ring-[#0F2E22]/30 transition-all"
                       />
                     </div>
-                  </div>
 
-                  <button
-                    type="submit"
-                    className="w-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] py-4 rounded-xl font-bold font-serif-luxury text-xs uppercase tracking-[0.2em] hover:bg-[#d8b45c] transition-all shadow-lg active:scale-[0.99] mt-3"
-                  >
-                    Create Account
-                  </button>
-                </form>
+                    <button
+                      type="submit"
+                      className="w-full h-12 bg-[#0F2E22] text-[#FAF7F2] rounded-xl font-bold font-serif uppercase tracking-[0.18em] text-xs hover:bg-[#163f2f] shadow-md transition-all active:scale-[0.99] mt-2 cursor-pointer"
+                    >
+                      REQUEST ASSISTANCE
+                    </button>
+
+                    <div className="pt-3 flex items-center justify-between text-xs text-[#0F2E22]/75">
+                      <button
+                        type="button"
+                        onClick={() => {
+                          playSound('nav_click');
+                          setAuthTab('SIGN_IN');
+                          setAuthError('');
+                          setAuthSuccess('');
+                        }}
+                        className="flex items-center gap-1 font-semibold text-[#0F2E22] hover:text-[#8E7026] transition-colors cursor-pointer"
+                      >
+                        <ChevronLeft className="w-3.5 h-3.5" />
+                        <span>Back to Sign In</span>
+                      </button>
+
+                      <a
+                        href="https://wa.me/919900000000?text=Hi%20Hakkiveda%20Care,%20I%20need%20help%20accessing%20my%20account."
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="text-[#8E7026] hover:text-[#0F2E22] underline underline-offset-2 font-medium"
+                      >
+                        WhatsApp Support
+                      </a>
+                    </div>
+                  </form>
+                </div>
               )}
 
-              {/* FORGOT PASSWORD TAB */}
-              {authTab === 'FORGOT_PASSWORD' && (
-                <form onSubmit={handleForgotSubmit} className="space-y-5 animate-in fade-in">
-                  <p className="text-xs text-slate-300 leading-relaxed font-sans">
-                    Please provide your registered email address below. We will send a password reset link directly to your inbox.
-                  </p>
-
-                  <div>
-                    <label className="block text-xs font-semibold text-slate-300 uppercase tracking-wider mb-2">
-                      Email *
-                    </label>
-                    <input
-                      type="email"
-                      required
-                      value={signInEmail}
-                      onChange={(e) => setSignInEmail(e.target.value)}
-                      placeholder="e.g. name@domain.com"
-                      className="w-full bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/25 rounded-xl p-3.5 text-xs text-slate-100 placeholder-slate-400/80 focus:outline-none focus:border-[var(--brand-gold)] focus:ring-1 focus:ring-[var(--brand-gold)]/50 transition-all"
-                    />
-                  </div>
-
-                  <button
-                    type="submit"
-                    className="w-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] py-4 rounded-xl font-bold font-serif-luxury text-xs uppercase tracking-[0.2em] hover:bg-[#d8b45c] transition-all shadow-lg active:scale-[0.99] mt-2"
-                  >
-                    Send Reset Link
-                  </button>
-                </form>
-              )}
-
-              {/* Footer */}
-              <div className="border-t border-[var(--brand-gold)]/20 pt-6 mt-8 flex items-center justify-center gap-6 text-[11px] text-slate-400 font-medium">
+              {/* Footer Policies */}
+              <div className="border-t border-[#E5DEC9] pt-4 mt-6 flex items-center justify-center gap-5 text-[11px] text-[#0F2E22]/60 font-medium">
                 <button
                   type="button"
                   onClick={() => setPolicyModal('PRIVACY')}
-                  className="hover:text-[var(--brand-gold)] transition-colors underline-offset-4 hover:underline"
+                  className="hover:text-[#0F2E22] transition-colors underline-offset-2 hover:underline cursor-pointer"
                 >
                   Privacy Policy
                 </button>
-                <span className="text-[var(--brand-gold)]/40">•</span>
+                <span className="text-[#D8CDAF]">•</span>
                 <button
                   type="button"
                   onClick={() => setPolicyModal('TERMS')}
-                  className="hover:text-[var(--brand-gold)] transition-colors underline-offset-4 hover:underline"
+                  className="hover:text-[#0F2E22] transition-colors underline-offset-2 hover:underline cursor-pointer"
                 >
                   Terms & Conditions
                 </button>

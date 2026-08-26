@@ -253,6 +253,9 @@ interface StoreContextType {
   closeQuickView: () => void;
   isAuthModalOpen: boolean;
   setIsAuthModalOpen: (open: boolean) => void;
+  authInitialTab: 'SIGN_IN' | 'CREATE_ACCOUNT';
+  setAuthInitialTab: (tab: 'SIGN_IN' | 'CREATE_ACCOUNT') => void;
+  openAuthModal: (tab?: 'SIGN_IN' | 'CREATE_ACCOUNT') => void;
   isCheckoutOpen: boolean;
   setIsCheckoutOpen: (open: boolean) => void;
   isB2BModalOpen: boolean;
@@ -1745,6 +1748,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [isQuickViewOpen, setIsQuickViewOpen] = useState(false);
   const [quickViewProduct, setQuickViewProduct] = useState<Product | null>(null);
   const [isAuthModalOpen, setIsAuthModalOpen] = useState(false);
+  const [authInitialTab, setAuthInitialTab] = useState<'SIGN_IN' | 'CREATE_ACCOUNT'>('SIGN_IN');
+
+  const openAuthModal = (tab?: 'SIGN_IN' | 'CREATE_ACCOUNT') => {
+    if (tab) {
+      setAuthInitialTab(tab);
+    }
+    setIsAuthModalOpen(true);
+  };
+
   const [isCheckoutOpen, setIsCheckoutOpen] = useState(false);
   const [isB2BModalOpen, setIsB2BModalOpen] = useState(false);
   const [isQuizOpen, setIsQuizOpen] = useState(false);
@@ -3004,6 +3016,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         closeQuickView,
         isAuthModalOpen,
         setIsAuthModalOpen,
+        authInitialTab,
+        setAuthInitialTab,
+        openAuthModal,
         isCheckoutOpen,
         setIsCheckoutOpen,
         isB2BModalOpen,

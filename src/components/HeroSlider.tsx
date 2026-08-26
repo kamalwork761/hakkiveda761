@@ -45,6 +45,10 @@ export const HeroSlider: React.FC = () => {
       .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
   }, [heroSlides]);
 
+  useEffect(() => {
+    console.log('[HAKKIVEDA STARTUP] Homepage initialized');
+  }, []);
+
   const totalSlides = slidesToRender.length;
   const autoPlay = heroSliderSettings?.autoPlay ?? true;
   const autoPlayDelay = heroSliderSettings?.autoPlayDelay || 6;

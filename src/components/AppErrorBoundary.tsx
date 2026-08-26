@@ -24,6 +24,10 @@ export class AppErrorBoundary extends (React.Component as new (props: Props) => 
     return { hasError: true, error, errorInfo: null };
   }
 
+  public componentDidMount() {
+    console.log('[HAKKIVEDA STARTUP] AppErrorBoundary mounted');
+  }
+
   public componentDidCatch(error: Error, errorInfo: ErrorInfo) {
     console.error('[AppErrorBoundary] Uncaught application runtime error:', error, errorInfo);
     this.setState({ errorInfo });

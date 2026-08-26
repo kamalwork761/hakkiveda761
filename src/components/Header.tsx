@@ -131,6 +131,10 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
     setLogoLoadError(false);
   }, [uploadedLogoUrl]);
 
+  useEffect(() => {
+    console.log('[HAKKIVEDA STARTUP] Header initialized');
+  }, []);
+
   const [hoveredNavId, setHoveredNavId] = useState<string | null>(null);
 
   const headerSettings = headerLayoutSettings || {

@@ -438,6 +438,7 @@ export function getContrastTextColor(hexColor: string, defaultColor: string = '#
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  console.log('[HAKKIVEDA STARTUP] StoreProvider started');
   const [dbSyncStatus, setDbSyncStatus] = useState<'loading' | 'synced' | 'saving' | 'error'>('loading');
   const [serverSaveError, setServerSaveError] = useState<string | null>(null);
 
@@ -1730,11 +1731,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           if (d.mobile_nav_config) setMobileNavConfig((prev) => ({ ...INITIAL_MOBILE_NAV_CONFIG, ...prev, ...d.mobile_nav_config }));
 
           setDbSyncStatus('synced');
+          console.log('[HAKKIVEDA STARTUP] Store data initialized (from server DB)');
         }
       })
       .catch((err) => {
         console.warn('[StoreContext] Could not load from server SQLite DB:', err);
-        if (isMounted) setDbSyncStatus('error');
+        if (isMounted) {
+          setDbSyncStatus('error');
+          console.log('[HAKKIVEDA STARTUP] Store data initialized (using fallback defaults)');
+        }
       });
 
     return () => {

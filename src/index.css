@@ -1316,7 +1316,7 @@
 }
 
 [data-theme="light"] .category-page .text-secondary,
-[data-theme="light"] .category-page .text-[#5F6B63] {
+[data-theme="light"] .category-page [class*="text-[#5F6B63]"] {
   color: #5F6B63 !important;
 }
 

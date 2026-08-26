@@ -67,6 +67,10 @@ const SectionSkeleton: React.FC = () => (
 
 export function AppContent() {
   const { adminAuthenticated, logoutAdmin, isCountryModalOpen, setIsCountryModalOpen, playSound, openQuickView, products, categories } = useStore();
+  
+  useEffect(() => {
+    console.log('[HAKKIVEDA STARTUP] Router initialized');
+  }, []);
   const [selectedCategory, setSelectedCategory] = useState<string>(() => {
     const params = new URLSearchParams(window.location.search);
     const cat = params.get('category');
@@ -433,6 +437,7 @@ export function AppContent() {
 }
 
 export default function App() {
+  console.log('[HAKKIVEDA STARTUP] App started');
   return (
     <AppErrorBoundary>
       <StoreProvider>

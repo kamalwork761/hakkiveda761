@@ -78,7 +78,7 @@ import { idbGet, idbSet, idbClear } from '../utils/idbStorage';
 import { CountryItem, DEFAULT_COUNTRY } from '../data/countriesData';
 
 import { soundManager } from '../utils/soundManager';
-import { SoundType, SoundPackId, AmbientPresetId } from '../config/soundConfig';
+import { SoundType, SoundPackId } from '../config/soundConfig';
 
 interface StoreContextType {
   // Sound System (UI Clicks & Chimes)
@@ -92,15 +92,6 @@ interface StoreContextType {
   setSoundPack: (pack: SoundPackId) => void;
   setAdminMutedSound: (muted: boolean) => void;
   playSound: (type: SoundType) => void;
-
-  // Continuous Nature Ambient Music System
-  ambientEnabled: boolean;
-  ambientVolume: number;
-  ambientPreset: AmbientPresetId;
-  toggleAmbient: () => boolean;
-  setAmbientEnabled: (enabled: boolean) => void;
-  setAmbientVolume: (vol: number) => void;
-  setAmbientPreset: (preset: AmbientPresetId) => void;
   // Admin Authentication
   adminAuthenticated: boolean;
   authenticateAdmin: (email: string, password: string) => Promise<{ success: boolean; message: string }>;
@@ -492,11 +483,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [soundPack, setSoundPackState] = useState<SoundPackId>(() => soundManager.getPack());
   const [adminMutedSound, setAdminMutedSoundState] = useState<boolean>(() => soundManager.isAdminMuted());
 
-  // Nature Ambient Sound Engine State & Handlers
-  const [ambientEnabled, setAmbientEnabledState] = useState<boolean>(() => soundManager.isAmbientEnabled());
-  const [ambientVolume, setAmbientVolumeState] = useState<number>(() => soundManager.getAmbientVolume());
-  const [ambientPreset, setAmbientPresetState] = useState<AmbientPresetId>(() => soundManager.getAmbientPreset());
-
   const toggleSound = () => {
     const next = soundManager.toggleEnabled();
     setSoundEnabledState(next);
@@ -525,27 +511,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const playSound = (type: SoundType) => {
     soundManager.play(type);
-  };
-
-  const toggleAmbient = () => {
-    const next = soundManager.toggleAmbient();
-    setAmbientEnabledState(next);
-    return next;
-  };
-
-  const setAmbientEnabled = (enabled: boolean) => {
-    soundManager.setAmbientEnabled(enabled);
-    setAmbientEnabledState(enabled);
-  };
-
-  const setAmbientVolume = (vol: number) => {
-    soundManager.setAmbientVolume(vol);
-    setAmbientVolumeState(vol);
-  };
-
-  const setAmbientPreset = (preset: AmbientPresetId) => {
-    soundManager.setAmbientPreset(preset);
-    setAmbientPresetState(preset);
   };
   const [adminAccount, setAdminAccount] = useState<{ email: string; passwordHash: string }>(() => {
     if (typeof window !== 'undefined') {
@@ -2933,13 +2898,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setSoundPack,
         setAdminMutedSound,
         playSound,
-        ambientEnabled,
-        ambientVolume,
-        ambientPreset,
-        toggleAmbient,
-        setAmbientEnabled,
-        setAmbientVolume,
-        setAmbientPreset,
         adminAuthenticated,
         authenticateAdmin,
         logoutAdmin,

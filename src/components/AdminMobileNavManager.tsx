@@ -525,7 +525,7 @@ export const AdminMobileNavManager: React.FC<Props> = ({ showToast }) => {
                     <strong className="text-slate-100">PWA / App Style Experience:</strong> Ideal for installed web apps or Android/iOS wrapper use.
                   </li>
                   <li>
-                    <strong className="text-slate-100">Elevated Floating Controls:</strong> WhatsApp and ambient sound controls automatically sit above the bottom navigation bar.
+                    <strong className="text-slate-100">Elevated Floating Controls:</strong> WhatsApp and floating controls automatically sit above the bottom navigation bar.
                   </li>
                 </ul>
               </div>

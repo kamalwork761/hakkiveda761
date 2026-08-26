@@ -171,13 +171,13 @@ export const Footer: React.FC = () => {
             <h4 className="text-base font-serif-luxury font-bold tracking-[0.2em] text-[#C5A059]">
               HAKKIVEDA
             </h4>
-            <p className="text-[11px] text-slate-300 font-serif tracking-wide font-normal">
+            <p className="text-[11px] text-[#FAF7F2] font-serif tracking-wide font-normal">
               {mobileSloganText}
             </p>
           </div>
 
           {/* Dynamic Copyright Year */}
-          <p className="text-[10px] text-slate-400 font-sans tracking-wider pt-1">
+          <p className="text-[10px] text-[#E5D8B5] font-sans tracking-wider pt-1">
             {mobileCopyrightText}
           </p>
         </div>

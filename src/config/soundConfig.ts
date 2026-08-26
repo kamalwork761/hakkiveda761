@@ -41,44 +41,11 @@ export const SOUND_PACKS: SoundPack[] = [
   },
 ];
 
-export type AmbientPresetId = 'nilgiri_forest' | 'ayurvedic_garden' | 'monsoon_rain';
-
-export interface AmbientPreset {
-  id: AmbientPresetId;
-  name: string;
-  description: string;
-  icon: string;
-}
-
-export const AMBIENT_PRESETS: AmbientPreset[] = [
-  {
-    id: 'nilgiri_forest',
-    name: 'Nilgiri Forest & River Stream',
-    description: 'Flowing forest stream, gentle breeze, periodic bird chirps, and warm Ayurvedic drone.',
-    icon: '🌲',
-  },
-  {
-    id: 'ayurvedic_garden',
-    name: 'Ayurvedic Herbal Garden & Drone',
-    description: 'Soothing Tanpura meditation frequencies with soft bamboo wind resonance.',
-    icon: '🍃',
-  },
-  {
-    id: 'monsoon_rain',
-    name: 'Western Ghats Monsoon & Rain',
-    description: 'Calm herbal rainfall soundscape with subtle sanctuary temple bell notes.',
-    icon: '🌧️',
-  },
-];
-
 export interface SoundConfig {
   enabled: boolean;
-  volume: number; // Default 0.20 (20%)
+  volume: number; // Default 0.35 (35% for UI clicks)
   pack: SoundPackId;
   adminMuted: boolean; // Master override from Admin Dashboard
-  ambientEnabled: boolean; // Nature continuous background ambience
-  ambientVolume: number; // Default 0.15 (15% background level)
-  ambientPreset: AmbientPresetId;
   audioFiles?: Record<SoundType, string>;
 }
 
@@ -87,7 +54,5 @@ export const DEFAULT_SOUND_CONFIG: SoundConfig = {
   volume: 0.35, // 35% default volume for UI clicks
   pack: 'luxury_ayurveda',
   adminMuted: false,
-  ambientEnabled: true, // Enabled out of the box so forest music starts on first click/interaction
-  ambientVolume: 0.25, // Rich 25% continuous background level
-  ambientPreset: 'nilgiri_forest',
 };
+

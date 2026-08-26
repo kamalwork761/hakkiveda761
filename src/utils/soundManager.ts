@@ -1,29 +1,18 @@
-import { SoundType, SoundPackId, SOUND_PACKS, DEFAULT_SOUND_CONFIG, AmbientPresetId, AMBIENT_PRESETS } from '../config/soundConfig';
+import { SoundType, SoundPackId, SOUND_PACKS, DEFAULT_SOUND_CONFIG } from '../config/soundConfig';
 
 const LOCAL_STORAGE_KEY_ENABLED = 'hakkiveda_sound_enabled';
 const LOCAL_STORAGE_KEY_VOLUME = 'hakkiveda_sound_volume';
 const LOCAL_STORAGE_KEY_PACK = 'hakkiveda_sound_pack';
 const LOCAL_STORAGE_KEY_ADMIN_MUTED = 'hakkiveda_sound_admin_muted';
-const LOCAL_STORAGE_KEY_AMBIENT_ENABLED = 'hakkiveda_ambient_enabled';
-const LOCAL_STORAGE_KEY_AMBIENT_VOLUME = 'hakkiveda_ambient_volume';
-const LOCAL_STORAGE_KEY_AMBIENT_PRESET = 'hakkiveda_ambient_preset';
 
 class SoundManager {
   private audioCtx: AudioContext | null = null;
   private isUnlocked: boolean = false;
   private enabled: boolean = true;
-  private volume: number = 0.20; // 20% default volume (15-25% range)
+  private volume: number = 0.35; // Default volume for UI interaction sounds
   private pack: SoundPackId = 'luxury_ayurveda';
   private adminMuted: boolean = false;
   private listenersAttached: boolean = false;
-
-  // Ambient Sound Engine State
-  private ambientEnabled: boolean = false;
-  private ambientVolume: number = 0.15; // 15% default continuous background
-  private ambientPreset: AmbientPresetId = 'nilgiri_forest';
-  private ambientGainNode: GainNode | null = null;
-  private ambientNodes: (AudioNode | number)[] = []; // Stores active osc/source nodes/intervals
-  private birdTimer: any = null;
 
   constructor() {
     this.loadSettings();
@@ -64,24 +53,6 @@ class SoundManager {
       if (storedAdminMuted !== null) {
         this.adminMuted = storedAdminMuted === 'true';
       }
-
-      const storedAmbientEnabled = localStorage.getItem(LOCAL_STORAGE_KEY_AMBIENT_ENABLED);
-      if (storedAmbientEnabled !== null) {
-        this.ambientEnabled = storedAmbientEnabled === 'true';
-      }
-
-      const storedAmbientVol = localStorage.getItem(LOCAL_STORAGE_KEY_AMBIENT_VOLUME);
-      if (storedAmbientVol !== null) {
-        const parsedVol = parseFloat(storedAmbientVol);
-        if (!isNaN(parsedVol) && parsedVol >= 0 && parsedVol <= 1) {
-          this.ambientVolume = parsedVol;
-        }
-      }
-
-      const storedAmbientPreset = localStorage.getItem(LOCAL_STORAGE_KEY_AMBIENT_PRESET) as AmbientPresetId;
-      if (storedAmbientPreset && AMBIENT_PRESETS.some((p) => p.id === storedAmbientPreset)) {
-        this.ambientPreset = storedAmbientPreset;
-      }
     } catch (e) {
       console.warn('Error reading sound settings from localStorage:', e);
     }
@@ -94,9 +65,6 @@ class SoundManager {
       localStorage.setItem(LOCAL_STORAGE_KEY_VOLUME, String(this.volume));
       localStorage.setItem(LOCAL_STORAGE_KEY_PACK, this.pack);
       localStorage.setItem(LOCAL_STORAGE_KEY_ADMIN_MUTED, String(this.adminMuted));
-      localStorage.setItem(LOCAL_STORAGE_KEY_AMBIENT_ENABLED, String(this.ambientEnabled));
-      localStorage.setItem(LOCAL_STORAGE_KEY_AMBIENT_VOLUME, String(this.ambientVolume));
-      localStorage.setItem(LOCAL_STORAGE_KEY_AMBIENT_PRESET, this.ambientPreset);
     } catch (e) {
       console.warn('Error saving sound settings to localStorage:', e);
     }
@@ -109,24 +77,11 @@ class SoundManager {
     };
 
     if (typeof window !== 'undefined') {
-      window.addEventListener('pointerdown', unlock);
-      window.addEventListener('pointermove', unlock);
-      window.addEventListener('mousemove', unlock);
-      window.addEventListener('click', unlock);
-      window.addEventListener('touchstart', unlock);
-      window.addEventListener('scroll', unlock);
-      window.addEventListener('keydown', unlock);
-      window.addEventListener('mouseenter', unlock);
+      window.addEventListener('pointerdown', unlock, { once: true });
+      window.addEventListener('click', unlock, { once: true });
+      window.addEventListener('touchstart', unlock, { once: true });
+      window.addEventListener('keydown', unlock, { once: true });
       this.listenersAttached = true;
-
-      // Periodic check if suspended until unlocked
-      const checkTimer = setInterval(() => {
-        if (this.audioCtx && this.audioCtx.state === 'running' && this.isUnlocked) {
-          clearInterval(checkTimer);
-        } else {
-          this.ensureAudioUnlocked();
-        }
-      }, 2000);
     }
   }
 
@@ -137,11 +92,6 @@ class SoundManager {
         this.audioCtx.resume().catch((e) => console.warn('AudioContext resume error:', e));
       }
       this.isUnlocked = true;
-      if (this.ambientEnabled && !this.adminMuted) {
-        if (!this.ambientGainNode) {
-          this.startAmbientEngine();
-        }
-      }
     }
   }
 
@@ -199,368 +149,9 @@ class SoundManager {
   public setAdminMuted(value: boolean) {
     this.adminMuted = value;
     this.saveSettings();
-    if (this.adminMuted) {
-      this.stopAmbientEngine();
-    } else if (this.ambientEnabled) {
-      this.startAmbientEngine();
-    }
   }
 
-  // Continuous Ambient Nature Sound System
-  public isAmbientEnabled(): boolean {
-    return this.ambientEnabled && !this.adminMuted;
-  }
-
-  public setAmbientEnabled(value: boolean) {
-    this.ambientEnabled = value;
-    this.saveSettings();
-    if (this.ambientEnabled && !this.adminMuted) {
-      this.startAmbientEngine();
-    } else {
-      this.stopAmbientEngine();
-    }
-  }
-
-  public toggleAmbient(): boolean {
-    const next = !this.ambientEnabled;
-    this.setAmbientEnabled(next);
-    if (next) {
-      this.play('cta_click');
-    }
-    return next;
-  }
-
-  public getAmbientVolume(): number {
-    return this.ambientVolume;
-  }
-
-  public setAmbientVolume(vol: number) {
-    this.ambientVolume = Math.max(0, Math.min(1, vol));
-    this.saveSettings();
-    if (this.ambientGainNode && this.audioCtx) {
-      this.ambientGainNode.gain.linearRampToValueAtTime(
-        this.ambientVolume,
-        this.audioCtx.currentTime + 0.1
-      );
-    }
-  }
-
-  public getAmbientPreset(): AmbientPresetId {
-    return this.ambientPreset;
-  }
-
-  public setAmbientPreset(preset: AmbientPresetId) {
-    this.ambientPreset = preset;
-    this.saveSettings();
-    if (this.ambientEnabled && !this.adminMuted) {
-      this.startAmbientEngine();
-    }
-  }
-
-  public startAmbientEngine() {
-    this.stopAmbientEngine(); // Clear existing
-
-    this.initAudioContext();
-    if (!this.audioCtx) return;
-
-    if (this.audioCtx.state === 'suspended') {
-      this.audioCtx.resume().catch(() => {});
-    }
-
-    const ctx = this.audioCtx;
-    const now = ctx.currentTime;
-
-    // Master Ambient Gain Node
-    const mainGain = ctx.createGain();
-    mainGain.gain.setValueAtTime(0.001, now);
-    mainGain.gain.linearRampToValueAtTime(this.ambientVolume, now + 1.5); // Smooth 1.5s fade in
-    mainGain.connect(ctx.destination);
-    this.ambientGainNode = mainGain;
-
-    if (this.ambientPreset === 'nilgiri_forest') {
-      this.buildNilgiriForestSoundscape(ctx, mainGain);
-    } else if (this.ambientPreset === 'ayurvedic_garden') {
-      this.buildAyurvedicGardenSoundscape(ctx, mainGain);
-    } else if (this.ambientPreset === 'monsoon_rain') {
-      this.buildMonsoonRainSoundscape(ctx, mainGain);
-    }
-  }
-
-  public stopAmbientEngine() {
-    if (this.birdTimer) {
-      clearInterval(this.birdTimer);
-      this.birdTimer = null;
-    }
-
-    if (this.ambientGainNode && this.audioCtx) {
-      try {
-        const now = this.audioCtx.currentTime;
-        this.ambientGainNode.gain.linearRampToValueAtTime(0.0001, now + 0.5);
-      } catch (e) {}
-    }
-
-    setTimeout(() => {
-      this.ambientNodes.forEach((node) => {
-        try {
-          if (typeof node === 'number') {
-            clearInterval(node);
-          } else if ('stop' in node && typeof (node as any).stop === 'function') {
-            (node as any).stop();
-          } else if ('disconnect' in node) {
-            (node as any).disconnect();
-          }
-        } catch (e) {}
-      });
-      this.ambientNodes = [];
-      this.ambientGainNode = null;
-    }, 600);
-  }
-
-  // 1. Nilgiri Forest & Sacred River Soundscape (Pure Music: C# Tanpura Drone + Bansuri Flute + Gentle Water Sine Waves + Bird Chirps)
-  private buildNilgiriForestSoundscape(ctx: AudioContext, destination: GainNode) {
-    const now = ctx.currentTime;
-
-    // A. Gentle Water Stream Ripple using Smooth Dual Sine Osc LFO Modulation (Zero Static Noise)
-    const streamOsc1 = ctx.createOscillator();
-    const streamOsc2 = ctx.createOscillator();
-    const streamGain = ctx.createGain();
-
-    streamOsc1.type = 'sine';
-    streamOsc2.type = 'sine';
-    streamOsc1.frequency.setValueAtTime(174.61, now); // F3 soft harmonic
-    streamOsc2.frequency.setValueAtTime(261.63, now); // C4 soft harmonic
-
-    // LFO for slow undulating stream ripple motion
-    const streamLfo = ctx.createOscillator();
-    streamLfo.frequency.setValueAtTime(0.18, now); // 0.18 Hz slow wave
-    const streamLfoGain = ctx.createGain();
-    streamLfoGain.gain.setValueAtTime(0.04, now);
-
-    streamLfo.connect(streamLfoGain);
-    streamLfoGain.connect(streamGain.gain);
-
-    streamGain.gain.setValueAtTime(0.08, now);
-
-    streamOsc1.connect(streamGain);
-    streamOsc2.connect(streamGain);
-    streamGain.connect(destination);
-
-    streamOsc1.start(now);
-    streamOsc2.start(now);
-    streamLfo.start(now);
-
-    this.ambientNodes.push(streamOsc1 as any, streamOsc2 as any, streamLfo as any, streamGain as any);
-
-    // B. Deep Warm Ayurvedic Tanpura C# Drone (138.59 Hz C#3 + 207.65 Hz G#3 + 277.18 Hz C#4)
-    const droneFreqs = [138.59, 207.65, 277.18, 415.30];
-    droneFreqs.forEach((freq, idx) => {
-      const osc = ctx.createOscillator();
-      const dGain = ctx.createGain();
-
-      osc.type = idx === 0 ? 'sine' : 'triangle';
-      osc.frequency.setValueAtTime(freq, now);
-
-      const vol = idx === 0 ? 0.25 : 0.10;
-      dGain.gain.setValueAtTime(vol, now);
-
-      osc.connect(dGain);
-      dGain.connect(destination);
-
-      osc.start(now);
-      this.ambientNodes.push(osc as any, dGain as any);
-    });
-
-    // C. Periodic Nilgiri Forest Bird Calls
-    const playBirdCall = () => {
-      if (!this.ambientEnabled || this.adminMuted || !this.audioCtx) return;
-      const bCtx = this.audioCtx;
-      const bNow = bCtx.currentTime;
-
-      const birdOsc = bCtx.createOscillator();
-      const birdGain = bCtx.createGain();
-
-      birdOsc.type = 'sine';
-      const startF = 2400 + Math.random() * 600;
-      birdOsc.frequency.setValueAtTime(startF, bNow);
-      birdOsc.frequency.exponentialRampToValueAtTime(startF + 800, bNow + 0.08);
-      birdOsc.frequency.exponentialRampToValueAtTime(startF - 300, bNow + 0.18);
-
-      birdGain.gain.setValueAtTime(0.001, bNow);
-      birdGain.gain.linearRampToValueAtTime(0.18, bNow + 0.05);
-      birdGain.gain.exponentialRampToValueAtTime(0.0001, bNow + 0.22);
-
-      birdOsc.connect(birdGain);
-      birdGain.connect(destination);
-
-      birdOsc.start(bNow);
-      birdOsc.stop(bNow + 0.25);
-    };
-
-    // D. Ayurvedic Organic Bansuri Flute Melodies (Raag Yaman Scale)
-    const fluteNotes = [277.18, 311.13, 349.23, 415.30, 466.16, 554.37]; // C#4, D#4, F4, G#4, A#4, C#5
-    const playFlutePhrase = () => {
-      if (!this.ambientEnabled || this.adminMuted || !this.audioCtx) return;
-      const fCtx = this.audioCtx;
-      const fNow = fCtx.currentTime;
-
-      const noteFreq = fluteNotes[Math.floor(Math.random() * fluteNotes.length)];
-      const duration = 2.5 + Math.random() * 2.0;
-
-      const fluteOsc = fCtx.createOscillator();
-      const fluteGain = fCtx.createGain();
-
-      fluteOsc.type = 'sine';
-      fluteOsc.frequency.setValueAtTime(noteFreq, fNow);
-
-      const vibrato = fCtx.createOscillator();
-      const vibratoGain = fCtx.createGain();
-      vibrato.frequency.setValueAtTime(5.2, fNow);
-      vibratoGain.gain.setValueAtTime(3.5, fNow);
-      vibrato.connect(vibratoGain);
-      vibratoGain.connect(fluteOsc.frequency);
-      vibrato.start(fNow);
-
-      fluteGain.gain.setValueAtTime(0.0001, fNow);
-      fluteGain.gain.linearRampToValueAtTime(0.15, fNow + 0.6);
-      fluteGain.gain.exponentialRampToValueAtTime(0.0001, fNow + duration);
-
-      fluteOsc.connect(fluteGain);
-      fluteGain.connect(destination);
-
-      fluteOsc.start(fNow);
-      fluteOsc.stop(fNow + duration + 0.1);
-      vibrato.stop(fNow + duration + 0.1);
-    };
-
-    // Trigger immediate sounds on unlock
-    setTimeout(() => playBirdCall(), 500);
-    setTimeout(() => playFlutePhrase(), 1200);
-
-    this.birdTimer = setInterval(() => {
-      if (Math.random() > 0.2) playBirdCall();
-      if (Math.random() > 0.3) playFlutePhrase();
-    }, 4000);
-    this.ambientNodes.push(this.birdTimer);
-  }
-
-  // 2. Ayurvedic Herbal Garden Soundscape (D Major 432Hz Meditation Pad & Veena Harmonics)
-  private buildAyurvedicGardenSoundscape(ctx: AudioContext, destination: GainNode) {
-    const now = ctx.currentTime;
-
-    // Deep Soothing 432Hz D Major Harmonious Chord (D3, A3, F#4, A4, D5)
-    const chord = [146.83, 220.0, 369.99, 440.0, 587.33];
-    chord.forEach((freq, idx) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      osc.type = idx % 2 === 0 ? 'sine' : 'triangle';
-      osc.frequency.setValueAtTime(freq, now);
-
-      // Slow organic breath swell for pad warmth
-      const padLfo = ctx.createOscillator();
-      padLfo.frequency.setValueAtTime(0.1, now);
-      const padLfoGain = ctx.createGain();
-      padLfoGain.gain.setValueAtTime(0.05, now);
-
-      padLfo.connect(padLfoGain);
-      padLfoGain.connect(gain.gain);
-
-      gain.gain.setValueAtTime(idx === 0 ? 0.25 : 0.12, now);
-
-      osc.connect(gain);
-      gain.connect(destination);
-
-      osc.start(now);
-      padLfo.start(now);
-      this.ambientNodes.push(osc as any, padLfo as any, gain as any);
-    });
-
-    // Plucked Veena / Santoor Acoustic Chimes
-    const veenaNotes = [293.66, 369.99, 440.0, 587.33, 739.99];
-    const playVeenaPluck = () => {
-      if (!this.ambientEnabled || this.adminMuted || !this.audioCtx) return;
-      const vCtx = this.audioCtx;
-      const vNow = vCtx.currentTime;
-
-      const note = veenaNotes[Math.floor(Math.random() * veenaNotes.length)];
-      const vOsc = vCtx.createOscillator();
-      const vGain = vCtx.createGain();
-
-      vOsc.type = 'sine';
-      vOsc.frequency.setValueAtTime(note, vNow);
-
-      vGain.gain.setValueAtTime(0.18, vNow);
-      vGain.gain.exponentialRampToValueAtTime(0.0001, vNow + 3.0);
-
-      vOsc.connect(vGain);
-      vGain.connect(destination);
-
-      vOsc.start(vNow);
-      vOsc.stop(vNow + 3.1);
-    };
-
-    setTimeout(() => playVeenaPluck(), 800);
-    this.birdTimer = setInterval(() => {
-      if (Math.random() > 0.3) playVeenaPluck();
-    }, 5000);
-    this.ambientNodes.push(this.birdTimer);
-  }
-
-  // 3. Western Ghats Monsoon Sanctuary & Temple Bell Soundscape
-  private buildMonsoonRainSoundscape(ctx: AudioContext, destination: GainNode) {
-    const now = ctx.currentTime;
-
-    // Deep F Low Ambient Harmonic Pad (F2 87.31Hz, F3 174.61Hz, C4 261.63Hz, F4 349.23Hz)
-    const padChord = [87.31, 174.61, 261.63, 349.23, 523.25];
-    padChord.forEach((freq, idx) => {
-      const osc = ctx.createOscillator();
-      const gain = ctx.createGain();
-
-      osc.type = 'sine';
-      osc.frequency.setValueAtTime(freq, now);
-
-      gain.gain.setValueAtTime(idx === 0 ? 0.30 : 0.12, now);
-
-      osc.connect(gain);
-      gain.connect(destination);
-
-      osc.start(now);
-      this.ambientNodes.push(osc as any, gain as any);
-    });
-
-    // Occasional Soft Sanctuary Bell Chime & Singing Bowl
-    const playBell = () => {
-      if (!this.ambientEnabled || this.adminMuted || !this.audioCtx) return;
-      const bCtx = this.audioCtx;
-      const bNow = bCtx.currentTime;
-
-      const bellOsc = bCtx.createOscillator();
-      const bellGain = bCtx.createGain();
-
-      bellOsc.type = 'sine';
-      bellOsc.frequency.setValueAtTime(1046.5, bNow); // C6 bell tone
-
-      bellGain.gain.setValueAtTime(0.20, bNow);
-      bellGain.gain.exponentialRampToValueAtTime(0.0001, bNow + 3.5);
-
-      bellOsc.connect(bellGain);
-      bellGain.connect(destination);
-
-      bellOsc.start(bNow);
-      bellOsc.stop(bNow + 3.6);
-    };
-
-    setTimeout(() => playBell(), 1000);
-
-    this.birdTimer = setInterval(() => {
-      if (Math.random() > 0.3) {
-        playBell();
-      }
-    }, 6000);
-    this.ambientNodes.push(this.birdTimer);
-  }
-
-  // Master Play Method
+  // Master Play Method for UI Interaction Sounds
   public play(type: SoundType) {
     if (!this.enabled || this.adminMuted || this.volume <= 0) return;
 
@@ -577,7 +168,7 @@ class SoundManager {
     const ctx = this.audioCtx;
     const now = ctx.currentTime;
 
-    // Master gain node applying configured volume (default ~0.20)
+    // Master gain node applying configured UI volume
     const masterGain = ctx.createGain();
     masterGain.gain.setValueAtTime(this.volume, now);
     masterGain.connect(ctx.destination);

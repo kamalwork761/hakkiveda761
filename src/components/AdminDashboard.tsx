@@ -192,12 +192,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
     setSoundPack,
     setAdminMutedSound,
     playSound,
-    ambientEnabled,
-    ambientVolume,
-    ambientPreset,
-    toggleAmbient,
-    setAmbientVolume,
-    setAmbientPreset,
   } = useStore();
 
   const [activeTab, setActiveTab] = useState<
@@ -3682,60 +3676,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                   {adminMutedSound ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
                   <span>{adminMutedSound ? 'Admin Muted' : 'Sound Active'}</span>
                 </button>
-              </div>
-
-              {/* Continuous Nature & Forest Music Ambient Panel */}
-              <div className="bg-[var(--brand-primary-deep)] border border-[var(--brand-gold)]/30 p-5 rounded-2xl space-y-4">
-                <div className="flex items-center justify-between">
-                  <div className="flex items-center gap-2.5">
-                    <Trees className="w-5 h-5 text-[var(--brand-gold)]" />
-                    <div>
-                      <h4 className="font-bold text-sm text-[var(--brand-gold)]">Continuous Nature Ambience (Forest, River, Ayurvedic Drone)</h4>
-                      <p className="text-[11px] text-slate-300">Continuous background audio loop synthesized with Web Audio API.</p>
-                    </div>
-                  </div>
-                  <button
-                    onClick={() => toggleAmbient()}
-                    className={`px-4 py-2 rounded-xl font-bold text-xs transition-all ${
-                      ambientEnabled && !adminMutedSound
-                        ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] shadow-lg'
-                        : 'bg-black/40 border border-white/20 text-slate-400 hover:text-white'
-                    }`}
-                  >
-                    {ambientEnabled && !adminMutedSound ? '🌲 Nature Ambience ON' : 'Nature Ambience OFF'}
-                  </button>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                  <div className="space-y-1.5">
-                    <label className="font-bold text-slate-200 block text-[11px]">Nature Preset Profile</label>
-                    <select
-                      value={ambientPreset}
-                      onChange={(e) => setAmbientPreset(e.target.value as any)}
-                      className="w-full bg-black/40 border border-white/20 p-2 rounded-xl text-slate-100 font-semibold focus:border-[var(--brand-gold)] outline-none text-xs"
-                    >
-                      <option value="nilgiri_forest">🌲 Nilgiri Forest & Stream (Water + Drone + Birds)</option>
-                      <option value="ayurvedic_garden">🍃 Ayurvedic Herbal Garden (Bamboo Wind + Drone)</option>
-                      <option value="monsoon_rain">🌧️ Western Ghats Monsoon (Rain + Bell Chimes)</option>
-                    </select>
-                  </div>
-
-                  <div className="space-y-1.5">
-                    <div className="flex justify-between items-center text-[11px] font-bold text-slate-200">
-                      <span>Background Volume ({Math.round(ambientVolume * 100)}%)</span>
-                      <span className="text-[var(--brand-gold)] font-mono">Default: 15%</span>
-                    </div>
-                    <input
-                      type="range"
-                      min="0"
-                      max="0.4"
-                      step="0.01"
-                      value={ambientVolume}
-                      onChange={(e) => setAmbientVolume(parseFloat(e.target.value))}
-                      className="w-full accent-[var(--brand-gold)] bg-black/40 h-2 rounded-lg cursor-pointer"
-                    />
-                  </div>
-                </div>
               </div>
 
               {/* Instant Sound Tester Grid */}

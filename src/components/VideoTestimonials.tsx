@@ -266,10 +266,10 @@ export const VideoTestimonials: React.FC = () => {
                 <div
                   key={`${item.id}-${index}`}
                   onClick={() => handleCardClick(item)}
-                  className="w-[47vw] min-w-[165px] max-w-[210px] sm:w-[220px] md:w-[270px] lg:w-[290px] shrink-0 bg-slate-900/90 border border-white/12 rounded-xl sm:rounded-2xl overflow-hidden hover:border-[var(--brand-gold)] transition-all duration-300 shadow-lg flex flex-col cursor-pointer group"
+                  className="w-[47vw] min-w-[165px] max-w-[210px] sm:w-[220px] md:w-[270px] lg:w-[290px] shrink-0 bg-[#FAF7F2] border border-[#E5D8B5] hover:border-[#C5A059] rounded-xl sm:rounded-2xl overflow-hidden transition-all duration-300 shadow-md shadow-black/10 flex flex-col cursor-pointer group"
                 >
-                  {/* Thumbnail Container (16:9 Aspect Ratio) */}
-                  <div className="relative aspect-[16/9] w-full overflow-hidden bg-slate-950">
+                  {/* Thumbnail Container (16:9 Aspect Ratio) - Clean & Bright */}
+                  <div className="relative aspect-[16/9] w-full overflow-hidden bg-[#FAF7F2]">
                     {hasValidVideo ? (
                       <img
                         src={item.thumbnail}
@@ -283,18 +283,15 @@ export const VideoTestimonials: React.FC = () => {
                         }}
                       />
                     ) : (
-                      <div className="w-full h-full flex flex-col items-center justify-center p-3 text-center bg-slate-900 text-slate-400">
+                      <div className="w-full h-full flex flex-col items-center justify-center p-3 text-center bg-[#FAF7F2] text-[#37463D]">
                         <Youtube className="w-6 h-6 text-red-500 mb-1" />
                         <span className="text-[10px]">HAKKIVEDA Video</span>
                       </div>
                     )}
 
-                    {/* Gradient Shade on thumbnail */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
-
                     {/* Category Label (Top-Left) */}
                     <div className="absolute top-2 left-2 z-10">
-                      <span className="bg-black/80 backdrop-blur-md border border-white/20 text-[var(--brand-gold)] text-[9px] sm:text-[10px] font-sans font-bold px-2 py-0.5 rounded-md shadow-sm flex items-center gap-1">
+                      <span className="bg-[#0F2E22]/85 backdrop-blur-md border border-[#C5A059]/40 text-[#C5A059] text-[9px] sm:text-[10px] font-sans font-bold px-2 py-0.5 rounded-md shadow-sm flex items-center gap-1">
                         {getCategoryIcon(item.category)}
                         <span>{item.category}</span>
                       </span>
@@ -303,7 +300,7 @@ export const VideoTestimonials: React.FC = () => {
                     {/* Duration Badge (Bottom-Right) */}
                     {item.duration && (
                       <div className="absolute bottom-2 right-2 z-10">
-                        <span className="bg-black/85 backdrop-blur-md text-white text-[9px] sm:text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded border border-white/15">
+                        <span className="bg-[#0F2E22]/85 backdrop-blur-md text-[#FAF7F2] text-[9px] sm:text-[10px] font-mono font-semibold px-1.5 py-0.5 rounded border border-[#C5A059]/30">
                           {item.duration}
                         </span>
                       </div>
@@ -311,31 +308,31 @@ export const VideoTestimonials: React.FC = () => {
 
                     {/* Centered Play Button Overlay */}
                     <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none">
-                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] flex items-center justify-center shadow-xl group-hover:scale-115 group-hover:bg-amber-300 transition-all duration-300 ring-2 ring-black/40">
-                        <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-current translate-x-0.5 text-[var(--brand-primary-dark)]" />
+                      <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-[#C5A059] text-[#0F2E22] flex items-center justify-center shadow-lg group-hover:scale-110 group-hover:bg-[#d8b368] transition-all duration-300 ring-2 ring-white/60">
+                        <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-current translate-x-0.5 text-[#0F2E22]" />
                       </div>
                     </div>
                   </div>
 
-                  {/* Card Content */}
-                  <div className="p-3 sm:p-4 flex-1 flex flex-col justify-between space-y-2 bg-[#0c2317]">
+                  {/* Card Content - Clean Ivory Surface */}
+                  <div className="p-3 sm:p-4 flex-1 flex flex-col justify-between space-y-2 bg-[#FAF7F2]">
                     <div>
-                      <h3 className="text-xs sm:text-sm font-bold font-serif-luxury text-slate-100 group-hover:text-[var(--brand-gold)] transition-colors leading-snug line-clamp-2">
+                      <h3 className="text-xs sm:text-sm font-bold font-serif-luxury text-[#0F2E22] group-hover:text-[#8E7026] transition-colors leading-snug line-clamp-2">
                         {item.title}
                       </h3>
                       {item.description && (
-                        <p className="text-[10px] sm:text-[11px] text-slate-300 font-sans mt-1 line-clamp-2 leading-relaxed opacity-90 hidden sm:block">
+                        <p className="text-[10px] sm:text-[11px] text-[#37463D] font-sans mt-1 line-clamp-2 leading-relaxed hidden sm:block">
                           {item.description}
                         </p>
                       )}
                     </div>
 
-                    <div className="pt-1.5 border-t border-white/10 flex items-center justify-between text-[10px] sm:text-xs text-slate-300">
-                      <span className="text-[var(--brand-gold)] font-sans font-medium flex items-center gap-1 group-hover:underline">
+                    <div className="pt-1.5 border-t border-[#E5D8B5] flex items-center justify-between text-[10px] sm:text-xs text-[#37463D]">
+                      <span className="text-[#8E7026] font-sans font-bold flex items-center gap-1 group-hover:underline">
                         <span>Play Video</span>
                         <Play className="w-2.5 h-2.5 fill-current" />
                       </span>
-                      <span className="text-slate-400 text-[10px] truncate max-w-[90px]">
+                      <span className="text-[#64746B] text-[10px] truncate max-w-[90px]">
                         YouTube HD
                       </span>
                     </div>

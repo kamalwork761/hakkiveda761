@@ -80,24 +80,24 @@ export const HomepageQuizBanner: React.FC = () => {
           )}
 
           {/* Gradient Overlay Scrim for Crisp Contrast */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/55 to-black/25 flex flex-col justify-between p-4 xs:p-5 text-white" />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#061810]/95 via-[#061810]/65 to-black/20 pointer-events-none" />
 
           {/* Content Container */}
           <div className="absolute inset-0 flex flex-col justify-between p-4 xs:p-5 text-white z-10">
             {/* Top Pill / Eyebrow */}
-            <div className="flex items-center gap-1.5 self-start bg-black/50 backdrop-blur-xs px-2.5 py-1 rounded-full border border-[var(--brand-gold,#C9A84E)]/40">
-              <Bot className="w-3.5 h-3.5 text-[var(--brand-gold,#C9A84E)]" />
-              <span className="text-[10px] uppercase font-extrabold tracking-wider text-[var(--brand-gold,#C9A84E)] font-sans">
+            <div className="flex items-center gap-1.5 self-start bg-[#061810]/80 backdrop-blur-xs px-2.5 py-1 rounded-full border border-[#C5A059]/60 shadow-sm">
+              <Bot className="w-3.5 h-3.5 text-[#C5A059]" />
+              <span className="text-[10px] uppercase font-extrabold tracking-wider text-[#C5A059] font-sans">
                 {subheadingText}
               </span>
             </div>
 
             {/* Bottom Content & CTA */}
             <div className="space-y-2">
-              <h3 className="font-serif-luxury font-bold text-lg xs:text-xl text-white leading-snug drop-shadow-md">
+              <h3 className="font-serif-luxury font-bold text-lg xs:text-xl text-[#FAF7F2] leading-snug drop-shadow-md">
                 {headingText}
               </h3>
-              <p className="text-xs text-slate-200/90 font-sans line-clamp-2 leading-relaxed drop-shadow-xs">
+              <p className="text-xs text-[#E5D8B5] font-sans line-clamp-2 leading-relaxed drop-shadow-xs">
                 {descriptionText}
               </p>
 
@@ -134,26 +134,26 @@ export const HomepageQuizBanner: React.FC = () => {
           )}
 
           {/* Gradient Scrim for Readability */}
-          <div className="absolute inset-0 bg-gradient-to-r from-black/85 via-black/50 to-transparent flex items-center p-8 lg:p-12 text-white" />
+          <div className="absolute inset-0 bg-gradient-to-r from-[#061810]/90 via-[#061810]/60 to-transparent flex items-center p-8 lg:p-12 text-white" />
 
           {/* Content Container */}
           <div className="absolute inset-0 flex items-center p-8 lg:p-12 z-10">
             <div className="max-w-xl space-y-3.5 text-white">
               {/* Eyebrow */}
-              <div className="inline-flex items-center gap-2 bg-black/40 backdrop-blur-xs px-3 py-1 rounded-full border border-[var(--brand-gold,#C9A84E)]/40">
-                <Bot className="w-4 h-4 text-[var(--brand-gold,#C9A84E)]" />
-                <span className="text-xs uppercase font-extrabold tracking-[0.2em] text-[var(--brand-gold,#C9A84E)] font-sans">
+              <div className="inline-flex items-center gap-2 bg-[#061810]/70 backdrop-blur-xs px-3 py-1 rounded-full border border-[#C5A059]/50">
+                <Bot className="w-4 h-4 text-[#C5A059]" />
+                <span className="text-xs uppercase font-extrabold tracking-[0.2em] text-[#C5A059] font-sans">
                   {subheadingText}
                 </span>
               </div>
 
               {/* Heading */}
-              <h2 className="font-serif-luxury font-bold text-2xl lg:text-3xl text-white leading-tight drop-shadow-md">
+              <h2 className="font-serif-luxury font-bold text-2xl lg:text-3xl text-[#FAF7F2] leading-tight drop-shadow-md">
                 {headingText}
               </h2>
 
               {/* Description */}
-              <p className="text-sm text-slate-200/90 font-sans line-clamp-2 leading-relaxed max-w-lg drop-shadow-xs">
+              <p className="text-sm text-[#E5D8B5] font-sans line-clamp-2 leading-relaxed max-w-lg drop-shadow-xs">
                 {descriptionText}
               </p>
 

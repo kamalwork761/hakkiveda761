@@ -117,7 +117,7 @@ export const CustomerReviews: React.FC = () => {
       <div
         key={indexKey}
         onClick={handleUserInteract}
-        className="w-[84vw] max-w-[340px] md:w-auto shrink-0 bg-[#0a1d13] border border-white/15 hover:border-[#C5A059]/50 rounded-2xl p-4 sm:p-5 space-y-3.5 transition-all duration-300 shadow-xl flex flex-col justify-between group"
+        className="w-[84vw] max-w-[340px] md:w-auto shrink-0 bg-[#0a1d13] border border-[#C5A059]/30 hover:border-[#C5A059] rounded-2xl p-4 sm:p-5 space-y-3.5 transition-all duration-300 shadow-xl flex flex-col justify-between group"
       >
         <div className="space-y-2.5">
           {/* Top Row: Stars + Date */}
@@ -134,25 +134,25 @@ export const CustomerReviews: React.FC = () => {
                 />
               ))}
             </div>
-            <span className="text-[11px] font-sans text-slate-400 shrink-0">{rev.date}</span>
+            <span className="text-[11px] font-sans text-[#E5D8B5]/80 shrink-0">{rev.date}</span>
           </div>
 
           {/* Linked Product Name Tag (if present) */}
           {linkedProduct && (
             <div className="inline-block">
-              <span className="text-[10px] font-semibold text-[#C5A059] bg-[#C5A059]/10 border border-[#C5A059]/25 px-2 py-0.5 rounded-md truncate max-w-[220px] block">
+              <span className="text-[10px] font-semibold text-[#C5A059] bg-[#C5A059]/15 border border-[#C5A059]/30 px-2 py-0.5 rounded-md truncate max-w-[220px] block">
                 {linkedProduct.name}
               </span>
             </div>
           )}
 
           {/* Review Title */}
-          <h4 className="text-sm sm:text-base font-bold font-serif-luxury text-slate-100 leading-snug line-clamp-1 group-hover:text-[#C5A059] transition-colors">
+          <h4 className="text-sm sm:text-base font-bold font-serif-luxury text-[#FAF7F2] leading-snug line-clamp-1 group-hover:text-[#C5A059] transition-colors">
             {rev.title}
           </h4>
 
           {/* Review Comment / Body with 4-5 line clamping and Read More */}
-          <div className="text-xs text-slate-200 leading-relaxed font-sans font-light">
+          <div className="text-xs text-[#F4EBD9] leading-relaxed font-sans font-normal">
             <p className={isExpanded ? '' : 'line-clamp-4'}>
               &ldquo;{rev.comment}&rdquo;
             </p>
@@ -171,13 +171,13 @@ export const CustomerReviews: React.FC = () => {
         {/* Bottom Author Info + Verified Badge */}
         <div className="pt-3 border-t border-white/10 flex items-center justify-between gap-2 text-xs font-sans">
           <div className="min-w-0">
-            <span className="font-bold text-slate-100 block truncate">{rev.customerName}</span>
-            <span className="text-[10px] text-slate-400 block truncate">{rev.location}</span>
+            <span className="font-bold text-[#FAF7F2] block truncate">{rev.customerName}</span>
+            <span className="text-[10px] text-[#E5D8B5] block truncate">{rev.location}</span>
           </div>
 
           {rev.verifiedPurchase && (
-            <span className="bg-emerald-950/80 border border-emerald-500/40 text-emerald-400 text-[10px] px-2.5 py-0.5 rounded-full flex items-center gap-1 shrink-0 font-medium shadow-sm">
-              <ShieldCheck className="w-3 h-3 text-emerald-400" />
+            <span className="bg-emerald-950/90 border border-emerald-400/50 text-emerald-300 text-[10px] px-2.5 py-0.5 rounded-full flex items-center gap-1 shrink-0 font-medium shadow-sm">
+              <ShieldCheck className="w-3 h-3 text-emerald-300" />
               <span>Verified</span>
             </span>
           )}
@@ -205,10 +205,10 @@ export const CustomerReviews: React.FC = () => {
             <span className="text-[#C5A059] font-sans text-xs uppercase tracking-[0.24em] font-bold block">
               VERIFIED FEEDBACK
             </span>
-            <h2 className="text-2xl sm:text-4xl font-serif-luxury font-bold text-slate-100 tracking-tight">
+            <h2 className="text-2xl sm:text-4xl font-serif-luxury font-bold text-[#FAF7F2] tracking-tight">
               CUSTOMER REVIEWS &amp; RATINGS
             </h2>
-            <p className="text-xs sm:text-sm text-slate-300 font-sans max-w-xl font-normal leading-relaxed">
+            <p className="text-xs sm:text-sm text-[#E5D8B5] font-sans max-w-xl font-normal leading-relaxed">
               Real experiences shared by HAKKIVEDA customers.
             </p>
           </div>
@@ -224,7 +224,7 @@ export const CustomerReviews: React.FC = () => {
                   <Star key={i} className="w-3.5 h-3.5 sm:w-4 sm:h-4 fill-current text-[#C5A059]" />
                 ))}
               </div>
-              <p className="text-[11px] sm:text-xs text-slate-300 font-sans">
+              <p className="text-[11px] sm:text-xs text-[#E5D8B5] font-sans">
                 Based on {totalBuyersDisplay} International Buyers
               </p>
             </div>
@@ -233,7 +233,7 @@ export const CustomerReviews: React.FC = () => {
 
         {/* Filter Pills Controls */}
         <div className="flex items-center gap-2 sm:gap-2.5 mb-6 sm:mb-8 overflow-x-auto pb-2 font-sans text-xs font-semibold w-full max-w-full no-scrollbar">
-          <span className="text-slate-400 uppercase text-[10px] tracking-wider shrink-0 mr-1 hidden sm:inline">
+          <span className="text-[#E5D8B5]/80 uppercase text-[10px] tracking-wider shrink-0 mr-1 hidden sm:inline">
             Filter:
           </span>
 
@@ -244,7 +244,7 @@ export const CustomerReviews: React.FC = () => {
             className={`px-3.5 py-1.5 rounded-full border text-xs transition-all duration-200 shrink-0 cursor-pointer ${
               starFilter === null
                 ? 'border-[#C5A059] bg-[#C5A059] text-[#07160e] font-bold shadow-md'
-                : 'border-white/20 bg-[#0a1d13]/80 hover:bg-[#0a1d13] text-slate-300 hover:border-[#C5A059]'
+                : 'border-[#C5A059]/40 bg-[#0a1d13] hover:bg-[#0f2a1c] text-[#FAF7F2] hover:border-[#C5A059]'
             }`}
           >
             All Reviews ({approvedReviews.length})
@@ -263,7 +263,7 @@ export const CustomerReviews: React.FC = () => {
                 className={`px-3.5 py-1.5 rounded-full border text-xs transition-all duration-200 flex items-center gap-1 shrink-0 cursor-pointer ${
                   isActive
                     ? 'border-[#C5A059] bg-[#C5A059] text-[#07160e] font-bold shadow-md'
-                    : 'border-white/20 bg-[#0a1d13]/80 hover:bg-[#0a1d13] text-slate-300 hover:border-[#C5A059]'
+                    : 'border-[#C5A059]/40 bg-[#0a1d13] hover:bg-[#0f2a1c] text-[#FAF7F2] hover:border-[#C5A059]'
                 }`}
               >
                 <span>{star} Stars</span>
@@ -272,7 +272,7 @@ export const CustomerReviews: React.FC = () => {
                     isActive ? 'fill-[#07160e] text-[#07160e]' : 'fill-[#C5A059] text-[#C5A059]'
                   }`}
                 />
-                <span className="text-[10px] opacity-75">({count})</span>
+                <span className="text-[10px] opacity-80">({count})</span>
               </button>
             );
           })}
@@ -281,7 +281,7 @@ export const CustomerReviews: React.FC = () => {
         {/* Empty State if filter yields no reviews */}
         {filteredReviews.length === 0 ? (
           <div className="p-8 rounded-2xl bg-[#0a1d13] border border-white/10 text-center space-y-3 max-w-md mx-auto">
-            <p className="text-sm text-slate-300 font-sans">
+            <p className="text-sm text-[#FAF7F2] font-sans">
               No reviews found matching the selected star rating.
             </p>
             <button

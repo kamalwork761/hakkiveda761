@@ -470,7 +470,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
       {/* NEW MOBILE HEADER CONTAINER (lg:hidden) */}
       <div className="flex lg:hidden bg-[#FAF7F2] border-b border-[#D8CDAF]/70 px-2 xs:px-3 sm:px-4 py-2 min-h-[54px] max-h-[58px] items-center justify-between shadow-xs relative z-40">
         {/* Left Area: Hamburger Menu + Compact Round Search */}
-        <div className="flex items-center justify-start gap-1 xs:gap-1.5 shrink-0 w-[80px] xs:w-[90px] sm:w-[96px] z-10">
+        <div className="flex items-center justify-start gap-1 xs:gap-1.5 shrink-0 w-[76px] xs:w-[88px] sm:w-[96px] z-10">
           <button
             onClick={() => {
               playSound('menu_toggle');
@@ -508,12 +508,12 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
           </button>
         </div>
 
-        {/* Center Area: HV Logo + Animated HAKKIVEDA Word Branding */}
+        {/* Center Area: HV Logo + Prominent HAKKIVEDA Word Branding */}
         <div className="flex-1 flex items-center justify-center min-w-0 px-1">
           <a
             href="/"
             onClick={handleHomeClick}
-            className="flex items-center gap-1.5 xs:gap-2 group cursor-pointer transition-opacity duration-200 hover:opacity-90 active:scale-[0.99] min-w-0 max-w-full justify-center"
+            className="inline-flex items-center gap-1.5 xs:gap-2 group cursor-pointer transition-opacity duration-200 hover:opacity-90 active:scale-[0.99] min-w-0 max-w-full justify-center select-none"
             title="Return to Homepage"
             id="mobile-header-home-logo-link"
           >
@@ -522,31 +522,31 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
                 <img
                   src={mobileUploadedLogoUrl || uploadedLogoUrl}
                   alt={brandIdentity?.brandName || siteSettings?.companyName || 'HAKKIVEDA Logo'}
-                  className="h-8 max-h-8.5 xs:h-9 xs:max-h-9.5 w-auto object-contain transition-transform duration-300"
+                  className="h-7 xs:h-8 sm:h-8.5 max-h-9 w-auto object-contain transition-transform duration-300"
                   onError={() => setLogoLoadError(true)}
                   loading="eager"
                   decoding="async"
                 />
               </div>
             ) : (
-              <div className="w-7 h-7 xs:w-8 xs:h-8 border border-[#C9A84E] bg-[#FAF7F2] flex items-center justify-center rotate-45 group-hover:bg-[#C9A84E]/10 transition-all duration-300 shadow-xs shrink-0">
-                <span className="-rotate-45 font-bold font-brand text-[#0F2E22] text-[10px] xs:text-[11px] tracking-tight">
+              <div className="w-[26px] h-[26px] xs:w-[28px] xs:h-[28px] sm:w-[30px] sm:h-[30px] border border-[#C9A84E] bg-[#FAF7F2] flex items-center justify-center rotate-45 group-hover:bg-[#C9A84E]/10 transition-all duration-300 shadow-xs shrink-0">
+                <span className="-rotate-45 font-bold font-brand text-[#0F2E22] text-[10px] xs:text-[11px] sm:text-xs tracking-tight">
                   {brandIdentity?.brandInitials || siteSettings?.logoInitials || 'HV'}
                 </span>
               </div>
             )}
 
-            <div className="flex flex-col justify-center min-w-0 text-left">
-              <HakkivedaWordmark size="sm" theme="light-footer" className="max-w-[125px] xs:max-w-[150px] sm:max-w-[175px]" />
-              <span className="text-[7px] xs:text-[7.5px] tracking-[0.16em] xs:tracking-[0.2em] font-sans text-[#8E7026] font-bold uppercase -mt-0.5 truncate">
-                {brandIdentity?.brandSubtitle || siteSettings?.logoSubtext || 'Hakki-Pikki Tribe & Ayurveda'}
-              </span>
-            </div>
+            <span
+              className="font-bold text-[#0F2E22] text-[17px] xs:text-[18.5px] sm:text-[20px] tracking-[0.06em] xs:tracking-[0.1em] sm:tracking-[0.14em] uppercase whitespace-nowrap leading-none transition-colors group-hover:text-[#123F2A]"
+              style={{ fontFamily: "'Cinzel', 'Cormorant Garamond', 'Playfair Display', Georgia, serif" }}
+            >
+              {brandIdentity?.brandName || siteSettings?.logoText || 'HAKKIVEDA'}
+            </span>
           </a>
         </div>
 
         {/* Right Area: Cart Icon + Account Icon (Wishlist removed from top mobile header) */}
-        <div className="flex items-center justify-end gap-1 xs:gap-1.5 shrink-0 w-[80px] xs:w-[90px] sm:w-[96px] z-10">
+        <div className="flex items-center justify-end gap-1 xs:gap-1.5 shrink-0 w-[76px] xs:w-[88px] sm:w-[96px] z-10">
           {/* Cart Icon with Counter Badge */}
           <button
             onClick={() => {

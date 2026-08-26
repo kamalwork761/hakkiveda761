@@ -161,7 +161,7 @@ export const Footer: React.FC = () => {
       {/* ========================================================================= */}
       {/* 2. MINIMAL MOBILE FOOTER (CLEAN, COMPACT, ~100PX, ZERO OVERSIZED MENUS)   */}
       {/* ========================================================================= */}
-      <div className="block md:hidden bg-[#0A2319] text-[#FAF7F2] text-center border-t border-[#D4AF37]/25 select-none">
+      <div id="mobile-footer" className="mobile-dark-footer block md:hidden bg-[#0A2319] text-[#FAF7F2] text-center border-t border-[#D4AF37]/25 select-none">
         <div
           className="py-6 px-4 space-y-2 max-w-sm mx-auto"
           style={{ paddingBottom: 'calc(20px + env(safe-area-inset-bottom, 0px))' }}

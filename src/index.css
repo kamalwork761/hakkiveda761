@@ -8,7 +8,7 @@
   --color-brand-primary-deeper: #103308;
   --color-brand-primary-light: #53C938;
 
-  --color-brand-gold: #D4AF37;
+  --color-brand-gold: #C5A059;
   --color-brand-gold-light: #E8D279;
   --color-brand-gold-dark: #A68725;
   --color-brand-gold-shimmer: #FFF0B2;
@@ -16,17 +16,29 @@
   --color-forest: #1C550E;
   --color-forest-dark: #103308;
   --color-forest-deeper: #0A2005;
-  --color-gold: #D4AF37;
+  --color-gold: #C5A059;
   --color-gold-light: #E8D279;
   --color-gold-dark: #A68725;
+
+  --color-text-on-dark: #FAF7F2;
+  --color-text-muted-on-dark: #E5D8B5;
+  --color-text-on-image: #FAF7F2;
 }
 
 @layer base {
   :root {
+    /* Shared Semantic Contrast Tokens */
+    --color-text-on-dark: #FAF7F2;
+    --color-text-muted-on-dark: #E5D8B5;
+    --color-text-on-image: #FAF7F2;
+    --text-on-dark: #FAF7F2;
+    --text-muted-on-dark: #E5D8B5;
+    --text-on-image: #FAF7F2;
+
     /* Brand Colours & Palette Engine Global Variables */
     --color-primary: #0A4F1F;
     --color-primary-dark: #0A4F1F;
-    --color-gold: #D4AF37;
+    --color-gold: #C5A059;
     --color-background: #F8F5EE;
     --color-text: #1F2A1F;
     --color-accent: #176B3A;
@@ -46,11 +58,11 @@
     --brand-primary-light: var(--color-accent);
     --brand-primary-subtle: rgba(10, 79, 31, 0.15);
 
-    --brand-gold: var(--color-gold);
+    --brand-gold: #C5A059;
     --brand-gold-light: #E8D279;
     --brand-gold-dark: #A68725;
     --brand-gold-shimmer: #FFF0B2;
-    --brand-gold-subtle: rgba(212, 175, 55, 0.15);
+    --brand-gold-subtle: rgba(197, 160, 89, 0.15);
     --brand-gold-border: var(--color-border);
 
     --button-primary: var(--color-button);
@@ -88,7 +100,7 @@
     --color-primary: #0B2F20;
     --color-forest-green: #123F2A;
     --color-deep-forest: #0B2F20;
-    --color-luxury-gold: #C9A84E;
+    --color-luxury-gold: #C5A059;
     --color-soft-gold: #E4D39A;
     --color-muted-text: #5F6B63;
     --color-card-border: #E7E1D5;
@@ -99,40 +111,227 @@
     color: var(--color-text, #123F2A) !important;
   }
 
-  /* Light Theme Headings Hierarchy */
-  [data-theme="light"] h1:not(.hero-content h1, .overlay-card h1, .dark-media-card h1, .banner-content h1) {
+  /* Light Theme Headings Hierarchy on Normal Light Backgrounds */
+  [data-theme="light"] h1:not(
+    .hero-content h1,
+    .overlay-card h1,
+    .dark-media-card h1,
+    .banner-content h1,
+    .quiz-banner h1,
+    .quiz-banner-content h1,
+    .dark-section h1,
+    #customer-reviews-section h1,
+    #mobile-footer h1,
+    .mobile-dark-footer h1
+  ) {
     color: #0B2F20 !important;
   }
 
-  [data-theme="light"] h2:not(.hero-content h2, .overlay-card h2, .dark-media-card h2, .banner-content h2),
-  [data-theme="light"] h3:not(.hero-content h3, .overlay-card h3, .dark-media-card h3, .banner-content h3) {
+  [data-theme="light"] h2:not(
+    .hero-content h2,
+    .overlay-card h2,
+    .dark-media-card h2,
+    .banner-content h2,
+    .quiz-banner h2,
+    .quiz-banner-content h2,
+    .dark-section h2,
+    #customer-reviews-section h2,
+    #mobile-footer h2,
+    .mobile-dark-footer h2
+  ),
+  [data-theme="light"] h3:not(
+    .hero-content h3,
+    .overlay-card h3,
+    .dark-media-card h3,
+    .banner-content h3,
+    .quiz-banner h3,
+    .quiz-banner-content h3,
+    .dark-section h3,
+    #customer-reviews-section h3,
+    #mobile-footer h3,
+    .mobile-dark-footer h3
+  ) {
     color: #0B2F20 !important;
   }
 
-  [data-theme="light"] h4:not(.hero-content h4, .overlay-card h4, .dark-media-card h4, .banner-content h4),
-  [data-theme="light"] h5:not(.hero-content h5, .overlay-card h5, .dark-media-card h5, .banner-content h5),
-  [data-theme="light"] h6:not(.hero-content h6, .overlay-card h6, .dark-media-card h6, .banner-content h6) {
+  [data-theme="light"] h4:not(
+    .hero-content h4,
+    .overlay-card h4,
+    .dark-media-card h4,
+    .banner-content h4,
+    .quiz-banner h4,
+    .quiz-banner-content h4,
+    .dark-section h4,
+    #customer-reviews-section h4,
+    .review-card h4,
+    #mobile-footer h4,
+    .mobile-dark-footer h4
+  ),
+  [data-theme="light"] h5:not(
+    .hero-content h5,
+    .overlay-card h5,
+    .dark-media-card h5,
+    .banner-content h5,
+    .quiz-banner h5,
+    .quiz-banner-content h5,
+    .dark-section h5,
+    #customer-reviews-section h5,
+    #mobile-footer h5,
+    .mobile-dark-footer h5
+  ),
+  [data-theme="light"] h6:not(
+    .hero-content h6,
+    .overlay-card h6,
+    .dark-media-card h6,
+    .banner-content h6,
+    .quiz-banner h6,
+    .quiz-banner-content h6,
+    .dark-section h6,
+    #customer-reviews-section h6,
+    #mobile-footer h6,
+    .mobile-dark-footer h6
+  ) {
     color: #123F2A !important;
   }
 
-  /* Light Theme Text Contrast for Light Background Sections */
-  [data-theme="light"] .text-slate-100,
-  [data-theme="light"] .text-slate-200,
-  [data-theme="light"] .text-slate-300 {
+  /* Light Theme Text Contrast for Light Background Sections ONLY */
+  [data-theme="light"] .text-slate-100:not(
+    .hero-content *,
+    .overlay-card *,
+    .dark-media-card *,
+    .banner-content *,
+    .quiz-banner *,
+    .quiz-banner-content *,
+    .dark-section *,
+    #customer-reviews-section *,
+    .review-card *,
+    #mobile-footer *,
+    .mobile-dark-footer *
+  ),
+  [data-theme="light"] .text-slate-200:not(
+    .hero-content *,
+    .overlay-card *,
+    .dark-media-card *,
+    .banner-content *,
+    .quiz-banner *,
+    .quiz-banner-content *,
+    .dark-section *,
+    #customer-reviews-section *,
+    .review-card *,
+    #mobile-footer *,
+    .mobile-dark-footer *
+  ),
+  [data-theme="light"] .text-slate-300:not(
+    .hero-content *,
+    .overlay-card *,
+    .dark-media-card *,
+    .banner-content *,
+    .quiz-banner *,
+    .quiz-banner-content *,
+    .dark-section *,
+    #customer-reviews-section *,
+    .review-card *,
+    #mobile-footer *,
+    .mobile-dark-footer *
+  ) {
     color: var(--color-text, #123F2A) !important;
   }
 
-  [data-theme="light"] .text-slate-400,
-  [data-theme="light"] .text-slate-500 {
+  [data-theme="light"] .text-slate-400:not(
+    .hero-content *,
+    .overlay-card *,
+    .dark-media-card *,
+    .banner-content *,
+    .quiz-banner *,
+    .quiz-banner-content *,
+    .dark-section *,
+    #customer-reviews-section *,
+    .review-card *,
+    #mobile-footer *,
+    .mobile-dark-footer *
+  ),
+  [data-theme="light"] .text-slate-500:not(
+    .hero-content *,
+    .overlay-card *,
+    .dark-media-card *,
+    .banner-content *,
+    .quiz-banner *,
+    .quiz-banner-content *,
+    .dark-section *,
+    #customer-reviews-section *,
+    .review-card *,
+    #mobile-footer *,
+    .mobile-dark-footer *
+  ) {
     color: var(--color-muted-text, #5F6B63) !important;
   }
 
   /* Light Theme Card Borders and Soft Warm Shadows */
-  [data-theme="light"] .border-white\/10,
-  [data-theme="light"] .border-white\/15,
-  [data-theme="light"] .border-white\/20,
-  [data-theme="light"] .border-white\/25,
-  [data-theme="light"] .border-white\/30 {
+  [data-theme="light"] .border-white\/10:not(
+    .hero-content *,
+    .overlay-card *,
+    .dark-media-card *,
+    .banner-content *,
+    .quiz-banner *,
+    .quiz-banner-content *,
+    .dark-section *,
+    #customer-reviews-section *,
+    .review-card *,
+    #mobile-footer *,
+    .mobile-dark-footer *
+  ),
+  [data-theme="light"] .border-white\/15:not(
+    .hero-content *,
+    .overlay-card *,
+    .dark-media-card *,
+    .banner-content *,
+    .quiz-banner *,
+    .quiz-banner-content *,
+    .dark-section *,
+    #customer-reviews-section *,
+    .review-card *,
+    #mobile-footer *,
+    .mobile-dark-footer *
+  ),
+  [data-theme="light"] .border-white\/20:not(
+    .hero-content *,
+    .overlay-card *,
+    .dark-media-card *,
+    .banner-content *,
+    .quiz-banner *,
+    .quiz-banner-content *,
+    .dark-section *,
+    #customer-reviews-section *,
+    .review-card *,
+    #mobile-footer *,
+    .mobile-dark-footer *
+  ),
+  [data-theme="light"] .border-white\/25:not(
+    .hero-content *,
+    .overlay-card *,
+    .dark-media-card *,
+    .banner-content *,
+    .quiz-banner *,
+    .quiz-banner-content *,
+    .dark-section *,
+    #customer-reviews-section *,
+    .review-card *,
+    #mobile-footer *,
+    .mobile-dark-footer *
+  ),
+  [data-theme="light"] .border-white\/30:not(
+    .hero-content *,
+    .overlay-card *,
+    .dark-media-card *,
+    .banner-content *,
+    .quiz-banner *,
+    .quiz-banner-content *,
+    .dark-section *,
+    #customer-reviews-section *,
+    .review-card *,
+    #mobile-footer *,
+    .mobile-dark-footer *
+  ) {
     border-color: var(--color-border, #E7E1D5) !important;
   }
 
@@ -150,13 +349,13 @@
     background-color: #FAF8F2 !important;
   }
 
-  [data-theme="light"] .bg-black\/20,
-  [data-theme="light"] .bg-black\/30,
-  [data-theme="light"] .bg-black\/40 {
+  [data-theme="light"] .bg-black\/20:not(.hero-content *):not(.dark-section *):not(.quiz-banner *),
+  [data-theme="light"] .bg-black\/30:not(.hero-content *):not(.dark-section *):not(.quiz-banner *),
+  [data-theme="light"] .bg-black\/40:not(.hero-content *):not(.dark-section *):not(.quiz-banner *) {
     background-color: #FAF8F2 !important;
   }
 
-  /* High Contrast Links & Buttons */
+  /* High Contrast Links & Gold Buttons */
   [data-theme="light"] .bg-\[var\(--brand-gold\)\] .text-\[var\(--brand-primary-dark\)\],
   [data-theme="light"] a.bg-\[var\(--brand-gold\)\],
   [data-theme="light"] button.bg-\[var\(--brand-gold\)\] {
@@ -164,18 +363,119 @@
     font-weight: 700;
   }
 
-  /* EXPLICITLY PRESERVE WHITE/LIGHT/GOLD TEXT FOR HERO & DARK OVERLAYS IN LIGHT THEME */
-  [data-theme="light"] .hero-content .text-slate-100,
-  [data-theme="light"] .hero-content .text-slate-200,
-  [data-theme="light"] .hero-content .text-slate-300,
-  [data-theme="light"] .hero-content .text-white,
-  [data-theme="light"] .hero-content p,
+  /* ========================================================= */
+  /* HERO SECTION CONTRAST SYSTEM (LIGHT & DARK THEMES)        */
+  /* ========================================================= */
   [data-theme="light"] .hero-content h1,
   [data-theme="light"] .hero-content h2,
   [data-theme="light"] .hero-content h3,
-  [data-theme="light"] .hero-content h4,
-  [data-theme="light"] .hero-content span,
-  [data-theme="light"] .hero-content div,
+  [data-theme="light"] .hero-content h4 {
+    color: #FFFFFF !important;
+  }
+
+  /* Hero Primary CTA (Gold Background + Deep Forest Green Text) */
+  .hero-content a.bg-\[var\(--brand-gold\,\#C9A84E\)\],
+  [data-theme="light"] .hero-content a.bg-\[var\(--brand-gold\,\#C9A84E\)\],
+  [data-theme="light"] .hero-content a.bg-\[var\(--brand-gold\,\#C9A84E\)\] span {
+    color: #0F2E22 !important;
+  }
+
+  /* Hero Secondary CTA (Ivory Background + Deep Forest Green Text + Gold Sparkle) */
+  .hero-secondary-cta,
+  [data-theme="light"] .hero-secondary-cta,
+  [data-theme="light"] .hero-content .hero-secondary-cta,
+  [data-theme="light"] .hero-content .hero-secondary-cta span {
+    color: #0F2E22 !important;
+  }
+
+  [data-theme="light"] .hero-secondary-cta svg,
+  [data-theme="light"] .hero-content .hero-secondary-cta svg {
+    color: #C5A059 !important;
+  }
+
+  /* ========================================================= */
+  /* PERSONALIZED HAIR ANALYSIS BANNER (OVERLAY CONTRAST)      */
+  /* ========================================================= */
+  .quiz-banner-content h2,
+  .quiz-banner-content h3,
+  .quiz-banner h2,
+  .quiz-banner h3,
+  [data-theme="light"] .quiz-banner-content h2,
+  [data-theme="light"] .quiz-banner-content h3,
+  [data-theme="light"] .quiz-banner h2,
+  [data-theme="light"] .quiz-banner h3 {
+    color: #FAF7F2 !important;
+  }
+
+  .quiz-banner-content p,
+  .quiz-banner p,
+  [data-theme="light"] .quiz-banner-content p,
+  [data-theme="light"] .quiz-banner p {
+    color: #E5D8B5 !important;
+  }
+
+  /* ========================================================= */
+  /* CUSTOMER REVIEWS (DARK FOREST-GREEN SECTION)             */
+  /* ========================================================= */
+  #customer-reviews-section,
+  .dark-section#customer-reviews-section {
+    background-color: #07160e !important;
+  }
+
+  [data-theme="light"] #customer-reviews-section h2,
+  [data-theme="light"] .dark-section#customer-reviews-section h2 {
+    color: #FAF7F2 !important;
+  }
+
+  [data-theme="light"] #customer-reviews-section h4,
+  [data-theme="light"] .dark-section#customer-reviews-section h4,
+  [data-theme="light"] .review-card h4 {
+    color: #FAF7F2 !important;
+  }
+
+  [data-theme="light"] #customer-reviews-section p:not(.review-card p),
+  [data-theme="light"] .dark-section#customer-reviews-section p:not(.review-card p) {
+    color: #E5D8B5 !important;
+  }
+
+  [data-theme="light"] .review-card p {
+    color: #F4EBD9 !important;
+  }
+
+  [data-theme="light"] .review-card .text-\[\#FAF7F2\],
+  [data-theme="light"] .review-card span.text-\[\#FAF7F2\] {
+    color: #FAF7F2 !important;
+  }
+
+  [data-theme="light"] .review-card .text-\[\#E5D8B5\],
+  [data-theme="light"] .review-card span.text-\[\#E5D8B5\] {
+    color: #E5D8B5 !important;
+  }
+
+  /* ========================================================= */
+  /* MOBILE FOOTER CONTRAST SYSTEM (DARK FOREST-GREEN)        */
+  /* ========================================================= */
+  #mobile-footer,
+  .mobile-dark-footer {
+    background-color: #0A2319 !important;
+  }
+
+  [data-theme="light"] #mobile-footer h4,
+  [data-theme="light"] .mobile-dark-footer h4 {
+    color: #C5A059 !important;
+  }
+
+  [data-theme="light"] #mobile-footer p,
+  [data-theme="light"] .mobile-dark-footer p {
+    color: #FAF7F2 !important;
+  }
+
+  [data-theme="light"] #mobile-footer .text-\[\#E5D8B5\],
+  [data-theme="light"] .mobile-dark-footer .text-\[\#E5D8B5\] {
+    color: #E5D8B5 !important;
+  }
+
+  /* EXPLICITLY PRESERVE WHITE/LIGHT/GOLD TEXT FOR DARK OVERLAYS */
   [data-theme="light"] .overlay-card .text-slate-100,
   [data-theme="light"] .overlay-card .text-slate-200,
   [data-theme="light"] .overlay-card .text-slate-300,
@@ -199,15 +499,10 @@
   [data-theme="light"] [class*="bg-black/"]:not(.admin-root *):not(.admin-modal *) .text-slate-100,
   [data-theme="light"] [class*="bg-black/"]:not(.admin-root *):not(.admin-modal *) .text-slate-200,
   [data-theme="light"] [class*="bg-black/"]:not(.admin-root *):not(.admin-modal *) .text-slate-300,
-  [data-theme="light"] [class*="bg-black/"]:not(.admin-root *):not(.admin-modal *) .text-white,
-  [data-theme="light"] .bg-slate-900:not(.admin-root *):not(.admin-modal *) .text-slate-100,
-  [data-theme="light"] .bg-slate-900:not(.admin-root *):not(.admin-modal *) .text-slate-200,
-  [data-theme="light"] .bg-slate-900:not(.admin-root *):not(.admin-modal *) .text-slate-300,
-  [data-theme="light"] .bg-slate-900:not(.admin-root *):not(.admin-modal *) .text-white {
+  [data-theme="light"] [class*="bg-black/"]:not(.admin-root *):not(.admin-modal *) .text-white {
     color: #FFFFFF !important;
   }
 
-  [data-theme="light"] .hero-content .text-slate-200,
   [data-theme="light"] .overlay-card .text-slate-200,
   [data-theme="light"] .dark-media-card .text-slate-200,
   [data-theme="light"] .overlay-content .text-slate-200,
@@ -217,7 +512,6 @@
     color: #E2E8F0 !important;
   }
 
-  [data-theme="light"] .hero-content .text-slate-300,
   [data-theme="light"] .overlay-card .text-slate-300,
   [data-theme="light"] .dark-media-card .text-slate-300,
   [data-theme="light"] .overlay-content .text-slate-300,
@@ -235,7 +529,7 @@
   [data-theme="light"] .overlay-content .text-\[var\(--brand-gold\)\],
   [data-theme="light"] .banner-content .text-\[var\(--brand-gold\)\],
   [data-theme="light"] [class*="bg-black"]:not(.admin-root *):not(.admin-modal *) .text-\[var\(--brand-gold\)\] {
-    color: var(--brand-gold, #C9A84E) !important;
+    color: var(--brand-gold, #C5A059) !important;
   }
 
   /* ========================================================= */

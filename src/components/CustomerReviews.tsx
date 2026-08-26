@@ -117,7 +117,7 @@ export const CustomerReviews: React.FC = () => {
       <div
         key={indexKey}
         onClick={handleUserInteract}
-        className="w-[84vw] max-w-[340px] md:w-auto shrink-0 bg-[#0a1d13] border border-[#C5A059]/30 hover:border-[#C5A059] rounded-2xl p-4 sm:p-5 space-y-3.5 transition-all duration-300 shadow-xl flex flex-col justify-between group"
+        className="review-card w-[84vw] max-w-[340px] md:w-auto shrink-0 bg-[#0a1d13] border border-[#C5A059]/30 hover:border-[#C5A059] rounded-2xl p-4 sm:p-5 space-y-3.5 transition-all duration-300 shadow-xl flex flex-col justify-between group"
       >
         <div className="space-y-2.5">
           {/* Top Row: Stars + Date */}
@@ -189,7 +189,7 @@ export const CustomerReviews: React.FC = () => {
   return (
     <section
       id="customer-reviews-section"
-      className="py-12 sm:py-16 md:py-20 bg-[#07160e] relative overflow-hidden w-full max-w-full select-none"
+      className="dark-section py-12 sm:py-16 md:py-20 bg-[#07160e] relative overflow-hidden w-full max-w-full select-none"
       aria-label="Customer Reviews and Ratings"
     >
       {/* Background Decorative Ambient Radial Glow */}

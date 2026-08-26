@@ -64,7 +64,7 @@ export const HomepageQuizBanner: React.FC = () => {
     <section className="py-6 sm:py-10 bg-[#FAF8F2] dark:bg-[var(--brand-primary-deep,#0A1810)] border-t border-b border-[var(--color-border,#E7E1D5)] dark:border-white/10 relative overflow-hidden">
       <div className="max-w-7xl mx-auto px-4 sm:px-8">
         {/* 1. MOBILE RESPONSIVE BANNER (md:hidden) — Height approx 270–320px */}
-        <div className="block md:hidden relative w-full h-[280px] xs:h-[300px] rounded-2xl overflow-hidden shadow-xl border border-[var(--brand-gold,#C9A84E)]/30 group bg-[#0A1810]">
+        <div className="quiz-banner block md:hidden relative w-full h-[280px] xs:h-[300px] rounded-2xl overflow-hidden shadow-xl border border-[var(--brand-gold,#C9A84E)]/30 group bg-[#0A1810]">
           {/* Background Image */}
           {!imgError ? (
             <img
@@ -83,7 +83,7 @@ export const HomepageQuizBanner: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-t from-[#061810]/95 via-[#061810]/65 to-black/20 pointer-events-none" />
 
           {/* Content Container */}
-          <div className="absolute inset-0 flex flex-col justify-between p-4 xs:p-5 text-white z-10">
+          <div className="quiz-banner-content absolute inset-0 flex flex-col justify-between p-4 xs:p-5 text-white z-10">
             {/* Top Pill / Eyebrow */}
             <div className="flex items-center gap-1.5 self-start bg-[#061810]/80 backdrop-blur-xs px-2.5 py-1 rounded-full border border-[#C5A059]/60 shadow-sm">
               <Bot className="w-3.5 h-3.5 text-[#C5A059]" />
@@ -118,7 +118,7 @@ export const HomepageQuizBanner: React.FC = () => {
         </div>
 
         {/* 2. DESKTOP RESPONSIVE BANNER (hidden md:block) — Aspect 16:5.5 */}
-        <div className="hidden md:block relative w-full aspect-[16/5.5] min-h-[280px] max-h-[380px] rounded-3xl overflow-hidden shadow-2xl border border-[var(--brand-gold,#C9A84E)]/30 group bg-[#0A1810]">
+        <div className="quiz-banner hidden md:block relative w-full aspect-[16/5.5] min-h-[280px] max-h-[380px] rounded-3xl overflow-hidden shadow-2xl border border-[var(--brand-gold,#C9A84E)]/30 group bg-[#0A1810]">
           {/* Background Image */}
           {!imgError ? (
             <img
@@ -137,7 +137,7 @@ export const HomepageQuizBanner: React.FC = () => {
           <div className="absolute inset-0 bg-gradient-to-r from-[#061810]/90 via-[#061810]/60 to-transparent flex items-center p-8 lg:p-12 text-white" />
 
           {/* Content Container */}
-          <div className="absolute inset-0 flex items-center p-8 lg:p-12 z-10">
+          <div className="quiz-banner-content absolute inset-0 flex items-center p-8 lg:p-12 z-10">
             <div className="max-w-xl space-y-3.5 text-white">
               {/* Eyebrow */}
               <div className="inline-flex items-center gap-2 bg-[#061810]/70 backdrop-blur-xs px-3 py-1 rounded-full border border-[#C5A059]/50">

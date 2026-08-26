@@ -485,7 +485,7 @@ export const HeroSlider: React.FC = () => {
                         }
                         handleCtaClick(slide.id, slide.secondaryCtaLink || '#ai-quiz');
                       }}
-                      className="bg-[#FFFDF5] hover:bg-[#FAF7F2] active:bg-[#F3EDE2] text-[#0F2E22] border border-[#C9A84E]/70 px-5 xs:px-6 sm:px-8 py-3 sm:py-4 font-sans text-xs sm:text-sm font-bold uppercase tracking-[0.12em] sm:tracking-[0.18em] transition-all duration-300 hover:scale-105 active:scale-95 rounded-xl flex items-center justify-center gap-2 cursor-pointer shadow-md select-none min-h-[46px] sm:min-h-[48px]"
+                      className="hero-secondary-cta bg-[#FFFDF5] hover:bg-[#FAF7F2] active:bg-[#F3EDE2] text-[#0F2E22] border border-[#C9A84E]/70 px-5 xs:px-6 sm:px-8 py-3 sm:py-4 font-sans text-xs sm:text-sm font-bold uppercase tracking-[0.12em] sm:tracking-[0.18em] transition-all duration-300 hover:scale-105 active:scale-95 rounded-xl flex items-center justify-center gap-2 cursor-pointer shadow-md select-none min-h-[46px] sm:min-h-[48px]"
                     >
                       <Sparkles className="w-4 h-4 text-[#C9A84E] shrink-0" />
                       <span className="text-[#0F2E22] font-bold">{slide.secondaryCtaText}</span>

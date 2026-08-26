@@ -146,11 +146,11 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
   };
 
   const filteredProducts = searchQuery.trim()
-    ? products.filter(
+    ? (Array.isArray(products) ? products : []).filter(
         (p) =>
-          p.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          p.category.toLowerCase().includes(searchQuery.toLowerCase()) ||
-          p.subtitle.toLowerCase().includes(searchQuery.toLowerCase())
+          (p?.name || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (p?.category || '').toLowerCase().includes(searchQuery.toLowerCase()) ||
+          (p?.subtitle || '').toLowerCase().includes(searchQuery.toLowerCase())
       )
     : [];
 
@@ -944,7 +944,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
             id="wishlist-btn"
           >
             <Heart className="w-5 h-5" />
-            {wishlist.length > 0 && (
+            {(wishlist?.length || 0) > 0 && (
               <span className="absolute -top-1.5 -right-1.5 bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] text-[10px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                 {wishlist.length}
               </span>

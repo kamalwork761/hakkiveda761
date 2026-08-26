@@ -5,13 +5,15 @@ import { SiteSettings, AnnouncementMessage } from '../types/store';
 
 interface AnnouncementBarProps {
   siteSettings?: SiteSettings;
-  selectedCountry: {
-    code: string;
-    name: string;
-    flag: string;
-    currency: string;
-    symbol: string;
-  };
+  selectedCountry?: {
+    code?: string;
+    name?: string;
+    flag?: string;
+    currency?: string;
+    symbol?: string;
+    currencyCode?: string;
+    currencySymbol?: string;
+  } | null;
   onOpenCountryModal: () => void;
 }
 
@@ -39,19 +41,19 @@ export const AnnouncementBar: React.FC<AnnouncementBarProps> = ({
     }
   }, [transitionSpeed]);
 
-  // Active messages list
+  // Active messages list with safe fallback
   const activeMessages: AnnouncementMessage[] = useMemo(() => {
     const rawMessages = siteSettings?.announcementMessages;
     if (Array.isArray(rawMessages) && rawMessages.length > 0) {
       const enabled = rawMessages
-        .filter((m) => m.enabled !== false && m.text && m.text.trim().length > 0)
+        .filter((m) => m && m.enabled !== false && m.text && typeof m.text === 'string' && m.text.trim().length > 0)
         .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0));
       if (enabled.length > 0) return enabled;
     }
 
-    // Fallback to legacy single announcementText
+    // Fallback to legacy single announcementText or default
     const fallbackText =
-      siteSettings?.announcementText?.trim() ||
+      (typeof siteSettings?.announcementText === 'string' && siteSettings.announcementText.trim()) ||
       'Worldwide Express Shipping • 100% Authentic 42 Mountain Herbs Formula';
     return [
       {
@@ -147,7 +149,13 @@ export const AnnouncementBar: React.FC<AnnouncementBarProps> = ({
 
   if (!showBar) return null;
 
-  const currentMsg = activeMessages[currentIndex] || activeMessages[0];
+  const currentMsg = activeMessages[currentIndex] || activeMessages[0] || {
+    id: 'default-ann-fallback',
+    text: 'Worldwide Express Shipping • 100% Authentic 42 Mountain Herbs Formula',
+    link: '',
+    enabled: true,
+    sortOrder: 1,
+  };
   const bgColor = siteSettings?.announcementBgColor || 'var(--brand-gold)';
   const textColor = siteSettings?.announcementTextColor || 'var(--brand-primary-dark)';
 
@@ -209,14 +217,14 @@ export const AnnouncementBar: React.FC<AnnouncementBarProps> = ({
           <div className="relative w-full h-[22px] flex items-center justify-center overflow-hidden">
             <AnimatePresence mode="popLayout" initial={false}>
               <motion.div
-                key={currentMsg ? `${currentMsg.id}-${currentIndex}` : `ann-fallback-${currentIndex}`}
+                key={currentMsg ? `${currentMsg.id || 'msg'}-${currentIndex}` : `ann-fallback-${currentIndex}`}
                 variants={slideVariants}
                 initial="initial"
                 animate="animate"
                 exit="exit"
                 className="w-full flex items-center justify-center text-center px-1"
               >
-                {currentMsg.link ? (
+                {currentMsg?.link ? (
                   <a
                     href={currentMsg.link}
                     className="inline-flex items-center justify-center gap-1.5 sm:gap-2 hover:opacity-85 transition-opacity max-w-full"
@@ -230,11 +238,11 @@ export const AnnouncementBar: React.FC<AnnouncementBarProps> = ({
                 ) : (
                   <span
                     className="inline-flex items-center justify-center gap-1.5 sm:gap-2 max-w-full"
-                    title={currentMsg.text}
+                    title={currentMsg?.text}
                   >
                     <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 opacity-90 animate-pulse" />
                     <span className="text-[10px] xs:text-[11px] sm:text-xs font-semibold sm:font-bold truncate max-w-[85vw] sm:max-w-none">
-                      {currentMsg.text}
+                      {currentMsg?.text || 'Worldwide Express Shipping • 100% Authentic 42 Mountain Herbs Formula'}
                     </span>
                   </span>
                 )}
@@ -248,7 +256,7 @@ export const AnnouncementBar: React.FC<AnnouncementBarProps> = ({
           <div className="animate-marquee whitespace-nowrap flex items-center">
             <div className="flex items-center gap-8 px-4 shrink-0">
               {activeMessages.map((msg, idx) => (
-                <span key={`marq-a-${msg.id}-${idx}`} className="flex items-center gap-2">
+                <span key={`marq-a-${msg.id || idx}-${idx}`} className="flex items-center gap-2">
                   <Sparkles className="w-3.5 h-3.5 animate-pulse shrink-0" />
                   <span className="text-[11px] sm:text-xs font-bold">{msg.text}</span>
                 </span>
@@ -256,7 +264,7 @@ export const AnnouncementBar: React.FC<AnnouncementBarProps> = ({
             </div>
             <div className="flex items-center gap-8 px-4 shrink-0">
               {activeMessages.map((msg, idx) => (
-                <span key={`marq-b-${msg.id}-${idx}`} className="flex items-center gap-2">
+                <span key={`marq-b-${msg.id || idx}-${idx}`} className="flex items-center gap-2">
                   <Sparkles className="w-3.5 h-3.5 animate-pulse shrink-0" />
                   <span className="text-[11px] sm:text-xs font-bold">{msg.text}</span>
                 </span>
@@ -268,7 +276,7 @@ export const AnnouncementBar: React.FC<AnnouncementBarProps> = ({
         {/* 3. STATIC MODE (IF CONFIGURED) */}
         {mode === 'static' && (
           <div className="w-full flex items-center justify-center text-center px-1">
-            {currentMsg.link ? (
+            {currentMsg?.link ? (
               <a
                 href={currentMsg.link}
                 className="inline-flex items-center justify-center gap-1.5 sm:gap-2 hover:opacity-85 transition-opacity max-w-full"
@@ -282,11 +290,11 @@ export const AnnouncementBar: React.FC<AnnouncementBarProps> = ({
             ) : (
               <span
                 className="inline-flex items-center justify-center gap-1.5 sm:gap-2 max-w-full"
-                title={currentMsg.text}
+                title={currentMsg?.text}
               >
                 <Sparkles className="w-3 h-3 sm:w-3.5 sm:h-3.5 shrink-0 opacity-90" />
                 <span className="text-[10px] xs:text-[11px] sm:text-xs font-semibold sm:font-bold truncate max-w-[85vw] sm:max-w-none">
-                  {currentMsg.text}
+                  {currentMsg?.text || 'Worldwide Express Shipping • 100% Authentic 42 Mountain Herbs Formula'}
                 </span>
               </span>
             )}
@@ -301,13 +309,13 @@ export const AnnouncementBar: React.FC<AnnouncementBarProps> = ({
         </span>
         <button
           onClick={onOpenCountryModal}
-          className="flex items-center gap-1.5 bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] px-2 py-0.5 sm:px-2.5 sm:py-1 rounded text-[10.5px] sm:text-[11px] font-semibold hover:bg-[var(--brand-primary-deeper)] transition-colors shadow-sm border border-[var(--brand-gold)]/30 active:scale-95"
+          className="flex items-center gap-1.5 bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] px-2 py-0.5 sm:px-2.5 sm:py-1 rounded text-[10.5px] sm:text-[11px] font-semibold hover:bg-[var(--brand-primary-deeper)] transition-colors shadow-sm border border-[var(--brand-gold)]/30 active:scale-95 cursor-pointer"
           id="country-selector-btn"
           title="Change Country"
           type="button"
         >
-          <span className="text-xs sm:text-sm leading-none">{selectedCountry.flag}</span>
-          <span className="max-w-[70px] sm:max-w-none truncate">{selectedCountry.name}</span>
+          <span className="text-xs sm:text-sm leading-none">{selectedCountry?.flag || '🇮🇳'}</span>
+          <span className="max-w-[70px] sm:max-w-none truncate">{selectedCountry?.name || 'India'}</span>
           <ChevronDown className="w-3 h-3 text-[var(--brand-gold)] shrink-0" />
         </button>
       </div>

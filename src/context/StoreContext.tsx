@@ -445,7 +445,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const getStored = <T,>(key: string, fallback: T): T => {
     try {
       const item = localStorage.getItem(`hakkiveda_${key}`);
-      return item ? JSON.parse(item) : fallback;
+      if (!item) return fallback;
+      const parsed = JSON.parse(item);
+      if (typeof fallback === 'object' && fallback !== null && !Array.isArray(fallback) && typeof parsed === 'object' && parsed !== null && !Array.isArray(parsed)) {
+        return { ...fallback, ...parsed };
+      }
+      return parsed;
     } catch (e) {
       return fallback;
     }
@@ -1682,7 +1687,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
               }
             }
           }
-          if (d.hero_slider_settings) setHeroSliderSettings(d.hero_slider_settings);
+          if (d.hero_slider_settings) setHeroSliderSettings((prev) => ({ ...DEFAULT_HERO_SLIDER_SETTINGS, ...prev, ...d.hero_slider_settings }));
           if (Array.isArray(d.before_after)) setBeforeAfterItems(d.before_after);
           if (Array.isArray(d.reviews)) setReviews(d.reviews);
           if (Array.isArray(d.blogs)) setBlogs(d.blogs);
@@ -1693,18 +1698,19 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           if (Array.isArray(d.orders)) setOrders(d.orders);
           if (Array.isArray(d.b2b_leads)) setB2BLeads(d.b2b_leads);
           if (Array.isArray(d.customer_accounts)) setCustomerAccounts(d.customer_accounts);
-          if (d.site_settings) setSiteSettings(d.site_settings);
+          if (d.site_settings) setSiteSettings((prev) => ({ ...INITIAL_SITE_SETTINGS, ...prev, ...d.site_settings }));
           if (d.brand_identity) {
-            setBrandIdentity(d.brand_identity);
-            applyBrandStyles(d.brand_identity);
+            const mergedBrand = { ...INITIAL_BRAND_IDENTITY, ...d.brand_identity };
+            setBrandIdentity(mergedBrand);
+            applyBrandStyles(mergedBrand);
           }
-          if (d.brand_identity_draft) setDraftBrandIdentity(d.brand_identity_draft);
-          if (d.header_layout_settings) setHeaderLayoutSettings(d.header_layout_settings);
-          if (d.footer_config) setFooterConfig(d.footer_config);
-          if (d.b2b_section_config) setB2BSectionConfig(d.b2b_section_config);
-          if (d.video_popup_config) setVideoPopupConfig(d.video_popup_config);
-          if (d.homepage_quiz_banner_config) setHomepageQuizBannerConfig(d.homepage_quiz_banner_config);
-          if (d.homepage_editorial_config) setHomepageEditorialConfig(d.homepage_editorial_config);
+          if (d.brand_identity_draft) setDraftBrandIdentity((prev) => ({ ...INITIAL_BRAND_IDENTITY, ...prev, ...d.brand_identity_draft }));
+          if (d.header_layout_settings) setHeaderLayoutSettings((prev) => ({ ...INITIAL_HEADER_LAYOUT_SETTINGS, ...prev, ...d.header_layout_settings }));
+          if (d.footer_config) setFooterConfig((prev) => ({ ...INITIAL_FOOTER_CONFIG, ...prev, ...d.footer_config }));
+          if (d.b2b_section_config) setB2BSectionConfig((prev) => ({ ...INITIAL_B2B_SECTION_CONFIG, ...prev, ...d.b2b_section_config }));
+          if (d.video_popup_config) setVideoPopupConfig((prev) => ({ ...INITIAL_VIDEO_POPUP_CONFIG, ...prev, ...d.video_popup_config }));
+          if (d.homepage_quiz_banner_config) setHomepageQuizBannerConfig((prev) => ({ ...INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG, ...prev, ...d.homepage_quiz_banner_config }));
+          if (d.homepage_editorial_config) setHomepageEditorialConfig((prev) => ({ ...INITIAL_HOMEPAGE_EDITORIAL_CONFIG, ...prev, ...d.homepage_editorial_config }));
           if (Array.isArray(d.shoppable_reels)) setShoppableReels(d.shoppable_reels);
           if (Array.isArray(d.nav_links)) setNavLinks(d.nav_links);
           if (Array.isArray(d.currencies)) {
@@ -1716,12 +1722,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           if (Array.isArray(d.markets)) setMarkets(d.markets);
           if (Array.isArray(d.countries)) setCountries(d.countries);
           if (Array.isArray(d.payment_gateways)) setPaymentGateways(d.payment_gateways);
-          if (d.cod_rules) setCodRules(d.cod_rules);
+          if (d.cod_rules) setCodRules((prev) => ({ ...INITIAL_COD_RULES, ...prev, ...d.cod_rules }));
           if (Array.isArray(d.market_gateways)) setMarketGateways(d.market_gateways);
           if (Array.isArray(d.payment_logs)) setPaymentLogs(d.payment_logs);
           if (Array.isArray(d.category_pages)) setCategoryPages(d.category_pages);
           if (typeof d.max_bestsellers_count === 'number') setMaxBestSellersCount(d.max_bestsellers_count);
-          if (d.mobile_nav_config) setMobileNavConfig(d.mobile_nav_config);
+          if (d.mobile_nav_config) setMobileNavConfig((prev) => ({ ...INITIAL_MOBILE_NAV_CONFIG, ...prev, ...d.mobile_nav_config }));
 
           setDbSyncStatus('synced');
         }

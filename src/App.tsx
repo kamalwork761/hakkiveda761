@@ -44,6 +44,7 @@ const CountrySelectorModal = lazy(() => import('./components/CountrySelectorModa
 
 import { AdminErrorBoundary } from './components/AdminErrorBoundary';
 import { ReviewsErrorBoundary } from './components/ReviewsErrorBoundary';
+import { AppErrorBoundary } from './components/AppErrorBoundary';
 import { getProductUrl, getProductReviewsUrl } from './utils/productUtils';
 import { recordNavigationSource, getCategoryRouteFromId } from './utils/navigationState';
 
@@ -433,8 +434,10 @@ export function AppContent() {
 
 export default function App() {
   return (
-    <StoreProvider>
-      <AppContent />
-    </StoreProvider>
+    <AppErrorBoundary>
+      <StoreProvider>
+        <AppContent />
+      </StoreProvider>
+    </AppErrorBoundary>
   );
 }

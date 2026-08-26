@@ -119,7 +119,7 @@ export const MobileBottomNav: React.FC<MobileBottomNavProps> = ({
         >
           <div className="relative">
             <Heart className="w-5 h-5 text-slate-200" />
-            {wishlist.length > 0 && (
+            {(wishlist?.length || 0) > 0 && (
               <span className="absolute -top-1.5 -right-2 bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] text-[9px] font-bold rounded-full w-4 h-4 flex items-center justify-center">
                 {wishlist.length}
               </span>

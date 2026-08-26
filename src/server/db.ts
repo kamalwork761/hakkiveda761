@@ -15,6 +15,7 @@ import {
   INITIAL_BRAND_IDENTITY,
   INITIAL_NAV_LINKS,
   INITIAL_HEADER_LAYOUT_SETTINGS,
+  INITIAL_FOOTER_CONFIG,
   INITIAL_TESTIMONIAL_VIDEOS,
   INITIAL_QUIZ_QUESTIONS,
   INITIAL_MEDIA_ITEMS,
@@ -32,6 +33,15 @@ import {
   INITIAL_MOBILE_NAV_CONFIG,
   INITIAL_HOMEPAGE_EDITORIAL_CONFIG,
 } from '../data/initialData';
+
+const DEFAULT_HERO_SLIDER_SETTINGS = {
+  autoPlay: true,
+  autoPlayDelay: 6,
+  transitionSpeed: 700,
+  pauseOnHover: true,
+  infiniteLoop: true,
+  swipeSupport: true,
+};
 
 const dbDir = process.env.DB_DIR || path.join(process.cwd(), 'data');
 if (!fs.existsSync(dbDir)) {
@@ -160,19 +170,55 @@ export async function getDb() {
     await flushToDisk();
     console.log('[File DB] Successfully seeded initial store records!');
   } else {
-    // Ensure missing configs are seeded in existing database
+    // Ensure missing configs and partial records are safely merged with defaults in existing database
     let needsFlush = false;
+    if (store.site_settings) {
+      store.site_settings = { ...INITIAL_SITE_SETTINGS, ...store.site_settings };
+    } else {
+      store.site_settings = INITIAL_SITE_SETTINGS;
+      needsFlush = true;
+    }
+    if (store.brand_identity) {
+      store.brand_identity = { ...INITIAL_BRAND_IDENTITY, ...store.brand_identity };
+    } else {
+      store.brand_identity = INITIAL_BRAND_IDENTITY;
+      needsFlush = true;
+    }
+    if (store.header_layout_settings) {
+      store.header_layout_settings = { ...INITIAL_HEADER_LAYOUT_SETTINGS, ...store.header_layout_settings };
+    } else {
+      store.header_layout_settings = INITIAL_HEADER_LAYOUT_SETTINGS;
+      needsFlush = true;
+    }
+    if (store.footer_config) {
+      store.footer_config = { ...INITIAL_FOOTER_CONFIG, ...store.footer_config };
+    } else {
+      store.footer_config = INITIAL_FOOTER_CONFIG;
+      needsFlush = true;
+    }
+    if (store.hero_slider_settings) {
+      store.hero_slider_settings = { ...DEFAULT_HERO_SLIDER_SETTINGS, ...store.hero_slider_settings };
+    } else {
+      store.hero_slider_settings = DEFAULT_HERO_SLIDER_SETTINGS;
+      needsFlush = true;
+    }
     if (!store.mobile_nav_config) {
       store.mobile_nav_config = INITIAL_MOBILE_NAV_CONFIG;
       needsFlush = true;
+    } else {
+      store.mobile_nav_config = { ...INITIAL_MOBILE_NAV_CONFIG, ...store.mobile_nav_config };
     }
     if (!store.homepage_quiz_banner_config) {
       store.homepage_quiz_banner_config = INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG;
       needsFlush = true;
+    } else {
+      store.homepage_quiz_banner_config = { ...INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG, ...store.homepage_quiz_banner_config };
     }
     if (!store.homepage_editorial_config) {
       store.homepage_editorial_config = INITIAL_HOMEPAGE_EDITORIAL_CONFIG;
       needsFlush = true;
+    } else {
+      store.homepage_editorial_config = { ...INITIAL_HOMEPAGE_EDITORIAL_CONFIG, ...store.homepage_editorial_config };
     }
     if (needsFlush) {
       await flushToDisk();
@@ -186,8 +232,13 @@ export async function getDb() {
 export async function getStoreValue<T = any>(key: string): Promise<T | null> {
   const store = loadMemoryFromDisk();
   if (!(key in store)) {
+    if (key === 'site_settings') return INITIAL_SITE_SETTINGS as unknown as T;
+    if (key === 'brand_identity') return INITIAL_BRAND_IDENTITY as unknown as T;
+    if (key === 'header_layout_settings') return INITIAL_HEADER_LAYOUT_SETTINGS as unknown as T;
+    if (key === 'footer_config') return INITIAL_FOOTER_CONFIG as unknown as T;
     if (key === 'homepage_quiz_banner_config') return INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG as unknown as T;
     if (key === 'mobile_nav_config') return INITIAL_MOBILE_NAV_CONFIG as unknown as T;
+    if (key === 'homepage_editorial_config') return INITIAL_HOMEPAGE_EDITORIAL_CONFIG as unknown as T;
     return null;
   }
   return store[key] as T;

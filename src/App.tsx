@@ -8,6 +8,7 @@ import { CategoryLandingPage } from './components/CategoryLandingPage';
 import { HomepageQuizBanner } from './components/HomepageQuizBanner';
 import { Footer } from './components/Footer';
 import { WhatsAppButton } from './components/WhatsAppButton';
+import { ScrollToTopButton } from './components/ScrollToTopButton';
 import { AmbientSoundControl } from './components/AmbientSoundControl';
 import { SeoSchemaInjector } from './components/SeoSchemaInjector';
 import { CartToast } from './components/CartToast';
@@ -335,6 +336,7 @@ export function AppContent() {
         <AIHairQuiz />
         <AIChatModal />
         <WhatsAppButton />
+        <ScrollToTopButton />
         <AmbientSoundControl />
         <CartDrawer />
         <CheckoutModal />

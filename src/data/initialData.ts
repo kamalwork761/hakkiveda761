@@ -1907,6 +1907,28 @@ export const INITIAL_FOOTER_CONFIG: FooterConfig = {
     { id: 'b1', label: 'Tribal Lore', url: '#brand-story' },
     { id: 'b2', label: '100% Organic Guarantee', url: '#products' },
   ],
+  mobileFooter: {
+    enabled: true,
+    showWarningSection: true,
+    warningHeading: 'BEWARE OF FAKE & DUPLICATE ADIVASI HAIR OILS',
+    warningLines: [
+      'Beware of scammers and duplicate Adivasi hair oils.',
+      'Authentic HAKKIVEDA products carry our official branding.',
+      'Our formulations are rooted in Hakki-Pikki tribal knowledge from Mysuru.',
+      'Always check the HAKKIVEDA name and product label before purchasing.',
+      'Avoid sellers using copied images or misleading tribal claims.',
+      'Never share OTPs, banking passwords or card PINs with anyone.',
+      'HAKKIVEDA will never ask for confidential banking credentials.',
+      'Purchase only through our official website or authorised sellers.',
+      'Check product packaging, batch information and authenticity details.',
+      'Report suspicious sellers or fake HAKKIVEDA products to our support team.',
+      'Protect your purchase. Choose authentic HAKKIVEDA.',
+      'Traditional wisdom deserves genuine products.',
+    ],
+    copyrightText: '© 2026 HAKKIVEDA',
+    sloganText: 'Blend of Hakki-Pikki Tribe & Ayurveda',
+    scrollToTopEnabled: true,
+  },
 };
 
 export const INITIAL_B2B_SECTION_CONFIG: B2BSectionConfig = {

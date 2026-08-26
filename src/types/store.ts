@@ -820,6 +820,16 @@ export interface FooterPaymentMethods {
   paypal: boolean;
 }
 
+export interface MobileFooterConfig {
+  enabled?: boolean;
+  showWarningSection?: boolean;
+  warningHeading?: string;
+  warningLines?: string[];
+  copyrightText?: string;
+  sloganText?: string;
+  scrollToTopEnabled?: boolean;
+}
+
 export interface FooterConfig {
   showBrandColumn: boolean;
   brandLogo: string;
@@ -857,6 +867,8 @@ export interface FooterConfig {
   showSoundToggle: boolean;
   showBottomLinks: boolean;
   bottomLinks: FooterNavLink[];
+
+  mobileFooter?: MobileFooterConfig;
 }
 
 export interface B2BFeature {

@@ -33,7 +33,7 @@ interface AdminFooterManagerProps {
 export const AdminFooterManager: React.FC<AdminFooterManagerProps> = ({ showToast }) => {
   const { footerConfig, updateFooterConfig, resetFooterConfig, playSound } = useStore();
 
-  const [activeTab, setActiveTab] = useState<'brand_contact' | 'nav_columns' | 'shipping' | 'newsletter' | 'payments_social' | 'preview'>('brand_contact');
+  const [activeTab, setActiveTab] = useState<'brand_contact' | 'nav_columns' | 'shipping' | 'newsletter' | 'payments_social' | 'mobile_footer' | 'preview'>('brand_contact');
   const [formData, setFormData] = useState<FooterConfig>(footerConfig);
   const [isSaving, setIsSaving] = useState(false);
 
@@ -236,7 +236,8 @@ export const AdminFooterManager: React.FC<AdminFooterManagerProps> = ({ showToas
           { id: 'shipping', label: '3. Worldwide Shipping Column', icon: Truck },
           { id: 'newsletter', label: '4. Newsletter & Signup', icon: Send },
           { id: 'payments_social', label: '5. Payments, Social & Copyright', icon: CreditCard },
-          { id: 'preview', label: '6. Live Footer Preview', icon: Eye },
+          { id: 'mobile_footer', label: '6. Mobile Anti-Fraud & Footer', icon: ShieldCheck },
+          { id: 'preview', label: '7. Live Footer Preview', icon: Eye },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -805,7 +806,191 @@ export const AdminFooterManager: React.FC<AdminFooterManagerProps> = ({ showToas
         </div>
       )}
 
-      {/* Tab 6: Live Footer Preview */}
+      {/* Tab 6: Mobile Anti-Fraud Trust & Mobile Footer */}
+      {activeTab === 'mobile_footer' && (
+        <div className="space-y-6 text-xs">
+          {/* Anti-Fraud Trust Warning Section Card */}
+          <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-6 rounded-2xl space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-white/10 pb-4">
+              <div>
+                <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
+                  <ShieldCheck className="w-5 h-5 text-[var(--brand-gold)]" />
+                  <span>Mobile Anti-Fraud / Trust Advisory Section</span>
+                </h2>
+                <p className="text-xs text-slate-300 mt-0.5">
+                  Protects customers from counterfeit Adivasi hair oils with an authentic, luxury warning notice on mobile devices.
+                </p>
+              </div>
+              <label className="flex items-center gap-2 cursor-pointer font-bold text-slate-200 shrink-0">
+                <span>Enable Section:</span>
+                <input
+                  type="checkbox"
+                  checked={formData.mobileFooter?.showWarningSection !== false}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      mobileFooter: {
+                        ...prev.mobileFooter,
+                        showWarningSection: e.target.checked,
+                      },
+                    }))
+                  }
+                  className="w-4 h-4 accent-[var(--brand-gold)] rounded cursor-pointer"
+                />
+              </label>
+            </div>
+
+            {/* Warning Heading */}
+            <div>
+              <label className="block font-bold text-slate-300 mb-1">Advisory Heading (Serif)</label>
+              <input
+                type="text"
+                value={formData.mobileFooter?.warningHeading || 'BEWARE OF FAKE & DUPLICATE ADIVASI HAIR OILS'}
+                onChange={(e) =>
+                  setFormData((prev) => ({
+                    ...prev,
+                    mobileFooter: {
+                      ...prev.mobileFooter,
+                      warningHeading: e.target.value,
+                    },
+                  }))
+                }
+                className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100 font-bold tracking-wide"
+                placeholder="BEWARE OF FAKE & DUPLICATE ADIVASI HAIR OILS"
+              />
+            </div>
+
+            {/* Warning Lines */}
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label className="font-bold text-slate-300">
+                  Advisory Bullet Lines (1 line per sentence, separated for readable mobile display)
+                </label>
+                <span className="text-[10px] text-[var(--brand-gold)] font-medium">
+                  {formData.mobileFooter?.warningLines?.length || 12} lines configured
+                </span>
+              </div>
+              <textarea
+                rows={12}
+                value={(
+                  formData.mobileFooter?.warningLines || [
+                    'Beware of scammers and duplicate Adivasi hair oils.',
+                    'Authentic HAKKIVEDA products carry our official branding.',
+                    'Our formulations are rooted in Hakki-Pikki tribal knowledge from Mysuru.',
+                    'Always check the HAKKIVEDA name and product label before purchasing.',
+                    'Avoid sellers using copied images or misleading tribal claims.',
+                    'Never share OTPs, banking passwords or card PINs with anyone.',
+                    'HAKKIVEDA will never ask for confidential banking credentials.',
+                    'Purchase only through our official website or authorised sellers.',
+                    'Check product packaging, batch information and authenticity details.',
+                    'Report suspicious sellers or fake HAKKIVEDA products to our support team.',
+                    'Protect your purchase. Choose authentic HAKKIVEDA.',
+                    'Traditional wisdom deserves genuine products.',
+                  ]
+                ).join('\n')}
+                onChange={(e) => {
+                  const lines = e.target.value.split('\n').filter((l) => l.trim().length > 0);
+                  setFormData((prev) => ({
+                    ...prev,
+                    mobileFooter: {
+                      ...prev.mobileFooter,
+                      warningLines: lines,
+                    },
+                  }));
+                }}
+                className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100 text-xs font-sans leading-relaxed focus:outline-none focus:border-[var(--brand-gold)]"
+                placeholder="Enter 1 line per advice sentence..."
+              />
+              <p className="text-[10px] text-slate-400 mt-1">
+                Tip: Each line above will appear spaced and centered in the mobile advisory card.
+              </p>
+            </div>
+          </div>
+
+          {/* Compact Copyright & Slogan Card */}
+          <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-6 rounded-2xl space-y-4">
+            <h2 className="text-base font-bold text-slate-100 flex items-center gap-2 border-b border-white/10 pb-3">
+              <FileText className="w-4 h-4 text-[var(--brand-gold)]" />
+              <span>Compact Mobile Copyright & Slogan Bar</span>
+            </h2>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+              <div>
+                <label className="block font-bold text-slate-300 mb-1">Mobile Copyright Line</label>
+                <input
+                  type="text"
+                  value={formData.mobileFooter?.copyrightText || '© 2026 HAKKIVEDA'}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      mobileFooter: {
+                        ...prev.mobileFooter,
+                        copyrightText: e.target.value,
+                      },
+                    }))
+                  }
+                  className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100 font-bold"
+                  placeholder="© 2026 HAKKIVEDA"
+                />
+              </div>
+
+              <div>
+                <label className="block font-bold text-slate-300 mb-1">Mobile Slogan / Heritage Subtitle</label>
+                <input
+                  type="text"
+                  value={formData.mobileFooter?.sloganText || 'Blend of Hakki-Pikki Tribe & Ayurveda'}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      mobileFooter: {
+                        ...prev.mobileFooter,
+                        sloganText: e.target.value,
+                      },
+                    }))
+                  }
+                  className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-slate-100 font-medium"
+                  placeholder="Blend of Hakki-Pikki Tribe & Ayurveda"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Scroll-to-Top Floating Button Card */}
+          <div className="bg-[var(--brand-primary-dark)] border border-white/10 p-6 rounded-2xl space-y-4">
+            <div className="flex items-center justify-between">
+              <div>
+                <h2 className="text-base font-bold text-slate-100 flex items-center gap-2">
+                  <RotateCcw className="w-4 h-4 text-[var(--brand-gold)]" />
+                  <span>Mobile Floating Scroll-to-Top Button</span>
+                </h2>
+                <p className="text-xs text-slate-300 mt-0.5">
+                  Appears at the bottom-left on mobile when the user scrolls down ~400px, smoothly scrolling back up on tap.
+                </p>
+              </div>
+
+              <label className="flex items-center gap-2 cursor-pointer font-bold text-slate-200 shrink-0">
+                <span>Active:</span>
+                <input
+                  type="checkbox"
+                  checked={formData.mobileFooter?.scrollToTopEnabled !== false}
+                  onChange={(e) =>
+                    setFormData((prev) => ({
+                      ...prev,
+                      mobileFooter: {
+                        ...prev.mobileFooter,
+                        scrollToTopEnabled: e.target.checked,
+                      },
+                    }))
+                  }
+                  className="w-4 h-4 accent-[var(--brand-gold)] rounded cursor-pointer"
+                />
+              </label>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Tab 7: Live Footer Preview */}
       {activeTab === 'preview' && (
         <div className="space-y-4">
           <div className="bg-amber-950/40 border border-amber-500/30 p-4 rounded-xl text-xs text-amber-200 flex items-center justify-between">

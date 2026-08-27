@@ -710,6 +710,84 @@
   "b2b_leads": [],
   "customer_accounts": [
     {
+      "id": "usr-1787853115610",
+      "name": "Verify Flow Customer",
+      "email": "verify_flow_1787853115504@example.com",
+      "phone": "9876543210",
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200",
+      "passwordBcrypt": "$2b$10$SDAPUMRFVxPGxyKfEUb2ce8H2ERZMFYESQdQeSIdvk69NdABTbsYK",
+      "addresses": [],
+      "savedPayments": [],
+      "isAdmin": false,
+      "status": "ACTIVE",
+      "createdAt": "2026-08-27",
+      "lastLogin": "8/27/2026, 5:51:56 PM IST",
+      "loyaltyPoints": 100,
+      "referralCode": "HAKKI-VERIFY-61",
+      "preferences": {
+        "country": "India",
+        "currency": "INR",
+        "language": "English",
+        "emailOrders": true,
+        "whatsappUpdates": true,
+        "promotional": true
+      },
+      "loginHistory": [
+        {
+          "id": "log-1787853116247",
+          "timestamp": "8/27/2026, 5:51:56 PM IST",
+          "ipLocation": "Web Session",
+          "device": "node"
+        },
+        {
+          "id": "log-1787853115827",
+          "timestamp": "8/27/2026, 5:51:55 PM IST",
+          "ipLocation": "Web Session",
+          "device": "node"
+        },
+        {
+          "id": "log-1787853115610",
+          "timestamp": "8/27/2026, 5:51:55 PM IST",
+          "ipLocation": "Web Session",
+          "device": "Web Browser"
+        }
+      ],
+      "mustChangePassword": false,
+      "lastPasswordReset": "8/27/2026, 5:51:56 PM IST"
+    },
+    {
+      "id": "usr-1787853090970",
+      "name": "Security Test Customer",
+      "email": "sec_test_customer@example.com",
+      "phone": "9876543210",
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200",
+      "passwordBcrypt": "$2b$10$gy9UrYtiyhUgT6zt4a1my.lZU5rhKsQ13x5Hoozz121fTc6q3rHHS",
+      "addresses": [],
+      "savedPayments": [],
+      "isAdmin": false,
+      "status": "ACTIVE",
+      "createdAt": "2026-08-27",
+      "lastLogin": "8/27/2026, 5:51:30 PM IST",
+      "loyaltyPoints": 100,
+      "referralCode": "HAKKI-SECURITY-71",
+      "preferences": {
+        "country": "India",
+        "currency": "INR",
+        "language": "English",
+        "emailOrders": true,
+        "whatsappUpdates": true,
+        "promotional": true
+      },
+      "loginHistory": [
+        {
+          "id": "log-1787853090986",
+          "timestamp": "8/27/2026, 5:51:30 PM IST",
+          "ipLocation": "Web Session",
+          "device": "Web Browser"
+        }
+      ]
+    },
+    {
       "id": "usr-cust-1",
       "name": "Rajesh Sharma",
       "email": "rajesh.sharma@gmail.com",

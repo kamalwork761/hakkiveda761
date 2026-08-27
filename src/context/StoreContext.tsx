@@ -224,12 +224,15 @@ interface StoreContextType {
   currentUser: User | null;
   setCurrentUser: (user: User | null) => void;
   customerAccounts: User[];
-  loginUser: (email: string, password?: string) => { success: boolean; message: string };
-  registerUser: (data: { name: string; email: string; phone?: string; password?: string }) => { success: boolean; message: string };
+  loginUser: (email: string, password?: string) => Promise<{ success: boolean; message: string }>;
+  registerUser: (data: { name?: string; firstName?: string; lastName?: string; email: string; phone?: string; password?: string }) => Promise<{ success: boolean; message: string }>;
+  adminSetCustomerPassword: (customerId: string, newPassword?: string, generateRandom?: boolean) => Promise<{ success: boolean; message: string; temporaryPassword?: string }>;
+  changeCustomerPassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; message: string }>;
+  loadCustomerOrders: () => Promise<void>;
   guestLogin: (email: string, name?: string) => void;
   logoutUser: () => void;
   updateCustomerAccount: (id: string, partial: Partial<User>) => void;
-  updateUserProfile: (partial: Partial<User>) => void;
+  updateUserProfile: (partial: Partial<User>) => Promise<void> | void;
   addSavedAddress: (address: Omit<SavedAddress, 'id'>) => void;
   updateSavedAddress: (addressId: string, address: Partial<SavedAddress>) => void;
   deleteSavedAddress: (addressId: string) => void;
@@ -555,6 +558,34 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       })
       .catch(() => {
         setAdminAuthenticated(false);
+      });
+  }, []);
+
+  // Load private orders for authenticated customer
+  const loadCustomerOrders = async () => {
+    try {
+      const res = await fetch('/api/customer/orders', { credentials: 'include' });
+      const data = await res.json();
+      if (res.ok && data.success && Array.isArray(data.orders)) {
+        setOrders(data.orders);
+      }
+    } catch (e) {
+      console.warn('[StoreContext] Could not load customer orders:', e);
+    }
+  };
+
+  // Check customer session status on mount
+  useEffect(() => {
+    fetch('/api/auth/me', { credentials: 'include' })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.customer) {
+          setCurrentUser(data.customer);
+          loadCustomerOrders();
+        }
+      })
+      .catch(() => {
+        // No active customer session
       });
   }, []);
 
@@ -2171,87 +2202,119 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     });
   };
 
-  // User Accounts & Customer Portal Actions
-  const loginUser = (email: string, _password?: string) => {
-    const formattedEmail = email.trim().toLowerCase();
-    const existing = customerAccounts.find((c) => c.email.toLowerCase() === formattedEmail);
-    if (existing) {
-      if (existing.status === 'BLOCKED') {
-        soundManager.play('error_warning');
-        return {
-          success: false,
-          message: 'Your account has been restricted by administration. Please contact support@hakkiveda.com',
-        };
+  // User Accounts & Customer Portal Actions (Server-Authoritative)
+  const loginUser = async (
+    email: string,
+    password?: string
+  ): Promise<{ success: boolean; message: string }> => {
+    try {
+      const res = await fetch('/api/auth/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success && data.customer) {
+        setCurrentUser(data.customer);
+        await loadCustomerOrders();
+        soundManager.play('order_success');
+        return { success: true, message: data.message || `Welcome back, ${data.customer.name}!` };
       }
-      const updatedUser: User = {
-        ...existing,
-        lastLogin: new Date().toLocaleString() + ' IST',
-        loginHistory: [
-          {
-            id: `log-${Date.now()}`,
-            timestamp: new Date().toLocaleString() + ' IST',
-            ipLocation: 'Mysore, Karnataka, India (Web Session)',
-            device: 'Desktop / Mobile Browser',
-          },
-          ...(existing.loginHistory || []),
-        ],
-      };
-      updateCustomerAccount(existing.id, updatedUser);
-      setCurrentUser(updatedUser);
-      setStored('current_user', updatedUser);
-      soundManager.play('order_success');
-      return { success: true, message: `Welcome back, ${existing.name}!` };
+      soundManager.play('error_warning');
+      return { success: false, message: data.error || 'Invalid email or password.' };
+    } catch (err: any) {
+      soundManager.play('error_warning');
+      return { success: false, message: 'Could not connect to server. Please try again.' };
     }
-    soundManager.play('error_warning');
-    return { success: false, message: 'Account not found. Please click "Create Account" below.' };
   };
 
-  const registerUser = (data: { name: string; email: string; phone?: string; password?: string }) => {
-    const formattedEmail = data.email.trim().toLowerCase();
-    const existing = customerAccounts.find((c) => c.email.toLowerCase() === formattedEmail);
-    if (existing) {
+  const registerUser = async (data: {
+    name?: string;
+    firstName?: string;
+    lastName?: string;
+    email: string;
+    phone?: string;
+    password?: string;
+  }): Promise<{ success: boolean; message: string }> => {
+    try {
+      const res = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(data),
+      });
+      const resData = await res.json();
+      if (res.ok && resData.success && resData.customer) {
+        setCurrentUser(resData.customer);
+        await loadCustomerOrders();
+        soundManager.play('order_success');
+        return { success: true, message: resData.message || 'Account created successfully!' };
+      }
       soundManager.play('error_warning');
-      return { success: false, message: 'An account with this email already exists. Please Sign In.' };
+      return { success: false, message: resData.error || 'Failed to create account.' };
+    } catch (err: any) {
+      soundManager.play('error_warning');
+      return { success: false, message: 'Could not connect to server. Please try again.' };
     }
-    const newUser: User = {
-      id: `usr-${Date.now()}`,
-      name: data.name.trim(),
-      email: formattedEmail,
-      phone: data.phone?.trim() || '',
-      avatar: `https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200`,
-      addresses: [],
-      isAdmin: false,
-      status: 'ACTIVE',
-      createdAt: new Date().toISOString().split('T')[0],
-      lastLogin: new Date().toLocaleString() + ' IST',
-      loyaltyPoints: 100,
-      referralCode: `HAKKI-${data.name.trim().split(' ')[0].toUpperCase()}-${Math.floor(10 + Math.random() * 89)}`,
-      preferences: {
-        country: selectedCountry.name,
-        currency: currentCurrency.code,
-        language: 'English',
-        emailOrders: true,
-        whatsappUpdates: true,
-        promotional: true,
-      },
-      loginHistory: [
-        {
-          id: `log-${Date.now()}`,
-          timestamp: new Date().toLocaleString() + ' IST',
-          ipLocation: 'Web App Session',
-          device: 'Browser Applet',
-        },
-      ],
-    };
-    setCustomerAccounts((prev) => {
-      const next = [newUser, ...prev];
-      setStored('customer_accounts', next);
-      return next;
-    });
-    setCurrentUser(newUser);
-    setStored('current_user', newUser);
-    soundManager.play('order_success');
-    return { success: true, message: `Account created successfully! 100 Welcome Points awarded.` };
+  };
+
+  const adminSetCustomerPassword = async (
+    customerId: string,
+    newPassword?: string,
+    generateRandom?: boolean
+  ): Promise<{ success: boolean; message: string; temporaryPassword?: string }> => {
+    try {
+      const res = await fetch(`/api/admin/customers/${encodeURIComponent(customerId)}/set-password`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ newPassword, generateRandom }),
+      });
+      const resData = await res.json();
+      if (res.ok && resData.success) {
+        soundManager.play('order_success');
+        return {
+          success: true,
+          message: resData.message || 'Password established successfully!',
+          temporaryPassword: resData.temporaryPassword,
+        };
+      }
+      soundManager.play('error_warning');
+      return { success: false, message: resData.error || 'Failed to set password.' };
+    } catch (err: any) {
+      soundManager.play('error_warning');
+      return { success: false, message: 'Could not connect to server. Please try again.' };
+    }
+  };
+
+  const changeCustomerPassword = async (
+    currentPassword: string,
+    newPassword: string
+  ): Promise<{ success: boolean; message: string }> => {
+    try {
+      const res = await fetch('/api/customer/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ currentPassword, newPassword }),
+      });
+      const resData = await res.json();
+      if (res.ok && resData.success) {
+        if (resData.customer) {
+          setCurrentUser(resData.customer);
+        } else if (currentUser) {
+          setCurrentUser({ ...currentUser, mustChangePassword: false });
+        }
+        soundManager.play('order_success');
+        return { success: true, message: resData.message || 'Password changed successfully.' };
+      }
+      soundManager.play('error_warning');
+      return { success: false, message: resData.error || 'Failed to change password.' };
+    } catch (err: any) {
+      soundManager.play('error_warning');
+      return { success: false, message: 'Could not connect to server. Please try again.' };
+    }
   };
 
   const guestLogin = (email: string, name?: string) => {
@@ -2267,22 +2330,38 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       lastLogin: 'Just Now',
     };
     setCurrentUser(guestUser);
-    setStored('current_user', guestUser);
     soundManager.play('form_submit');
   };
 
   const logoutUser = () => {
+    fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }).catch(() => {});
     soundManager.play('toggle_switch');
     setCurrentUser(null);
-    setStored('current_user', null);
+    if (!adminAuthenticated) {
+      setOrders([]);
+    }
   };
 
-  const updateUserProfile = (partial: Partial<User>) => {
+  const updateUserProfile = async (partial: Partial<User>) => {
     if (!currentUser) return;
-    const updated = { ...currentUser, ...partial };
-    setCurrentUser(updated);
-    setStored('current_user', updated);
-    updateCustomerAccount(currentUser.id, partial);
+    try {
+      const res = await fetch('/api/customer/profile', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify(partial),
+      });
+      const data = await res.json();
+      if (res.ok && data.success && data.customer) {
+        setCurrentUser(data.customer);
+      } else {
+        const updated = { ...currentUser, ...partial };
+        setCurrentUser(updated);
+      }
+    } catch {
+      const updated = { ...currentUser, ...partial };
+      setCurrentUser(updated);
+    }
     soundManager.play('form_submit');
   };
 
@@ -2983,6 +3062,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         customerAccounts,
         loginUser,
         registerUser,
+        adminSetCustomerPassword,
+        changeCustomerPassword,
+        loadCustomerOrders,
         guestLogin,
         logoutUser,
         updateCustomerAccount,

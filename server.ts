@@ -224,6 +224,249 @@ async function startServer() {
     return requireAdmin(req, res, next);
   }
 
+  // ==========================================
+  // CUSTOMER AUTHENTICATION & SECURITY
+  // ==========================================
+  function resolveCustomerSessionSecret(): string {
+    const isProduction = process.env.NODE_ENV === 'production';
+    const providedSecret = process.env.CUSTOMER_SESSION_SECRET?.trim();
+
+    if (isProduction) {
+      if (!providedSecret) {
+        throw new Error(
+          '[Security Configuration Error] CUSTOMER_SESSION_SECRET environment variable must be configured in production.'
+        );
+      }
+      if (providedSecret.length < 32) {
+        throw new Error(
+          '[Security Configuration Error] CUSTOMER_SESSION_SECRET in production must be at least 32 characters long (prefer a 64-character hex string).'
+        );
+      }
+      const trivialSecrets = [
+        'default',
+        'secret',
+        'password',
+        '12345678',
+        'customer_session_secret',
+        'replace_this_with_a_secure_secret',
+        'hakkiveda_customer_secret_key_2026',
+      ];
+      if (trivialSecrets.includes(providedSecret.toLowerCase())) {
+        throw new Error(
+          '[Security Configuration Error] CUSTOMER_SESSION_SECRET is using a known trivial/insecure placeholder. Provide a high-entropy secret in production.'
+        );
+      }
+      return providedSecret;
+    }
+
+    if (providedSecret && providedSecret.length >= 16) {
+      return providedSecret;
+    }
+
+    const ephemeralDevSecret = crypto.randomBytes(32).toString('hex');
+    console.warn(
+      '[Security] CUSTOMER_SESSION_SECRET not set. Using temporary development customer session secret. Sessions will reset after server restart.'
+    );
+    return ephemeralDevSecret;
+  }
+
+  const CUSTOMER_SESSION_SECRET = resolveCustomerSessionSecret();
+  const CUSTOMER_TOKEN_COOKIE = 'hakkiveda_customer_token';
+  const CUSTOMER_TOKEN_EXPIRY_MS = 30 * 24 * 60 * 60 * 1000; // 30 days validity
+
+  interface CustomerTokenPayload {
+    id: string;
+    email: string;
+    role: 'customer';
+    iat: number;
+    exp: number;
+  }
+
+  function createCustomerToken(customerId: string, email: string): string {
+    const now = Date.now();
+    const payload: CustomerTokenPayload = {
+      id: customerId,
+      email: email.toLowerCase().trim(),
+      role: 'customer',
+      iat: now,
+      exp: now + CUSTOMER_TOKEN_EXPIRY_MS,
+    };
+
+    const payloadB64 = Buffer.from(JSON.stringify(payload)).toString('base64url');
+    const signature = crypto
+      .createHmac('sha256', CUSTOMER_SESSION_SECRET)
+      .update(payloadB64)
+      .digest('base64url');
+
+    return `${payloadB64}.${signature}`;
+  }
+
+  function verifyCustomerToken(token: string): CustomerTokenPayload | null {
+    if (!token || typeof token !== 'string') return null;
+    const parts = token.split('.');
+    if (parts.length !== 2) return null;
+
+    const [payloadB64, signature] = parts;
+    if (!payloadB64 || !signature) return null;
+
+    try {
+      const expectedSignature = crypto
+        .createHmac('sha256', CUSTOMER_SESSION_SECRET)
+        .update(payloadB64)
+        .digest('base64url');
+
+      const expectedBuf = Buffer.from(expectedSignature);
+      const actualBuf = Buffer.from(signature);
+
+      if (expectedBuf.length !== actualBuf.length || !crypto.timingSafeEqual(expectedBuf, actualBuf)) {
+        return null;
+      }
+
+      const payloadJson = Buffer.from(payloadB64, 'base64url').toString('utf8');
+      const payload: CustomerTokenPayload = JSON.parse(payloadJson);
+
+      if (payload.role !== 'customer' || typeof payload.id !== 'string' || typeof payload.email !== 'string') {
+        return null;
+      }
+
+      if (Date.now() > payload.exp) {
+        return null;
+      }
+
+      return payload;
+    } catch {
+      return null;
+    }
+  }
+
+  function generateSecureTempPassword(): string {
+    const bytes = crypto.randomBytes(8);
+    const chars = '23456789ABCDEFGHJKLMNPQRSTUVWXYZ'; // 32 unambiguous characters
+    let result = 'HKV-';
+    for (let i = 0; i < 8; i++) {
+      result += chars[bytes[i] % chars.length];
+      if (i === 3) result += '-';
+    }
+    return result;
+  }
+
+  function sanitizeCustomer(customer: any) {
+    if (!customer) return null;
+    const { passwordBcrypt, ...safe } = customer;
+    return {
+      id: safe.id,
+      name: safe.name || '',
+      email: safe.email || '',
+      phone: safe.phone || '',
+      avatar: safe.avatar || 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200',
+      addresses: Array.isArray(safe.addresses) ? safe.addresses : [],
+      savedPayments: Array.isArray(safe.savedPayments) ? safe.savedPayments : [],
+      isAdmin: false,
+      status: safe.status || 'ACTIVE',
+      createdAt: safe.createdAt || new Date().toISOString().split('T')[0],
+      lastLogin: safe.lastLogin || '',
+      loyaltyPoints: typeof safe.loyaltyPoints === 'number' ? safe.loyaltyPoints : 100,
+      referralCode: safe.referralCode || `HAKKI-${(safe.name || 'USER').split(' ')[0].toUpperCase()}-${Math.floor(10 + Math.random() * 89)}`,
+      mustChangePassword: Boolean(safe.mustChangePassword),
+      preferences: safe.preferences || {
+        country: 'India',
+        currency: 'INR',
+        language: 'English',
+        emailOrders: true,
+        whatsappUpdates: true,
+        promotional: true,
+      },
+    };
+  }
+
+  async function requireCustomer(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const authHeader = req.headers.authorization;
+    let token = req.cookies?.[CUSTOMER_TOKEN_COOKIE];
+
+    if (!token && authHeader && authHeader.startsWith('Bearer ')) {
+      token = authHeader.substring(7).trim();
+    }
+
+    if (!token) {
+      return res.status(401).json({ success: false, error: 'Unauthorized: Customer session required.' });
+    }
+
+    const payload = verifyCustomerToken(token);
+    if (!payload) {
+      return res.status(401).json({ success: false, error: 'Unauthorized: Invalid or expired customer session.' });
+    }
+
+    const customers = (await getStoreValue<any[]>('customer_accounts')) || [];
+    const customer = customers.find(
+      (c) => (c.id && c.id === payload.id) || (c.email && c.email.toLowerCase() === payload.email.toLowerCase())
+    );
+
+    if (!customer) {
+      return res.status(401).json({ success: false, error: 'Customer account not found.' });
+    }
+
+    if (customer.status === 'BLOCKED') {
+      return res.status(403).json({
+        success: false,
+        error: 'Your account has been restricted by administration. Please contact support@hakkiveda.com',
+      });
+    }
+
+    (req as any).customer = customer;
+    (req as any).customerPayload = payload;
+    next();
+  }
+
+  // Rate limit tracking for customer login/register
+  const failedCustomerLoginAttempts = new Map<string, LoginAttemptRecord>();
+  const customerRegisterAttempts = new Map<string, { count: number; resetTime: number }>();
+
+  function checkCustomerLoginRateLimit(ip: string): { allowed: boolean; remainingSeconds?: number } {
+    const now = Date.now();
+    const record = failedCustomerLoginAttempts.get(ip);
+    if (!record) return { allowed: true };
+
+    if (record.blockedUntil > now) {
+      const remainingSeconds = Math.ceil((record.blockedUntil - now) / 1000);
+      return { allowed: false, remainingSeconds };
+    }
+
+    if (record.blockedUntil > 0 && record.blockedUntil <= now) {
+      failedCustomerLoginAttempts.delete(ip);
+    }
+
+    return { allowed: true };
+  }
+
+  function recordFailedCustomerLogin(ip: string) {
+    const now = Date.now();
+    const record = failedCustomerLoginAttempts.get(ip) || { failedAttempts: 0, blockedUntil: 0 };
+    record.failedAttempts += 1;
+
+    if (record.failedAttempts >= 10) {
+      record.blockedUntil = now + 15 * 60 * 1000; // 15-minute lockout after 10 failed attempts
+    }
+    failedCustomerLoginAttempts.set(ip, record);
+  }
+
+  function recordSuccessfulCustomerLogin(ip: string) {
+    failedCustomerLoginAttempts.delete(ip);
+  }
+
+  function checkCustomerRegisterRateLimit(ip: string): boolean {
+    const now = Date.now();
+    const record = customerRegisterAttempts.get(ip);
+    if (!record || now > record.resetTime) {
+      customerRegisterAttempts.set(ip, { count: 1, resetTime: now + 3600 * 1000 });
+      return true;
+    }
+    if (record.count >= 15) {
+      return false; // max 15 registrations per hour per IP
+    }
+    record.count += 1;
+    return true;
+  }
+
   // Failed login attempt tracking for IP-based rate limiting
   interface LoginAttemptRecord {
     failedAttempts: number;
@@ -516,6 +759,463 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
     } catch (err: any) {
       console.error('[Admin Change Password Error]:', err.message);
       res.status(500).json({ success: false, error: 'Failed to update master password.' });
+    }
+  });
+
+  // ==========================================
+  // CUSTOMER AUTHENTICATION API ROUTES
+  // ==========================================
+
+  // Customer Register Endpoint
+  app.post('/api/auth/register', async (req, res) => {
+    try {
+      const clientIp =
+        (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() ||
+        req.ip ||
+        'unknown-ip';
+
+      if (!checkCustomerRegisterRateLimit(clientIp)) {
+        return res.status(429).json({
+          success: false,
+          error: 'Too many account creation attempts. Please try again in an hour.',
+        });
+      }
+
+      const { name, firstName, lastName, email, phone, password } = req.body;
+      const computedName = (name || `${firstName || ''} ${lastName || ''}`).trim();
+
+      if (!computedName) {
+        return res.status(400).json({ success: false, error: 'Full name is required.' });
+      }
+
+      if (!email || typeof email !== 'string') {
+        return res.status(400).json({ success: false, error: 'Valid email address is required.' });
+      }
+
+      const normalizedEmail = email.trim().toLowerCase();
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(normalizedEmail)) {
+        return res.status(400).json({ success: false, error: 'Please enter a valid email format.' });
+      }
+
+      if (!password || typeof password !== 'string' || password.length < 6) {
+        return res.status(400).json({ success: false, error: 'Password must be at least 6 characters long.' });
+      }
+
+      const customers = (await getStoreValue<any[]>('customer_accounts')) || [];
+      const existing = customers.find((c: any) => c.email && c.email.toLowerCase() === normalizedEmail);
+
+      if (existing) {
+        return res.status(400).json({
+          success: false,
+          error: 'An account with this email already exists. Please Sign In.',
+        });
+      }
+
+      const passwordBcrypt = await bcrypt.hash(password, 10);
+      const customerId = `usr-${Date.now()}`;
+      const nameParts = computedName.split(' ');
+      const referralCode = `HAKKI-${(nameParts[0] || 'USER').toUpperCase()}-${Math.floor(10 + Math.random() * 89)}`;
+
+      const newCustomer = {
+        id: customerId,
+        name: computedName,
+        email: normalizedEmail,
+        phone: (phone || '').trim(),
+        avatar: 'https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200',
+        passwordBcrypt,
+        addresses: [],
+        savedPayments: [],
+        isAdmin: false,
+        status: 'ACTIVE',
+        createdAt: new Date().toISOString().split('T')[0],
+        lastLogin: new Date().toLocaleString() + ' IST',
+        loyaltyPoints: 100,
+        referralCode,
+        preferences: {
+          country: 'India',
+          currency: 'INR',
+          language: 'English',
+          emailOrders: true,
+          whatsappUpdates: true,
+          promotional: true,
+        },
+        loginHistory: [
+          {
+            id: `log-${Date.now()}`,
+            timestamp: new Date().toLocaleString() + ' IST',
+            ipLocation: 'Web Session',
+            device: 'Web Browser',
+          },
+        ],
+      };
+
+      const updatedCustomers = [newCustomer, ...customers];
+      await setStoreValue('customer_accounts', updatedCustomers);
+
+      const token = createCustomerToken(customerId, normalizedEmail);
+      res.cookie(CUSTOMER_TOKEN_COOKIE, token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: CUSTOMER_TOKEN_EXPIRY_MS,
+        path: '/',
+      });
+
+      res.status(201).json({
+        success: true,
+        message: 'Account created successfully! 100 Welcome Points awarded.',
+        customer: sanitizeCustomer(newCustomer),
+        token,
+      });
+    } catch (err: any) {
+      console.error('[Customer Register Error]:', err.message);
+      res.status(500).json({ success: false, error: 'Failed to create customer account.' });
+    }
+  });
+
+  // Customer Login Endpoint
+  app.post('/api/auth/login', async (req, res) => {
+    try {
+      const clientIp =
+        (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() ||
+        req.ip ||
+        'unknown-ip';
+
+      const rateCheck = checkCustomerLoginRateLimit(clientIp);
+      if (!rateCheck.allowed) {
+        return res.status(429).json({
+          success: false,
+          error: `Too many failed login attempts. Please try again in ${Math.ceil(
+            (rateCheck.remainingSeconds || 900) / 60
+          )} minutes.`,
+        });
+      }
+
+      const { email, password } = req.body;
+      if (!email || typeof email !== 'string' || !password || typeof password !== 'string') {
+        return res.status(400).json({ success: false, error: 'Email and password are required.' });
+      }
+
+      const normalizedEmail = email.trim().toLowerCase();
+      const customers = (await getStoreValue<any[]>('customer_accounts')) || [];
+      const customerIndex = customers.findIndex(
+        (c: any) => c.email && c.email.toLowerCase() === normalizedEmail
+      );
+
+      if (customerIndex === -1) {
+        recordFailedCustomerLogin(clientIp);
+        return res.status(401).json({ success: false, error: 'Invalid email or password.' });
+      }
+
+      const customer = customers[customerIndex];
+
+      if (customer.status === 'BLOCKED') {
+        return res.status(403).json({
+          success: false,
+          error: 'Your account has been restricted by administration. Please contact support@hakkiveda.com',
+        });
+      }
+
+      // Legacy customer migration check: Account exists without password hash
+      if (!customer.passwordBcrypt) {
+        return res.status(403).json({
+          success: false,
+          error: 'Your account requires password setup. Please contact HAKKIVEDA support to secure your account.',
+        });
+      }
+
+      const isPasswordMatch = await bcrypt.compare(password, customer.passwordBcrypt);
+      if (!isPasswordMatch) {
+        recordFailedCustomerLogin(clientIp);
+        return res.status(401).json({ success: false, error: 'Invalid email or password.' });
+      }
+
+      recordSuccessfulCustomerLogin(clientIp);
+
+      // Update login telemetry
+      customer.lastLogin = new Date().toLocaleString() + ' IST';
+      customer.loginHistory = [
+        {
+          id: `log-${Date.now()}`,
+          timestamp: new Date().toLocaleString() + ' IST',
+          ipLocation: 'Web Session',
+          device: req.headers['user-agent']?.slice(0, 80) || 'Web Browser',
+        },
+        ...(Array.isArray(customer.loginHistory) ? customer.loginHistory.slice(0, 19) : []),
+      ];
+
+      customers[customerIndex] = customer;
+      await setStoreValue('customer_accounts', customers);
+
+      const token = createCustomerToken(customer.id, customer.email);
+      res.cookie(CUSTOMER_TOKEN_COOKIE, token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: CUSTOMER_TOKEN_EXPIRY_MS,
+        path: '/',
+      });
+
+      res.json({
+        success: true,
+        message: `Welcome back, ${customer.name}!`,
+        customer: sanitizeCustomer(customer),
+        token,
+      });
+    } catch (err: any) {
+      console.error('[Customer Login Error]:', err.message);
+      res.status(500).json({ success: false, error: 'Failed to process login.' });
+    }
+  });
+
+  // Customer Me / Active Session Check Endpoint
+  app.get('/api/auth/me', requireCustomer, (req, res) => {
+    const customer = (req as any).customer;
+    res.json({
+      success: true,
+      customer: sanitizeCustomer(customer),
+    });
+  });
+
+  // Customer Logout Endpoint
+  app.post('/api/auth/logout', (_req, res) => {
+    res.clearCookie(CUSTOMER_TOKEN_COOKIE, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+    });
+    res.json({ success: true, message: 'Logged out successfully.' });
+  });
+
+  // Admin-Assisted Customer Password Setup / Reset Endpoint (Protected under requireAdmin)
+  app.post('/api/admin/customers/:id/set-password', requireAdmin, async (req, res) => {
+    try {
+      const customerId = req.params.id;
+      const { newPassword, generateRandom } = req.body;
+
+      let passwordToSet = typeof newPassword === 'string' ? newPassword.trim() : '';
+
+      if (generateRandom || !passwordToSet) {
+        // Generate high-entropy CSPRNG temporary password (crypto.randomBytes)
+        passwordToSet = generateSecureTempPassword();
+      }
+
+      if (passwordToSet.length < 6) {
+        return res.status(400).json({ success: false, error: 'Password must be at least 6 characters long.' });
+      }
+
+      const customers = (await getStoreValue<any[]>('customer_accounts')) || [];
+      const customerIndex = customers.findIndex((c: any) => c.id === customerId);
+
+      if (customerIndex === -1) {
+        return res.status(404).json({ success: false, error: 'Customer account not found.' });
+      }
+
+      const customer = customers[customerIndex];
+      const passwordBcrypt = await bcrypt.hash(passwordToSet, 10);
+      customer.passwordBcrypt = passwordBcrypt;
+      // Any admin-assisted credential reset forces password change upon next login
+      customer.mustChangePassword = true;
+      customer.lastPasswordReset = new Date().toLocaleString() + ' IST';
+
+      customers[customerIndex] = customer;
+      await setStoreValue('customer_accounts', customers);
+
+      res.json({
+        success: true,
+        message: `Secure temporary password established for customer ${customer.name}.`,
+        temporaryPassword: passwordToSet,
+      });
+    } catch (err: any) {
+      console.error('[Admin Customer Password Reset Error]:', err.message);
+      res.status(500).json({ success: false, error: 'Failed to establish customer password.' });
+    }
+  });
+
+  // Customer Password Recovery Request Endpoint
+  app.post('/api/auth/forgot-password', async (req, res) => {
+    try {
+      const { email } = req.body;
+      if (!email || typeof email !== 'string') {
+        return res.status(400).json({ success: false, error: 'Email address is required.' });
+      }
+
+      const normalizedEmail = email.trim().toLowerCase();
+      const customers = (await getStoreValue<any[]>('customer_accounts')) || [];
+      const customer = customers.find((c: any) => c.email && c.email.toLowerCase() === normalizedEmail);
+
+      if (customer) {
+        console.log(`[Security] Password reset requested for registered customer: ${normalizedEmail}`);
+      }
+
+      // Always return a positive message to avoid email enumeration
+      res.json({
+        success: true,
+        message: `If an account exists for ${normalizedEmail}, our customer care concierge has been notified and will assist you with access recovery.`,
+      });
+    } catch (err: any) {
+      res.status(500).json({ success: false, error: 'Failed to process request.' });
+    }
+  });
+
+  // ==========================================
+  // CUSTOMER PRIVATE DATA & PROFILE API ROUTES
+  // ==========================================
+
+  // Customer Profile Get Endpoint
+  app.get('/api/customer/profile', requireCustomer, (req, res) => {
+    const customer = (req as any).customer;
+    res.json({
+      success: true,
+      customer: sanitizeCustomer(customer),
+    });
+  });
+
+  // Customer Profile Update Endpoint
+  app.put('/api/customer/profile', requireCustomer, async (req, res) => {
+    try {
+      const currentCustomer = (req as any).customer;
+      const customers = (await getStoreValue<any[]>('customer_accounts')) || [];
+      const customerIndex = customers.findIndex((c: any) => c.id === currentCustomer.id);
+
+      if (customerIndex === -1) {
+        return res.status(404).json({ success: false, error: 'Customer account not found.' });
+      }
+
+      const { name, phone, avatar, addresses, preferences, savedPayments } = req.body;
+      const customer = customers[customerIndex];
+
+      if (name && typeof name === 'string') customer.name = name.trim();
+      if (phone !== undefined) customer.phone = String(phone).trim();
+      if (avatar && typeof avatar === 'string') customer.avatar = avatar;
+      if (Array.isArray(addresses)) customer.addresses = addresses;
+      if (Array.isArray(savedPayments)) customer.savedPayments = savedPayments;
+      if (preferences && typeof preferences === 'object') {
+        customer.preferences = { ...customer.preferences, ...preferences };
+      }
+
+      customers[customerIndex] = customer;
+      await setStoreValue('customer_accounts', customers);
+
+      res.json({
+        success: true,
+        message: 'Profile updated successfully.',
+        customer: sanitizeCustomer(customer),
+      });
+    } catch (err: any) {
+      console.error('[Customer Profile Update Error]:', err.message);
+      res.status(500).json({ success: false, error: 'Failed to update profile.' });
+    }
+  });
+
+  // Customer Change Password Endpoint
+  app.post('/api/customer/change-password', requireCustomer, async (req, res) => {
+    try {
+      const currentCustomer = (req as any).customer;
+      const { oldPassword, currentPassword, newPassword } = req.body;
+      const passToVerify = currentPassword || oldPassword;
+
+      if (!passToVerify || !newPassword || typeof newPassword !== 'string') {
+        return res.status(400).json({ success: false, error: 'Current password and new password are required.' });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ success: false, error: 'New password must be at least 6 characters long.' });
+      }
+
+      const customers = (await getStoreValue<any[]>('customer_accounts')) || [];
+      const customerIndex = customers.findIndex((c: any) => c.id === currentCustomer.id);
+
+      if (customerIndex === -1) {
+        return res.status(404).json({ success: false, error: 'Customer not found.' });
+      }
+
+      const customer = customers[customerIndex];
+      if (customer.passwordBcrypt) {
+        const isMatch = await bcrypt.compare(passToVerify, customer.passwordBcrypt);
+        if (!isMatch) {
+          return res.status(400).json({ success: false, error: 'Current password is incorrect.' });
+        }
+      }
+
+      customer.passwordBcrypt = await bcrypt.hash(newPassword, 10);
+      customer.mustChangePassword = false;
+      customer.lastPasswordReset = new Date().toLocaleString() + ' IST';
+      customers[customerIndex] = customer;
+      await setStoreValue('customer_accounts', customers);
+
+      res.json({
+        success: true,
+        message: 'Password updated successfully.',
+        customer: sanitizeCustomer(customer),
+      });
+    } catch (err: any) {
+      console.error('[Customer Change Password Error]:', err.message);
+      res.status(500).json({ success: false, error: 'Failed to update password.' });
+    }
+  });
+
+  // Customer Private Orders List Endpoint (Authenticated Customer Only)
+  app.get('/api/customer/orders', requireCustomer, async (req, res) => {
+    try {
+      const customer = (req as any).customer;
+      const customerEmail = customer.email.toLowerCase().trim();
+      const customerId = customer.id;
+
+      const orders = (await getStoreValue<any[]>('orders')) || [];
+      const customerOrders = orders.filter((o: any) => {
+        const orderEmail = (o.customer?.email || '').toLowerCase().trim();
+        const orderCustomerId = o.customerId;
+        return orderEmail === customerEmail || (customerId && orderCustomerId === customerId);
+      });
+
+      res.json({
+        success: true,
+        orders: customerOrders,
+      });
+    } catch (err: any) {
+      console.error('[Customer Orders Error]:', err.message);
+      res.status(500).json({ success: false, error: 'Failed to retrieve orders.' });
+    }
+  });
+
+  // Customer Single Order Details Endpoint (Protected with IDOR Verification)
+  app.get('/api/customer/orders/:id', requireCustomer, async (req, res) => {
+    try {
+      const customer = (req as any).customer;
+      const customerEmail = customer.email.toLowerCase().trim();
+      const customerId = customer.id;
+      const orderId = req.params.id;
+
+      const orders = (await getStoreValue<any[]>('orders')) || [];
+      const order = orders.find(
+        (o: any) => String(o.id) === String(orderId) || String(o.orderNumber) === String(orderId)
+      );
+
+      if (!order) {
+        return res.status(404).json({ success: false, error: 'Order not found.' });
+      }
+
+      const orderEmail = (order.customer?.email || '').toLowerCase().trim();
+      const orderCustomerId = order.customerId;
+
+      // Strict IDOR check: Order MUST belong to the authenticated customer
+      if (orderEmail !== customerEmail && (!customerId || orderCustomerId !== customerId)) {
+        return res.status(403).json({
+          success: false,
+          error: 'Access denied: You can only view orders placed by your account.',
+        });
+      }
+
+      res.json({
+        success: true,
+        order,
+      });
+    } catch (err: any) {
+      console.error('[Customer Order Details Error]:', err.message);
+      res.status(500).json({ success: false, error: 'Failed to retrieve order details.' });
     }
   });
 
@@ -1724,6 +2424,10 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
       const localOrderId = `ord-${Date.now()}`;
       const orderNumber = `HV-ORD-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
 
+      const optionalCustomerToken = req.cookies?.[CUSTOMER_TOKEN_COOKIE];
+      const optionalPayload = optionalCustomerToken ? verifyCustomerToken(optionalCustomerToken) : null;
+      const customerId = optionalPayload?.id;
+
       const localOrder = {
         id: localOrderId,
         orderNumber,
@@ -1731,6 +2435,7 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
         createdAt: new Date().toISOString(),
         items: validatedItems,
         customer,
+        ...(customerId ? { customerId } : {}),
         subtotalINR,
         taxINR,
         shippingFeeINR,
@@ -1947,6 +2652,10 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
       const localOrderId = `ord-${Date.now()}`;
       const orderNumber = `HV-ORD-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
 
+      const optionalCustomerToken = req.cookies?.[CUSTOMER_TOKEN_COOKIE];
+      const optionalPayload = optionalCustomerToken ? verifyCustomerToken(optionalCustomerToken) : null;
+      const customerId = optionalPayload?.id;
+
       const newOrder = {
         id: localOrderId,
         orderNumber,
@@ -1954,6 +2663,7 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
         createdAt: new Date().toISOString(),
         items: validatedItems,
         customer,
+        ...(customerId ? { customerId } : {}),
         subtotalINR,
         taxINR,
         shippingFeeINR,

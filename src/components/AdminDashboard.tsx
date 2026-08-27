@@ -166,6 +166,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
     addMediaItem,
     deleteMediaItem,
     customerAccounts,
+    adminSetCustomerPassword,
     toggleBlockCustomer,
     deleteCustomerAccount,
     exportCustomerData,
@@ -564,6 +565,39 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
   const [customerSearch, setCustomerSearch] = useState('');
   const [customerStatusFilter, setCustomerStatusFilter] = useState<'ALL' | 'ACTIVE' | 'BLOCKED'>('ALL');
   const [selectedCustomerDossier, setSelectedCustomerDossier] = useState<User | null>(null);
+
+  // Admin Customer Password Assist Modal State
+  const [custPasswordModalUser, setCustPasswordModalUser] = useState<User | null>(null);
+  const [custManualPassword, setCustManualPassword] = useState('');
+  const [custAssignedTempPass, setCustAssignedTempPass] = useState<string | null>(null);
+  const [custPassLoading, setCustPassLoading] = useState(false);
+  const [custPassModalMsg, setCustPassModalMsg] = useState<{ type: 'error' | 'success'; text: string } | null>(null);
+
+  const handleAdminSetCustomerPassword = async (generateRandom: boolean) => {
+    if (!custPasswordModalUser) return;
+    setCustPassLoading(true);
+    setCustPassModalMsg(null);
+    try {
+      const res = await adminSetCustomerPassword(
+        custPasswordModalUser.id,
+        generateRandom ? undefined : custManualPassword.trim(),
+        generateRandom
+      );
+      if (res.success) {
+        setCustAssignedTempPass(res.temporaryPassword || (custManualPassword ? custManualPassword : 'Password established'));
+        setCustPassModalMsg({
+          type: 'success',
+          text: res.message || 'Secure credentials established successfully.',
+        });
+        setCustManualPassword('');
+        showToast('Customer password updated');
+      } else {
+        setCustPassModalMsg({ type: 'error', text: res.message || 'Failed to update customer password.' });
+      }
+    } finally {
+      setCustPassLoading(false);
+    }
+  };
 
   const filteredCustomers = customerAccounts.filter((c) => {
     const matchesSearch =
@@ -1765,6 +1799,21 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
 
                                 <button
                                   onClick={() => {
+                                    playSound('nav_click');
+                                    setCustPasswordModalUser(cust);
+                                    setCustAssignedTempPass(null);
+                                    setCustPassModalMsg(null);
+                                    setCustManualPassword('');
+                                  }}
+                                  className="bg-amber-900/60 hover:bg-amber-800 text-amber-200 border border-amber-500/40 px-2.5 py-1.5 rounded-lg font-bold text-[11px] flex items-center gap-1 transition-all"
+                                  title="Admin-Assisted Password Setup / Reset"
+                                >
+                                  <Key className="w-3.5 h-3.5 text-amber-400" />
+                                  <span>Set Pass</span>
+                                </button>
+
+                                <button
+                                  onClick={() => {
                                     toggleBlockCustomer(cust.id);
                                     showToast(cust.status === 'BLOCKED' ? 'Account Unblocked' : 'Account Blocked');
                                   }}
@@ -1894,6 +1943,32 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                     </div>
                   </div>
 
+                  {/* Password & Security Administration Card */}
+                  <div className="space-y-2 text-xs bg-[var(--brand-primary-dark)] p-4 rounded-xl border border-amber-500/30">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2 text-amber-400 font-bold uppercase tracking-wider text-[11px]">
+                        <Key className="w-4 h-4" />
+                        <span>Security & Account Credentials</span>
+                      </div>
+                      <button
+                        type="button"
+                        onClick={() => {
+                          playSound('nav_click');
+                          setCustPasswordModalUser(selectedCustomerDossier);
+                          setCustAssignedTempPass(null);
+                          setCustPassModalMsg(null);
+                          setCustManualPassword('');
+                        }}
+                        className="bg-amber-500 hover:bg-amber-400 text-slate-950 px-3 py-1.5 rounded-lg font-bold text-[11px] uppercase tracking-wider transition-all"
+                      >
+                        Set / Reset Password
+                      </button>
+                    </div>
+                    <p className="text-slate-300 text-[11px] leading-relaxed">
+                      Assisted customer password migration. Generates cryptographically secure temporary passwords or establishes verified credentials directly on behalf of support-verified customers.
+                    </p>
+                  </div>
+
                   {/* Export Dossier Button */}
                   <div className="flex items-center justify-between pt-2">
                     <button
@@ -1907,6 +1982,126 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                       className="bg-[var(--brand-primary-dark)] text-slate-300 border border-white/20 px-4 py-2 rounded-xl font-bold text-xs"
                     >
                       Close Dossier
+                    </button>
+                  </div>
+                </div>
+              </div>
+            )}
+
+            {/* Admin-Assisted Customer Password Setup Modal */}
+            {custPasswordModalUser && (
+              <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+                <div className="relative w-full max-w-lg bg-[var(--brand-primary-deep)] border border-amber-500/50 rounded-2xl shadow-2xl p-6 space-y-5 text-slate-100 font-sans">
+                  <button
+                    onClick={() => {
+                      setCustPasswordModalUser(null);
+                      setCustAssignedTempPass(null);
+                    }}
+                    className="absolute top-4 right-4 text-slate-400 hover:text-white p-1"
+                  >
+                    <X className="w-5 h-5" />
+                  </button>
+
+                  <div className="flex items-center gap-3 border-b border-white/10 pb-3">
+                    <div className="w-10 h-10 rounded-full bg-amber-500/20 border border-amber-500 flex items-center justify-center text-amber-400">
+                      <Key className="w-5 h-5" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-bold uppercase tracking-wider text-amber-400 block">
+                        Admin Credential Setup
+                      </span>
+                      <h3 className="text-base font-bold text-white">
+                        {custPasswordModalUser.name} ({custPasswordModalUser.email})
+                      </h3>
+                    </div>
+                  </div>
+
+                  {custPassModalMsg && (
+                    <div
+                      className={`p-3 rounded-xl text-xs font-medium ${
+                        custPassModalMsg.type === 'success'
+                          ? 'bg-emerald-950/80 border border-emerald-500/50 text-emerald-200'
+                          : 'bg-rose-950/80 border border-rose-500/50 text-rose-200'
+                      }`}
+                    >
+                      {custPassModalMsg.text}
+                    </div>
+                  )}
+
+                  {custAssignedTempPass ? (
+                    <div className="bg-amber-950/60 border border-amber-500/40 p-4 rounded-xl space-y-3">
+                      <div className="text-xs font-bold text-amber-300 uppercase tracking-wider">
+                        Active Temporary / New Password:
+                      </div>
+                      <div className="flex items-center justify-between bg-black/60 px-4 py-3 rounded-lg border border-white/20">
+                        <span className="font-mono text-base font-bold text-[var(--brand-gold)] select-all tracking-wider">
+                          {custAssignedTempPass}
+                        </span>
+                        <button
+                          type="button"
+                          onClick={() => {
+                            navigator.clipboard.writeText(custAssignedTempPass);
+                            showToast('Password copied to clipboard');
+                          }}
+                          className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-3 py-1.5 rounded-lg text-xs font-bold uppercase hover:bg-white transition-all"
+                        >
+                          Copy
+                        </button>
+                      </div>
+                      <p className="text-[11px] text-slate-300 leading-relaxed">
+                        Securely relay this temporary password to the customer via verified support channels (Email/SMS/WhatsApp).
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4 text-xs">
+                      <p className="text-slate-300 leading-relaxed">
+                        Establish credentials for customer support verification. For customer privacy and security, any password set here acts as a temporary key; the customer will be automatically required to establish their own private password upon next login.
+                      </p>
+
+                      <div className="space-y-2">
+                        <label className="block text-[11px] font-bold text-slate-300 uppercase">
+                          Custom Password (Optional - min 6 chars)
+                        </label>
+                        <input
+                          type="text"
+                          value={custManualPassword}
+                          onChange={(e) => setCustManualPassword(e.target.value)}
+                          placeholder="Leave blank to generate random password"
+                          className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-3 rounded-xl text-slate-100 text-sm focus:outline-none focus:border-amber-400"
+                        />
+                      </div>
+
+                      <div className="flex flex-col sm:flex-row items-center gap-3 pt-2">
+                        <button
+                          type="button"
+                          disabled={custPassLoading}
+                          onClick={() => handleAdminSetCustomerPassword(true)}
+                          className="w-full sm:w-1/2 bg-amber-500 hover:bg-amber-400 text-slate-950 py-3 px-4 rounded-xl font-bold uppercase tracking-wider text-xs transition-all disabled:opacity-50"
+                        >
+                          {custPassLoading ? 'Generating...' : 'Generate Random Temp Pass'}
+                        </button>
+                        <button
+                          type="button"
+                          disabled={custPassLoading || !custManualPassword.trim()}
+                          onClick={() => handleAdminSetCustomerPassword(false)}
+                          className="w-full sm:w-1/2 bg-[var(--brand-gold)] hover:bg-white text-[var(--brand-primary-dark)] py-3 px-4 rounded-xl font-bold uppercase tracking-wider text-xs transition-all disabled:opacity-50"
+                        >
+                          {custPassLoading ? 'Setting...' : 'Set Specified Password'}
+                        </button>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="flex justify-end pt-2 border-t border-white/10">
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setCustPasswordModalUser(null);
+                        setCustAssignedTempPass(null);
+                      }}
+                      className="bg-white/10 hover:bg-white/20 text-slate-300 px-4 py-2 rounded-xl font-bold text-xs"
+                    >
+                      Close Window
                     </button>
                   </div>
                 </div>

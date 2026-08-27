@@ -163,6 +163,7 @@ export interface User {
   loginHistory?: LoginActivity[];
   loyaltyPoints?: number;
   referralCode?: string;
+  mustChangePassword?: boolean;
   preferences?: {
     country: string;
     currency: string;

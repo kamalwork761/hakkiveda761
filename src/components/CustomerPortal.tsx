@@ -16,6 +16,7 @@ import {
   Clock,
   ShieldCheck,
   Lock,
+  Key,
   Plus,
   Edit2,
   Trash2,
@@ -49,6 +50,7 @@ export const CustomerPortal: React.FC = () => {
     guestLogin,
     logoutUser,
     updateUserProfile,
+    changeCustomerPassword,
     addSavedAddress,
     updateSavedAddress,
     deleteSavedAddress,
@@ -81,6 +83,14 @@ export const CustomerPortal: React.FC = () => {
   const [rememberMe, setRememberMe] = useState(true);
   const [authError, setAuthError] = useState('');
   const [authSuccess, setAuthSuccess] = useState('');
+  const [isAuthSubmitting, setIsAuthSubmitting] = useState(false);
+
+  // Change Password State (for logged-in customer settings)
+  const [currentPassInput, setCurrentPassInput] = useState('');
+  const [newPassInput, setNewPassInput] = useState('');
+  const [confirmNewPassInput, setConfirmNewPassInput] = useState('');
+  const [changePassStatus, setChangePassStatus] = useState<{ type: 'error' | 'success'; message: string } | null>(null);
+  const [isChangingPass, setIsChangingPass] = useState(false);
 
   // Registration state
   const [regFirstName, setRegFirstName] = useState('');
@@ -260,7 +270,7 @@ export const CustomerPortal: React.FC = () => {
   }, [trackingOrder, returnOrder, isAddressModalOpen, isAuthModalOpen, isWishlistOpen]);
 
   // Auth Handlers
-  const handleSignInSubmit = (e: React.FormEvent) => {
+  const handleSignInSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError('');
     setAuthSuccess('');
@@ -280,17 +290,22 @@ export const CustomerPortal: React.FC = () => {
     }
 
     playSound('cta_click');
-    const res = loginUser(signInEmail.trim(), signInPassword);
-    if (!res.success) {
-      setAuthError(res.message);
-    } else {
-      setAuthSuccess(res.message);
-      setSignInEmail('');
-      setSignInPassword('');
+    setIsAuthSubmitting(true);
+    try {
+      const res = await loginUser(signInEmail.trim(), signInPassword);
+      if (!res.success) {
+        setAuthError(res.message);
+      } else {
+        setAuthSuccess(res.message);
+        setSignInEmail('');
+        setSignInPassword('');
+      }
+    } finally {
+      setIsAuthSubmitting(false);
     }
   };
 
-  const handleRegisterSubmit = (e: React.FormEvent) => {
+  const handleRegisterSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setAuthError('');
     setAuthSuccess('');
@@ -326,28 +341,33 @@ export const CustomerPortal: React.FC = () => {
     }
 
     playSound('cta_click');
+    setIsAuthSubmitting(true);
     const fullName = `${regFirstName.trim()} ${regLastName.trim()}`.trim();
-    const res = registerUser({
-      name: fullName,
-      email: regEmail.trim(),
-      phone: regPhone.trim(),
-      password: regPassword,
-    });
+    try {
+      const res = await registerUser({
+        name: fullName,
+        email: regEmail.trim(),
+        phone: regPhone.trim(),
+        password: regPassword,
+      });
 
-    if (!res.success) {
-      setAuthError(res.message);
-    } else {
-      setAuthSuccess(res.message);
-      setRegFirstName('');
-      setRegLastName('');
-      setRegEmail('');
-      setRegPhone('');
-      setRegPassword('');
-      setRegConfirmPassword('');
+      if (!res.success) {
+        setAuthError(res.message);
+      } else {
+        setAuthSuccess(res.message);
+        setRegFirstName('');
+        setRegLastName('');
+        setRegEmail('');
+        setRegPhone('');
+        setRegPassword('');
+        setRegConfirmPassword('');
+      }
+    } finally {
+      setIsAuthSubmitting(false);
     }
   };
 
-  const handleForgotSubmit = (e: React.FormEvent) => {
+  const handleForgotSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     playSound('form_submit');
     setAuthError('');
@@ -360,7 +380,50 @@ export const CustomerPortal: React.FC = () => {
       setAuthError('Please enter a valid email address.');
       return;
     }
-    setAuthSuccess(`Password reset request received for ${signInEmail.trim()}. Our dedicated customer care team has been notified and will assist you.`);
+    try {
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: signInEmail.trim() }),
+      });
+      const data = await res.json();
+      setAuthSuccess(data.message || `Password assistance email sent to ${signInEmail.trim()}.`);
+    } catch {
+      setAuthSuccess(`Password reset request received for ${signInEmail.trim()}. Our dedicated customer care team has been notified and will assist you.`);
+    }
+  };
+
+  const handleChangePasswordSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setChangePassStatus(null);
+
+    if (!currentPassInput) {
+      setChangePassStatus({ type: 'error', message: 'Please enter your current password.' });
+      return;
+    }
+    if (!newPassInput || newPassInput.length < 6) {
+      setChangePassStatus({ type: 'error', message: 'New password must be at least 6 characters.' });
+      return;
+    }
+    if (newPassInput !== confirmNewPassInput) {
+      setChangePassStatus({ type: 'error', message: 'New passwords do not match.' });
+      return;
+    }
+
+    setIsChangingPass(true);
+    try {
+      const res = await changeCustomerPassword(currentPassInput, newPassInput);
+      if (res.success) {
+        setChangePassStatus({ type: 'success', message: res.message || 'Password updated successfully!' });
+        setCurrentPassInput('');
+        setNewPassInput('');
+        setConfirmNewPassInput('');
+      } else {
+        setChangePassStatus({ type: 'error', message: res.message || 'Failed to update password.' });
+      }
+    } finally {
+      setIsChangingPass(false);
+    }
   };
 
   const handleQuickLogin = (email: string) => {
@@ -579,9 +642,29 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
 
               {/* Feedback Messages */}
               {authError && (
-                <div className="bg-rose-50 border border-rose-200 p-3.5 rounded-xl flex items-start gap-2.5 text-xs text-rose-800 mb-5 animate-in fade-in">
-                  <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
-                  <span className="font-medium leading-relaxed">{authError}</span>
+                <div className="bg-rose-50 border border-rose-200 p-3.5 rounded-xl text-xs text-rose-800 mb-5 animate-in fade-in space-y-2">
+                  <div className="flex items-start gap-2.5">
+                    <AlertCircle className="w-4 h-4 text-rose-600 shrink-0 mt-0.5" />
+                    <span className="font-medium leading-relaxed">{authError}</span>
+                  </div>
+                  {authError.toLowerCase().includes('support') && (
+                    <div className="pt-2 border-t border-rose-200/60 flex items-center justify-between text-[11px]">
+                      <a
+                        href="mailto:support@hakkiveda.com?subject=Account%20Password%20Setup%20Assistance"
+                        className="font-bold text-[#0F2E22] hover:text-[#8E7026] underline flex items-center gap-1"
+                      >
+                        Email Official Support
+                      </a>
+                      <a
+                        href="https://wa.me/917619536831?text=Hi%20HAKKIVEDA%20Support,%20I%20need%20assistance%20setting%20up%20my%20account%20password."
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="font-bold text-emerald-700 hover:text-emerald-900 underline"
+                      >
+                        WhatsApp Support
+                      </a>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -1052,6 +1135,95 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                       </button>
                     </div>
                   </div>
+
+                  {currentUser.mustChangePassword ? (
+                    /* MANDATORY SECURITY BARRIER WHEN MUST_CHANGE_PASSWORD IS SET */
+                    <div className="bg-[var(--brand-primary-dark)] border-2 border-amber-500/60 rounded-2xl p-6 sm:p-8 shadow-2xl space-y-6 animate-in fade-in">
+                      <div className="flex items-start gap-4">
+                        <div className="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500 flex items-center justify-center text-amber-400 shrink-0">
+                          <Key className="w-6 h-6" />
+                        </div>
+                        <div>
+                          <span className="text-[10px] font-bold uppercase tracking-[0.2em] text-amber-400 block">
+                            Action Required • Security Verification
+                          </span>
+                          <h3 className="text-xl font-bold font-serif-luxury text-slate-100">
+                            Establish Your Personal Password
+                          </h3>
+                          <p className="text-xs text-slate-300 mt-1 leading-relaxed">
+                            Your account was recently accessed with an administrator-issued temporary password. For your security and privacy, you must establish a new, confidential password before proceeding to your personal dashboard and orders.
+                          </p>
+                        </div>
+                      </div>
+
+                      {changePassStatus && (
+                        <div
+                          className={`p-3.5 rounded-xl text-xs font-semibold flex items-center gap-2 ${
+                            changePassStatus.type === 'success'
+                              ? 'bg-emerald-950 border border-emerald-500 text-emerald-200'
+                              : 'bg-rose-950 border border-rose-500 text-rose-200'
+                          }`}
+                        >
+                          <AlertCircle className="w-4 h-4 shrink-0" />
+                          <span>{changePassStatus.message}</span>
+                        </div>
+                      )}
+
+                      <form onSubmit={handleChangePasswordSubmit} className="space-y-4 max-w-lg">
+                        <div>
+                          <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                            Temporary / Current Password *
+                          </label>
+                          <input
+                            type="password"
+                            required
+                            value={currentPassInput}
+                            onChange={(e) => setCurrentPassInput(e.target.value)}
+                            placeholder="Enter the temporary password provided"
+                            className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-white text-sm focus:outline-none focus:border-amber-400 transition-colors"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                              New Secret Password *
+                            </label>
+                            <input
+                              type="password"
+                              required
+                              value={newPassInput}
+                              onChange={(e) => setNewPassInput(e.target.value)}
+                              placeholder="At least 6 characters"
+                              className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-white text-sm focus:outline-none focus:border-amber-400 transition-colors"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-300 uppercase tracking-wider mb-1.5">
+                              Confirm New Password *
+                            </label>
+                            <input
+                              type="password"
+                              required
+                              value={confirmNewPassInput}
+                              onChange={(e) => setConfirmNewPassInput(e.target.value)}
+                              placeholder="Re-enter new password"
+                              className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-3 rounded-xl text-white text-sm focus:outline-none focus:border-amber-400 transition-colors"
+                            />
+                          </div>
+                        </div>
+
+                        <button
+                          type="submit"
+                          disabled={isChangingPass}
+                          className="w-full bg-amber-500 hover:bg-amber-400 text-slate-950 font-bold uppercase tracking-wider py-3.5 px-6 rounded-xl text-xs shadow-lg transition-all active:scale-[0.99] disabled:opacity-50"
+                        >
+                          {isChangingPass ? 'Establishing Password...' : 'Save Password & Unlock Account'}
+                        </button>
+                      </form>
+                    </div>
+                  ) : (
+                    <>
 
                   {/* Dashboard Sidebar / Navigation Tabs Bar */}
                   <div className="relative w-full border-b border-white/10 pb-2">
@@ -1821,7 +1993,79 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                     <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-6 space-y-6 animate-in fade-in text-xs">
                       <div>
                         <h4 className="text-lg font-bold font-serif-luxury text-slate-100">Account Security & Privacy</h4>
-                        <p className="text-slate-300">Manage credentials and export your account data.</p>
+                        <p className="text-slate-300">Manage your credentials, update your password, and export your account data.</p>
+                      </div>
+
+                      {/* Change Password Card */}
+                      <div className="bg-[var(--brand-primary-deep)] p-5 rounded-xl border border-white/10 space-y-4">
+                        <div className="flex items-center gap-2">
+                          <Lock className="w-4 h-4 text-[var(--brand-gold)]" />
+                          <h5 className="font-bold text-white text-sm">Change Account Password</h5>
+                        </div>
+
+                        {changePassStatus && (
+                          <div
+                            className={`p-3 rounded-lg text-xs flex items-center gap-2 ${
+                              changePassStatus.type === 'success'
+                                ? 'bg-emerald-950/60 border border-emerald-500/40 text-emerald-300'
+                                : 'bg-rose-950/60 border border-rose-500/40 text-rose-300'
+                            }`}
+                          >
+                            {changePassStatus.type === 'success' ? (
+                              <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+                            ) : (
+                              <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />
+                            )}
+                            <span>{changePassStatus.message}</span>
+                          </div>
+                        )}
+
+                        <form onSubmit={handleChangePasswordSubmit} className="space-y-3 max-w-md">
+                          <div>
+                            <label className="block text-[11px] font-bold text-slate-300 mb-1">CURRENT PASSWORD</label>
+                            <input
+                              type="password"
+                              required
+                              value={currentPassInput}
+                              onChange={(e) => setCurrentPassInput(e.target.value)}
+                              placeholder="Enter your current password"
+                              className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2.5 rounded-xl text-white text-xs placeholder-slate-500 focus:outline-none focus:border-[var(--brand-gold)]"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-300 mb-1">NEW PASSWORD</label>
+                              <input
+                                type="password"
+                                required
+                                value={newPassInput}
+                                onChange={(e) => setNewPassInput(e.target.value)}
+                                placeholder="At least 6 chars"
+                                className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2.5 rounded-xl text-white text-xs placeholder-slate-500 focus:outline-none focus:border-[var(--brand-gold)]"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[11px] font-bold text-slate-300 mb-1">CONFIRM NEW PASSWORD</label>
+                              <input
+                                type="password"
+                                required
+                                value={confirmNewPassInput}
+                                onChange={(e) => setConfirmNewPassInput(e.target.value)}
+                                placeholder="Re-enter new password"
+                                className="w-full bg-[var(--brand-primary-dark)] border border-white/20 p-2.5 rounded-xl text-white text-xs placeholder-slate-500 focus:outline-none focus:border-[var(--brand-gold)]"
+                              />
+                            </div>
+                          </div>
+
+                          <button
+                            type="submit"
+                            disabled={isChangingPass}
+                            className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-4 py-2.5 rounded-xl font-bold uppercase text-[10px] tracking-wider hover:bg-white transition-all disabled:opacity-50"
+                          >
+                            {isChangingPass ? 'Updating...' : 'Update Password'}
+                          </button>
+                        </form>
                       </div>
 
                       {/* Download Data Export */}
@@ -1857,6 +2101,8 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                         </button>
                       </div>
                     </div>
+                  )}
+                  </>
                   )}
                 </div>
               </div>

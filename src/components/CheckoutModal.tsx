@@ -682,6 +682,7 @@ export const CheckoutModal: React.FC = () => {
         const res = await fetch('/api/payments/cod/create-order', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
+          credentials: 'include',
           body: JSON.stringify({
             items: cart.map((i) => ({ productId: i.product.id, quantity: i.quantity })),
             customer: customerPayload,
@@ -742,6 +743,7 @@ export const CheckoutModal: React.FC = () => {
       const createRes = await fetch('/api/payments/razorpay/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({
           items: cart.map((i) => ({ productId: i.product.id, quantity: i.quantity })),
           customer: customerPayload,
@@ -784,6 +786,7 @@ export const CheckoutModal: React.FC = () => {
             const verifyRes = await fetch('/api/payments/razorpay/verify', {
               method: 'POST',
               headers: { 'Content-Type': 'application/json' },
+              credentials: 'include',
               body: JSON.stringify({
                 razorpay_payment_id: response.razorpay_payment_id,
                 razorpay_order_id: response.razorpay_order_id,

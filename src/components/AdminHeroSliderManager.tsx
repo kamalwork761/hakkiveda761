@@ -389,6 +389,7 @@ export const AdminHeroSliderManager: React.FC<AdminHeroSliderManagerProps> = ({ 
 
       const res = await fetch('/api/upload', {
         method: 'POST',
+        credentials: 'include',
         body: formData,
       });
 

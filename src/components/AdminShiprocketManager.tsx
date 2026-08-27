@@ -33,7 +33,7 @@ export const AdminShiprocketManager: React.FC = () => {
   const testConnection = async () => {
     setIsTesting(true);
     try {
-      const res = await fetch('/api/shiprocket/status');
+      const res = await fetch('/api/shiprocket/status', { credentials: 'include' });
       const data = await res.json();
       setConnectionStatus({
         connected: data.connected || false,

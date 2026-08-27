@@ -263,14 +263,47 @@ export async function getAllStoreData(): Promise<Record<string, any>> {
   return result;
 }
 
+export const PUBLIC_STORE_ALLOWLIST: readonly string[] = [
+  'products',
+  'categories',
+  'hero_slides',
+  'hero_slider_settings',
+  'before_after',
+  'reviews',
+  'blogs',
+  'coupons',
+  'testimonial_videos',
+  'quiz_questions',
+  'media_items',
+  'site_settings',
+  'brand_identity',
+  'header_layout_settings',
+  'footer_config',
+  'nav_links',
+  'currencies',
+  'current_currency',
+  'markets',
+  'countries',
+  'b2b_section_config',
+  'video_popup_config',
+  'shoppable_reels',
+  'category_pages',
+  'homepage_quiz_banner_config',
+  'mobile_nav_config',
+  'homepage_editorial_config',
+  'max_bestsellers_count',
+  'cod_rules',
+  'market_gateways',
+];
+
 export async function getPublicStoreData(): Promise<Record<string, any>> {
   const store = loadMemoryFromDisk();
-  const privateKeys = new Set(['seeded', 'b2b_leads', 'customer_accounts', 'payment_logs']);
   const result: Record<string, any> = {};
-  for (const [k, v] of Object.entries(store)) {
-    if (!privateKeys.has(k)) {
-      result[k] = v;
+  for (const key of PUBLIC_STORE_ALLOWLIST) {
+    if (key in store && store[key] !== undefined) {
+      result[key] = store[key];
     }
   }
   return result;
 }
+

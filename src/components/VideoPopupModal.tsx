@@ -126,8 +126,14 @@ export const VideoPopupModal: React.FC<VideoPopupModalProps> = ({
       videoRef.current.pause();
       setIsPlaying(false);
     } else {
-      videoRef.current.play();
-      setIsPlaying(true);
+      const playPromise = videoRef.current.play();
+      if (playPromise !== undefined) {
+        playPromise
+          .then(() => setIsPlaying(true))
+          .catch(() => setIsPlaying(false));
+      } else {
+        setIsPlaying(true);
+      }
     }
   };
 

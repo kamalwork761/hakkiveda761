@@ -160,6 +160,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
       const res = await fetch('/api/shiprocket/create-order', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ orderId: order.id, orderData: order }),
       });
       const data = await res.json();
@@ -197,6 +198,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
       const res = await fetch('/api/shiprocket/generate-awb', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ orderId: order.id, shipmentId: srShipmentId }),
       });
       const data = await res.json();
@@ -232,6 +234,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
       const res = await fetch('/api/shiprocket/schedule-pickup', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ orderId: order.id, shipmentId: srShipmentId }),
       });
       const data = await res.json();
@@ -264,6 +267,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
       const res = await fetch('/api/shiprocket/generate-label', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ orderId: order.id, shipmentId: srShipmentId }),
       });
       const data = await res.json();
@@ -291,6 +295,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
       const res = await fetch('/api/shiprocket/generate-invoice', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ orderId: order.id, shiprocketOrderId: srShiprocketOrderId }),
       });
       const data = await res.json();

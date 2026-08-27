@@ -37,11 +37,9 @@ window.onerror = function (message, source, lineno, colno, error) {
 };
 
 window.onunhandledrejection = function (event) {
-  console.error('[HAKKIVEDA UNHANDLED REJECTION]', {
-    reason: event.reason,
-    message: event.reason?.message,
-    stack: event.reason?.stack,
-  });
+  if (event && typeof event.preventDefault === 'function') {
+    event.preventDefault();
+  }
 };
 
 const container = document.getElementById('root');

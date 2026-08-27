@@ -6,7 +6,7 @@ import multer from 'multer';
 import compression from 'compression';
 import { GoogleGenAI } from '@google/genai';
 import { createServer as createViteServer } from 'vite';
-import { getDb, getStoreValue, setStoreValue, getAllStoreData, getPublicStoreData } from './src/server/db';
+import { getDb, getStoreValue, setStoreValue, getAllStoreData, getPublicStoreData, PUBLIC_STORE_ALLOWLIST } from './src/server/db';
 import {
   isShiprocketConfigured,
   checkServiceability,
@@ -21,6 +21,8 @@ import {
 import { INITIAL_HERO_SLIDES, INITIAL_PRODUCTS, INITIAL_CURRENCIES } from './src/data/initialData';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
+import cookieParser from 'cookie-parser';
+import bcrypt from 'bcryptjs';
 
 dotenv.config();
 
@@ -89,15 +91,212 @@ async function startServer() {
   // Security Headers Middleware
   app.use((_req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-Frame-Options', 'SAMEORIGIN');
     res.setHeader('X-XSS-Protection', '1; mode=block');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
-    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
     next();
   });
 
+  app.use(cookieParser());
   app.use(express.json({ limit: '100mb' }));
   app.use(express.urlencoded({ limit: '100mb', extended: true }));
+
+  // ==========================================
+  // ADMIN AUTHENTICATION & SECURITY MIDDLEWARE
+  // ==========================================
+  function resolveAdminSessionSecret(): string {
+    const isProduction = process.env.NODE_ENV === 'production';
+    const providedSecret = process.env.ADMIN_SESSION_SECRET?.trim();
+
+    if (isProduction) {
+      if (!providedSecret) {
+        throw new Error(
+          '[Security Configuration Error] ADMIN_SESSION_SECRET environment variable must be configured in production.'
+        );
+      }
+      if (providedSecret.length < 32) {
+        throw new Error(
+          '[Security Configuration Error] ADMIN_SESSION_SECRET in production must be at least 32 characters long (prefer a 64-character hex string).'
+        );
+      }
+      // Check for trivially weak repeated strings
+      const isWeakRepeated = /^(.)\1+$/.test(providedSecret);
+      const isTriviallySimple = [
+        '12345678901234567890123456789012',
+        'abcdefghijklmnopqrstuvwxyz123456',
+        '00000000000000000000000000000000',
+      ].includes(providedSecret.toLowerCase());
+      if (isWeakRepeated || isTriviallySimple) {
+        throw new Error(
+          '[Security Configuration Error] ADMIN_SESSION_SECRET is too weak. Please provide a high-entropy secret.'
+        );
+      }
+      return providedSecret;
+    }
+
+    // Development mode
+    if (providedSecret && providedSecret.length >= 16) {
+      return providedSecret;
+    }
+
+    console.warn('[Security] ADMIN_SESSION_SECRET not set. Using temporary development admin session secret. Sessions will reset after server restart.');
+    return crypto.randomBytes(32).toString('hex');
+  }
+
+  const ADMIN_SESSION_SECRET = resolveAdminSessionSecret();
+  const ADMIN_TOKEN_COOKIE = 'hakkiveda_admin_token';
+  const ADMIN_TOKEN_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+  interface AdminTokenPayload {
+    email: string;
+    role: 'admin';
+    iat: number;
+    exp: number;
+  }
+
+  function createAdminToken(email: string): string {
+    const now = Date.now();
+    const payload: AdminTokenPayload = {
+      email: email.toLowerCase(),
+      role: 'admin',
+      iat: now,
+      exp: now + ADMIN_TOKEN_EXPIRY_MS,
+    };
+    const payloadB64 = Buffer.from(JSON.stringify(payload)).toString('base64url');
+    const signature = crypto.createHmac('sha256', ADMIN_SESSION_SECRET).update(payloadB64).digest('base64url');
+    return `${payloadB64}.${signature}`;
+  }
+
+  function verifyAdminToken(token: string): AdminTokenPayload | null {
+    try {
+      if (!token || typeof token !== 'string') return null;
+      const parts = token.split('.');
+      if (parts.length !== 2) return null;
+      const [payloadB64, signature] = parts;
+      const expectedSignature = crypto.createHmac('sha256', ADMIN_SESSION_SECRET).update(payloadB64).digest('base64url');
+
+      if (
+        signature.length !== expectedSignature.length ||
+        !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))
+      ) {
+        return null;
+      }
+
+      const payload: AdminTokenPayload = JSON.parse(Buffer.from(payloadB64, 'base64url').toString('utf8'));
+      if (!payload || payload.role !== 'admin' || !payload.exp || Date.now() > payload.exp) {
+        return null;
+      }
+      return payload;
+    } catch {
+      return null;
+    }
+  }
+
+  function requireAdmin(req: express.Request, res: express.Response, next: express.NextFunction) {
+    let token = req.cookies?.[ADMIN_TOKEN_COOKIE];
+    if (!token && req.headers.authorization) {
+      const authHeader = req.headers.authorization;
+      if (authHeader.startsWith('Bearer ')) {
+        token = authHeader.slice(7).trim();
+      }
+    }
+    if (!token && typeof req.headers['x-admin-token'] === 'string') {
+      token = req.headers['x-admin-token'];
+    }
+
+    if (!token) {
+      return res.status(401).json({ success: false, error: 'Unauthorized: Admin session required.' });
+    }
+
+    const payload = verifyAdminToken(token);
+    if (!payload) {
+      return res.status(401).json({ success: false, error: 'Unauthorized: Invalid or expired admin session.' });
+    }
+
+    (req as any).admin = payload;
+    next();
+  }
+
+  function requireAdminForPrivateKey(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const key = req.params.key;
+    if (PUBLIC_STORE_ALLOWLIST.includes(key)) {
+      return next();
+    }
+    return requireAdmin(req, res, next);
+  }
+
+  // Failed login attempt tracking for IP-based rate limiting
+  interface LoginAttemptRecord {
+    failedAttempts: number;
+    blockedUntil: number;
+  }
+
+  const failedLoginAttempts = new Map<string, LoginAttemptRecord>();
+
+  function checkAdminLoginRateLimit(ip: string): { allowed: boolean; remainingSeconds?: number } {
+    const now = Date.now();
+    const record = failedLoginAttempts.get(ip);
+    if (!record) return { allowed: true };
+
+    if (record.blockedUntil > now) {
+      const remainingSeconds = Math.ceil((record.blockedUntil - now) / 1000);
+      return { allowed: false, remainingSeconds };
+    }
+
+    if (record.blockedUntil > 0 && record.blockedUntil <= now) {
+      failedLoginAttempts.delete(ip);
+    }
+
+    return { allowed: true };
+  }
+
+  function recordFailedAdminLogin(ip: string) {
+    const now = Date.now();
+    const record = failedLoginAttempts.get(ip) || { failedAttempts: 0, blockedUntil: 0 };
+    record.failedAttempts += 1;
+
+    if (record.failedAttempts >= 5) {
+      record.blockedUntil = now + 15 * 60 * 1000; // 15-minute lockout
+    }
+    failedLoginAttempts.set(ip, record);
+  }
+
+  function recordSuccessfulAdminLogin(ip: string) {
+    failedLoginAttempts.delete(ip);
+  }
+
+  // Secure admin account credentials helper (Preserves existing owner account)
+  async function getAdminAccountFromDb(): Promise<{ email: string; passwordBcrypt: string }> {
+    const existing = await getStoreValue<any>('admin_account');
+    const defaultAdminEmail = (process.env.ADMIN_EMAIL || 'hakkiveda@gmail.com').toLowerCase();
+
+    // If already set up in DB with bcrypt hash
+    if (existing && existing.passwordBcrypt && typeof existing.passwordBcrypt === 'string') {
+      return {
+        email: (existing.email || defaultAdminEmail).toLowerCase(),
+        passwordBcrypt: existing.passwordBcrypt,
+      };
+    }
+
+    // If ADMIN_PASSWORD_HASH env var is provided
+    if (process.env.ADMIN_PASSWORD_HASH) {
+      const account = {
+        email: defaultAdminEmail,
+        passwordBcrypt: process.env.ADMIN_PASSWORD_HASH,
+      };
+      await setStoreValue('admin_account', account);
+      return account;
+    }
+
+    // Initial seed with bcrypt hash of default initial master password
+    const initialPlainPassword = process.env.ADMIN_PASSWORD || 'Kamal@2026';
+    const bcryptHash = await bcrypt.hash(initialPlainPassword, 10);
+    const account = {
+      email: defaultAdminEmail,
+      passwordBcrypt: bcryptHash,
+    };
+    await setStoreValue('admin_account', account);
+    return account;
+  }
 
   // Static serving for persistent uploaded media with caching
   app.use('/uploads', express.static(uploadDir, { maxAge: '30d' }));
@@ -202,6 +401,124 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
     res.json({ status: 'ok' });
   });
 
+  // ==========================================
+  // ADMIN AUTHENTICATION API ROUTES
+  // ==========================================
+
+  // Admin Login Endpoint
+  app.post('/api/admin/login', async (req, res) => {
+    try {
+      const clientIp =
+        (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() ||
+        req.ip ||
+        'unknown-ip';
+
+      const rateCheck = checkAdminLoginRateLimit(clientIp);
+      if (!rateCheck.allowed) {
+        return res.status(429).json({
+          success: false,
+          error: `Too many failed login attempts. Please try again in ${Math.ceil(
+            (rateCheck.remainingSeconds || 900) / 60
+          )} minutes.`,
+        });
+      }
+
+      const { email, password } = req.body;
+      if (!email || !password || typeof email !== 'string' || typeof password !== 'string') {
+        return res.status(400).json({ success: false, error: 'Invalid email or password.' });
+      }
+
+      const adminAccount = await getAdminAccountFromDb();
+      const isEmailMatch = email.trim().toLowerCase() === adminAccount.email.toLowerCase();
+
+      let isPasswordMatch = false;
+      if (isEmailMatch) {
+        isPasswordMatch = await bcrypt.compare(password, adminAccount.passwordBcrypt);
+      }
+
+      if (!isEmailMatch || !isPasswordMatch) {
+        recordFailedAdminLogin(clientIp);
+        return res.status(401).json({ success: false, error: 'Invalid email or password.' });
+      }
+
+      recordSuccessfulAdminLogin(clientIp);
+      const token = createAdminToken(adminAccount.email);
+
+      res.cookie(ADMIN_TOKEN_COOKIE, token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: ADMIN_TOKEN_EXPIRY_MS,
+        path: '/',
+      });
+
+      res.json({
+        success: true,
+        message: 'Admin authentication successful.',
+        admin: { email: adminAccount.email, role: 'admin' },
+        token,
+      });
+    } catch (err: any) {
+      console.error('[Admin Login Error]:', err.message);
+      res.status(500).json({ success: false, error: 'Failed to process admin login.' });
+    }
+  });
+
+  // Admin Me / Session Status Check
+  app.get('/api/admin/me', requireAdmin, (req, res) => {
+    const admin = (req as any).admin;
+    res.json({
+      success: true,
+      admin: {
+        email: admin.email,
+        role: 'admin',
+      },
+    });
+  });
+
+  // Admin Logout Endpoint
+  app.post('/api/admin/logout', (req, res) => {
+    res.clearCookie(ADMIN_TOKEN_COOKIE, {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'lax',
+      path: '/',
+    });
+    res.json({ success: true, message: 'Logged out successfully.' });
+  });
+
+  // Admin Change Password Endpoint
+  app.post('/api/admin/change-password', requireAdmin, async (req, res) => {
+    try {
+      const { oldPassword, newPassword } = req.body;
+      if (!oldPassword || !newPassword || typeof oldPassword !== 'string' || typeof newPassword !== 'string') {
+        return res.status(400).json({ success: false, error: 'Both current and new passwords are required.' });
+      }
+
+      if (newPassword.length < 6) {
+        return res.status(400).json({ success: false, error: 'New password must be at least 6 characters long.' });
+      }
+
+      const adminAccount = await getAdminAccountFromDb();
+      const isCurrentMatch = await bcrypt.compare(oldPassword, adminAccount.passwordBcrypt);
+      if (!isCurrentMatch) {
+        return res.status(401).json({ success: false, error: 'Current password does not match.' });
+      }
+
+      const newBcryptHash = await bcrypt.hash(newPassword, 10);
+      const updatedAccount = {
+        email: adminAccount.email,
+        passwordBcrypt: newBcryptHash,
+      };
+      await setStoreValue('admin_account', updatedAccount);
+
+      res.json({ success: true, message: 'Master password updated successfully.' });
+    } catch (err: any) {
+      console.error('[Admin Change Password Error]:', err.message);
+      res.status(500).json({ success: false, error: 'Failed to update master password.' });
+    }
+  });
+
   // Public Store Persistence API Route (Fast, cached, no admin data)
   app.get('/api/store/public', async (_req, res) => {
     try {
@@ -213,8 +530,8 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
     }
   });
 
-  // Full Store Persistence API Routes (Admin data included)
-  app.get('/api/store', async (_req, res) => {
+  // Full Store Persistence API Routes (Admin data included - Protected)
+  app.get('/api/store', requireAdmin, async (_req, res) => {
     try {
       const data = await getAllStoreData();
       res.json({ success: true, data });
@@ -223,7 +540,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
     }
   });
 
-  app.get('/api/store/:key', async (req, res) => {
+  app.get('/api/store/:key', requireAdminForPrivateKey, async (req, res) => {
     try {
       const key = req.params.key;
       const data = await getStoreValue(key);
@@ -250,10 +567,10 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
     }
   };
 
-  app.put('/api/store/:key', handleStoreKeySave);
-  app.post('/api/store/:key', handleStoreKeySave);
+  app.put('/api/store/:key', requireAdmin, handleStoreKeySave);
+  app.post('/api/store/:key', requireAdmin, handleStoreKeySave);
 
-  app.post('/api/store-bulk', async (req, res) => {
+  app.post('/api/store-bulk', requireAdmin, async (req, res) => {
     try {
       const payload = req.body.value !== undefined ? req.body.value : (req.body.data !== undefined ? req.body.data : req.body);
       if (typeof payload === 'object' && payload !== null) {
@@ -284,7 +601,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
   // ==========================================
 
   // 1. Status Check
-  app.get('/api/shiprocket/status', (_req, res) => {
+  app.get('/api/shiprocket/status', requireAdmin, (_req, res) => {
     res.json({
       success: true,
       configured: isShiprocketConfigured(),
@@ -651,7 +968,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
   });
 
   // 4. Create Shipment / Order on Shiprocket
-  app.post('/api/shiprocket/create-order', async (req, res) => {
+  app.post('/api/shiprocket/create-order', requireAdmin, async (req, res) => {
     try {
       const { orderId, orderData } = req.body;
       let targetOrder = orderData;
@@ -689,7 +1006,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
   });
 
   // 5. Generate AWB
-  app.post('/api/shiprocket/generate-awb', async (req, res) => {
+  app.post('/api/shiprocket/generate-awb', requireAdmin, async (req, res) => {
     try {
       const { orderId, shipmentId, courierId } = req.body;
       let targetShipmentId = shipmentId;
@@ -726,7 +1043,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
   });
 
   // 6. Schedule Pickup
-  app.post('/api/shiprocket/schedule-pickup', async (req, res) => {
+  app.post('/api/shiprocket/schedule-pickup', requireAdmin, async (req, res) => {
     try {
       const { orderId, shipmentId } = req.body;
       let targetShipmentId = shipmentId;
@@ -789,7 +1106,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
   });
 
   // 8. Download Shipping Label
-  app.post('/api/shiprocket/generate-label', async (req, res) => {
+  app.post('/api/shiprocket/generate-label', requireAdmin, async (req, res) => {
     try {
       const { orderId, shipmentId } = req.body;
       let targetShipmentId = shipmentId;
@@ -819,7 +1136,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
   });
 
   // 9. Download Invoice
-  app.post('/api/shiprocket/generate-invoice', async (req, res) => {
+  app.post('/api/shiprocket/generate-invoice', requireAdmin, async (req, res) => {
     try {
       const { orderId, shiprocketOrderId } = req.body;
       let targetShiprocketOrderId = shiprocketOrderId;
@@ -853,7 +1170,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
     const products = (await getStoreValue('products')) || [];
     res.json({ success: true, data: products, value: products });
   });
-  app.post('/api/products', async (req, res) => {
+  app.post('/api/products', requireAdmin, async (req, res) => {
     const products = req.body.value !== undefined ? req.body.value : (req.body.data !== undefined ? req.body.data : req.body);
     await setStoreValue('products', products);
     res.json({ success: true, message: 'Products saved successfully.', data: products, value: products });
@@ -863,7 +1180,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
     const categories = (await getStoreValue('categories')) || [];
     res.json({ success: true, data: categories, value: categories });
   });
-  app.post('/api/categories', async (req, res) => {
+  app.post('/api/categories', requireAdmin, async (req, res) => {
     const categories = req.body.value !== undefined ? req.body.value : (req.body.data !== undefined ? req.body.data : req.body);
     await setStoreValue('categories', categories);
     res.json({ success: true, message: 'Categories saved successfully.', data: categories, value: categories });
@@ -887,14 +1204,14 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
       res.status(500).json({ success: false, error: err.message });
     }
   };
-  app.put('/api/hero-slides', handleHeroSlidesSave);
-  app.post('/api/hero-slides', handleHeroSlidesSave);
+  app.put('/api/hero-slides', requireAdmin, handleHeroSlidesSave);
+  app.post('/api/hero-slides', requireAdmin, handleHeroSlidesSave);
 
   app.get('/api/announcements', async (_req, res) => {
     const settings = (await getStoreValue('site_settings')) || {};
     res.json({ success: true, data: settings.announcementText || '' });
   });
-  app.post('/api/announcements', async (req, res) => {
+  app.post('/api/announcements', requireAdmin, async (req, res) => {
     const text = req.body.announcementText || req.body.data;
     const settings = (await getStoreValue('site_settings')) || {};
     settings.announcementText = text;
@@ -906,7 +1223,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
     const navLinks = (await getStoreValue('nav_links')) || [];
     res.json({ success: true, data: navLinks });
   });
-  app.post('/api/navigation-menu', async (req, res) => {
+  app.post('/api/navigation-menu', requireAdmin, async (req, res) => {
     const navLinks = req.body.data !== undefined ? req.body.data : req.body;
     await setStoreValue('nav_links', navLinks);
     res.json({ success: true, message: 'Navigation menu saved successfully.' });
@@ -916,7 +1233,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
     const reviews = (await getStoreValue('reviews')) || [];
     res.json({ success: true, data: reviews });
   });
-  app.post('/api/reviews', async (req, res) => {
+  app.post('/api/reviews', requireAdmin, async (req, res) => {
     const reviews = req.body.data !== undefined ? req.body.data : req.body;
     await setStoreValue('reviews', reviews);
     res.json({ success: true, message: 'Reviews saved successfully.' });
@@ -926,7 +1243,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
     const blogs = (await getStoreValue('blogs')) || [];
     res.json({ success: true, data: blogs });
   });
-  app.post('/api/blogs', async (req, res) => {
+  app.post('/api/blogs', requireAdmin, async (req, res) => {
     const blogs = req.body.data !== undefined ? req.body.data : req.body;
     await setStoreValue('blogs', blogs);
     res.json({ success: true, message: 'Blogs saved successfully.' });
@@ -936,7 +1253,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
     const vids = (await getStoreValue('testimonial_videos')) || [];
     res.json({ success: true, data: vids });
   });
-  app.post('/api/video-testimonials', async (req, res) => {
+  app.post('/api/video-testimonials', requireAdmin, async (req, res) => {
     const vids = req.body.data !== undefined ? req.body.data : req.body;
     await setStoreValue('testimonial_videos', vids);
     res.json({ success: true, message: 'Video testimonials saved successfully.' });
@@ -946,7 +1263,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
     const media = (await getStoreValue('media_items')) || [];
     res.json({ success: true, data: media });
   });
-  app.post('/api/media-gallery', async (req, res) => {
+  app.post('/api/media-gallery', requireAdmin, async (req, res) => {
     const media = req.body.data !== undefined ? req.body.data : req.body;
     await setStoreValue('media_items', media);
     res.json({ success: true, message: 'Media gallery saved successfully.' });
@@ -956,7 +1273,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
     const quiz = (await getStoreValue('quiz_questions')) || [];
     res.json({ success: true, data: quiz });
   });
-  app.post('/api/quiz-questions', async (req, res) => {
+  app.post('/api/quiz-questions', requireAdmin, async (req, res) => {
     const quiz = req.body.data !== undefined ? req.body.data : req.body;
     await setStoreValue('quiz_questions', quiz);
     res.json({ success: true, message: 'Quiz questions saved successfully.' });
@@ -980,7 +1297,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
     const headerLayoutSettings = (await getStoreValue('header_layout_settings')) || {};
     res.json({ success: true, data: { siteSettings, brandIdentity, headerLayoutSettings } });
   });
-  app.post('/api/settings', async (req, res) => {
+  app.post('/api/settings', requireAdmin, async (req, res) => {
     const { siteSettings, brandIdentity, headerLayoutSettings } = req.body;
     if (siteSettings) await setStoreValue('site_settings', siteSettings);
     if (brandIdentity) await setStoreValue('brand_identity', brandIdentity);
@@ -989,7 +1306,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
   });
 
   // Production-Ready Media Upload Endpoint supporting high-res images & hero videos
-  app.post('/api/upload', (req, res) => {
+  app.post('/api/upload', requireAdmin, (req, res) => {
     upload.single('file')(req, res, (err: any) => {
       if (err instanceof multer.MulterError) {
         if (err.code === 'LIMIT_FILE_SIZE') {
@@ -1473,14 +1790,21 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
         return res.status(400).json({ success: false, error: 'Missing required Razorpay payment parameters.' });
       }
 
-      const keySecret = process.env.RAZORPAY_KEY_SECRET || '';
+      const keySecret = process.env.RAZORPAY_KEY_SECRET;
+      if (!keySecret) {
+        console.error('[Razorpay Verify Error] Server configuration error: RAZORPAY_KEY_SECRET is not configured. Failing closed.');
+        return res.status(500).json({
+          success: false,
+          error: 'Payment verification cannot be processed due to missing server configuration.',
+        });
+      }
 
       // HMAC SHA256 Verification
       const hmac = crypto.createHmac('sha256', keySecret);
       hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
       const generatedSignature = hmac.digest('hex');
 
-      if (keySecret && generatedSignature !== razorpay_signature) {
+      if (generatedSignature !== razorpay_signature) {
         console.error('[Razorpay Verify] Invalid signature mismatch!');
         return res.status(400).json({
           success: false,

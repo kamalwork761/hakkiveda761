@@ -73,7 +73,6 @@ import {
   INITIAL_MOBILE_NAV_CONFIG,
   INITIAL_HOMEPAGE_EDITORIAL_CONFIG,
 } from '../data/initialData';
-import { hashPassword, DEFAULT_ADMIN_EMAIL, DEFAULT_ADMIN_PASSWORD_PLAIN } from '../utils/auth';
 import { idbGet, idbSet, idbClear } from '../utils/idbStorage';
 import { CountryItem, DEFAULT_COUNTRY } from '../data/countriesData';
 
@@ -465,6 +464,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return fetch(`/api/store/${key}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
+      credentials: 'include',
       body: JSON.stringify({ value: value, data: value }),
     })
       .then(async (res) => {
@@ -476,10 +476,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         return true;
       })
       .catch((err) => {
-        console.error(`[StoreContext] Error saving '${key}' to server DB:`, err);
+        console.warn(`[StoreContext] Could not save '${key}' to server DB:`, err);
         setDbSyncStatus('error');
-        setServerSaveError(`Server database save failed for '${key}': ${err.message || 'Network issue'}`);
-        throw err;
+        setServerSaveError(`Server database save failed for '${key}': ${err?.message || 'Network issue'}`);
+        return false;
       });
   };
 
@@ -518,108 +518,94 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const playSound = (type: SoundType) => {
     soundManager.play(type);
   };
-  const [adminAccount, setAdminAccount] = useState<{ email: string; passwordHash: string }>(() => {
-    if (typeof window !== 'undefined') {
-      const stored = localStorage.getItem('hakkiveda_admin_credentials');
-      if (stored) {
-        try {
-          const parsed = JSON.parse(stored);
-          if (
-            parsed &&
-            typeof parsed === 'object' &&
-            typeof parsed.email === 'string' &&
-            typeof parsed.passwordHash === 'string' &&
-            parsed.passwordHash.length === 64
-          ) {
-            return parsed;
-          }
-        } catch (e) {
-          console.warn('Incompatible admin credentials found, clearing:', e);
-        }
-        try {
-          localStorage.removeItem('hakkiveda_admin_credentials');
-        } catch (_) {}
+
+  // Server-Authoritative Admin Authentication State
+  const [adminAuthenticated, setAdminAuthenticated] = useState<boolean>(false);
+
+  // Helper to load privileged full store data for authenticated admin
+  const loadFullStoreData = async () => {
+    try {
+      const res = await fetch('/api/store', { credentials: 'include' });
+      if (!res.ok) return;
+      const json = await res.json();
+      if (json.success && json.data) {
+        const d = json.data;
+        if (Array.isArray(d.orders)) setOrders(d.orders);
+        if (Array.isArray(d.b2b_leads)) setB2BLeads(d.b2b_leads);
+        if (Array.isArray(d.customer_accounts)) setCustomerAccounts(d.customer_accounts);
+        if (Array.isArray(d.payment_logs)) setPaymentLogs(d.payment_logs);
+        if (Array.isArray(d.shoppable_reels)) setShoppableReels(d.shoppable_reels);
       }
+    } catch (e) {
+      console.warn('[StoreContext] Could not load full store data:', e);
     }
-    return { email: DEFAULT_ADMIN_EMAIL, passwordHash: '' };
-  });
+  };
 
-  const [adminAuthenticated, setAdminAuthenticated] = useState<boolean>(() => {
-    if (typeof window !== 'undefined') {
-      return sessionStorage.getItem('hakkiveda_admin_auth') === 'true';
-    }
-    return false;
-  });
-
-  // Seed admin account password hash if missing or invalid
+  // Check admin session status on mount
   useEffect(() => {
-    if (!adminAccount.passwordHash || adminAccount.passwordHash.length !== 64) {
-      hashPassword(DEFAULT_ADMIN_PASSWORD_PLAIN).then((hash) => {
-        const initAccount = { email: DEFAULT_ADMIN_EMAIL, passwordHash: hash };
-        setAdminAccount(initAccount);
-        try {
-          localStorage.setItem('hakkiveda_admin_credentials', JSON.stringify(initAccount));
-        } catch (_) {}
+    fetch('/api/admin/me', { credentials: 'include' })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success && data.admin) {
+          setAdminAuthenticated(true);
+          loadFullStoreData();
+        } else {
+          setAdminAuthenticated(false);
+        }
+      })
+      .catch(() => {
+        setAdminAuthenticated(false);
       });
-    }
-  }, [adminAccount.passwordHash]);
+  }, []);
 
   const authenticateAdmin = async (email: string, password: string): Promise<{ success: boolean; message: string }> => {
-    const targetEmail = adminAccount.email || DEFAULT_ADMIN_EMAIL;
-    if (email.trim().toLowerCase() !== targetEmail.toLowerCase()) {
-      return { success: false, message: 'Invalid email or password.' };
-    }
-
-    const inputHash = await hashPassword(password);
-    let targetHash = adminAccount.passwordHash;
-
-    if (!targetHash || targetHash.length !== 64) {
-      targetHash = await hashPassword(DEFAULT_ADMIN_PASSWORD_PLAIN);
-      const seeded = { email: DEFAULT_ADMIN_EMAIL, passwordHash: targetHash };
-      setAdminAccount(seeded);
-      try {
-        localStorage.setItem('hakkiveda_admin_credentials', JSON.stringify(seeded));
-      } catch (_) {}
-    }
-
-    if (inputHash !== targetHash) {
-      return { success: false, message: 'Invalid email or password.' };
-    }
-
-    setAdminAuthenticated(true);
     try {
-      sessionStorage.setItem('hakkiveda_admin_auth', 'true');
-    } catch (_) {}
-    return { success: true, message: 'Admin authentication successful.' };
+      const res = await fetch('/api/admin/login', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ email: email.trim(), password }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setAdminAuthenticated(true);
+        loadFullStoreData();
+        return { success: true, message: data.message || 'Admin authentication successful.' };
+      } else {
+        setAdminAuthenticated(false);
+        return { success: false, message: data.error || 'Invalid email or password.' };
+      }
+    } catch (err: any) {
+      setAdminAuthenticated(false);
+      return { success: false, message: 'Invalid email or password.' };
+    }
   };
 
   const logoutAdmin = () => {
+    fetch('/api/admin/logout', { method: 'POST', credentials: 'include' }).catch(() => {});
     setAdminAuthenticated(false);
-    try {
-      sessionStorage.removeItem('hakkiveda_admin_auth');
-    } catch (_) {}
   };
 
   const updateAdminPassword = async (oldPassword: string, newPassword: string): Promise<{ success: boolean; message: string }> => {
-    let currentHash = adminAccount.passwordHash;
-    if (!currentHash || currentHash.length !== 64) {
-      currentHash = await hashPassword(DEFAULT_ADMIN_PASSWORD_PLAIN);
-    }
-
-    const oldHash = await hashPassword(oldPassword);
-    if (oldHash !== currentHash) {
-      return { success: false, message: 'Current password does not match.' };
-    }
     if (!newPassword || newPassword.length < 6) {
       return { success: false, message: 'New password must be at least 6 characters long.' };
     }
-    const newHash = await hashPassword(newPassword);
-    const updated = { email: adminAccount.email || DEFAULT_ADMIN_EMAIL, passwordHash: newHash };
-    setAdminAccount(updated);
     try {
-      localStorage.setItem('hakkiveda_admin_credentials', JSON.stringify(updated));
-    } catch (_) {}
-    return { success: true, message: 'Admin password updated securely.' };
+      const res = await fetch('/api/admin/change-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ oldPassword, newPassword }),
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        return { success: true, message: data.message || 'Master password updated successfully.' };
+      } else {
+        return { success: false, message: data.error || 'Failed to update password.' };
+      }
+    } catch (err: any) {
+      return { success: false, message: err.message || 'Failed to update password.' };
+    }
   };
 
   // Site Settings & Branding
@@ -1077,6 +1063,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const res = await fetch('/api/store/mobile_nav_config', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ value: next, data: next }),
       });
       if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -1096,6 +1083,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       await fetch('/api/store/mobile_nav_config', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ value: INITIAL_MOBILE_NAV_CONFIG, data: INITIAL_MOBILE_NAV_CONFIG }),
       });
       return true;
@@ -2043,7 +2031,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const refreshOrders = async (): Promise<Order[] | undefined> => {
     try {
-      const res = await fetch('/api/store/orders');
+      const res = await fetch('/api/store/orders', { credentials: 'include' });
       const json = await res.json();
       if (json.success && Array.isArray(json.data || json.value)) {
         const fetchedOrders = json.data || json.value;
@@ -2535,6 +2523,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const res = await fetch('/api/store/hero_slides', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ value: normalized, data: normalized }),
       });
 
@@ -2559,6 +2548,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       await fetch('/api/hero-slides', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
         body: JSON.stringify({ value: finalSlides, data: finalSlides }),
       }).catch(() => {});
 

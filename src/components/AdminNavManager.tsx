@@ -241,7 +241,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const res = await fetch('/api/upload', { method: 'POST', credentials: 'include', body: formData });
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.url) {
@@ -271,7 +271,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const res = await fetch('/api/upload', { method: 'POST', credentials: 'include', body: formData });
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.url) {
@@ -337,7 +337,7 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
     try {
       const formData = new FormData();
       formData.append('file', file);
-      const res = await fetch('/api/upload', { method: 'POST', body: formData });
+      const res = await fetch('/api/upload', { method: 'POST', credentials: 'include', body: formData });
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.url) {

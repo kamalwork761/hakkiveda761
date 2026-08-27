@@ -102,6 +102,3 @@ export async function hashPassword(password: string): Promise<string> {
   // Always use pure JS SHA-256 algorithm to guarantee compatibility on non-secure HTTP IP origins
   return pureJsSha256(password);
 }
-
-export const DEFAULT_ADMIN_EMAIL = 'hakkiveda@gmail.com';
-export const DEFAULT_ADMIN_PASSWORD_PLAIN = 'Kamal@2026';

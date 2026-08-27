@@ -8,6 +8,7 @@ export async function uploadFileToServer(file: File): Promise<string> {
 
   const response = await fetch('/api/upload', {
     method: 'POST',
+    credentials: 'include',
     body: formData,
   });
 

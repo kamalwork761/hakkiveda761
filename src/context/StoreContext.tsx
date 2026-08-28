@@ -229,7 +229,6 @@ interface StoreContextType {
   adminSetCustomerPassword: (customerId: string, newPassword?: string, generateRandom?: boolean) => Promise<{ success: boolean; message: string; temporaryPassword?: string }>;
   changeCustomerPassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; message: string }>;
   loadCustomerOrders: () => Promise<void>;
-  guestLogin: (email: string, name?: string) => void;
   logoutUser: () => void;
   updateCustomerAccount: (id: string, partial: Partial<User>) => void;
   updateUserProfile: (partial: Partial<User>) => Promise<void> | void;
@@ -574,18 +573,33 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  // Check customer session status on mount
+  // Check customer session status on mount (Server-Authoritative)
   useEffect(() => {
+    try {
+      localStorage.removeItem('hakkiveda_current_user');
+      localStorage.removeItem('current_user');
+      sessionStorage.removeItem('hakkiveda_current_user');
+      sessionStorage.removeItem('current_user');
+    } catch (_) {}
+
     fetch('/api/auth/me', { credentials: 'include' })
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) {
+          setCurrentUser(null);
+          return null;
+        }
+        return res.json();
+      })
       .then((data) => {
-        if (data.success && data.customer) {
+        if (data && data.success && data.customer) {
           setCurrentUser(data.customer);
           loadCustomerOrders();
+        } else {
+          setCurrentUser(null);
         }
       })
       .catch(() => {
-        // No active customer session
+        setCurrentUser(null);
       });
   }, []);
 
@@ -1666,7 +1680,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return [];
     }
   });
-  const [currentUser, setCurrentUser] = useState<User | null>(() => getStored('current_user', null));
+  const [currentUser, setCurrentUser] = useState<User | null>(null);
 
   // Hydrate public state directly from SQLite Server Database (/app/data/hakkiveda.db)
   useEffect(() => {
@@ -2207,6 +2221,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     email: string,
     password?: string
   ): Promise<{ success: boolean; message: string }> => {
+    if (!password || !password.trim()) {
+      soundManager.play('error_warning');
+      return { success: false, message: 'Password is required to sign in.' };
+    }
     try {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
@@ -2317,22 +2335,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
-  const guestLogin = (email: string, name?: string) => {
-    const guestUser: User = {
-      id: `usr-guest-${Date.now()}`,
-      name: name || email.split('@')[0] || 'Guest Customer',
-      email: email || 'guest@hakkiveda.com',
-      phone: '',
-      addresses: [],
-      isAdmin: false,
-      status: 'ACTIVE',
-      createdAt: new Date().toISOString().split('T')[0],
-      lastLogin: 'Just Now',
-    };
-    setCurrentUser(guestUser);
-    soundManager.play('form_submit');
-  };
-
   const logoutUser = () => {
     fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }).catch(() => {});
     soundManager.play('toggle_switch');
@@ -2354,13 +2356,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       const data = await res.json();
       if (res.ok && data.success && data.customer) {
         setCurrentUser(data.customer);
-      } else {
-        const updated = { ...currentUser, ...partial };
-        setCurrentUser(updated);
       }
-    } catch {
-      const updated = { ...currentUser, ...partial };
-      setCurrentUser(updated);
+    } catch (err) {
+      console.warn('[StoreContext] Failed to update profile:', err);
     }
     soundManager.play('form_submit');
   };
@@ -3065,7 +3063,6 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         adminSetCustomerPassword,
         changeCustomerPassword,
         loadCustomerOrders,
-        guestLogin,
         logoutUser,
         updateCustomerAccount,
         updateUserProfile,

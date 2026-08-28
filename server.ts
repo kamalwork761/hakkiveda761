@@ -82,6 +82,9 @@ async function startServer() {
   const app = express();
   const PORT = process.env.PORT || 3000;
 
+  // Trust proxy for secure cookies behind reverse proxies (Cloud Run / Nginx)
+  app.set('trust proxy', 1);
+
   // Initialize SQLite Database at startup
   await getDb();
 
@@ -118,7 +121,6 @@ async function startServer() {
           '[Security Configuration Error] ADMIN_SESSION_SECRET in production must be at least 32 characters long (prefer a 64-character hex string).'
         );
       }
-      // Check for trivially weak repeated strings
       const isWeakRepeated = /^(.)\1+$/.test(providedSecret);
       const isTriviallySimple = [
         '12345678901234567890123456789012',
@@ -133,12 +135,12 @@ async function startServer() {
       return providedSecret;
     }
 
-    // Development mode
+    // Development mode: use environment variable if provided, or ephemeral in-memory CSPRNG
     if (providedSecret && providedSecret.length >= 16) {
       return providedSecret;
     }
 
-    console.warn('[Security] ADMIN_SESSION_SECRET not set. Using temporary development admin session secret. Sessions will reset after server restart.');
+    console.warn('[Security] ADMIN_SESSION_SECRET not set. Using ephemeral in-memory development admin session secret.');
     return crypto.randomBytes(32).toString('hex');
   }
 
@@ -193,6 +195,12 @@ async function startServer() {
 
   function requireAdmin(req: express.Request, res: express.Response, next: express.NextFunction) {
     let token = req.cookies?.[ADMIN_TOKEN_COOKIE];
+    if (!token && req.headers.cookie) {
+      const match = req.headers.cookie.match(new RegExp(`(?:^|;\\s*)${ADMIN_TOKEN_COOKIE}=([^;]+)`));
+      if (match) {
+        token = decodeURIComponent(match[1]);
+      }
+    }
     if (!token && req.headers.authorization) {
       const authHeader = req.headers.authorization;
       if (authHeader.startsWith('Bearer ')) {
@@ -229,7 +237,7 @@ async function startServer() {
   // ==========================================
   function resolveCustomerSessionSecret(): string {
     const isProduction = process.env.NODE_ENV === 'production';
-    const providedSecret = process.env.CUSTOMER_SESSION_SECRET?.trim();
+    const providedSecret = (process.env.CUSTOMER_SESSION_SECRET || process.env.SESSION_SECRET)?.trim();
 
     if (isProduction) {
       if (!providedSecret) {
@@ -250,8 +258,12 @@ async function startServer() {
         'customer_session_secret',
         'replace_this_with_a_secure_secret',
         'hakkiveda_customer_secret_key_2026',
+        '12345678901234567890123456789012',
+        'abcdefghijklmnopqrstuvwxyz123456',
+        '00000000000000000000000000000000',
       ];
-      if (trivialSecrets.includes(providedSecret.toLowerCase())) {
+      const isWeakRepeated = /^(.)\1+$/.test(providedSecret);
+      if (trivialSecrets.includes(providedSecret.toLowerCase()) || isWeakRepeated) {
         throw new Error(
           '[Security Configuration Error] CUSTOMER_SESSION_SECRET is using a known trivial/insecure placeholder. Provide a high-entropy secret in production.'
         );
@@ -259,15 +271,15 @@ async function startServer() {
       return providedSecret;
     }
 
+    // Development mode: use environment variable if provided, or ephemeral in-memory CSPRNG
     if (providedSecret && providedSecret.length >= 16) {
       return providedSecret;
     }
 
-    const ephemeralDevSecret = crypto.randomBytes(32).toString('hex');
     console.warn(
-      '[Security] CUSTOMER_SESSION_SECRET not set. Using temporary development customer session secret. Sessions will reset after server restart.'
+      '[Security] CUSTOMER_SESSION_SECRET not set. Using ephemeral in-memory development customer session secret.'
     );
-    return ephemeralDevSecret;
+    return crypto.randomBytes(32).toString('hex');
   }
 
   const CUSTOMER_SESSION_SECRET = resolveCustomerSessionSecret();
@@ -382,6 +394,13 @@ async function startServer() {
   async function requireCustomer(req: express.Request, res: express.Response, next: express.NextFunction) {
     const authHeader = req.headers.authorization;
     let token = req.cookies?.[CUSTOMER_TOKEN_COOKIE];
+
+    if (!token && req.headers.cookie) {
+      const match = req.headers.cookie.match(new RegExp(`(?:^|;\\s*)${CUSTOMER_TOKEN_COOKIE}=([^;]+)`));
+      if (match) {
+        token = decodeURIComponent(match[1]);
+      }
+    }
 
     if (!token && authHeader && authHeader.startsWith('Bearer ')) {
       token = authHeader.substring(7).trim();

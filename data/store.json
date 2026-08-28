@@ -710,6 +710,82 @@
   "b2b_leads": [],
   "customer_accounts": [
     {
+      "id": "usr-1787919433606",
+      "name": "Regression Test Customer",
+      "email": "regtest_1787919433455@example.com",
+      "phone": "",
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200",
+      "passwordBcrypt": "$2b$10$2tNbKM1f/3MNHa5zunqYLuCzE8fQPib/Zj7I/yWEH4ldHlgczcNva",
+      "addresses": [],
+      "savedPayments": [],
+      "isAdmin": false,
+      "status": "ACTIVE",
+      "createdAt": "2026-08-28",
+      "lastLogin": "8/28/2026, 12:17:13 PM IST",
+      "loyaltyPoints": 100,
+      "referralCode": "HAKKI-REGRESSION-62",
+      "preferences": {
+        "country": "India",
+        "currency": "INR",
+        "language": "English",
+        "emailOrders": true,
+        "whatsappUpdates": true,
+        "promotional": true
+      },
+      "loginHistory": [
+        {
+          "id": "log-1787919433878",
+          "timestamp": "8/28/2026, 12:17:13 PM IST",
+          "ipLocation": "Web Session",
+          "device": "Web Browser"
+        },
+        {
+          "id": "log-1787919433665",
+          "timestamp": "8/28/2026, 12:17:13 PM IST",
+          "ipLocation": "Web Session",
+          "device": "Web Browser"
+        }
+      ]
+    },
+    {
+      "id": "usr-1787855696437",
+      "name": "Auth Test User",
+      "email": "authtest_1787855696256@example.com",
+      "phone": "+91 9876543210",
+      "avatar": "https://images.unsplash.com/photo-1535713875002-d1d0cf377fde?auto=format&fit=crop&q=80&w=200",
+      "passwordBcrypt": "$2b$10$.RVycibs2Se39pobigVGk.J4mmW1wgyc.wCMVVuuTMZd19yTwiMve",
+      "addresses": [],
+      "savedPayments": [],
+      "isAdmin": false,
+      "status": "ACTIVE",
+      "createdAt": "2026-08-27",
+      "lastLogin": "8/27/2026, 6:34:56 PM IST",
+      "loyaltyPoints": 100,
+      "referralCode": "HAKKI-AUTH-23",
+      "preferences": {
+        "country": "India",
+        "currency": "INR",
+        "language": "English",
+        "emailOrders": true,
+        "whatsappUpdates": true,
+        "promotional": true
+      },
+      "loginHistory": [
+        {
+          "id": "log-1787855696697",
+          "timestamp": "8/27/2026, 6:34:56 PM IST",
+          "ipLocation": "Web Session",
+          "device": "Web Browser"
+        },
+        {
+          "id": "log-1787855696455",
+          "timestamp": "8/27/2026, 6:34:56 PM IST",
+          "ipLocation": "Web Session",
+          "device": "Web Browser"
+        }
+      ]
+    },
+    {
       "id": "usr-1787853115610",
       "name": "Verify Flow Customer",
       "email": "verify_flow_1787853115504@example.com",

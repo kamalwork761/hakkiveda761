@@ -47,7 +47,6 @@ export const CustomerPortal: React.FC = () => {
     customerAccounts,
     loginUser,
     registerUser,
-    guestLogin,
     logoutUser,
     updateUserProfile,
     changeCustomerPassword,
@@ -424,12 +423,6 @@ export const CustomerPortal: React.FC = () => {
     } finally {
       setIsChangingPass(false);
     }
-  };
-
-  const handleQuickLogin = (email: string) => {
-    playSound('cta_click');
-    setSignInEmail(email);
-    loginUser(email);
   };
 
   // Profile Save

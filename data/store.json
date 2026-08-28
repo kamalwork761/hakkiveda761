@@ -710,6 +710,166 @@
   "b2b_leads": [],
   "customer_accounts": [
     {
+      "id": "usr-1787934393560",
+      "name": "User 4",
+      "email": "ratetest_1787934393462_4@gmail.com",
+      "phone": "",
+      "avatar": "",
+      "passwordBcrypt": "$2b$10$fiKeDr4BRXw0/gtwqulP/OFOGYzid1XkzuToZT3XnmhCvfcNqW4G.",
+      "addresses": [],
+      "savedPayments": [],
+      "isAdmin": false,
+      "status": "ACTIVE",
+      "createdAt": "2026-08-28",
+      "lastLogin": "8/28/2026, 4:26:33 PM IST",
+      "loyaltyPoints": 100,
+      "referralCode": "HAKKI-USER-30",
+      "preferences": {
+        "country": "India",
+        "currency": "INR",
+        "language": "English",
+        "emailOrders": true,
+        "whatsappUpdates": true,
+        "promotional": true
+      },
+      "loginHistory": [
+        {
+          "id": "log-1787934393560",
+          "timestamp": "8/28/2026, 4:26:33 PM IST",
+          "ipLocation": "Web Session",
+          "device": "Web Browser"
+        }
+      ]
+    },
+    {
+      "id": "usr-1787934393457",
+      "name": "User 3",
+      "email": "ratetest_1787934393357_3@gmail.com",
+      "phone": "",
+      "avatar": "",
+      "passwordBcrypt": "$2b$10$tK84wUle.Xtzfb23kKj39.W3.OQpEfZPTfVxMuaJP2l8GO2MMmZyu",
+      "addresses": [],
+      "savedPayments": [],
+      "isAdmin": false,
+      "status": "ACTIVE",
+      "createdAt": "2026-08-28",
+      "lastLogin": "8/28/2026, 4:26:33 PM IST",
+      "loyaltyPoints": 100,
+      "referralCode": "HAKKI-USER-12",
+      "preferences": {
+        "country": "India",
+        "currency": "INR",
+        "language": "English",
+        "emailOrders": true,
+        "whatsappUpdates": true,
+        "promotional": true
+      },
+      "loginHistory": [
+        {
+          "id": "log-1787934393457",
+          "timestamp": "8/28/2026, 4:26:33 PM IST",
+          "ipLocation": "Web Session",
+          "device": "Web Browser"
+        }
+      ]
+    },
+    {
+      "id": "usr-1787934393352",
+      "name": "User 2",
+      "email": "ratetest_1787934393245_2@gmail.com",
+      "phone": "",
+      "avatar": "",
+      "passwordBcrypt": "$2b$10$9aF76C3qCuLRoWA26wM2GugkrcwYRAZPOQdZD5IwtZNx34vOVdbO.",
+      "addresses": [],
+      "savedPayments": [],
+      "isAdmin": false,
+      "status": "ACTIVE",
+      "createdAt": "2026-08-28",
+      "lastLogin": "8/28/2026, 4:26:33 PM IST",
+      "loyaltyPoints": 100,
+      "referralCode": "HAKKI-USER-47",
+      "preferences": {
+        "country": "India",
+        "currency": "INR",
+        "language": "English",
+        "emailOrders": true,
+        "whatsappUpdates": true,
+        "promotional": true
+      },
+      "loginHistory": [
+        {
+          "id": "log-1787934393352",
+          "timestamp": "8/28/2026, 4:26:33 PM IST",
+          "ipLocation": "Web Session",
+          "device": "Web Browser"
+        }
+      ]
+    },
+    {
+      "id": "usr-1787934393233",
+      "name": "User 1",
+      "email": "ratetest_1787934393010_1@gmail.com",
+      "phone": "",
+      "avatar": "",
+      "passwordBcrypt": "$2b$10$GKc4jHJ9mtiPFzQhyrDN8ON6rjWlJKrbd/HgV2/ZqOArnreK3BkBC",
+      "addresses": [],
+      "savedPayments": [],
+      "isAdmin": false,
+      "status": "ACTIVE",
+      "createdAt": "2026-08-28",
+      "lastLogin": "8/28/2026, 4:26:33 PM IST",
+      "loyaltyPoints": 100,
+      "referralCode": "HAKKI-USER-63",
+      "preferences": {
+        "country": "India",
+        "currency": "INR",
+        "language": "English",
+        "emailOrders": true,
+        "whatsappUpdates": true,
+        "promotional": true
+      },
+      "loginHistory": [
+        {
+          "id": "log-1787934393233",
+          "timestamp": "8/28/2026, 4:26:33 PM IST",
+          "ipLocation": "Web Session",
+          "device": "Web Browser"
+        }
+      ]
+    },
+    {
+      "id": "usr-1787934380887",
+      "name": "User {1..7}",
+      "email": "ratetest{1..7}@gmail.com",
+      "phone": "",
+      "avatar": "",
+      "passwordBcrypt": "$2b$10$C/A9hO8XiOeOtR27o6TxgOAEqUNk6cweHBmGyLrJlvzB8Q6HLd0Je",
+      "addresses": [],
+      "savedPayments": [],
+      "isAdmin": false,
+      "status": "ACTIVE",
+      "createdAt": "2026-08-28",
+      "lastLogin": "8/28/2026, 4:26:20 PM IST",
+      "loyaltyPoints": 100,
+      "referralCode": "HAKKI-USER-19",
+      "preferences": {
+        "country": "India",
+        "currency": "INR",
+        "language": "English",
+        "emailOrders": true,
+        "whatsappUpdates": true,
+        "promotional": true
+      },
+      "loginHistory": [
+        {
+          "id": "log-1787934380903",
+          "timestamp": "8/28/2026, 4:26:20 PM IST",
+          "ipLocation": "Web Session",
+          "device": "Web Browser"
+        }
+      ]
+    },
+    {
       "id": "usr-1787919433606",
       "name": "Regression Test Customer",
       "email": "regtest_1787919433455@example.com",

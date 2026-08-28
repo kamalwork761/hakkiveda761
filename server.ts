@@ -32,49 +32,69 @@ if (!fs.existsSync(uploadDir)) {
   fs.mkdirSync(uploadDir, { recursive: true });
 }
 
-// Multer Storage Configuration
+// Allowed MIME types and strict extension mappings
+const ALLOWED_IMAGE_MIMES: Record<string, string[]> = {
+  'image/jpeg': ['.jpg', '.jpeg'],
+  'image/png': ['.png'],
+  'image/webp': ['.webp'],
+  'image/gif': ['.gif'],
+};
+
+const ALLOWED_VIDEO_MIMES: Record<string, string[]> = {
+  'video/mp4': ['.mp4'],
+  'video/webm': ['.webm'],
+};
+
+const ALLOWED_MIMES: Record<string, string[]> = {
+  ...ALLOWED_IMAGE_MIMES,
+  ...ALLOWED_VIDEO_MIMES,
+};
+
+const DANGEROUS_EXT_REGEX = /\.(html|htm|svg|php|phtml|exe|sh|bash|js|jsx|ts|tsx|bat|cmd|vbs|cgi|pl|py|jar|war|bin|jsp|asp|aspx)$/i;
+
+// Multer Storage Configuration with cryptographically secure random filenames and safe extensions
 const storage = multer.diskStorage({
   destination: (_req, _file, cb) => {
     cb(null, uploadDir);
   },
   filename: (_req, file, cb) => {
-    const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
-    const ext = path.extname(file.originalname);
-    cb(null, `${file.fieldname}-${uniqueSuffix}${ext}`);
+    const safeUUID = crypto.randomUUID();
+    const rawExt = path.extname(file.originalname).toLowerCase();
+    const validExts = ALLOWED_MIMES[file.mimetype] || [];
+    const safeExt = validExts.includes(rawExt) ? rawExt : (validExts[0] || '.jpg');
+    cb(null, `upload-${safeUUID}${safeExt}`);
   },
 });
 
 const upload = multer({
   storage,
-  limits: { fileSize: 100 * 1024 * 1024 }, // 100MB file limit for high-resolution images & hero videos
+  limits: {
+    fileSize: 100 * 1024 * 1024, // 100MB outer limit for high-resolution video
+    files: 1,
+  },
   fileFilter: (_req, file, cb) => {
-    const allowedMimeTypes = [
-      'image/jpeg',
-      'image/jpg',
-      'image/png',
-      'image/webp',
-      'image/gif',
-      'image/svg+xml',
-      'video/mp4',
-      'video/webm',
-      'video/ogg',
-      'video/quicktime',
-      'application/pdf',
-    ];
+    const rawExt = path.extname(file.originalname).toLowerCase();
 
-    if (
-      file.mimetype.startsWith('image/') ||
-      file.mimetype.startsWith('video/') ||
-      allowedMimeTypes.includes(file.mimetype)
-    ) {
-      cb(null, true);
-    } else {
-      cb(
+    // Check null bytes or path traversal in original name
+    if (file.originalname.includes('\0') || file.originalname.includes('..') || file.originalname.includes('/') || file.originalname.includes('\\')) {
+      return cb(new Error('Invalid characters in filename.'));
+    }
+
+    // Check for dangerous extension injection
+    if (DANGEROUS_EXT_REGEX.test(file.originalname) || DANGEROUS_EXT_REGEX.test(rawExt)) {
+      return cb(new Error('Dangerous or unsupported file extension detected.'));
+    }
+
+    const validExts = ALLOWED_MIMES[file.mimetype];
+    if (!validExts || !validExts.includes(rawExt)) {
+      return cb(
         new Error(
-          'Unsupported file format. Allowed formats: images (JPG, PNG, WEBP, GIF), videos (MP4, WEBM, OGG, MOV), and PDF.'
+          'Unsupported file format or extension mismatch. Allowed formats: JPG, PNG, WEBP, GIF, MP4, WEBM.'
         )
       );
     }
+
+    cb(null, true);
   },
 });
 
@@ -100,8 +120,8 @@ async function startServer() {
   });
 
   app.use(cookieParser());
-  app.use(express.json({ limit: '100mb' }));
-  app.use(express.urlencoded({ limit: '100mb', extended: true }));
+  app.use(express.json({ limit: '1mb' }));
+  app.use(express.urlencoded({ limit: '1mb', extended: true }));
 
   // ==========================================
   // ADMIN AUTHENTICATION & SECURITY MIDDLEWARE
@@ -436,9 +456,34 @@ async function startServer() {
     next();
   }
 
-  // Rate limit tracking for customer login/register
+  // Rate limit tracking maps and helpers
   const failedCustomerLoginAttempts = new Map<string, LoginAttemptRecord>();
   const customerRegisterAttempts = new Map<string, { count: number; resetTime: number }>();
+  const forgotPasswordAttempts = new Map<string, { count: number; resetTime: number }>();
+  const adminUploadAttempts = new Map<string, { count: number; resetTime: number }>();
+  const paymentEndpointAttempts = new Map<string, { count: number; resetTime: number }>();
+  const aiEndpointAttempts = new Map<string, { count: number; resetTime: number }>();
+
+  // Generic sliding window rate limiter helper
+  function checkGenericRateLimit(
+    map: Map<string, { count: number; resetTime: number }>,
+    key: string,
+    maxRequests: number,
+    windowMs: number
+  ): { allowed: boolean; remainingSeconds?: number } {
+    const now = Date.now();
+    const record = map.get(key);
+    if (!record || now > record.resetTime) {
+      map.set(key, { count: 1, resetTime: now + windowMs });
+      return { allowed: true };
+    }
+    if (record.count >= maxRequests) {
+      const remainingSeconds = Math.ceil((record.resetTime - now) / 1000);
+      return { allowed: false, remainingSeconds };
+    }
+    record.count += 1;
+    return { allowed: true };
+  }
 
   function checkCustomerLoginRateLimit(ip: string): { allowed: boolean; remainingSeconds?: number } {
     const now = Date.now();
@@ -473,17 +518,28 @@ async function startServer() {
   }
 
   function checkCustomerRegisterRateLimit(ip: string): boolean {
-    const now = Date.now();
-    const record = customerRegisterAttempts.get(ip);
-    if (!record || now > record.resetTime) {
-      customerRegisterAttempts.set(ip, { count: 1, resetTime: now + 3600 * 1000 });
-      return true;
-    }
-    if (record.count >= 15) {
-      return false; // max 15 registrations per hour per IP
-    }
-    record.count += 1;
-    return true;
+    const res = checkGenericRateLimit(customerRegisterAttempts, ip, 5, 3600 * 1000); // 5 per hour
+    return res.allowed;
+  }
+
+  function checkForgotPasswordRateLimit(key: string): boolean {
+    const res = checkGenericRateLimit(forgotPasswordAttempts, key, 5, 3600 * 1000); // 5 per hour
+    return res.allowed;
+  }
+
+  function checkUploadRateLimit(key: string): boolean {
+    const res = checkGenericRateLimit(adminUploadAttempts, key, 30, 15 * 60 * 1000); // 30 per 15 mins
+    return res.allowed;
+  }
+
+  function checkPaymentRateLimit(ip: string): boolean {
+    const res = checkGenericRateLimit(paymentEndpointAttempts, ip, 30, 15 * 60 * 1000); // 30 per 15 mins
+    return res.allowed;
+  }
+
+  function checkAiRateLimit(ip: string): boolean {
+    const res = checkGenericRateLimit(aiEndpointAttempts, ip, 30, 15 * 60 * 1000); // 30 per 15 mins
+    return res.allowed;
   }
 
   // Failed login attempt tracking for IP-based rate limiting
@@ -560,8 +616,17 @@ async function startServer() {
     return account;
   }
 
-  // Static serving for persistent uploaded media with caching
-  app.use('/uploads', express.static(uploadDir, { maxAge: '30d' }));
+  // Static serving for persistent uploaded media with caching and nosniff protection
+  app.use(
+    '/uploads',
+    express.static(uploadDir, {
+      maxAge: '30d',
+      dotfiles: 'deny',
+      setHeaders: (res) => {
+        res.setHeader('X-Content-Type-Options', 'nosniff');
+      },
+    })
+  );
 
   // Dynamic Robots.txt Route
   app.get('/robots.txt', (_req, res) => {
@@ -1053,15 +1118,29 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
     }
   });
 
-  // Customer Password Recovery Request Endpoint
+  // Customer Password Recovery Request Endpoint (Protected with Rate Limiting)
   app.post('/api/auth/forgot-password', async (req, res) => {
     try {
+      const clientIp =
+        (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() ||
+        req.ip ||
+        'unknown-ip';
+
       const { email } = req.body;
       if (!email || typeof email !== 'string') {
         return res.status(400).json({ success: false, error: 'Email address is required.' });
       }
 
       const normalizedEmail = email.trim().toLowerCase();
+
+      // Check rate limit per IP and per email (max 5 requests per hour)
+      if (!checkForgotPasswordRateLimit(clientIp) || !checkForgotPasswordRateLimit(`email:${normalizedEmail}`)) {
+        return res.status(429).json({
+          success: false,
+          error: 'Too many password reset requests. Please try again in an hour.',
+        });
+      }
+
       const customers = (await getStoreValue<any[]>('customer_accounts')) || [];
       const customer = customers.find((c: any) => c.email && c.email.toLowerCase() === normalizedEmail);
 
@@ -2024,19 +2103,80 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
     res.json({ success: true, message: 'Website settings saved successfully.' });
   });
 
-  // Production-Ready Media Upload Endpoint supporting high-res images & hero videos
+  // Helper: Deep binary inspection (Magic-Byte / File Signature Validation)
+  async function detectBinaryFileType(filePath: string): Promise<{ mime: string; ext: string } | null> {
+    try {
+      const { fileTypeFromFile } = await import('file-type');
+      const result = await fileTypeFromFile(filePath);
+      if (result) {
+        return { mime: result.mime, ext: `.${result.ext}` };
+      }
+    } catch (err: any) {
+      console.error('[Upload Validation] file-type detection error:', err?.message || err);
+    }
+
+    // Secondary strict binary magic-byte fallback inspection
+    try {
+      const fd = fs.openSync(filePath, 'r');
+      const buf = Buffer.alloc(64);
+      const bytesRead = fs.readSync(fd, buf, 0, 64, 0);
+      fs.closeSync(fd);
+
+      if (bytesRead >= 3 && buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) {
+        return { mime: 'image/jpeg', ext: '.jpg' };
+      }
+      if (
+        bytesRead >= 8 &&
+        buf.subarray(0, 8).equals(Buffer.from([0x89, 0x50, 0x4e, 0x47, 0x0d, 0x0a, 0x1a, 0x0a]))
+      ) {
+        return { mime: 'image/png', ext: '.png' };
+      }
+      if (
+        bytesRead >= 6 &&
+        (buf.subarray(0, 6).toString('ascii') === 'GIF87a' || buf.subarray(0, 6).toString('ascii') === 'GIF89a')
+      ) {
+        return { mime: 'image/gif', ext: '.gif' };
+      }
+      if (
+        bytesRead >= 12 &&
+        buf.subarray(0, 4).toString('ascii') === 'RIFF' &&
+        buf.subarray(8, 12).toString('ascii') === 'WEBP'
+      ) {
+        return { mime: 'image/webp', ext: '.webp' };
+      }
+      if (bytesRead >= 8 && buf.subarray(4, 8).toString('ascii') === 'ftyp') {
+        return { mime: 'video/mp4', ext: '.mp4' };
+      }
+      if (bytesRead >= 4 && buf[0] === 0x1a && buf[1] === 0x45 && buf[2] === 0xdf && buf[3] === 0xa3) {
+        return { mime: 'video/webm', ext: '.webm' };
+      }
+    } catch {}
+
+    return null;
+  }
+
+  // Production-Ready Media Upload Endpoint supporting high-res images (max 10MB) & hero videos (max 100MB)
   app.post('/api/upload', requireAdmin, (req, res) => {
-    upload.single('file')(req, res, (err: any) => {
+    const admin = (req as any).admin;
+    const rateLimitKey = admin?.email || (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() || req.ip || 'admin';
+    if (!checkUploadRateLimit(rateLimitKey)) {
+      return res.status(429).json({
+        success: false,
+        error: 'Upload rate limit exceeded. Please wait a few minutes before uploading more media.',
+      });
+    }
+
+    upload.single('file')(req, res, async (err: any) => {
       if (err instanceof multer.MulterError) {
         if (err.code === 'LIMIT_FILE_SIZE') {
           return res.status(400).json({
             success: false,
-            error: 'File size exceeds the maximum 100 MB limit.',
+            error: 'File size exceeds maximum permitted upload limit (100 MB).',
           });
         }
         return res.status(400).json({
           success: false,
-          error: `Upload error: ${err.message}`,
+          error: 'Upload failed due to an invalid request or oversized file.',
         });
       } else if (err) {
         return res.status(400).json({
@@ -2052,16 +2192,121 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
         });
       }
 
+      const filePath = path.resolve(uploadDir, req.file.filename);
+      const resolvedUploadRoot = path.resolve(uploadDir);
+
+      // Confinement verification: ensure resolved path is strictly within uploadDir
+      if (!filePath.startsWith(resolvedUploadRoot)) {
+        try {
+          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        } catch {}
+        return res.status(403).json({
+          success: false,
+          error: 'Security violation: Path traversal prevented.',
+        });
+      }
+
+      // CRITICAL SECURITY: Deep binary inspection (Magic-Byte / File Signature Validation)
+      const detectedBinaryType = await detectBinaryFileType(filePath);
+
+      if (!detectedBinaryType) {
+        try {
+          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        } catch {}
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid file contents. The file does not have a valid image or video binary signature.',
+        });
+      }
+
+      // Ensure detected binary MIME is strictly within our server allowlist
+      const isAllowedImage = Object.keys(ALLOWED_IMAGE_MIMES).includes(detectedBinaryType.mime);
+      const isAllowedVideo = Object.keys(ALLOWED_VIDEO_MIMES).includes(detectedBinaryType.mime);
+
+      if (!isAllowedImage && !isAllowedVideo) {
+        try {
+          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        } catch {}
+        return res.status(400).json({
+          success: false,
+          error: 'Unsupported media format detected in file binary contents.',
+        });
+      }
+
+      // Validate detected MIME against claimed file extension
+      const allowedExtsForDetectedMime = ALLOWED_MIMES[detectedBinaryType.mime] || [];
+      const fileExt = path.extname(req.file.filename).toLowerCase();
+      if (!allowedExtsForDetectedMime.includes(fileExt)) {
+        try {
+          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        } catch {}
+        return res.status(400).json({
+          success: false,
+          error: 'Mismatched file extension and binary content signature.',
+        });
+      }
+
+      // Hard check: Maximum 10MB for images
+      if (isAllowedImage && req.file.size > 10 * 1024 * 1024) {
+        try {
+          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        } catch {}
+        return res.status(400).json({
+          success: false,
+          error: 'Image file size exceeds the maximum 10 MB limit.',
+        });
+      }
+
       const fileUrl = `/uploads/${req.file.filename}`;
       return res.json({
         success: true,
         url: fileUrl,
         filename: req.file.filename,
-        mimetype: req.file.mimetype,
+        mimetype: detectedBinaryType.mime,
         size: req.file.size,
       });
     });
   });
+
+  // Secure Media Deletion Helper
+  const handleMediaFileDelete = (req: express.Request, res: express.Response) => {
+    try {
+      const filename = req.params.filename || req.body?.filename;
+      if (!filename || typeof filename !== 'string') {
+        return res.status(400).json({ success: false, error: 'Filename is required.' });
+      }
+
+      // Strip any directory prefixes and validate pure safe filename
+      const baseName = path.basename(filename.trim());
+      if (
+        !/^[a-zA-Z0-9_\-]+\.(jpg|jpeg|png|webp|gif|mp4|webm)$/i.test(baseName) ||
+        baseName.includes('\0') ||
+        baseName.includes('..')
+      ) {
+        return res.status(400).json({ success: false, error: 'Invalid filename format.' });
+      }
+
+      const resolvedUploadRoot = path.resolve(uploadDir);
+      const targetPath = path.resolve(uploadDir, baseName);
+
+      if (!targetPath.startsWith(resolvedUploadRoot)) {
+        return res.status(403).json({ success: false, error: 'Access denied: Directory traversal prevented.' });
+      }
+
+      if (fs.existsSync(targetPath)) {
+        fs.unlinkSync(targetPath);
+        return res.json({ success: true, message: 'File deleted successfully.' });
+      } else {
+        return res.status(404).json({ success: false, error: 'Media file not found.' });
+      }
+    } catch (err: any) {
+      console.error('[Media Delete Error]:', err.message);
+      return res.status(500).json({ success: false, error: 'Failed to delete media file.' });
+    }
+  };
+
+  app.delete('/api/upload/:filename', requireAdmin, handleMediaFileDelete);
+  app.post('/api/upload/delete', requireAdmin, handleMediaFileDelete);
 
   // Server-side Gemini AI Client
   const getGeminiClient = () => {
@@ -2080,19 +2325,36 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
     });
   };
 
-  // Endpoint 1: AI Hair Quiz Analysis
+  // Endpoint 1: AI Hair Quiz Analysis (Rate Limited)
   app.post('/api/hair-quiz', async (req, res) => {
     try {
+      const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() || req.ip || 'unknown-ip';
+      if (!checkAiRateLimit(clientIp)) {
+        return res.status(429).json({
+          success: false,
+          error: 'Rate limit exceeded. Please wait a few minutes before submitting another hair quiz.',
+        });
+      }
+
       const { hairType, scalpCondition, primaryConcern, hairLossLevel, hairGoal, lifestyle } = req.body;
+
+      // Validate inputs are strings and length-bound
+      const sanitizeInput = (val: any) => (typeof val === 'string' ? val.slice(0, 300) : '');
+      const sHairType = sanitizeInput(hairType);
+      const sScalpCondition = sanitizeInput(scalpCondition);
+      const sPrimaryConcern = sanitizeInput(primaryConcern);
+      const sHairLossLevel = sanitizeInput(hairLossLevel);
+      const sHairGoal = sanitizeInput(hairGoal);
+      const sLifestyle = sanitizeInput(lifestyle);
 
       // Determine product recommendation category
       const isBaldness =
-        (hairLossLevel && (hairLossLevel.toLowerCase().includes('advanced') || hairLossLevel.toLowerCase().includes('receding') || hairLossLevel.toLowerCase().includes('thinning') || hairLossLevel.toLowerCase().includes('visible'))) ||
-        (primaryConcern && (primaryConcern.toLowerCase().includes('bald') || primaryConcern.toLowerCase().includes('severe')));
+        (sHairLossLevel && (sHairLossLevel.toLowerCase().includes('advanced') || sHairLossLevel.toLowerCase().includes('receding') || sHairLossLevel.toLowerCase().includes('thinning') || sHairLossLevel.toLowerCase().includes('visible'))) ||
+        (sPrimaryConcern && (sPrimaryConcern.toLowerCase().includes('bald') || sPrimaryConcern.toLowerCase().includes('severe')));
 
       const isLongHair =
-        (hairGoal && (hairGoal.toLowerCase().includes('growth') || hairGoal.toLowerCase().includes('length') || hairGoal.toLowerCase().includes('long'))) ||
-        (primaryConcern && primaryConcern.toLowerCase().includes('regrowth'));
+        (sHairGoal && (sHairGoal.toLowerCase().includes('growth') || sHairGoal.toLowerCase().includes('length') || sHairGoal.toLowerCase().includes('long'))) ||
+        (sPrimaryConcern && sPrimaryConcern.toLowerCase().includes('regrowth'));
 
       let recommendationTitle = 'HAKKIVEDA Essential Hair Oil & Shampoo Daily Routine';
       let recommendedProductIds = ['prod-1', 'prod-2'];
@@ -2127,7 +2389,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
             : isLongHair
             ? `To achieve long, lush hair, HAKKIVEDA Herbal Hair Oil paired with HAKKIVEDA Clarifying Shampoo provides deep follicle stimulation and strand elasticity.`
             : `For your hair profile, the combination of HAKKIVEDA Herbal Hair Oil and HAKKIVEDA Clarifying Shampoo is more than enough to maintain root health and stop hair fall.`,
-          doshaType: scalpCondition === 'Dry / Flaky / Itchy' ? 'Vata-Pitta Imbalance' : 'Pitta-Kapha',
+          doshaType: sScalpCondition === 'Dry / Flaky / Itchy' ? 'Vata-Pitta Imbalance' : 'Pitta-Kapha',
           recommendationTitle,
           recommendedProductIds,
           recommendedRoutine: defaultRoutine,
@@ -2138,12 +2400,12 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
 
       const prompt = `You are the Master Vaidya of HAKKIVEDA, an expert in Hakki-Pikki ancient tribal herbal wisdom and traditional Ayurvedic trichology.
 Analyze the following customer hair profile:
-- Hair Type: ${hairType}
-- Scalp Condition: ${scalpCondition}
-- Primary Concern: ${primaryConcern}
-- Hair Loss Level: ${hairLossLevel}
-- Desired Goal: ${hairGoal}
-- Lifestyle / Daily Stress: ${lifestyle}
+- Hair Type: ${sHairType}
+- Scalp Condition: ${sScalpCondition}
+- Primary Concern: ${sPrimaryConcern}
+- Hair Loss Level: ${sHairLossLevel}
+- Desired Goal: ${sHairGoal}
+- Lifestyle / Daily Stress: ${sLifestyle}
 
 IMPORTANT PRODUCT RECOMMENDATION RULES:
 1. If the user has Baldness / Advanced Thinning / Receding Hairline / Visible Scalp:
@@ -2190,18 +2452,35 @@ Return ONLY raw JSON, no markdown code blocks.`;
         ...parsed,
       });
     } catch (error: any) {
-      console.error('Hair Quiz API error:', error);
+      console.error('Hair Quiz API error:', error?.message);
       return res.status(500).json({
         success: false,
-        error: error.message || 'Failed to generate hair quiz analysis',
+        error: 'Failed to generate hair quiz analysis. Please try again later.',
       });
     }
   });
 
-  // Endpoint 2: AI Botanical Chat Advisor
+  // Endpoint 2: AI Botanical Chat Advisor (Rate Limited)
   app.post('/api/ai-chat', async (req, res) => {
     try {
+      const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() || req.ip || 'unknown-ip';
+      if (!checkAiRateLimit(clientIp)) {
+        return res.status(429).json({
+          success: false,
+          error: 'Rate limit exceeded. Please wait a few moments before asking another question.',
+        });
+      }
+
       const { messages } = req.body;
+      if (!Array.isArray(messages)) {
+        return res.status(400).json({ success: false, error: 'Messages array is required.' });
+      }
+
+      // Bound messages length to prevent large token memory attacks
+      const boundedMessages = messages.slice(-10).map((m: any) => ({
+        role: m.role === 'user' ? 'user' : 'assistant',
+        content: typeof m.content === 'string' ? m.content.slice(0, 1000) : '',
+      }));
 
       const ai = getGeminiClient();
       if (!ai) {
@@ -2221,7 +2500,7 @@ Company Info:
 
 Keep responses polite, herbal-expert oriented, concise, and luxurious. Always encourage holistic care and tribal wisdom.`;
 
-      const formattedMessages = messages.map((m: any) => `${m.role === 'user' ? 'Customer' : 'Advisor'}: ${m.content}`).join('\n');
+      const formattedMessages = boundedMessages.map((m: any) => `${m.role === 'user' ? 'Customer' : 'Advisor'}: ${m.content}`).join('\n');
       const prompt = `${systemInstruction}\n\nChat History:\n${formattedMessages}\nAdvisor:`;
 
       const response = await ai.models.generateContent({
@@ -2234,10 +2513,10 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
         reply: response.text || 'Namaste! I am here to assist with all your Hakki-Pikki tribal herbal wellness queries.',
       });
     } catch (error: any) {
-      console.error('AI Chat API error:', error);
+      console.error('AI Chat API error:', error?.message);
       return res.status(500).json({
         success: false,
-        error: error.message || 'Failed to communicate with AI Botanical Advisor',
+        error: 'Failed to communicate with AI Botanical Advisor. Please try again later.',
       });
     }
   });
@@ -2332,9 +2611,17 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
     };
   }
 
-  // 1. Create Razorpay Order Endpoint
+  // 1. Create Razorpay Order Endpoint (Rate Limited)
   app.post('/api/payments/razorpay/create-order', async (req, res) => {
     try {
+      const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() || req.ip || 'unknown-ip';
+      if (!checkPaymentRateLimit(clientIp)) {
+        return res.status(429).json({
+          success: false,
+          error: 'Too many payment requests. Please wait a moment before trying again.',
+        });
+      }
+
       const { items, customer, couponCode, currencyCode } = req.body;
 
       if (!items || !Array.isArray(items) || items.length === 0) {
@@ -2396,14 +2683,7 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
 
       const selectedCountry = customer.country || (isIndia ? 'India' : 'International');
 
-      // 1. SAFE LOGGING BEFORE CREATING RAZORPAY ORDER
-      console.log('[Razorpay Order Init] Pre-Create Order Payload:', {
-        selectedCountry,
-        requestedDisplayCurrency: displayCurrency,
-        validatedChargeCurrency,
-        chargeAmountMajor: chargeAmount,
-        chargeAmountSubunit,
-      });
+      console.log('[Razorpay Order Init] Creating order for country:', selectedCountry, 'currency:', validatedChargeCurrency);
 
       const receipt = `rec_${Date.now()}_${Math.floor(Math.random() * 1000)}`;
 
@@ -2429,16 +2709,8 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
         return res.status(400).json({
           success: false,
           error: 'This currency cannot currently be charged directly. Please review the alternative charge currency.',
-          details: rzpErr?.message || `Razorpay order creation failed for currency ${validatedChargeCurrency}`,
         });
       }
-
-      // SAFE LOGGING AFTER CREATING RAZORPAY ORDER
-      console.log('[Razorpay Order Init] Razorpay Order Response:', {
-        razorpayOrderId: razorpayOrder.id,
-        razorpayCurrency: razorpayOrder.currency,
-        razorpayAmount: razorpayOrder.amount,
-      });
 
       const localOrderId = `ord-${Date.now()}`;
       const orderNumber = `HV-ORD-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
@@ -2497,17 +2769,25 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
         displayOrder: localOrder,
       });
     } catch (error: any) {
-      console.error('[Razorpay Create Order Error]:', error);
+      console.error('[Razorpay Create Order Error]:', error?.message);
       return res.status(500).json({
         success: false,
-        error: error.message || 'Failed to create Razorpay order',
+        error: 'Failed to create payment order. Please verify your cart details and try again.',
       });
     }
   });
 
-  // 2. Verify Razorpay Payment Endpoint
+  // 2. Verify Razorpay Payment Endpoint (Rate Limited)
   app.post('/api/payments/razorpay/verify', async (req, res) => {
     try {
+      const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() || req.ip || 'unknown-ip';
+      if (!checkPaymentRateLimit(clientIp)) {
+        return res.status(429).json({
+          success: false,
+          error: 'Too many verification attempts. Please wait a moment.',
+        });
+      }
+
       const { razorpay_payment_id, razorpay_order_id, razorpay_signature, localOrderId } = req.body;
 
       if (!razorpay_payment_id || !razorpay_order_id || !razorpay_signature) {
@@ -2516,10 +2796,10 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
 
       const keySecret = process.env.RAZORPAY_KEY_SECRET;
       if (!keySecret) {
-        console.error('[Razorpay Verify Error] Server configuration error: RAZORPAY_KEY_SECRET is not configured. Failing closed.');
+        console.error('[Razorpay Verify Error] RAZORPAY_KEY_SECRET is not configured.');
         return res.status(500).json({
           success: false,
-          error: 'Payment verification cannot be processed due to missing server configuration.',
+          error: 'Payment verification service is temporarily unavailable.',
         });
       }
 
@@ -2529,10 +2809,10 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
       const generatedSignature = hmac.digest('hex');
 
       if (generatedSignature !== razorpay_signature) {
-        console.error('[Razorpay Verify] Invalid signature mismatch!');
+        console.error('[Razorpay Verify] Invalid signature mismatch');
         return res.status(400).json({
           success: false,
-          error: 'Razorpay payment signature verification failed. Invalid HMAC signature.',
+          error: 'Razorpay payment signature verification failed.',
         });
       }
 
@@ -2557,7 +2837,7 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
       );
 
       if (orderIndex === -1) {
-        return res.status(404).json({ success: false, error: 'Order reference not found on server.' });
+        return res.status(404).json({ success: false, error: 'Order reference not found.' });
       }
 
       const orderToUpdate = existingOrders[orderIndex];
@@ -2635,17 +2915,25 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
         paymentId: razorpay_payment_id,
       });
     } catch (error: any) {
-      console.error('[Razorpay Verify Error]:', error);
+      console.error('[Razorpay Verify Error]:', error?.message);
       return res.status(500).json({
         success: false,
-        error: error.message || 'Payment verification failed.',
+        error: 'Payment verification failed. Please contact customer support.',
       });
     }
   });
 
-  // 3. Create Cash on Delivery (COD) Order Endpoint
+  // 3. Create Cash on Delivery (COD) Order Endpoint (Rate Limited)
   app.post('/api/payments/cod/create-order', async (req, res) => {
     try {
+      const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() || req.ip || 'unknown-ip';
+      if (!checkPaymentRateLimit(clientIp)) {
+        return res.status(429).json({
+          success: false,
+          error: 'Too many order requests. Please wait a moment before trying again.',
+        });
+      }
+
       const { items, customer, couponCode } = req.body;
 
       if (!items || !Array.isArray(items) || items.length === 0) {
@@ -2747,10 +3035,10 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
         order: newOrder,
       });
     } catch (error: any) {
-      console.error('[COD Create Order Error]:', error);
+      console.error('[COD Create Order Error]:', error?.message);
       return res.status(500).json({
         success: false,
-        error: error.message || 'Failed to create Cash on Delivery order',
+        error: 'Failed to create Cash on Delivery order. Please try again.',
       });
     }
   });

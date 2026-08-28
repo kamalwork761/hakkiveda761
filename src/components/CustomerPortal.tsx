@@ -41,6 +41,17 @@ import { useStore } from '../context/StoreContext';
 import { SavedAddress, Order, Product } from '../types/store';
 import { getProductUrl } from '../utils/productUtils';
 
+// Helper to compute initials for avatar placeholder
+const getInitials = (name?: string): string => {
+  if (!name || !name.trim()) return 'HV';
+  const clean = name.trim();
+  const words = clean.split(/\s+/);
+  if (words.length >= 2) {
+    return (words[0][0] + words[words.length - 1][0]).toUpperCase();
+  }
+  return clean.slice(0, 2).toUpperCase();
+};
+
 export const CustomerPortal: React.FC = () => {
   const {
     currentUser,
@@ -1075,8 +1086,8 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                 {/* ========================================================= */}
                 <div className="p-4 sm:p-8 space-y-6">
                   {/* Top Profile Summary Header Card */}
-                  <div className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/40 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden">
-                    <div className="absolute right-0 top-0 w-64 h-64 bg-[var(--brand-gold)]/5 rounded-full blur-3xl pointer-events-none"></div>
+                  <div className="bg-[#0F2E22] border border-[#C5A059]/40 rounded-2xl p-5 sm:p-6 shadow-xl flex flex-col sm:flex-row items-center justify-between gap-6 relative overflow-hidden text-[#FAF7F2]">
+                    <div className="absolute right-0 top-0 w-64 h-64 bg-[#C5A059]/5 rounded-full blur-3xl pointer-events-none"></div>
 
                     <div className="flex items-center gap-4 z-10 w-full sm:w-auto">
                       <div className="relative shrink-0">
@@ -1084,26 +1095,26 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                           <img
                             src={currentUser.avatar}
                             alt={currentUser.name}
-                            className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-[var(--brand-gold)] shadow-lg"
+                            className="w-16 h-16 sm:w-20 sm:h-20 rounded-full object-cover border-2 border-[#C5A059] shadow-lg"
                           />
                         ) : (
-                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold text-2xl font-serif-luxury flex items-center justify-center border-2 border-white/20 shadow-lg">
-                            {currentUser.name[0]?.toUpperCase()}
+                          <div className="w-16 h-16 sm:w-20 sm:h-20 rounded-full bg-[#163F2F] text-[#FAF7F2] font-bold text-xl sm:text-2xl font-serif-luxury flex items-center justify-center border-2 border-[#C5A059] shadow-lg tracking-wider">
+                            {getInitials(currentUser.name)}
                           </div>
                         )}
-                        <span className="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 rounded-full border-2 border-[var(--brand-primary-dark)]"></span>
+                        <span className="absolute bottom-0 right-0 w-4 h-4 bg-emerald-500 rounded-full border-2 border-[#0F2E22]"></span>
                       </div>
 
                       <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="text-xl sm:text-2xl font-bold font-serif-luxury text-slate-100">
+                          <h3 className="text-xl sm:text-2xl font-bold font-serif-luxury text-white">
                             {currentUser.name}
                           </h3>
-                          <span className="bg-[var(--brand-gold)]/20 text-[var(--brand-gold)] border border-[var(--brand-gold)]/40 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">
+                          <span className="bg-[#C5A059]/20 text-[#E5D8B5] border border-[#C5A059]/40 text-[10px] font-bold uppercase tracking-wider px-2 py-0.5 rounded-full">
                             {currentUser.isAdmin ? 'Master Admin' : 'Tribal Gold Member'}
                           </span>
                         </div>
-                        <p className="text-xs text-[var(--brand-gold)]">{currentUser.email}</p>
+                        <p className="text-xs text-[#E5D8B5] font-medium">{currentUser.email}</p>
                         <p className="text-[11px] text-slate-300 mt-0.5">
                           {currentUser.phone || 'Phone not set'} • Member since {currentUser.createdAt || '2026'}
                         </p>
@@ -1111,16 +1122,16 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                     </div>
 
                     <div className="flex items-center gap-3 shrink-0 z-10 w-full sm:w-auto justify-between sm:justify-end border-t sm:border-t-0 border-white/10 pt-3 sm:pt-0">
-                      <div className="bg-[var(--brand-primary-deep)] border border-[var(--brand-gold)]/30 px-4 py-2 rounded-xl text-center">
-                        <span className="text-[10px] uppercase font-bold text-slate-400 block">Reward Balance</span>
-                        <span className="text-base font-bold text-[var(--brand-gold)]">
+                      <div className="bg-[#0B2319] border border-[#C5A059]/30 px-4 py-2 rounded-xl text-center">
+                        <span className="text-[10px] uppercase font-bold text-slate-300 block">Reward Balance</span>
+                        <span className="text-base font-bold text-[#E5D8B5]">
                           {currentUser.loyaltyPoints || 100} Hakki-Points
                         </span>
                       </div>
 
                       <button
                         onClick={logoutUser}
-                        className="bg-rose-950/80 hover:bg-rose-900 border border-rose-500/40 text-rose-200 px-3.5 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all shadow-md"
+                        className="bg-rose-950/80 hover:bg-rose-900 border border-rose-500/40 text-rose-200 px-3.5 py-2 rounded-xl font-bold text-xs flex items-center gap-1.5 transition-all shadow-md cursor-pointer"
                         title="Sign Out"
                       >
                         <LogOut className="w-4 h-4" />
@@ -1301,17 +1312,17 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
 
                   {/* 1. PROFILE TAB */}
                   {activeTab === 'profile' && (
-                    <div className="bg-[var(--brand-primary-dark)] border border-white/10 rounded-2xl p-6 space-y-6 animate-in fade-in">
-                      <div className="flex items-center justify-between border-b border-white/10 pb-4">
+                    <div className="bg-[#FDFBF7] border border-[#D8CDAF] rounded-2xl p-6 space-y-6 animate-in fade-in shadow-xs text-[#0F2E22]">
+                      <div className="flex items-center justify-between border-b border-[#D8CDAF] pb-4">
                         <div>
-                          <h4 className="text-lg font-bold font-serif-luxury text-slate-100">Personal Information</h4>
-                          <p className="text-xs text-slate-300">Manage your contact details and account dossier.</p>
+                          <h4 className="text-lg font-bold font-serif-luxury text-[#0F2E22]">Personal Information</h4>
+                          <p className="text-xs text-[#1C550E]">Manage your contact details and account dossier.</p>
                         </div>
                         <button
                           onClick={() => setIsEditingProfile(!isEditingProfile)}
-                          className="bg-[var(--brand-gold)]/20 hover:bg-[var(--brand-gold)] text-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all border border-[var(--brand-gold)]/40"
+                          className="bg-[#0F2E22] hover:bg-[#163F2F] text-[#FAF7F2] px-3.5 py-1.5 rounded-lg text-xs font-bold flex items-center gap-1.5 transition-all border border-[#C5A059]/50 shadow-xs cursor-pointer"
                         >
-                          <Edit2 className="w-3.5 h-3.5" />
+                          <Edit2 className="w-3.5 h-3.5 text-[#C5A059]" />
                           <span>{isEditingProfile ? 'Cancel Edit' : 'Edit Profile'}</span>
                         </button>
                       </div>
@@ -1320,60 +1331,67 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                         <form onSubmit={handleSaveProfile} className="space-y-4 text-xs">
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                             <div>
-                              <label className="block font-bold text-slate-300 mb-1">Full Name</label>
+                              <label className="block font-bold text-[#1C550E] uppercase text-[11px] tracking-wider mb-1">Full Name</label>
                               <input
                                 type="text"
                                 value={editName}
                                 onChange={(e) => setEditName(e.target.value)}
-                                className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100 focus:border-[var(--brand-gold)]"
+                                className="w-full bg-white border border-[#D8CDAF] p-2.5 rounded-xl text-[#0F2E22] text-sm focus:border-[#1C550E] focus:outline-none"
                               />
                             </div>
                             <div>
-                              <label className="block font-bold text-slate-300 mb-1">Phone Number</label>
+                              <label className="block font-bold text-[#1C550E] uppercase text-[11px] tracking-wider mb-1">Phone Number</label>
                               <input
                                 type="text"
                                 value={editPhone}
                                 onChange={(e) => setEditPhone(e.target.value)}
-                                className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100 focus:border-[var(--brand-gold)]"
+                                className="w-full bg-white border border-[#D8CDAF] p-2.5 rounded-xl text-[#0F2E22] text-sm focus:border-[#1C550E] focus:outline-none"
                               />
                             </div>
                           </div>
 
                           <div>
-                            <label className="block font-bold text-slate-300 mb-1">Avatar Image URL</label>
+                            <label className="block font-bold text-[#1C550E] uppercase text-[11px] tracking-wider mb-1">Avatar Image URL</label>
                             <input
                               type="text"
                               value={editAvatar}
                               onChange={(e) => setEditAvatar(e.target.value)}
                               placeholder="https://images.unsplash.com/..."
-                              className="w-full bg-[var(--brand-primary-deep)] border border-white/20 p-2.5 rounded-lg text-slate-100 focus:border-[var(--brand-gold)]"
+                              className="w-full bg-white border border-[#D8CDAF] p-2.5 rounded-xl text-[#0F2E22] text-sm focus:border-[#1C550E] focus:outline-none"
                             />
                           </div>
 
                           <button
                             type="submit"
-                            className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-5 py-2.5 rounded-lg font-bold uppercase text-xs hover:bg-white transition-all shadow-md"
+                            className="bg-[#0F2E22] text-[#FAF7F2] px-5 py-2.5 rounded-xl font-bold uppercase text-xs hover:bg-[#163F2F] transition-all shadow-md cursor-pointer tracking-wider"
                           >
                             Save Profile Updates
                           </button>
                         </form>
                       ) : (
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 text-xs">
-                          <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-1">
-                            <span className="text-slate-400 block text-[10px] uppercase font-bold">Full Name</span>
-                            <span className="font-bold text-white text-sm">{currentUser.name}</span>
+                          {/* Full Name Card */}
+                          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-[#D8CDAF] shadow-xs space-y-1.5">
+                            <span className="text-[#1C550E] block text-[10px] sm:text-[11px] uppercase font-bold tracking-wider">Full Name</span>
+                            <span className="font-bold text-[#0F2E22] text-sm sm:text-base block">{currentUser.name}</span>
                           </div>
-                          <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-1">
-                            <span className="text-slate-400 block text-[10px] uppercase font-bold">Email Address</span>
-                            <span className="font-bold text-[var(--brand-gold)] text-sm">{currentUser.email}</span>
+
+                          {/* Email Address Card */}
+                          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-[#D8CDAF] shadow-xs space-y-1.5">
+                            <span className="text-[#1C550E] block text-[10px] sm:text-[11px] uppercase font-bold tracking-wider">Email Address</span>
+                            <span className="font-bold text-[#8E7026] text-sm sm:text-base block">{currentUser.email}</span>
                           </div>
-                          <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-1">
-                            <span className="text-slate-400 block text-[10px] uppercase font-bold">Phone Number</span>
-                            <span className="font-bold text-white text-sm">{currentUser.phone || 'Not provided'}</span>
+
+                          {/* Phone Number Card */}
+                          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-[#D8CDAF] shadow-xs space-y-1.5">
+                            <span className="text-[#1C550E] block text-[10px] sm:text-[11px] uppercase font-bold tracking-wider">Phone Number</span>
+                            <span className="font-bold text-[#0F2E22] text-sm sm:text-base block">{currentUser.phone || 'Not provided'}</span>
                           </div>
-                          <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10 space-y-1">
-                            <span className="text-slate-400 block text-[10px] uppercase font-bold">Account Referral Code</span>
-                            <span className="font-bold text-[var(--brand-gold)] text-sm font-mono">
+
+                          {/* Account Referral Code Card */}
+                          <div className="bg-white p-4 sm:p-5 rounded-2xl border border-[#D8CDAF] shadow-xs space-y-1.5">
+                            <span className="text-[#1C550E] block text-[10px] sm:text-[11px] uppercase font-bold tracking-wider">Account Referral Code</span>
+                            <span className="font-bold text-[#8E7026] text-sm sm:text-base font-mono block">
                               {currentUser.referralCode || 'HAKKI-VIP-100'}
                             </span>
                           </div>

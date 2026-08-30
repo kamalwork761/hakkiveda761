@@ -82,13 +82,29 @@ async function shiprocketFetch(endpoint: string, options: RequestInit = {}): Pro
     return null; // Signals caller to use simulated fallback data
   }
 
+  if (typeof endpoint !== 'string') {
+    throw new Error('Invalid Shiprocket endpoint: string required.');
+  }
+
+  const cleanEndpoint = endpoint.trim();
+  if (
+    cleanEndpoint.startsWith('http:') ||
+    cleanEndpoint.startsWith('https:') ||
+    cleanEndpoint.startsWith('//') ||
+    cleanEndpoint.startsWith('file:') ||
+    cleanEndpoint.startsWith('ftp:') ||
+    !cleanEndpoint.startsWith('/')
+  ) {
+    throw new Error(`Invalid Shiprocket endpoint '${cleanEndpoint}': relative path starting with '/' required.`);
+  }
+
   const headers: Record<string, string> = {
     'Content-Type': 'application/json',
     'Authorization': `Bearer ${token}`,
     ...(options.headers as Record<string, string> || {}),
   };
 
-  const url = endpoint.startsWith('http') ? endpoint : `https://apiv2.shiprocket.in/v1/external${endpoint}`;
+  const url = `https://apiv2.shiprocket.in/v1/external${cleanEndpoint}`;
 
   let res = await fetch(url, { ...options, headers });
 
@@ -376,18 +392,33 @@ export async function schedulePickup(shipmentId: string | number) {
  * 6. Track Shipment
  */
 export async function trackShipment(identifier: string | number) {
-  console.log(`[Shiprocket] Tracking shipment/AWB: ${identifier}`);
+  if (identifier === null || identifier === undefined) {
+    throw new Error('Tracking identifier is required');
+  }
+
+  const rawId = String(identifier).trim();
+  if (!rawId || rawId.length > 100 || /[\x00-\x1F\x7F]/.test(rawId)) {
+    throw new Error('Invalid tracking identifier format.');
+  }
+
+  // Reject directory traversal, protocol strings, or query parameter injection
+  if (rawId.includes('/') || rawId.includes('\\') || rawId.includes('://') || rawId.includes('?') || rawId.includes('#')) {
+    throw new Error('Invalid tracking identifier format.');
+  }
+
+  const encodedId = encodeURIComponent(rawId);
+  console.log(`[Shiprocket] Tracking shipment/AWB: ${encodedId}`);
 
   if (!isShiprocketConfigured()) {
     return {
       success: true,
       simulated: true,
-      trackingNumber: String(identifier),
+      trackingNumber: rawId,
       shipmentStatus: 'IN_TRANSIT',
       currentLocation: 'Bengaluru Logistics Hub',
       expectedDelivery: 'In 2 Business Days',
       courierName: 'Delhivery Surface',
-      trackingUrl: `https://shiprocket.co/tracking/${identifier}`,
+      trackingUrl: `https://shiprocket.co/tracking/${encodedId}`,
       scans: [
         { date: new Date().toISOString(), activity: 'Package Picked Up from HakkiPikki Herbal Facility', location: 'Bengaluru' },
         { date: new Date().toISOString(), activity: 'In Transit to Destination Hub', location: 'Bengaluru Hub' },
@@ -396,12 +427,12 @@ export async function trackShipment(identifier: string | number) {
   }
 
   // Try tracking by AWB or Shipment ID
-  let endpoint = `/courier/track/awb/${identifier}`;
+  let endpoint = `/courier/track/awb/${encodedId}`;
   let response;
   try {
     response = await shiprocketFetch(endpoint, { method: 'GET' });
   } catch (err) {
-    endpoint = `/courier/track/shipment/${identifier}`;
+    endpoint = `/courier/track/shipment/${encodedId}`;
     response = await shiprocketFetch(endpoint, { method: 'GET' });
   }
 
@@ -411,10 +442,10 @@ export async function trackShipment(identifier: string | number) {
   return {
     success: true,
     simulated: false,
-    trackingNumber: String(identifier),
+    trackingNumber: rawId,
     shipmentStatus: currentStatus,
     courierName: trackData?.courier_name || 'Shiprocket Courier',
-    trackingUrl: trackData?.track_url || `https://shiprocket.co/tracking/${identifier}`,
+    trackingUrl: trackData?.track_url || `https://shiprocket.co/tracking/${encodedId}`,
     scans: trackData?.shipment_track || [],
     raw: trackData,
   };
@@ -424,7 +455,12 @@ export async function trackShipment(identifier: string | number) {
  * 7. Download Shipping Label
  */
 export async function downloadLabel(shipmentId: string | number) {
-  console.log(`[Shiprocket] Generating label for shipmentId: ${shipmentId}`);
+  const rawId = String(shipmentId || '').trim();
+  if (!rawId || rawId.length > 50 || !/^\d+$/.test(rawId)) {
+    throw new Error('Invalid shipmentId: numeric identifier required.');
+  }
+
+  console.log(`[Shiprocket] Generating label for shipmentId: ${rawId}`);
 
   if (!isShiprocketConfigured()) {
     return {
@@ -435,7 +471,7 @@ export async function downloadLabel(shipmentId: string | number) {
     };
   }
 
-  const payload = { shipment_id: [Number(shipmentId)] };
+  const payload = { shipment_id: [Number(rawId)] };
   const response = await shiprocketFetch('/courier/generate/label', {
     method: 'POST',
     body: JSON.stringify(payload),
@@ -452,7 +488,12 @@ export async function downloadLabel(shipmentId: string | number) {
  * 8. Download Invoice
  */
 export async function downloadInvoice(shiprocketOrderId: string | number) {
-  console.log(`[Shiprocket] Generating invoice for orderId: ${shiprocketOrderId}`);
+  const rawId = String(shiprocketOrderId || '').trim();
+  if (!rawId || rawId.length > 50 || !/^\d+$/.test(rawId)) {
+    throw new Error('Invalid orderId: numeric identifier required.');
+  }
+
+  console.log(`[Shiprocket] Generating invoice for orderId: ${rawId}`);
 
   if (!isShiprocketConfigured()) {
     return {
@@ -463,7 +504,7 @@ export async function downloadInvoice(shiprocketOrderId: string | number) {
     };
   }
 
-  const payload = { ids: [Number(shiprocketOrderId)] };
+  const payload = { ids: [Number(rawId)] };
   const response = await shiprocketFetch('/orders/print/invoice', {
     method: 'POST',
     body: JSON.stringify(payload),

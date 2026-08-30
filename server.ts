@@ -6,7 +6,7 @@ import multer from 'multer';
 import compression from 'compression';
 import { GoogleGenAI } from '@google/genai';
 import { createServer as createViteServer } from 'vite';
-import { getDb, getStoreValue, setStoreValue, getAllStoreData, getPublicStoreData, PUBLIC_STORE_ALLOWLIST } from './src/server/db';
+import { getDb, getStoreValue, setStoreValue, getAllStoreData, getPublicStoreData, PUBLIC_STORE_ALLOWLIST, isSafeStoreKey } from './src/server/db';
 import {
   isShiprocketConfigured,
   checkServiceability,
@@ -25,6 +25,10 @@ import cookieParser from 'cookie-parser';
 import bcrypt from 'bcryptjs';
 
 dotenv.config();
+
+// Token cookie names used across authentication & CSRF validation
+const ADMIN_TOKEN_COOKIE = 'hakkiveda_admin_token';
+const CUSTOMER_TOKEN_COOKIE = 'hakkiveda_customer_token';
 
 // Ensure persistent uploads directory exists
 const uploadDir = process.env.UPLOAD_DIR || path.join(process.cwd(), 'uploads');
@@ -111,17 +115,171 @@ async function startServer() {
   // Enable HTTP response compression (gzip/deflate)
   app.use(compression());
 
-  // Security Headers Middleware
+  // Security Headers Middleware (Production-Grade CSP, HSTS, Permissions & Frame Protection)
   app.use((_req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
-    res.setHeader('X-XSS-Protection', '1; mode=block');
     res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    // Strict-Transport-Security: only in production over HTTPS
+    if (isProduction) {
+      res.setHeader('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+      // Production: strict SAMEORIGIN frame protection
+      res.setHeader('X-Frame-Options', 'SAMEORIGIN');
+    }
+    // Note: In development / preview, X-Frame-Options is omitted so that CSP frame-ancestors allowlist governs framing.
+
+    // Content-Security-Policy (Enforced)
+    const frameAncestorsDirective = isProduction
+      ? "frame-ancestors 'self'"
+      : "frame-ancestors 'self' https://aistudio.google.com https://*.aistudio.google.com https://ai.studio";
+
+    const cspDirectives = [
+      "default-src 'self'",
+      "script-src 'self' 'unsafe-inline' https://checkout.razorpay.com",
+      "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+      "font-src 'self' https://fonts.gstatic.com data:",
+      "img-src 'self' data: blob: https:",
+      "media-src 'self' data: blob: https:",
+      "connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com",
+      "frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com",
+      "object-src 'none'",
+      "base-uri 'self'",
+      frameAncestorsDirective,
+      "form-action 'self'",
+    ];
+    res.setHeader('Content-Security-Policy', cspDirectives.join('; '));
+
     next();
   });
 
   app.use(cookieParser());
-  app.use(express.json({ limit: '1mb' }));
+  app.use(
+    express.json({
+      limit: '1mb',
+      verify: (req: any, _res, buf) => {
+        if (req.originalUrl === '/api/webhooks/razorpay' || req.path === '/api/webhooks/razorpay') {
+          req.rawBody = Buffer.from(buf);
+        }
+      },
+    })
+  );
   app.use(express.urlencoded({ limit: '1mb', extended: true }));
+
+  // ==========================================
+  // ORIGIN / REFERER & CSRF PROTECTION MIDDLEWARE
+  // ==========================================
+  function isAllowedOrigin(originStr: string, req?: express.Request): boolean {
+    if (!originStr || typeof originStr !== 'string') return false;
+    const isProduction = process.env.NODE_ENV === 'production';
+
+    // Strict production trusted origins
+    const productionTrustedOrigins = [
+      'https://hakkiveda.com',
+      'https://www.hakkiveda.com',
+    ];
+
+    const normalized = originStr.toLowerCase().trim();
+
+    if (isProduction) {
+      return productionTrustedOrigins.includes(normalized);
+    }
+
+    // Development trusted origins
+    const devTrustedOrigins = [
+      ...productionTrustedOrigins,
+      'http://localhost:3000',
+      'http://localhost:5173',
+      'http://127.0.0.1:3000',
+      'http://127.0.0.1:5173',
+      'https://aistudio.google.com',
+      'https://ai.studio',
+    ];
+
+    if (devTrustedOrigins.includes(normalized)) {
+      return true;
+    }
+
+    // In non-production only, allow current host origin if matching req.headers.host (e.g. Cloud Run preview URL)
+    if (req && req.headers.host) {
+      const host = req.headers.host.toLowerCase().trim();
+      if (normalized === `https://${host}` || normalized === `http://${host}`) {
+        return true;
+      }
+    }
+
+    return false;
+  }
+
+  function validateOriginOrReferer(req: express.Request, res: express.Response, next: express.NextFunction) {
+    const method = req.method.toUpperCase();
+    const isMutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(method);
+
+    // Read-only operations (GET, HEAD, OPTIONS) do not alter state
+    if (!isMutation) {
+      return next();
+    }
+
+    const originHeader = req.headers.origin;
+    const refererHeader = req.headers.referer;
+
+    // 1. If Origin header is sent by browser/client, strictly validate it
+    if (typeof originHeader === 'string' && originHeader.trim()) {
+      if (!isAllowedOrigin(originHeader.trim(), req)) {
+        return res.status(403).json({
+          success: false,
+          error: 'Request origin is not allowed.',
+        });
+      }
+      return next();
+    }
+
+    // 2. If Origin header is absent but Referer header is present, extract origin and validate
+    if (typeof refererHeader === 'string' && refererHeader.trim()) {
+      try {
+        const parsedUrl = new URL(refererHeader.trim());
+        if (!isAllowedOrigin(parsedUrl.origin, req)) {
+          return res.status(403).json({
+            success: false,
+            error: 'Request origin is not allowed.',
+          });
+        }
+      } catch {
+        return res.status(403).json({
+          success: false,
+          error: 'Request origin is not allowed.',
+        });
+      }
+      return next();
+    }
+
+    // 3. If neither Origin nor Referer was provided:
+    // Check if request is authenticated using browser cookies
+    const hasCookieAuth = Boolean(
+      req.cookies?.[ADMIN_TOKEN_COOKIE] ||
+      req.cookies?.[CUSTOMER_TOKEN_COOKIE] ||
+      (req.headers.cookie && (
+        req.headers.cookie.includes(ADMIN_TOKEN_COOKIE) ||
+        req.headers.cookie.includes(CUSTOMER_TOKEN_COOKIE)
+      ))
+    );
+
+    // Cookie-authenticated state mutations MUST provide valid same-origin Origin or Referer
+    if (hasCookieAuth) {
+      return res.status(403).json({
+        success: false,
+        error: 'Request origin is not allowed.',
+      });
+    }
+
+    // Non-cookie API traffic / webhooks (like Razorpay webhooks) without Origin/Referer proceed
+    next();
+  }
+
+  app.use(validateOriginOrReferer);
 
   // ==========================================
   // ADMIN AUTHENTICATION & SECURITY MIDDLEWARE
@@ -165,23 +323,36 @@ async function startServer() {
   }
 
   const ADMIN_SESSION_SECRET = resolveAdminSessionSecret();
-  const ADMIN_TOKEN_COOKIE = 'hakkiveda_admin_token';
   const ADMIN_TOKEN_EXPIRY_MS = 7 * 24 * 60 * 60 * 1000; // 7 days
+
+  function getSafeSessionVersion(account: any): number {
+    if (
+      account &&
+      typeof account.sessionVersion === 'number' &&
+      Number.isInteger(account.sessionVersion) &&
+      account.sessionVersion >= 0
+    ) {
+      return account.sessionVersion;
+    }
+    return 0;
+  }
 
   interface AdminTokenPayload {
     email: string;
     role: 'admin';
     iat: number;
     exp: number;
+    sessionVersion: number;
   }
 
-  function createAdminToken(email: string): string {
+  function createAdminToken(email: string, sessionVersion = 0): string {
     const now = Date.now();
     const payload: AdminTokenPayload = {
       email: email.toLowerCase(),
       role: 'admin',
       iat: now,
       exp: now + ADMIN_TOKEN_EXPIRY_MS,
+      sessionVersion: typeof sessionVersion === 'number' && Number.isInteger(sessionVersion) && sessionVersion >= 0 ? sessionVersion : 0,
     };
     const payloadB64 = Buffer.from(JSON.stringify(payload)).toString('base64url');
     const signature = crypto.createHmac('sha256', ADMIN_SESSION_SECRET).update(payloadB64).digest('base64url');
@@ -194,11 +365,16 @@ async function startServer() {
       const parts = token.split('.');
       if (parts.length !== 2) return null;
       const [payloadB64, signature] = parts;
+      if (!payloadB64 || !signature) return null;
+
       const expectedSignature = crypto.createHmac('sha256', ADMIN_SESSION_SECRET).update(payloadB64).digest('base64url');
 
+      const expectedBuf = Buffer.from(expectedSignature);
+      const actualBuf = Buffer.from(signature);
+
       if (
-        signature.length !== expectedSignature.length ||
-        !crypto.timingSafeEqual(Buffer.from(signature), Buffer.from(expectedSignature))
+        actualBuf.length !== expectedBuf.length ||
+        !crypto.timingSafeEqual(actualBuf, expectedBuf)
       ) {
         return null;
       }
@@ -213,40 +389,60 @@ async function startServer() {
     }
   }
 
-  function requireAdmin(req: express.Request, res: express.Response, next: express.NextFunction) {
-    let token = req.cookies?.[ADMIN_TOKEN_COOKIE];
-    if (!token && req.headers.cookie) {
-      const match = req.headers.cookie.match(new RegExp(`(?:^|;\\s*)${ADMIN_TOKEN_COOKIE}=([^;]+)`));
-      if (match) {
-        token = decodeURIComponent(match[1]);
+  async function requireAdmin(req: express.Request, res: express.Response, next: express.NextFunction) {
+    try {
+      let token = req.cookies?.[ADMIN_TOKEN_COOKIE];
+      if (!token && req.headers.cookie) {
+        const match = req.headers.cookie.match(new RegExp(`(?:^|;\\s*)${ADMIN_TOKEN_COOKIE}=([^;]+)`));
+        if (match) {
+          token = decodeURIComponent(match[1]);
+        }
       }
-    }
-    if (!token && req.headers.authorization) {
-      const authHeader = req.headers.authorization;
-      if (authHeader.startsWith('Bearer ')) {
-        token = authHeader.slice(7).trim();
+      if (!token && req.headers.authorization) {
+        const authHeader = req.headers.authorization;
+        if (authHeader.startsWith('Bearer ')) {
+          token = authHeader.slice(7).trim();
+        }
       }
-    }
-    if (!token && typeof req.headers['x-admin-token'] === 'string') {
-      token = req.headers['x-admin-token'];
-    }
+      if (!token && typeof req.headers['x-admin-token'] === 'string') {
+        token = req.headers['x-admin-token'];
+      }
 
-    if (!token) {
-      return res.status(401).json({ success: false, error: 'Unauthorized: Admin session required.' });
-    }
+      if (!token) {
+        return res.status(401).json({ success: false, error: 'Unauthorized: Admin session required.' });
+      }
 
-    const payload = verifyAdminToken(token);
-    if (!payload) {
-      return res.status(401).json({ success: false, error: 'Unauthorized: Invalid or expired admin session.' });
-    }
+      const payload = verifyAdminToken(token);
+      if (!payload) {
+        return res.status(401).json({ success: false, error: 'Unauthorized: Invalid or expired admin session.' });
+      }
 
-    (req as any).admin = payload;
-    next();
+      const adminAccount = await getAdminAccountFromDb();
+      const currentVersion = getSafeSessionVersion(adminAccount);
+      const tokenVersion = getSafeSessionVersion(payload);
+
+      if (tokenVersion !== currentVersion) {
+        return res.status(401).json({
+          success: false,
+          error: 'Unauthorized: Admin session revoked. Please log in again.',
+        });
+      }
+
+      (req as any).admin = payload;
+      (req as any).adminAccount = adminAccount;
+      next();
+    } catch (err: any) {
+      console.error('[requireAdmin Error]:', err?.message || err);
+      return res.status(500).json({ success: false, error: 'Admin session verification error.' });
+    }
   }
 
-  function requireAdminForPrivateKey(req: express.Request, res: express.Response, next: express.NextFunction) {
+  async function requireAdminForPrivateKey(req: express.Request, res: express.Response, next: express.NextFunction) {
     const key = req.params.key;
-    if (PUBLIC_STORE_ALLOWLIST.includes(key)) {
+    if (!isSafeStoreKey(key)) {
+      return res.status(400).json({ success: false, error: 'Invalid or forbidden store key.' });
+    }
+    if (PUBLIC_STORE_ALLOWLIST.includes(key.trim())) {
       return next();
     }
     return requireAdmin(req, res, next);
@@ -303,7 +499,6 @@ async function startServer() {
   }
 
   const CUSTOMER_SESSION_SECRET = resolveCustomerSessionSecret();
-  const CUSTOMER_TOKEN_COOKIE = 'hakkiveda_customer_token';
   const CUSTOMER_TOKEN_EXPIRY_MS = 30 * 24 * 60 * 60 * 1000; // 30 days validity
 
   interface CustomerTokenPayload {
@@ -312,9 +507,10 @@ async function startServer() {
     role: 'customer';
     iat: number;
     exp: number;
+    sessionVersion: number;
   }
 
-  function createCustomerToken(customerId: string, email: string): string {
+  function createCustomerToken(customerId: string, email: string, sessionVersion = 0): string {
     const now = Date.now();
     const payload: CustomerTokenPayload = {
       id: customerId,
@@ -322,6 +518,7 @@ async function startServer() {
       role: 'customer',
       iat: now,
       exp: now + CUSTOMER_TOKEN_EXPIRY_MS,
+      sessionVersion: typeof sessionVersion === 'number' && Number.isInteger(sessionVersion) && sessionVersion >= 0 ? sessionVersion : 0,
     };
 
     const payloadB64 = Buffer.from(JSON.stringify(payload)).toString('base64url');
@@ -412,83 +609,178 @@ async function startServer() {
   }
 
   async function requireCustomer(req: express.Request, res: express.Response, next: express.NextFunction) {
-    const authHeader = req.headers.authorization;
-    let token = req.cookies?.[CUSTOMER_TOKEN_COOKIE];
+    try {
+      const authHeader = req.headers.authorization;
+      let token = req.cookies?.[CUSTOMER_TOKEN_COOKIE];
 
-    if (!token && req.headers.cookie) {
-      const match = req.headers.cookie.match(new RegExp(`(?:^|;\\s*)${CUSTOMER_TOKEN_COOKIE}=([^;]+)`));
-      if (match) {
-        token = decodeURIComponent(match[1]);
+      if (!token && req.headers.cookie) {
+        const match = req.headers.cookie.match(new RegExp(`(?:^|;\\s*)${CUSTOMER_TOKEN_COOKIE}=([^;]+)`));
+        if (match) {
+          token = decodeURIComponent(match[1]);
+        }
       }
+
+      if (!token && authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7).trim();
+      }
+
+      if (!token) {
+        return res.status(401).json({ success: false, error: 'Unauthorized: Customer session required.' });
+      }
+
+      const payload = verifyCustomerToken(token);
+      if (!payload) {
+        return res.status(401).json({ success: false, error: 'Unauthorized: Invalid or expired customer session.' });
+      }
+
+      const customers = (await getStoreValue<any[]>('customer_accounts')) || [];
+      const customer = customers.find(
+        (c) => (c.id && c.id === payload.id) || (c.email && c.email.toLowerCase() === payload.email.toLowerCase())
+      );
+
+      if (!customer) {
+        return res.status(401).json({ success: false, error: 'Customer account not found.' });
+      }
+
+      if (customer.status === 'BLOCKED') {
+        return res.status(403).json({
+          success: false,
+          error: 'Your account has been restricted by administration. Please contact support@hakkiveda.com',
+        });
+      }
+
+      const currentVersion = getSafeSessionVersion(customer);
+      const tokenVersion = getSafeSessionVersion(payload);
+
+      if (tokenVersion !== currentVersion) {
+        return res.status(401).json({
+          success: false,
+          error: 'Unauthorized: Customer session revoked. Please sign in again.',
+        });
+      }
+
+      (req as any).customer = customer;
+      (req as any).customerPayload = payload;
+      next();
+    } catch (err: any) {
+      console.error('[requireCustomer Error]:', err?.message || err);
+      return res.status(500).json({ success: false, error: 'Customer session verification error.' });
     }
-
-    if (!token && authHeader && authHeader.startsWith('Bearer ')) {
-      token = authHeader.substring(7).trim();
-    }
-
-    if (!token) {
-      return res.status(401).json({ success: false, error: 'Unauthorized: Customer session required.' });
-    }
-
-    const payload = verifyCustomerToken(token);
-    if (!payload) {
-      return res.status(401).json({ success: false, error: 'Unauthorized: Invalid or expired customer session.' });
-    }
-
-    const customers = (await getStoreValue<any[]>('customer_accounts')) || [];
-    const customer = customers.find(
-      (c) => (c.id && c.id === payload.id) || (c.email && c.email.toLowerCase() === payload.email.toLowerCase())
-    );
-
-    if (!customer) {
-      return res.status(401).json({ success: false, error: 'Customer account not found.' });
-    }
-
-    if (customer.status === 'BLOCKED') {
-      return res.status(403).json({
-        success: false,
-        error: 'Your account has been restricted by administration. Please contact support@hakkiveda.com',
-      });
-    }
-
-    (req as any).customer = customer;
-    (req as any).customerPayload = payload;
-    next();
   }
 
-  // Rate limit tracking maps and helpers
+  // Rate limit tracking maps, hard bounds and helpers
+  const MAX_GENERIC_RATE_LIMIT_MAP_SIZE = 20000;
+  const MAX_LOGIN_RATE_LIMIT_MAP_SIZE = 10000;
+  const RATE_LIMIT_CLEANUP_INTERVAL_MS = 10 * 60 * 1000; // 10 minutes
+
+  // Failed login attempt tracking for IP-based rate limiting
+  interface LoginAttemptRecord {
+    failedAttempts: number;
+    blockedUntil: number;
+    lastAttemptTime: number;
+  }
+
   const failedCustomerLoginAttempts = new Map<string, LoginAttemptRecord>();
   const customerRegisterAttempts = new Map<string, { count: number; resetTime: number }>();
   const forgotPasswordAttempts = new Map<string, { count: number; resetTime: number }>();
   const adminUploadAttempts = new Map<string, { count: number; resetTime: number }>();
   const paymentEndpointAttempts = new Map<string, { count: number; resetTime: number }>();
   const aiEndpointAttempts = new Map<string, { count: number; resetTime: number }>();
+  const failedLoginAttempts = new Map<string, LoginAttemptRecord>();
+
+  // Key normalization & bounded length helper
+  function normalizeRateLimitKey(key: any, maxLength = 128): string {
+    if (typeof key !== 'string') {
+      return 'unknown-key';
+    }
+    const clean = key.trim().toLowerCase();
+    return clean.length > maxLength ? clean.slice(0, maxLength) : clean;
+  }
+
+  // Safe client IP extraction helper respecting single-hop reverse proxy
+  function getClientIp(req: express.Request): string {
+    let ip = req.ip;
+    if (!ip && req.headers['x-forwarded-for']) {
+      const xff = req.headers['x-forwarded-for'];
+      if (typeof xff === 'string') {
+        ip = xff.split(',')[0].trim();
+      } else if (Array.isArray(xff) && xff[0]) {
+        ip = xff[0].split(',')[0].trim();
+      }
+    }
+    if (!ip && req.socket?.remoteAddress) {
+      ip = req.socket.remoteAddress;
+    }
+    return normalizeRateLimitKey(ip || 'unknown-ip', 64);
+  }
+
+  // Eviction helper enforcing hard maximum size on rate-limit Maps
+  function enforceMapSizeLimit<V>(
+    map: Map<string, V>,
+    maxSize: number,
+    isExpired: (val: V, key: string) => boolean
+  ) {
+    if (map.size <= maxSize) return;
+
+    // Step 1: Evict expired entries first
+    for (const [k, v] of map.entries()) {
+      try {
+        if (isExpired(v, k)) {
+          map.delete(k);
+        }
+      } catch {
+        map.delete(k);
+      }
+    }
+
+    // Step 2: If still oversized, evict oldest entries safely (FIFO map keys iteration)
+    if (map.size > maxSize) {
+      const excess = map.size - maxSize;
+      let count = 0;
+      for (const key of map.keys()) {
+        map.delete(key);
+        count++;
+        if (count >= excess) break;
+      }
+    }
+  }
 
   // Generic sliding window rate limiter helper
   function checkGenericRateLimit(
     map: Map<string, { count: number; resetTime: number }>,
     key: string,
     maxRequests: number,
-    windowMs: number
+    windowMs: number,
+    maxMapSize = MAX_GENERIC_RATE_LIMIT_MAP_SIZE
   ): { allowed: boolean; remainingSeconds?: number } {
+    const normKey = normalizeRateLimitKey(key);
     const now = Date.now();
-    const record = map.get(key);
-    if (!record || now > record.resetTime) {
-      map.set(key, { count: 1, resetTime: now + windowMs });
+    const record = map.get(normKey);
+
+    if (!record || !Number.isFinite(record.resetTime) || now > record.resetTime) {
+      enforceMapSizeLimit(
+        map,
+        maxMapSize,
+        (val) => !val || !Number.isFinite(val.resetTime) || now > val.resetTime
+      );
+      map.set(normKey, { count: 1, resetTime: now + windowMs });
       return { allowed: true };
     }
+
     if (record.count >= maxRequests) {
       const remainingSeconds = Math.ceil((record.resetTime - now) / 1000);
       return { allowed: false, remainingSeconds };
     }
+
     record.count += 1;
     return { allowed: true };
   }
 
   function checkCustomerLoginRateLimit(ip: string): { allowed: boolean; remainingSeconds?: number } {
+    const normIp = normalizeRateLimitKey(ip, 64);
     const now = Date.now();
-    const record = failedCustomerLoginAttempts.get(ip);
-    if (!record) return { allowed: true };
+    const record = failedCustomerLoginAttempts.get(normIp);
+    if (!record || !Number.isFinite(record.blockedUntil)) return { allowed: true };
 
     if (record.blockedUntil > now) {
       const remainingSeconds = Math.ceil((record.blockedUntil - now) / 1000);
@@ -496,25 +788,33 @@ async function startServer() {
     }
 
     if (record.blockedUntil > 0 && record.blockedUntil <= now) {
-      failedCustomerLoginAttempts.delete(ip);
+      failedCustomerLoginAttempts.delete(normIp);
     }
 
     return { allowed: true };
   }
 
   function recordFailedCustomerLogin(ip: string) {
+    const normIp = normalizeRateLimitKey(ip, 64);
     const now = Date.now();
-    const record = failedCustomerLoginAttempts.get(ip) || { failedAttempts: 0, blockedUntil: 0 };
-    record.failedAttempts += 1;
+    const record = failedCustomerLoginAttempts.get(normIp) || { failedAttempts: 0, blockedUntil: 0, lastAttemptTime: now };
+    record.failedAttempts = (typeof record.failedAttempts === 'number' ? record.failedAttempts : 0) + 1;
+    record.lastAttemptTime = now;
 
     if (record.failedAttempts >= 10) {
       record.blockedUntil = now + 15 * 60 * 1000; // 15-minute lockout after 10 failed attempts
     }
-    failedCustomerLoginAttempts.set(ip, record);
+    enforceMapSizeLimit(
+      failedCustomerLoginAttempts,
+      MAX_LOGIN_RATE_LIMIT_MAP_SIZE,
+      (val) => !val || !Number.isFinite(val.blockedUntil) || (val.blockedUntil > 0 && val.blockedUntil <= now)
+    );
+    failedCustomerLoginAttempts.set(normIp, record);
   }
 
   function recordSuccessfulCustomerLogin(ip: string) {
-    failedCustomerLoginAttempts.delete(ip);
+    const normIp = normalizeRateLimitKey(ip, 64);
+    failedCustomerLoginAttempts.delete(normIp);
   }
 
   function checkCustomerRegisterRateLimit(ip: string): boolean {
@@ -542,18 +842,11 @@ async function startServer() {
     return res.allowed;
   }
 
-  // Failed login attempt tracking for IP-based rate limiting
-  interface LoginAttemptRecord {
-    failedAttempts: number;
-    blockedUntil: number;
-  }
-
-  const failedLoginAttempts = new Map<string, LoginAttemptRecord>();
-
   function checkAdminLoginRateLimit(ip: string): { allowed: boolean; remainingSeconds?: number } {
+    const normIp = normalizeRateLimitKey(ip, 64);
     const now = Date.now();
-    const record = failedLoginAttempts.get(ip);
-    if (!record) return { allowed: true };
+    const record = failedLoginAttempts.get(normIp);
+    if (!record || !Number.isFinite(record.blockedUntil)) return { allowed: true };
 
     if (record.blockedUntil > now) {
       const remainingSeconds = Math.ceil((record.blockedUntil - now) / 1000);
@@ -561,29 +854,97 @@ async function startServer() {
     }
 
     if (record.blockedUntil > 0 && record.blockedUntil <= now) {
-      failedLoginAttempts.delete(ip);
+      failedLoginAttempts.delete(normIp);
     }
 
     return { allowed: true };
   }
 
   function recordFailedAdminLogin(ip: string) {
+    const normIp = normalizeRateLimitKey(ip, 64);
     const now = Date.now();
-    const record = failedLoginAttempts.get(ip) || { failedAttempts: 0, blockedUntil: 0 };
-    record.failedAttempts += 1;
+    const record = failedLoginAttempts.get(normIp) || { failedAttempts: 0, blockedUntil: 0, lastAttemptTime: now };
+    record.failedAttempts = (typeof record.failedAttempts === 'number' ? record.failedAttempts : 0) + 1;
+    record.lastAttemptTime = now;
 
     if (record.failedAttempts >= 5) {
       record.blockedUntil = now + 15 * 60 * 1000; // 15-minute lockout
     }
-    failedLoginAttempts.set(ip, record);
+    enforceMapSizeLimit(
+      failedLoginAttempts,
+      MAX_LOGIN_RATE_LIMIT_MAP_SIZE,
+      (val) => !val || !Number.isFinite(val.blockedUntil) || (val.blockedUntil > 0 && val.blockedUntil <= now)
+    );
+    failedLoginAttempts.set(normIp, record);
   }
 
   function recordSuccessfulAdminLogin(ip: string) {
-    failedLoginAttempts.delete(ip);
+    const normIp = normalizeRateLimitKey(ip, 64);
+    failedLoginAttempts.delete(normIp);
+  }
+
+  // Periodic Rate Limit Cleanup Sweep (Every 10 Minutes)
+  function runRateLimitCleanup() {
+    const now = Date.now();
+
+    try {
+      // 1. Generic Sliding Window Maps
+      const genericMaps = [
+        customerRegisterAttempts,
+        forgotPasswordAttempts,
+        adminUploadAttempts,
+        paymentEndpointAttempts,
+        aiEndpointAttempts,
+      ];
+
+      for (const map of genericMaps) {
+        try {
+          for (const [key, record] of map.entries()) {
+            if (!record || !Number.isFinite(record.resetTime) || now > record.resetTime) {
+              map.delete(key);
+            }
+          }
+        } catch (mapErr: any) {
+          console.error('[Rate Limit Cleanup Error in Generic Map]:', mapErr?.message || mapErr);
+        }
+      }
+
+      // 2. Login Attempt Tracking Maps
+      const loginMaps = [failedCustomerLoginAttempts, failedLoginAttempts];
+      for (const map of loginMaps) {
+        try {
+          for (const [key, record] of map.entries()) {
+            if (!record || !Number.isFinite(record.blockedUntil)) {
+              map.delete(key);
+            } else if (record.blockedUntil > 0 && record.blockedUntil <= now) {
+              // Lockout period expired
+              map.delete(key);
+            } else if (
+              record.blockedUntil === 0 &&
+              record.lastAttemptTime &&
+              now - record.lastAttemptTime > 15 * 60 * 1000
+            ) {
+              // Idle non-blocked attempts older than 15 minutes window
+              map.delete(key);
+            }
+          }
+        } catch (mapErr: any) {
+          console.error('[Rate Limit Cleanup Error in Login Map]:', mapErr?.message || mapErr);
+        }
+      }
+    } catch (outerErr: any) {
+      console.error('[Rate Limit Cleanup Fatal Error]:', outerErr?.message || outerErr);
+    }
+  }
+
+  // Single periodic cleanup timer (unref'd to prevent blocking process shutdown)
+  const rateLimitCleanupTimer = setInterval(runRateLimitCleanup, RATE_LIMIT_CLEANUP_INTERVAL_MS);
+  if (typeof rateLimitCleanupTimer.unref === 'function') {
+    rateLimitCleanupTimer.unref();
   }
 
   // Secure admin account credentials helper (Preserves existing owner account)
-  async function getAdminAccountFromDb(): Promise<{ email: string; passwordBcrypt: string }> {
+  async function getAdminAccountFromDb(): Promise<{ email: string; passwordBcrypt: string; sessionVersion: number }> {
     const existing = await getStoreValue<any>('admin_account');
     const defaultAdminEmail = (process.env.ADMIN_EMAIL || 'hakkiveda@gmail.com').toLowerCase();
 
@@ -592,6 +953,7 @@ async function startServer() {
       return {
         email: (existing.email || defaultAdminEmail).toLowerCase(),
         passwordBcrypt: existing.passwordBcrypt,
+        sessionVersion: getSafeSessionVersion(existing),
       };
     }
 
@@ -600,6 +962,7 @@ async function startServer() {
       const account = {
         email: defaultAdminEmail,
         passwordBcrypt: process.env.ADMIN_PASSWORD_HASH,
+        sessionVersion: 0,
       };
       await setStoreValue('admin_account', account);
       return account;
@@ -611,6 +974,7 @@ async function startServer() {
     const account = {
       email: defaultAdminEmail,
       passwordBcrypt: bcryptHash,
+      sessionVersion: 0,
     };
     await setStoreValue('admin_account', account);
     return account;
@@ -735,10 +1099,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
   // Admin Login Endpoint
   app.post('/api/admin/login', async (req, res) => {
     try {
-      const clientIp =
-        (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() ||
-        req.ip ||
-        'unknown-ip';
+      const clientIp = getClientIp(req);
 
       const rateCheck = checkAdminLoginRateLimit(clientIp);
       if (!rateCheck.allowed) {
@@ -769,7 +1130,8 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
       }
 
       recordSuccessfulAdminLogin(clientIp);
-      const token = createAdminToken(adminAccount.email);
+      const adminSessionVersion = getSafeSessionVersion(adminAccount);
+      const token = createAdminToken(adminAccount.email, adminSessionVersion);
 
       res.cookie(ADMIN_TOKEN_COOKIE, token, {
         httpOnly: true,
@@ -803,8 +1165,20 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
     });
   });
 
-  // Admin Logout Endpoint
-  app.post('/api/admin/logout', (req, res) => {
+  // Admin Logout Endpoint (Invalidates all existing admin sessions immediately)
+  app.post('/api/admin/logout', async (_req, res) => {
+    try {
+      const adminAccount = await getAdminAccountFromDb();
+      const newSessionVersion = getSafeSessionVersion(adminAccount) + 1;
+      const updatedAccount = {
+        ...adminAccount,
+        sessionVersion: newSessionVersion,
+      };
+      await setStoreValue('admin_account', updatedAccount);
+    } catch (err: any) {
+      console.error('[Admin Logout Revocation Error]:', err?.message || err);
+    }
+
     res.clearCookie(ADMIN_TOKEN_COOKIE, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -814,7 +1188,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
     res.json({ success: true, message: 'Logged out successfully.' });
   });
 
-  // Admin Change Password Endpoint
+  // Admin Change Password Endpoint (Increments sessionVersion, invalidates prior sessions, issues fresh token)
   app.post('/api/admin/change-password', requireAdmin, async (req, res) => {
     try {
       const { oldPassword, newPassword } = req.body;
@@ -833,13 +1207,29 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
       }
 
       const newBcryptHash = await bcrypt.hash(newPassword, 10);
+      const newSessionVersion = getSafeSessionVersion(adminAccount) + 1;
       const updatedAccount = {
         email: adminAccount.email,
         passwordBcrypt: newBcryptHash,
+        sessionVersion: newSessionVersion,
       };
       await setStoreValue('admin_account', updatedAccount);
 
-      res.json({ success: true, message: 'Master password updated successfully.' });
+      // Issue fresh admin session cookie using new version
+      const freshToken = createAdminToken(updatedAccount.email, newSessionVersion);
+      res.cookie(ADMIN_TOKEN_COOKIE, freshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: ADMIN_TOKEN_EXPIRY_MS,
+        path: '/',
+      });
+
+      res.json({
+        success: true,
+        message: 'Master password updated successfully.',
+        token: freshToken,
+      });
     } catch (err: any) {
       console.error('[Admin Change Password Error]:', err.message);
       res.status(500).json({ success: false, error: 'Failed to update master password.' });
@@ -853,10 +1243,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
   // Customer Register Endpoint
   app.post('/api/auth/register', async (req, res) => {
     try {
-      const clientIp =
-        (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() ||
-        req.ip ||
-        'unknown-ip';
+      const clientIp = getClientIp(req);
 
       if (!checkCustomerRegisterRateLimit(clientIp)) {
         return res.status(429).json({
@@ -908,6 +1295,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
         phone: (phone || '').trim(),
         avatar: '',
         passwordBcrypt,
+        sessionVersion: 0,
         addresses: [],
         savedPayments: [],
         isAdmin: false,
@@ -937,7 +1325,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
       const updatedCustomers = [newCustomer, ...customers];
       await setStoreValue('customer_accounts', updatedCustomers);
 
-      const token = createCustomerToken(customerId, normalizedEmail);
+      const token = createCustomerToken(customerId, normalizedEmail, 0);
       res.cookie(CUSTOMER_TOKEN_COOKIE, token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -961,10 +1349,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
   // Customer Login Endpoint
   app.post('/api/auth/login', async (req, res) => {
     try {
-      const clientIp =
-        (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() ||
-        req.ip ||
-        'unknown-ip';
+      const clientIp = getClientIp(req);
 
       const rateCheck = checkCustomerLoginRateLimit(clientIp);
       if (!rateCheck.allowed) {
@@ -1032,7 +1417,8 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
       customers[customerIndex] = customer;
       await setStoreValue('customer_accounts', customers);
 
-      const token = createCustomerToken(customer.id, customer.email);
+      const customerSessionVersion = getSafeSessionVersion(customer);
+      const token = createCustomerToken(customer.id, customer.email, customerSessionVersion);
       res.cookie(CUSTOMER_TOKEN_COOKIE, token, {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
@@ -1062,8 +1448,44 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
     });
   });
 
-  // Customer Logout Endpoint
-  app.post('/api/auth/logout', (_req, res) => {
+  // Customer Logout Endpoint (Invalidates server session version and clears cookie)
+  app.post('/api/auth/logout', async (req, res) => {
+    try {
+      const authHeader = req.headers.authorization;
+      let token = req.cookies?.[CUSTOMER_TOKEN_COOKIE];
+
+      if (!token && req.headers.cookie) {
+        const match = req.headers.cookie.match(new RegExp(`(?:^|;\\s*)${CUSTOMER_TOKEN_COOKIE}=([^;]+)`));
+        if (match) {
+          token = decodeURIComponent(match[1]);
+        }
+      }
+
+      if (!token && authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7).trim();
+      }
+
+      if (token) {
+        const payload = verifyCustomerToken(token);
+        if (payload) {
+          const customers = (await getStoreValue<any[]>('customer_accounts')) || [];
+          const customerIndex = customers.findIndex(
+            (c: any) =>
+              (c.id && c.id === payload.id) ||
+              (c.email && c.email.toLowerCase() === payload.email.toLowerCase())
+          );
+          if (customerIndex !== -1) {
+            const customer = customers[customerIndex];
+            customer.sessionVersion = getSafeSessionVersion(customer) + 1;
+            customers[customerIndex] = customer;
+            await setStoreValue('customer_accounts', customers);
+          }
+        }
+      }
+    } catch (err: any) {
+      console.error('[Customer Logout Revocation Error]:', err?.message || err);
+    }
+
     res.clearCookie(CUSTOMER_TOKEN_COOKIE, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
@@ -1100,8 +1522,9 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
       const customer = customers[customerIndex];
       const passwordBcrypt = await bcrypt.hash(passwordToSet, 10);
       customer.passwordBcrypt = passwordBcrypt;
-      // Any admin-assisted credential reset forces password change upon next login
+      // Any admin-assisted credential reset forces password change upon next login and invalidates existing sessions
       customer.mustChangePassword = true;
+      customer.sessionVersion = getSafeSessionVersion(customer) + 1;
       customer.lastPasswordReset = new Date().toLocaleString() + ' IST';
 
       customers[customerIndex] = customer;
@@ -1121,10 +1544,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
   // Customer Password Recovery Request Endpoint (Protected with Rate Limiting)
   app.post('/api/auth/forgot-password', async (req, res) => {
     try {
-      const clientIp =
-        (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() ||
-        req.ip ||
-        'unknown-ip';
+      const clientIp = getClientIp(req);
 
       const { email } = req.body;
       if (!email || typeof email !== 'string') {
@@ -1240,14 +1660,27 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
 
       customer.passwordBcrypt = await bcrypt.hash(newPassword, 10);
       customer.mustChangePassword = false;
+      const newSessionVersion = getSafeSessionVersion(customer) + 1;
+      customer.sessionVersion = newSessionVersion;
       customer.lastPasswordReset = new Date().toLocaleString() + ' IST';
       customers[customerIndex] = customer;
       await setStoreValue('customer_accounts', customers);
+
+      // Issue fresh customer session cookie with incremented sessionVersion so the user remains logged in seamlessly
+      const freshToken = createCustomerToken(customer.id, customer.email, newSessionVersion);
+      res.cookie(CUSTOMER_TOKEN_COOKIE, freshToken, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: CUSTOMER_TOKEN_EXPIRY_MS,
+        path: '/',
+      });
 
       res.json({
         success: true,
         message: 'Password updated successfully.',
         customer: sanitizeCustomer(customer),
+        token: freshToken,
       });
     } catch (err: any) {
       console.error('[Customer Change Password Error]:', err.message);
@@ -1341,8 +1774,11 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
   app.get('/api/store/:key', requireAdminForPrivateKey, async (req, res) => {
     try {
       const key = req.params.key;
+      if (!isSafeStoreKey(key)) {
+        return res.status(400).json({ success: false, error: 'Invalid or forbidden store key.' });
+      }
       const data = await getStoreValue(key);
-      res.json({ success: true, key, data, value: data });
+      res.json({ success: true, key: key.trim(), data, value: data });
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
     }
@@ -1351,12 +1787,16 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
   const handleStoreKeySave = async (req: express.Request, res: express.Response) => {
     try {
       const key = req.params.key;
+      if (!isSafeStoreKey(key)) {
+        return res.status(400).json({ success: false, error: 'Invalid or forbidden store key.' });
+      }
+      const cleanKey = key.trim();
       const value = req.body.value !== undefined ? req.body.value : (req.body.data !== undefined ? req.body.data : req.body);
-      await setStoreValue(key, value);
+      await setStoreValue(cleanKey, value);
       res.json({
         success: true,
-        message: `Key '${key}' saved successfully.`,
-        key,
+        message: `Key '${cleanKey}' saved successfully.`,
+        key: cleanKey,
         data: value,
         value: value,
       });
@@ -1373,7 +1813,10 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
       const payload = req.body.value !== undefined ? req.body.value : (req.body.data !== undefined ? req.body.data : req.body);
       if (typeof payload === 'object' && payload !== null) {
         for (const [k, v] of Object.entries(payload)) {
-          await setStoreValue(k, v);
+          if (!isSafeStoreKey(k)) {
+            return res.status(400).json({ success: false, error: `Invalid or forbidden store key: '${k}'` });
+          }
+          await setStoreValue(k.trim(), v);
         }
       }
       res.json({ success: true, message: 'Bulk store data saved.' });
@@ -1877,7 +2320,20 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
   // 7. Track Shipment
   app.get('/api/shiprocket/track/:identifier', async (req, res) => {
     try {
-      const identifier = req.params.identifier;
+      const rawIdentifier = req.params.identifier;
+      if (!rawIdentifier || typeof rawIdentifier !== 'string') {
+        return res.status(400).json({ success: false, error: 'Tracking identifier is required.' });
+      }
+
+      const identifier = rawIdentifier.trim();
+      if (!identifier || identifier.length > 100 || /[\x00-\x1F\x7F]/.test(identifier)) {
+        return res.status(400).json({ success: false, error: 'Invalid tracking identifier format.' });
+      }
+
+      if (identifier.includes('/') || identifier.includes('\\') || identifier.includes('://') || identifier.includes('?') || identifier.includes('#')) {
+        return res.status(400).json({ success: false, error: 'Invalid tracking identifier format.' });
+      }
+
       const result = await trackShipment(identifier);
 
       // If an order exists with this AWB or ID, update tracking status
@@ -2158,7 +2614,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
   // Production-Ready Media Upload Endpoint supporting high-res images (max 10MB) & hero videos (max 100MB)
   app.post('/api/upload', requireAdmin, (req, res) => {
     const admin = (req as any).admin;
-    const rateLimitKey = admin?.email || (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() || req.ip || 'admin';
+    const rateLimitKey = admin?.email ? normalizeRateLimitKey(admin.email) : getClientIp(req);
     if (!checkUploadRateLimit(rateLimitKey)) {
       return res.status(429).json({
         success: false,
@@ -2328,7 +2784,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
   // Endpoint 1: AI Hair Quiz Analysis (Rate Limited)
   app.post('/api/hair-quiz', async (req, res) => {
     try {
-      const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() || req.ip || 'unknown-ip';
+      const clientIp = getClientIp(req);
       if (!checkAiRateLimit(clientIp)) {
         return res.status(429).json({
           success: false,
@@ -2463,7 +2919,7 @@ Return ONLY raw JSON, no markdown code blocks.`;
   // Endpoint 2: AI Botanical Chat Advisor (Rate Limited)
   app.post('/api/ai-chat', async (req, res) => {
     try {
-      const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() || req.ip || 'unknown-ip';
+      const clientIp = getClientIp(req);
       if (!checkAiRateLimit(clientIp)) {
         return res.status(429).json({
           success: false,
@@ -2614,7 +3070,7 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
   // 1. Create Razorpay Order Endpoint (Rate Limited)
   app.post('/api/payments/razorpay/create-order', async (req, res) => {
     try {
-      const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() || req.ip || 'unknown-ip';
+      const clientIp = getClientIp(req);
       if (!checkPaymentRateLimit(clientIp)) {
         return res.status(429).json({
           success: false,
@@ -2780,7 +3236,7 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
   // 2. Verify Razorpay Payment Endpoint (Rate Limited)
   app.post('/api/payments/razorpay/verify', async (req, res) => {
     try {
-      const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() || req.ip || 'unknown-ip';
+      const clientIp = getClientIp(req);
       if (!checkPaymentRateLimit(clientIp)) {
         return res.status(429).json({
           success: false,
@@ -2794,6 +3250,22 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
         return res.status(400).json({ success: false, error: 'Missing required Razorpay payment parameters.' });
       }
 
+      if (
+        typeof razorpay_payment_id !== 'string' ||
+        typeof razorpay_order_id !== 'string' ||
+        typeof razorpay_signature !== 'string'
+      ) {
+        return res.status(400).json({ success: false, error: 'Invalid payment parameters format.' });
+      }
+
+      const cleanSignature = razorpay_signature.trim();
+      if (!/^[0-9a-fA-F]{64}$/.test(cleanSignature)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid Razorpay payment signature format.',
+        });
+      }
+
       const keySecret = process.env.RAZORPAY_KEY_SECRET;
       if (!keySecret) {
         console.error('[Razorpay Verify Error] RAZORPAY_KEY_SECRET is not configured.');
@@ -2803,12 +3275,18 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
         });
       }
 
-      // HMAC SHA256 Verification
+      // Constant-time HMAC SHA256 Verification
       const hmac = crypto.createHmac('sha256', keySecret);
       hmac.update(`${razorpay_order_id}|${razorpay_payment_id}`);
       const generatedSignature = hmac.digest('hex');
 
-      if (generatedSignature !== razorpay_signature) {
+      const expectedBuf = Buffer.from(generatedSignature, 'hex');
+      const receivedBuf = Buffer.from(cleanSignature, 'hex');
+
+      if (
+        expectedBuf.length !== receivedBuf.length ||
+        !crypto.timingSafeEqual(expectedBuf, receivedBuf)
+      ) {
         console.error('[Razorpay Verify] Invalid signature mismatch');
         return res.status(400).json({
           success: false,
@@ -2915,7 +3393,7 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
         paymentId: razorpay_payment_id,
       });
     } catch (error: any) {
-      console.error('[Razorpay Verify Error]:', error?.message);
+      console.error('[Razorpay Verify Error]:', error?.message || error);
       return res.status(500).json({
         success: false,
         error: 'Payment verification failed. Please contact customer support.',
@@ -2926,7 +3404,7 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
   // 3. Create Cash on Delivery (COD) Order Endpoint (Rate Limited)
   app.post('/api/payments/cod/create-order', async (req, res) => {
     try {
-      const clientIp = (req.headers['x-forwarded-for'] as string)?.split(',')[0].trim() || req.ip || 'unknown-ip';
+      const clientIp = getClientIp(req);
       if (!checkPaymentRateLimit(clientIp)) {
         return res.status(429).json({
           success: false,
@@ -3047,15 +3525,55 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
   app.post('/api/webhooks/razorpay', async (req, res) => {
     try {
       const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
-      if (webhookSecret) {
-        const signature = req.headers['x-razorpay-signature'] as string;
-        const shasum = crypto.createHmac('sha256', webhookSecret);
-        shasum.update(JSON.stringify(req.body));
-        const digest = shasum.digest('hex');
-        if (digest !== signature) {
-          console.error('[Razorpay Webhook] Invalid signature mismatch');
-          return res.status(400).json({ status: 'invalid_signature' });
-        }
+      if (!webhookSecret) {
+        console.error('[Razorpay Webhook Error] RAZORPAY_WEBHOOK_SECRET is not configured.');
+        return res.status(500).json({
+          success: false,
+          error: 'Webhook processing is temporarily unavailable.',
+        });
+      }
+
+      const rawBody = (req as any).rawBody;
+      if (!rawBody || !Buffer.isBuffer(rawBody)) {
+        console.error('[Razorpay Webhook Error] Raw request body not available for signature verification.');
+        return res.status(400).json({
+          success: false,
+          error: 'Missing raw webhook payload.',
+        });
+      }
+
+      const signatureHeader = req.headers['x-razorpay-signature'];
+      if (!signatureHeader || typeof signatureHeader !== 'string') {
+        return res.status(400).json({
+          success: false,
+          error: 'Missing webhook signature header.',
+        });
+      }
+
+      const cleanSignature = signatureHeader.trim();
+      if (!/^[0-9a-fA-F]{64}$/.test(cleanSignature)) {
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid webhook signature format.',
+        });
+      }
+
+      const shasum = crypto.createHmac('sha256', webhookSecret);
+      shasum.update(rawBody);
+      const expectedDigest = shasum.digest('hex');
+
+      const expectedBuf = Buffer.from(expectedDigest, 'hex');
+      const receivedBuf = Buffer.from(cleanSignature, 'hex');
+
+      if (
+        expectedBuf.length !== receivedBuf.length ||
+        !crypto.timingSafeEqual(expectedBuf, receivedBuf)
+      ) {
+        console.error('[Razorpay Webhook] Invalid signature mismatch');
+        return res.status(400).json({
+          success: false,
+          error: 'Invalid webhook signature.',
+        });
       }
 
       const event = req.body?.event;
@@ -3066,25 +3584,39 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
         const razorpayOrderId = paymentEntity?.order_id || payload?.order?.entity?.id;
         const razorpayPaymentId = paymentEntity?.id;
 
-        if (razorpayOrderId) {
+        if (razorpayOrderId && typeof razorpayOrderId === 'string') {
           const existingOrders = (await getStoreValue<any[]>('orders')) || [];
           const orderIdx = existingOrders.findIndex((o) => o.razorpayOrderId === razorpayOrderId);
 
-          if (orderIdx !== -1 && existingOrders[orderIdx].paymentStatus !== 'Paid') {
-            existingOrders[orderIdx] = {
-              ...existingOrders[orderIdx],
+          if (orderIdx !== -1) {
+            const targetOrder = existingOrders[orderIdx];
+
+            // Idempotency: if order is already marked Paid, return without duplicate side effects
+            if (targetOrder.paymentStatus === 'Paid' || targetOrder.paymentStatus === 'PAID') {
+              return res.json({ success: true, message: 'Order was already verified and marked paid.' });
+            }
+
+            // Verify payment entity amount is valid/positive if provided
+            if (paymentEntity?.amount && typeof paymentEntity.amount === 'number' && paymentEntity.amount <= 0) {
+              console.warn(`[Razorpay Webhook] Non-positive amount in event payload: ${paymentEntity.amount}`);
+              return res.status(400).json({ success: false, error: 'Invalid payment amount in event payload.' });
+            }
+
+            const updatedOrder = {
+              ...targetOrder,
               paymentStatus: 'Paid',
               trackingStatus: 'ORDER_PLACED',
-              razorpayPaymentId: razorpayPaymentId || existingOrders[orderIdx].razorpayPaymentId,
+              razorpayPaymentId: razorpayPaymentId || targetOrder.razorpayPaymentId,
               paidAt: new Date().toISOString(),
             };
+
+            existingOrders[orderIdx] = updatedOrder;
             await setStoreValue('orders', existingOrders);
 
-            // Deduct stock
-            const targetOrder = existingOrders[orderIdx];
-            if (targetOrder.items) {
+            // Deduct stock idempotently
+            if (targetOrder.items && Array.isArray(targetOrder.items)) {
               const dbProducts = (await getStoreValue<any[]>('products')) || [];
-              const updatedProds = dbProducts.map((p) => {
+              const updatedProds = dbProducts.map((p: any) => {
                 const itemMatch = targetOrder.items.find(
                   (i: any) => (i.product && i.product.id === p.id) || i.productId === p.id || i.id === p.id
                 );
@@ -3097,14 +3629,45 @@ Keep responses polite, herbal-expert oriented, concise, and luxurious. Always en
               });
               await setStoreValue('products', updatedProds);
             }
+
+            // Add PaymentLog idempotently
+            const paymentLogs = (await getStoreValue<any[]>('payment_logs')) || [];
+            const existingLog = paymentLogs.find((l: any) => l.transactionId === razorpayPaymentId);
+            if (!existingLog && razorpayPaymentId) {
+              const newLog = {
+                id: `log-${Date.now()}`,
+                orderId: targetOrder.id,
+                orderNumber: targetOrder.orderNumber,
+                customerName: targetOrder.customer?.name || 'Customer',
+                customerEmail: targetOrder.customer?.email || '',
+                gateway: 'RAZORPAY',
+                amount: targetOrder.totalAmountINR,
+                currency: 'INR',
+                amountINR: targetOrder.totalAmountINR,
+                status: 'SUCCESSFUL',
+                transactionId: razorpayPaymentId,
+                paymentMethodDetails: 'Razorpay Webhook Notification',
+                createdAt: new Date().toISOString(),
+              };
+              await setStoreValue('payment_logs', [newLog, ...paymentLogs]);
+            }
+
+            // Trigger Shiprocket order sync if configured
+            if (isShiprocketConfigured()) {
+              createShiprocketOrder(updatedOrder).catch((srErr) => {
+                console.warn('[Shiprocket Webhook Order Creation Error]:', srErr?.message || srErr);
+              });
+            }
+          } else {
+            console.warn(`[Razorpay Webhook] Order reference not found for Razorpay order: ${razorpayOrderId}`);
           }
         }
       }
 
-      return res.json({ status: 'ok' });
+      return res.json({ success: true, message: 'Webhook event processed successfully.' });
     } catch (err: any) {
-      console.error('[Razorpay Webhook Error]:', err);
-      return res.status(500).json({ status: 'error', error: err.message });
+      console.error('[Razorpay Webhook Error]:', err?.message || err);
+      return res.status(500).json({ success: false, error: 'Webhook processing failed.' });
     }
   });
 

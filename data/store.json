@@ -35,7 +35,7 @@
       ],
       "volume": "200 ml / 6.7 fl oz",
       "usageRitual": "Warm 10-15ml oil in your palms. Apply gently onto dry scalp using fingertips in circular movements. Leave overnight or for at least 2 hours before washing with 42 Mountain Herbs Shampoo.",
-      "stock": 250,
+      "stock": 245,
       "sku": "HV-TGHO-200",
       "isBestseller": true,
       "isNew": false,
@@ -567,6 +567,382 @@
   ],
   "orders": [
     {
+      "id": "ord-1787937005478",
+      "orderNumber": "HV-ORD-005478-387",
+      "date": "2026-08-28",
+      "createdAt": "2026-08-28T17:10:05.478Z",
+      "items": [
+        {
+          "product": {
+            "id": "prod-1",
+            "name": "HAKKIVEDA Natural Adivasi 108 Herbal Hair Oil (Tribal Gold)",
+            "category": "Hair Oils & Elixirs",
+            "subtitle": "Authentic 108 Mountain Herbs Slow-Brewed Formula",
+            "priceINR": 2499,
+            "originalPriceINR": 2999,
+            "rating": 4.95,
+            "reviewsCount": 1420,
+            "image": "/images/hakkiveda_108_oil_gold.jpg",
+            "additionalImages": [
+              "/images/hakkiveda_oil_couple_herbs.jpg",
+              "/images/hakkiveda_108_oil_back_label.jpg",
+              "/images/hakkiveda_108_oil_yellow_cap.jpg",
+              "/images/hakkiveda_108_herbs_infographic.jpg"
+            ],
+            "description": "The crown jewel of Hakki-Pikki tribal wisdom. Handcrafted in small artisanal batches in Mysore using 108 rare wild-harvested herbs, root extracts, and virgin sesame & coconut oils slow-cooked in traditional copper cauldrons over woodfire for 21 solar cycles.",
+            "benefits": [
+              "Reactivates dormant hair follicles within 45-60 days",
+              "Stops severe hair fall and root breakage",
+              "Promotes natural dark melanin retention & long hair growth",
+              "Relieves dry scalp, itchiness, and flaky buildup",
+              "Deeply conditions coarse & dry hair strands"
+            ],
+            "ingredients": [
+              "Wild Amla (Phyllanthus emblica)",
+              "Bhringraj (Eclipta alba)",
+              "Gunja Seed Elixir (Abrus precatorius)",
+              "Shikakai (Senegalia rugata)",
+              "Devadaru Resin (Cedrus deodara)",
+              "Jatamansi (Nardostachys jatamansi)",
+              "Cold-pressed Sesame & Coconut Oil base"
+            ],
+            "volume": "200 ml / 6.7 fl oz",
+            "usageRitual": "Warm 10-15ml oil in your palms. Apply gently onto dry scalp using fingertips in circular movements. Leave overnight or for at least 2 hours before washing with 42 Mountain Herbs Shampoo.",
+            "stock": 246,
+            "sku": "HV-TGHO-200",
+            "isBestseller": true,
+            "isNew": false,
+            "inStock": true
+          },
+          "quantity": 1,
+          "unitPriceINR": 2499,
+          "totalPriceINR": 2499
+        }
+      ],
+      "customer": {
+        "name": "PayStatus",
+        "email": "paystatus@test.com",
+        "phone": "9876543210",
+        "address": "123 St",
+        "city": "Bengaluru",
+        "state": "Karnataka",
+        "country": "India",
+        "pincode": "560001"
+      },
+      "subtotalINR": 2499,
+      "taxINR": 125,
+      "shippingFeeINR": 0,
+      "discountAmountINR": 0,
+      "totalAmountINR": 2499,
+      "currencyCode": "INR",
+      "paymentMethod": "COD",
+      "paymentStatus": "COD Confirmed",
+      "trackingStatus": "Pending Fulfillment",
+      "trackingNumber": "Awaiting Fulfillment",
+      "courierName": "Express Surface Courier (COD)"
+    },
+    {
+      "id": "ord-1787937005460",
+      "orderNumber": "HV-ORD-005460-351",
+      "date": "2026-08-28",
+      "createdAt": "2026-08-28T17:10:05.460Z",
+      "items": [
+        {
+          "product": {
+            "id": "prod-1",
+            "name": "HAKKIVEDA Natural Adivasi 108 Herbal Hair Oil (Tribal Gold)",
+            "category": "Hair Oils & Elixirs",
+            "subtitle": "Authentic 108 Mountain Herbs Slow-Brewed Formula",
+            "priceINR": 2499,
+            "originalPriceINR": 2999,
+            "rating": 4.95,
+            "reviewsCount": 1420,
+            "image": "/images/hakkiveda_108_oil_gold.jpg",
+            "additionalImages": [
+              "/images/hakkiveda_oil_couple_herbs.jpg",
+              "/images/hakkiveda_108_oil_back_label.jpg",
+              "/images/hakkiveda_108_oil_yellow_cap.jpg",
+              "/images/hakkiveda_108_herbs_infographic.jpg"
+            ],
+            "description": "The crown jewel of Hakki-Pikki tribal wisdom. Handcrafted in small artisanal batches in Mysore using 108 rare wild-harvested herbs, root extracts, and virgin sesame & coconut oils slow-cooked in traditional copper cauldrons over woodfire for 21 solar cycles.",
+            "benefits": [
+              "Reactivates dormant hair follicles within 45-60 days",
+              "Stops severe hair fall and root breakage",
+              "Promotes natural dark melanin retention & long hair growth",
+              "Relieves dry scalp, itchiness, and flaky buildup",
+              "Deeply conditions coarse & dry hair strands"
+            ],
+            "ingredients": [
+              "Wild Amla (Phyllanthus emblica)",
+              "Bhringraj (Eclipta alba)",
+              "Gunja Seed Elixir (Abrus precatorius)",
+              "Shikakai (Senegalia rugata)",
+              "Devadaru Resin (Cedrus deodara)",
+              "Jatamansi (Nardostachys jatamansi)",
+              "Cold-pressed Sesame & Coconut Oil base"
+            ],
+            "volume": "200 ml / 6.7 fl oz",
+            "usageRitual": "Warm 10-15ml oil in your palms. Apply gently onto dry scalp using fingertips in circular movements. Leave overnight or for at least 2 hours before washing with 42 Mountain Herbs Shampoo.",
+            "stock": 247,
+            "sku": "HV-TGHO-200",
+            "isBestseller": true,
+            "isNew": false,
+            "inStock": true
+          },
+          "quantity": 1,
+          "unitPriceINR": 2499,
+          "totalPriceINR": 2499
+        }
+      ],
+      "customer": {
+        "name": "DiscTamp",
+        "email": "disctamp@test.com",
+        "phone": "9876543210",
+        "address": "123 St",
+        "city": "Bengaluru",
+        "state": "Karnataka",
+        "country": "India",
+        "pincode": "560001"
+      },
+      "subtotalINR": 2499,
+      "taxINR": 125,
+      "shippingFeeINR": 0,
+      "discountAmountINR": 0,
+      "totalAmountINR": 2499,
+      "currencyCode": "INR",
+      "paymentMethod": "COD",
+      "paymentStatus": "COD Confirmed",
+      "trackingStatus": "Pending Fulfillment",
+      "trackingNumber": "Awaiting Fulfillment",
+      "courierName": "Express Surface Courier (COD)"
+    },
+    {
+      "id": "ord-1787937005441",
+      "orderNumber": "HV-ORD-005441-775",
+      "date": "2026-08-28",
+      "createdAt": "2026-08-28T17:10:05.441Z",
+      "items": [
+        {
+          "product": {
+            "id": "prod-1",
+            "name": "HAKKIVEDA Natural Adivasi 108 Herbal Hair Oil (Tribal Gold)",
+            "category": "Hair Oils & Elixirs",
+            "subtitle": "Authentic 108 Mountain Herbs Slow-Brewed Formula",
+            "priceINR": 2499,
+            "originalPriceINR": 2999,
+            "rating": 4.95,
+            "reviewsCount": 1420,
+            "image": "/images/hakkiveda_108_oil_gold.jpg",
+            "additionalImages": [
+              "/images/hakkiveda_oil_couple_herbs.jpg",
+              "/images/hakkiveda_108_oil_back_label.jpg",
+              "/images/hakkiveda_108_oil_yellow_cap.jpg",
+              "/images/hakkiveda_108_herbs_infographic.jpg"
+            ],
+            "description": "The crown jewel of Hakki-Pikki tribal wisdom. Handcrafted in small artisanal batches in Mysore using 108 rare wild-harvested herbs, root extracts, and virgin sesame & coconut oils slow-cooked in traditional copper cauldrons over woodfire for 21 solar cycles.",
+            "benefits": [
+              "Reactivates dormant hair follicles within 45-60 days",
+              "Stops severe hair fall and root breakage",
+              "Promotes natural dark melanin retention & long hair growth",
+              "Relieves dry scalp, itchiness, and flaky buildup",
+              "Deeply conditions coarse & dry hair strands"
+            ],
+            "ingredients": [
+              "Wild Amla (Phyllanthus emblica)",
+              "Bhringraj (Eclipta alba)",
+              "Gunja Seed Elixir (Abrus precatorius)",
+              "Shikakai (Senegalia rugata)",
+              "Devadaru Resin (Cedrus deodara)",
+              "Jatamansi (Nardostachys jatamansi)",
+              "Cold-pressed Sesame & Coconut Oil base"
+            ],
+            "volume": "200 ml / 6.7 fl oz",
+            "usageRitual": "Warm 10-15ml oil in your palms. Apply gently onto dry scalp using fingertips in circular movements. Leave overnight or for at least 2 hours before washing with 42 Mountain Herbs Shampoo.",
+            "stock": 248,
+            "sku": "HV-TGHO-200",
+            "isBestseller": true,
+            "isNew": false,
+            "inStock": true
+          },
+          "quantity": 1,
+          "unitPriceINR": 2499,
+          "totalPriceINR": 2499
+        }
+      ],
+      "customer": {
+        "name": "QtyNeg",
+        "email": "qtyneg@test.com",
+        "phone": "9876543210",
+        "address": "123 St",
+        "city": "Bengaluru",
+        "state": "Karnataka",
+        "country": "India",
+        "pincode": "560001"
+      },
+      "subtotalINR": 2499,
+      "taxINR": 125,
+      "shippingFeeINR": 0,
+      "discountAmountINR": 0,
+      "totalAmountINR": 2499,
+      "currencyCode": "INR",
+      "paymentMethod": "COD",
+      "paymentStatus": "COD Confirmed",
+      "trackingStatus": "Pending Fulfillment",
+      "trackingNumber": "Awaiting Fulfillment",
+      "courierName": "Express Surface Courier (COD)"
+    },
+    {
+      "id": "ord-1787937005424",
+      "orderNumber": "HV-ORD-005424-346",
+      "date": "2026-08-28",
+      "createdAt": "2026-08-28T17:10:05.425Z",
+      "items": [
+        {
+          "product": {
+            "id": "prod-1",
+            "name": "HAKKIVEDA Natural Adivasi 108 Herbal Hair Oil (Tribal Gold)",
+            "category": "Hair Oils & Elixirs",
+            "subtitle": "Authentic 108 Mountain Herbs Slow-Brewed Formula",
+            "priceINR": 2499,
+            "originalPriceINR": 2999,
+            "rating": 4.95,
+            "reviewsCount": 1420,
+            "image": "/images/hakkiveda_108_oil_gold.jpg",
+            "additionalImages": [
+              "/images/hakkiveda_oil_couple_herbs.jpg",
+              "/images/hakkiveda_108_oil_back_label.jpg",
+              "/images/hakkiveda_108_oil_yellow_cap.jpg",
+              "/images/hakkiveda_108_herbs_infographic.jpg"
+            ],
+            "description": "The crown jewel of Hakki-Pikki tribal wisdom. Handcrafted in small artisanal batches in Mysore using 108 rare wild-harvested herbs, root extracts, and virgin sesame & coconut oils slow-cooked in traditional copper cauldrons over woodfire for 21 solar cycles.",
+            "benefits": [
+              "Reactivates dormant hair follicles within 45-60 days",
+              "Stops severe hair fall and root breakage",
+              "Promotes natural dark melanin retention & long hair growth",
+              "Relieves dry scalp, itchiness, and flaky buildup",
+              "Deeply conditions coarse & dry hair strands"
+            ],
+            "ingredients": [
+              "Wild Amla (Phyllanthus emblica)",
+              "Bhringraj (Eclipta alba)",
+              "Gunja Seed Elixir (Abrus precatorius)",
+              "Shikakai (Senegalia rugata)",
+              "Devadaru Resin (Cedrus deodara)",
+              "Jatamansi (Nardostachys jatamansi)",
+              "Cold-pressed Sesame & Coconut Oil base"
+            ],
+            "volume": "200 ml / 6.7 fl oz",
+            "usageRitual": "Warm 10-15ml oil in your palms. Apply gently onto dry scalp using fingertips in circular movements. Leave overnight or for at least 2 hours before washing with 42 Mountain Herbs Shampoo.",
+            "stock": 249,
+            "sku": "HV-TGHO-200",
+            "isBestseller": true,
+            "isNew": false,
+            "inStock": true
+          },
+          "quantity": 1,
+          "unitPriceINR": 2499,
+          "totalPriceINR": 2499
+        }
+      ],
+      "customer": {
+        "name": "Tamper",
+        "email": "tamper@test.com",
+        "phone": "9876543210",
+        "address": "123 St",
+        "city": "Bengaluru",
+        "state": "Karnataka",
+        "country": "India",
+        "pincode": "560001"
+      },
+      "subtotalINR": 2499,
+      "taxINR": 125,
+      "shippingFeeINR": 0,
+      "discountAmountINR": 0,
+      "totalAmountINR": 2499,
+      "currencyCode": "INR",
+      "paymentMethod": "COD",
+      "paymentStatus": "COD Confirmed",
+      "trackingStatus": "Pending Fulfillment",
+      "trackingNumber": "Awaiting Fulfillment",
+      "courierName": "Express Surface Courier (COD)"
+    },
+    {
+      "id": "ord-1787937005392",
+      "orderNumber": "HV-ORD-005392-580",
+      "date": "2026-08-28",
+      "createdAt": "2026-08-28T17:10:05.393Z",
+      "items": [
+        {
+          "product": {
+            "id": "prod-1",
+            "name": "HAKKIVEDA Natural Adivasi 108 Herbal Hair Oil (Tribal Gold)",
+            "category": "Hair Oils & Elixirs",
+            "subtitle": "Authentic 108 Mountain Herbs Slow-Brewed Formula",
+            "priceINR": 2499,
+            "originalPriceINR": 2999,
+            "rating": 4.95,
+            "reviewsCount": 1420,
+            "image": "/images/hakkiveda_108_oil_gold.jpg",
+            "additionalImages": [
+              "/images/hakkiveda_oil_couple_herbs.jpg",
+              "/images/hakkiveda_108_oil_back_label.jpg",
+              "/images/hakkiveda_108_oil_yellow_cap.jpg",
+              "/images/hakkiveda_108_herbs_infographic.jpg"
+            ],
+            "description": "The crown jewel of Hakki-Pikki tribal wisdom. Handcrafted in small artisanal batches in Mysore using 108 rare wild-harvested herbs, root extracts, and virgin sesame & coconut oils slow-cooked in traditional copper cauldrons over woodfire for 21 solar cycles.",
+            "benefits": [
+              "Reactivates dormant hair follicles within 45-60 days",
+              "Stops severe hair fall and root breakage",
+              "Promotes natural dark melanin retention & long hair growth",
+              "Relieves dry scalp, itchiness, and flaky buildup",
+              "Deeply conditions coarse & dry hair strands"
+            ],
+            "ingredients": [
+              "Wild Amla (Phyllanthus emblica)",
+              "Bhringraj (Eclipta alba)",
+              "Gunja Seed Elixir (Abrus precatorius)",
+              "Shikakai (Senegalia rugata)",
+              "Devadaru Resin (Cedrus deodara)",
+              "Jatamansi (Nardostachys jatamansi)",
+              "Cold-pressed Sesame & Coconut Oil base"
+            ],
+            "volume": "200 ml / 6.7 fl oz",
+            "usageRitual": "Warm 10-15ml oil in your palms. Apply gently onto dry scalp using fingertips in circular movements. Leave overnight or for at least 2 hours before washing with 42 Mountain Herbs Shampoo.",
+            "stock": 250,
+            "sku": "HV-TGHO-200",
+            "isBestseller": true,
+            "isNew": false,
+            "inStock": true
+          },
+          "quantity": 1,
+          "unitPriceINR": 2499,
+          "totalPriceINR": 2499
+        }
+      ],
+      "customer": {
+        "name": "User B",
+        "email": "userb@test.com",
+        "phone": "9876543210",
+        "address": "123 St",
+        "city": "Bengaluru",
+        "state": "Karnataka",
+        "country": "India",
+        "pincode": "560001"
+      },
+      "customerId": "usr-1787937005384",
+      "subtotalINR": 2499,
+      "taxINR": 125,
+      "shippingFeeINR": 0,
+      "discountAmountINR": 0,
+      "totalAmountINR": 2499,
+      "currencyCode": "INR",
+      "paymentMethod": "COD",
+      "paymentStatus": "COD Confirmed",
+      "trackingStatus": "Pending Fulfillment",
+      "trackingNumber": "Awaiting Fulfillment",
+      "courierName": "Express Surface Courier (COD)"
+    },
+    {
       "id": "ord-1001",
       "orderNumber": "HV-894201",
       "date": "2026-07-25",
@@ -709,6 +1085,72 @@
   ],
   "b2b_leads": [],
   "customer_accounts": [
+    {
+      "id": "usr-1787937005384",
+      "name": "User B",
+      "email": "userb@test.com",
+      "phone": "",
+      "avatar": "",
+      "passwordBcrypt": "$2b$10$LQdSQa7yc8MslPIRf/PpSeiJNESeS1au2sfSY5A9Exv2ZJU9oS8Ay",
+      "addresses": [],
+      "savedPayments": [],
+      "isAdmin": false,
+      "status": "ACTIVE",
+      "createdAt": "2026-08-28",
+      "lastLogin": "8/28/2026, 5:10:05 PM IST",
+      "loyaltyPoints": 100,
+      "referralCode": "HAKKI-USER-75",
+      "preferences": {
+        "country": "India",
+        "currency": "INR",
+        "language": "English",
+        "emailOrders": true,
+        "whatsappUpdates": true,
+        "promotional": true
+      },
+      "loginHistory": [
+        {
+          "id": "log-1787937005384",
+          "timestamp": "8/28/2026, 5:10:05 PM IST",
+          "ipLocation": "Web Session",
+          "device": "Web Browser"
+        }
+      ]
+    },
+    {
+      "id": "usr-1787937005258",
+      "name": "User A",
+      "email": "usera@test.com",
+      "phone": "",
+      "avatar": "",
+      "passwordBcrypt": "$2b$10$3WR1yLV7gDtMUznI8l0WTOu8qq.dEO/4olbc4gSxLbjhukupcjHi.",
+      "addresses": [],
+      "savedPayments": [],
+      "isAdmin": false,
+      "status": "ACTIVE",
+      "createdAt": "2026-08-28",
+      "lastLogin": "8/28/2026, 5:10:05 PM IST",
+      "loyaltyPoints": 100,
+      "referralCode": "HAKKI-USER-40",
+      "preferences": {
+        "country": "India",
+        "currency": "INR",
+        "language": "English",
+        "emailOrders": true,
+        "whatsappUpdates": true,
+        "promotional": true
+      },
+      "loginHistory": [
+        {
+          "id": "log-1787937005275",
+          "timestamp": "8/28/2026, 5:10:05 PM IST",
+          "ipLocation": "Web Session",
+          "device": "Web Browser"
+        }
+      ],
+      "mustChangePassword": false,
+      "lastPasswordReset": "8/28/2026, 5:10:06 PM IST"
+    },
     {
       "id": "usr-1787934393560",
       "name": "User 4",
@@ -4799,6 +5241,81 @@
     }
   ],
   "payment_logs": [
+    {
+      "id": "log-1787937005485",
+      "orderId": "ord-1787937005478",
+      "orderNumber": "HV-ORD-005478-387",
+      "customerName": "PayStatus",
+      "customerEmail": "paystatus@test.com",
+      "gateway": "COD",
+      "amount": 2499,
+      "currency": "INR",
+      "amountINR": 2499,
+      "status": "PENDING",
+      "transactionId": "COD_HV-ORD-005478-387",
+      "paymentMethodDetails": "Cash on Delivery",
+      "createdAt": "2026-08-28T17:10:05.485Z"
+    },
+    {
+      "id": "log-1787937005466",
+      "orderId": "ord-1787937005460",
+      "orderNumber": "HV-ORD-005460-351",
+      "customerName": "DiscTamp",
+      "customerEmail": "disctamp@test.com",
+      "gateway": "COD",
+      "amount": 2499,
+      "currency": "INR",
+      "amountINR": 2499,
+      "status": "PENDING",
+      "transactionId": "COD_HV-ORD-005460-351",
+      "paymentMethodDetails": "Cash on Delivery",
+      "createdAt": "2026-08-28T17:10:05.466Z"
+    },
+    {
+      "id": "log-1787937005448",
+      "orderId": "ord-1787937005441",
+      "orderNumber": "HV-ORD-005441-775",
+      "customerName": "QtyNeg",
+      "customerEmail": "qtyneg@test.com",
+      "gateway": "COD",
+      "amount": 2499,
+      "currency": "INR",
+      "amountINR": 2499,
+      "status": "PENDING",
+      "transactionId": "COD_HV-ORD-005441-775",
+      "paymentMethodDetails": "Cash on Delivery",
+      "createdAt": "2026-08-28T17:10:05.448Z"
+    },
+    {
+      "id": "log-1787937005430",
+      "orderId": "ord-1787937005424",
+      "orderNumber": "HV-ORD-005424-346",
+      "customerName": "Tamper",
+      "customerEmail": "tamper@test.com",
+      "gateway": "COD",
+      "amount": 2499,
+      "currency": "INR",
+      "amountINR": 2499,
+      "status": "PENDING",
+      "transactionId": "COD_HV-ORD-005424-346",
+      "paymentMethodDetails": "Cash on Delivery",
+      "createdAt": "2026-08-28T17:10:05.430Z"
+    },
+    {
+      "id": "log-1787937005398",
+      "orderId": "ord-1787937005392",
+      "orderNumber": "HV-ORD-005392-580",
+      "customerName": "User B",
+      "customerEmail": "userb@test.com",
+      "gateway": "COD",
+      "amount": 2499,
+      "currency": "INR",
+      "amountINR": 2499,
+      "status": "PENDING",
+      "transactionId": "COD_HV-ORD-005392-580",
+      "paymentMethodDetails": "Cash on Delivery",
+      "createdAt": "2026-08-28T17:10:05.398Z"
+    },
     {
       "id": "paylog-1001",
       "orderId": "ord-1001",

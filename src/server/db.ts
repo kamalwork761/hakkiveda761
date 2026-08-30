@@ -229,26 +229,66 @@ export async function getDb() {
   return store;
 }
 
+export function isSafeStoreKey(key: unknown): boolean {
+  if (typeof key !== 'string') return false;
+  const trimmed = key.trim();
+  if (!trimmed || trimmed.length > 128) return false;
+  if (/[\x00-\x1F\x7F]/.test(trimmed)) return false;
+
+  const lower = trimmed.toLowerCase();
+  const dangerousPatterns = [
+    '__proto__',
+    'constructor',
+    'prototype',
+    '__definegetter__',
+    '__definesetter__',
+    '__lookupgetter__',
+    '__lookupsetter__',
+    'tostring',
+    'valueof',
+    'hasownproperty',
+    'isprototypeof',
+    'propertyisenumerable',
+    'tolocalestring',
+  ];
+
+  for (const pattern of dangerousPatterns) {
+    if (lower === pattern || lower.includes(pattern)) {
+      return false;
+    }
+  }
+
+  return true;
+}
+
 export async function getStoreValue<T = any>(key: string): Promise<T | null> {
-  const store = loadMemoryFromDisk();
-  if (!(key in store)) {
-    if (key === 'site_settings') return INITIAL_SITE_SETTINGS as unknown as T;
-    if (key === 'brand_identity') return INITIAL_BRAND_IDENTITY as unknown as T;
-    if (key === 'header_layout_settings') return INITIAL_HEADER_LAYOUT_SETTINGS as unknown as T;
-    if (key === 'footer_config') return INITIAL_FOOTER_CONFIG as unknown as T;
-    if (key === 'homepage_quiz_banner_config') return INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG as unknown as T;
-    if (key === 'mobile_nav_config') return INITIAL_MOBILE_NAV_CONFIG as unknown as T;
-    if (key === 'homepage_editorial_config') return INITIAL_HOMEPAGE_EDITORIAL_CONFIG as unknown as T;
+  if (!isSafeStoreKey(key)) {
     return null;
   }
-  return store[key] as T;
+  const cleanKey = key.trim();
+  const store = loadMemoryFromDisk();
+  if (!(cleanKey in store)) {
+    if (cleanKey === 'site_settings') return INITIAL_SITE_SETTINGS as unknown as T;
+    if (cleanKey === 'brand_identity') return INITIAL_BRAND_IDENTITY as unknown as T;
+    if (cleanKey === 'header_layout_settings') return INITIAL_HEADER_LAYOUT_SETTINGS as unknown as T;
+    if (cleanKey === 'footer_config') return INITIAL_FOOTER_CONFIG as unknown as T;
+    if (cleanKey === 'homepage_quiz_banner_config') return INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG as unknown as T;
+    if (cleanKey === 'mobile_nav_config') return INITIAL_MOBILE_NAV_CONFIG as unknown as T;
+    if (cleanKey === 'homepage_editorial_config') return INITIAL_HOMEPAGE_EDITORIAL_CONFIG as unknown as T;
+    return null;
+  }
+  return store[cleanKey] as T;
 }
 
 export async function setStoreValue(key: string, value: any): Promise<boolean> {
+  if (!isSafeStoreKey(key)) {
+    throw new Error(`Invalid or dangerous store key: '${String(key)}'`);
+  }
+  const cleanKey = key.trim();
   const store = loadMemoryFromDisk();
-  store[key] = value;
+  store[cleanKey] = value;
   await flushToDisk();
-  console.log(`[File DB] setStoreValue updated '${key}'`);
+  console.log(`[File DB] setStoreValue updated '${cleanKey}'`);
   return true;
 }
 

@@ -237,14 +237,20 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ onSelectCatego
             >
               {/* Image Box */}
               <div className="aspect-[4/3] w-full overflow-hidden relative bg-slate-100">
-                <img
-                  src={cat.image}
-                  alt={cat.name}
-                  loading="lazy"
-                  width={400}
-                  height={300}
-                  className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
-                />
+                <picture className="w-full h-full block">
+                  {cat.image && (cat.image.endsWith('.jpg') || cat.image.endsWith('.png')) && (
+                    <source type="image/webp" srcSet={cat.image.replace(/\.(jpg|png)$/, '.webp')} />
+                  )}
+                  <img
+                    src={cat.image}
+                    alt={cat.name}
+                    loading="lazy"
+                    decoding="async"
+                    width={400}
+                    height={300}
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700"
+                  />
+                </picture>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-85 group-hover:opacity-65 transition-opacity" />
 
                 {/* Category Title Overlay Badge */}
@@ -297,14 +303,20 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ onSelectCatego
             >
               {/* Image Box */}
               <div className="h-52 sm:h-60 overflow-hidden relative w-full bg-slate-100">
-                <img
-                  src={cat.image}
-                  alt={cat.name}
-                  loading="lazy"
-                  width={400}
-                  height={300}
-                  className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700"
-                />
+                <picture className="w-full h-full block">
+                  {cat.image && (cat.image.endsWith('.jpg') || cat.image.endsWith('.png')) && (
+                    <source type="image/webp" srcSet={cat.image.replace(/\.(jpg|png)$/, '.webp')} />
+                  )}
+                  <img
+                    src={cat.image}
+                    alt={cat.name}
+                    loading="lazy"
+                    decoding="async"
+                    width={400}
+                    height={300}
+                    className="w-full h-full object-cover group-hover:scale-108 transition-transform duration-700"
+                  />
+                </picture>
                 <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/20 to-transparent opacity-80 group-hover:opacity-60 transition-opacity" />
 
                 {/* Category Title Overlay Badge */}

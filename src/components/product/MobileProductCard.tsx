@@ -57,12 +57,20 @@ export const MobileProductCard: React.FC<MobileProductCardProps> = ({
     >
       {/* Product Image Container */}
       <div className="relative aspect-square w-full bg-[#FAF8F2] dark:bg-black/20 p-2 overflow-hidden flex items-center justify-center">
-        <img
-          src={product.image}
-          alt={product.name}
-          loading="lazy"
-          className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
-        />
+        <picture className="w-full h-full flex items-center justify-center">
+          {product.image && (product.image.endsWith('.jpg') || product.image.endsWith('.png')) && (
+            <source type="image/webp" srcSet={product.image.replace(/\.(jpg|png)$/, '.webp')} />
+          )}
+          <img
+            src={product.image}
+            alt={product.name}
+            width="200"
+            height="200"
+            loading="lazy"
+            decoding="async"
+            className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-300"
+          />
+        </picture>
 
         {/* Discount Badge */}
         {discount > 0 && (

@@ -284,7 +284,7 @@ export async function createShiprocketOrder(order: any) {
     billing_pincode: order.customer?.pincode || '560001',
     billing_state: order.customer?.state || 'Karnataka',
     billing_country: order.customer?.country || 'India',
-    billing_email: order.customer?.email || 'customer@hakkiveda.store',
+    billing_email: order.customer?.email || 'customer@hakkiveda.com',
     billing_phone: order.customer?.phone || '9999999999',
     shipping_is_billing: true,
     order_items: orderItems,

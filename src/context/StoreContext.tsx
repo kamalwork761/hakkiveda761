@@ -991,7 +991,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     root.style.setProperty('--font-body', fontBody);
     root.style.setProperty('--font-button', fontButton);
 
-    if (brand.browserTitle) {
+    if (brand.browserTitle && typeof window !== 'undefined' && window.location.pathname === '/') {
       document.title = brand.browserTitle;
     }
   };

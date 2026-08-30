@@ -289,12 +289,20 @@ export const ProductGrid: React.FC<ProductGridProps> = ({ selectedCategory, onSe
                 >
                   {/* Image Container */}
                   <div className="relative h-72 overflow-hidden bg-black/30 flex items-center justify-center p-3">
-                    <img
-                      src={product.image}
-                      alt={product.name}
-                      loading="lazy"
-                      className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
-                    />
+                    <picture className="w-full h-full flex items-center justify-center">
+                      {product.image && (product.image.endsWith('.jpg') || product.image.endsWith('.png')) && (
+                        <source type="image/webp" srcSet={product.image.replace(/\.(jpg|png)$/, '.webp')} />
+                      )}
+                      <img
+                        src={product.image}
+                        alt={product.name}
+                        width="400"
+                        height="400"
+                        loading="lazy"
+                        decoding="async"
+                        className="w-full h-full object-contain group-hover:scale-105 transition-transform duration-700"
+                      />
+                    </picture>
 
                     {/* Multi-Image Gallery Indicator Badge */}
                     {([product.image, ...(product.additionalImages || [])].filter(Boolean).length > 1) && (

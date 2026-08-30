@@ -1004,15 +1004,14 @@ Disallow: /api/private
 Disallow: /temp
 Disallow: /uploads/private
 
-Sitemap: https://hakkiveda.store/sitemap.xml`);
+Sitemap: https://hakkiveda.com/sitemap.xml`);
   });
 
   // Dynamic Sitemap.xml Route
   app.get('/sitemap.xml', async (_req, res) => {
     try {
-      const siteUrl = 'https://hakkiveda.store';
+      const siteUrl = 'https://hakkiveda.com';
       const products = (await getStoreValue<any[]>('products')) || [];
-      const categories = (await getStoreValue<any[]>('categories')) || [];
       const blogs = (await getStoreValue<any[]>('blogs')) || [];
 
       const slugify = (str: string) =>
@@ -1030,37 +1029,38 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
         lastmod?: string;
       }
 
+      const today = new Date().toISOString().split('T')[0];
+
       const staticPages: SitemapItem[] = [
-        { url: siteUrl, priority: '1.0', changefreq: 'daily', lastmod: new Date().toISOString().split('T')[0] },
-        { url: `${siteUrl}/collections`, priority: '0.9', changefreq: 'weekly', lastmod: new Date().toISOString().split('T')[0] },
-        { url: `${siteUrl}/quiz`, priority: '0.8', changefreq: 'monthly', lastmod: new Date().toISOString().split('T')[0] },
-        { url: `${siteUrl}/b2b`, priority: '0.8', changefreq: 'monthly', lastmod: new Date().toISOString().split('T')[0] },
-        { url: `${siteUrl}/gallery`, priority: '0.7', changefreq: 'monthly', lastmod: new Date().toISOString().split('T')[0] },
-        { url: `${siteUrl}/testimonials`, priority: '0.7', changefreq: 'weekly', lastmod: new Date().toISOString().split('T')[0] },
+        { url: `${siteUrl}/`, priority: '1.0', changefreq: 'daily', lastmod: today },
+        { url: `${siteUrl}/hair-care`, priority: '0.9', changefreq: 'weekly', lastmod: today },
+        { url: `${siteUrl}/skin-care`, priority: '0.8', changefreq: 'weekly', lastmod: today },
+        { url: `${siteUrl}/tribal-wellness`, priority: '0.8', changefreq: 'weekly', lastmod: today },
+        { url: `${siteUrl}/our-story`, priority: '0.8', changefreq: 'monthly', lastmod: today },
+        { url: `${siteUrl}/our-tribal-roots`, priority: '0.8', changefreq: 'monthly', lastmod: today },
+        { url: `${siteUrl}/how-hakkiveda-is-made`, priority: '0.8', changefreq: 'monthly', lastmod: today },
+        { url: `${siteUrl}/b2b-enquiry`, priority: '0.7', changefreq: 'monthly', lastmod: today },
+        { url: `${siteUrl}/video-rituals`, priority: '0.7', changefreq: 'weekly', lastmod: today },
+        { url: `${siteUrl}/journal`, priority: '0.8', changefreq: 'daily', lastmod: today },
       ];
 
       const productUrls: SitemapItem[] = products.map((p) => ({
-        url: `${siteUrl}/products/${slugify(p.name || p.id)}`,
+        url: `${siteUrl}/products/${p.slug || slugify(p.name || String(p.id))}`,
         priority: '0.9',
         changefreq: 'weekly',
-        lastmod: new Date().toISOString().split('T')[0],
-      }));
-
-      const categoryUrls: SitemapItem[] = categories.map((c) => ({
-        url: `${siteUrl}/categories/${c.slug || slugify(c.name || c.id)}`,
-        priority: '0.8',
-        changefreq: 'weekly',
-        lastmod: new Date().toISOString().split('T')[0],
+        lastmod: p.updatedAt ? new Date(p.updatedAt).toISOString().split('T')[0] : today,
       }));
 
       const blogUrls: SitemapItem[] = blogs.map((b) => ({
-        url: `${siteUrl}/journal/${slugify(b.title || b.id)}`,
+        url: `${siteUrl}/journal/${b.slug || slugify(b.title || String(b.id))}`,
         priority: '0.7',
         changefreq: 'monthly',
-        lastmod: b.createdAt ? new Date(b.createdAt).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+        lastmod: b.updatedAt
+          ? new Date(b.updatedAt).toISOString().split('T')[0]
+          : (b.createdAt ? new Date(b.createdAt).toISOString().split('T')[0] : today),
       }));
 
-      const allUrls = [...staticPages, ...productUrls, ...categoryUrls, ...blogUrls];
+      const allUrls = [...staticPages, ...productUrls, ...blogUrls];
 
       let xml = `<?xml version="1.0" encoding="UTF-8"?>\n`;
       xml += `<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n`;
@@ -1079,7 +1079,7 @@ Sitemap: https://hakkiveda.store/sitemap.xml`);
       xml += `</urlset>`;
 
       res.setHeader('Content-Type', 'application/xml');
-      res.setHeader('Cache-Control', 'public, max-age=3600, stale-while-revalidate=86400');
+      res.setHeader('Cache-Control', 'public, max-age=3600');
       res.send(xml);
     } catch (err: any) {
       console.error('Sitemap error:', err);

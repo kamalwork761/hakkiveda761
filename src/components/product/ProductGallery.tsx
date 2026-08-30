@@ -136,12 +136,20 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
                 }`}
                 aria-label={`Select product image view ${idx + 1}`}
               >
-                <img
-                  src={img}
-                  alt={`${productName} thumbnail ${idx + 1}`}
-                  loading="lazy"
-                  className="w-full h-full object-contain"
-                />
+                <picture className="w-full h-full flex items-center justify-center">
+                  {img && (img.endsWith('.jpg') || img.endsWith('.png')) && (
+                    <source type="image/webp" srcSet={img.replace(/\.(jpg|png)$/, '.webp')} />
+                  )}
+                  <img
+                    src={img}
+                    alt={`${productName} thumbnail ${idx + 1}`}
+                    width="80"
+                    height="80"
+                    loading="lazy"
+                    decoding="async"
+                    className="w-full h-full object-contain"
+                  />
+                </picture>
                 {isSelected && (
                   <span className="absolute bottom-0 inset-x-0 h-1 bg-[var(--brand-gold)]"></span>
                 )}
@@ -165,22 +173,30 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
           className="w-full aspect-square sm:aspect-auto sm:h-96 md:h-[480px] lg:h-[520px] rounded-2xl md:rounded-2xl overflow-hidden relative border-0 sm:border border-[#E7E1D5] dark:border-white/10 bg-white/70 dark:bg-black/30 flex items-center justify-center p-2 sm:p-4 cursor-zoom-in group shadow-none sm:shadow-sm transition-all"
         >
           {/* Main Product Image (Preloaded / Eager for LCP) */}
-          <img
-            src={currentImage}
-            alt={`${productName} - Detail View ${selectedIndex + 1}`}
-            fetchPriority="high"
-            loading="eager"
-            style={{
-              transformOrigin: `${zoomCoords.x}% ${zoomCoords.y}%`,
-              transform: isZoomActive ? 'scale(2.2)' : 'scale(1)',
-              width: '100%',
-              height: '100%',
-              maxHeight: '100%',
-              maxWidth: '100%',
-              objectFit: 'contain',
-            }}
-            className="w-full h-full object-contain transition-transform duration-150 ease-out select-none"
-          />
+          <picture className="w-full h-full flex items-center justify-center">
+            {currentImage && (currentImage.endsWith('.jpg') || currentImage.endsWith('.png')) && (
+              <source type="image/webp" srcSet={currentImage.replace(/\.(jpg|png)$/, '.webp')} />
+            )}
+            <img
+              src={currentImage}
+              alt={`${productName} - Detail View ${selectedIndex + 1}`}
+              fetchPriority="high"
+              loading="eager"
+              decoding="async"
+              width="600"
+              height="600"
+              style={{
+                transformOrigin: `${zoomCoords.x}% ${zoomCoords.y}%`,
+                transform: isZoomActive ? 'scale(2.2)' : 'scale(1)',
+                width: '100%',
+                height: '100%',
+                maxHeight: '100%',
+                maxWidth: '100%',
+                objectFit: 'contain',
+              }}
+              className="w-full h-full object-contain transition-transform duration-150 ease-out select-none"
+            />
+          </picture>
 
           {/* Badges Overlay */}
           <div className="absolute top-3 left-3 flex flex-col gap-1.5 z-10 pointer-events-none">

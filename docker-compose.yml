@@ -13,7 +13,7 @@ services:
       - PORT=3000
       - NODE_ENV=production
       - GEMINI_API_KEY=${GEMINI_API_KEY}
-      - APP_URL=${APP_URL:-https://hakkiveda.store}
+      - APP_URL=${APP_URL:-https://hakkiveda.com}
       - UPLOAD_DIR=/app/uploads
       - DB_PATH=/app/data/hakkiveda.db
     volumes:

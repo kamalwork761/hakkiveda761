@@ -107,7 +107,10 @@ export const BeforeAfterSlider: React.FC = () => {
                 <img
                   src={currentItem.afterImage}
                   alt={`After ${currentItem.days} days transformation`}
+                  width="800"
+                  height="800"
                   loading="lazy"
+                  decoding="async"
                   className="absolute inset-0 w-full h-full object-cover object-center pointer-events-none"
                 />
 
@@ -120,7 +123,10 @@ export const BeforeAfterSlider: React.FC = () => {
                 <img
                   src={currentItem.beforeImage}
                   alt="Before transformation"
+                  width="800"
+                  height="800"
                   loading="lazy"
+                  decoding="async"
                   style={{
                     clipPath: `polygon(0 0, ${sliderPos}% 0, ${sliderPos}% 100%, 0 100%)`,
                     WebkitClipPath: `polygon(0 0, ${sliderPos}% 0, ${sliderPos}% 100%, 0 100%)`,

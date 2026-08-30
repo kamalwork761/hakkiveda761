@@ -274,7 +274,10 @@ export const VideoTestimonials: React.FC = () => {
                       <img
                         src={item.thumbnail}
                         alt={item.title}
+                        width="320"
+                        height="180"
                         loading="lazy"
+                        decoding="async"
                         referrerPolicy="no-referrer"
                         className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500 ease-out"
                         onError={(e) => {

@@ -393,13 +393,21 @@ export const ShoppableReelsSection: React.FC<ShoppableReelsSectionProps> = ({
                     </div>
                   ) : (
                     <div className="relative w-full h-full bg-black">
-                      <img
-                        src={reel.posterUrl || '/images/hakkiveda_108_oil_gold.jpg'}
-                        alt={reel.title}
-                        className="w-full h-full object-cover select-none pointer-events-none group-hover:scale-105 transition-transform duration-700 ease-out"
-                        loading="lazy"
-                        draggable={false}
-                      />
+                      <picture className="w-full h-full block">
+                        {reel.posterUrl && (reel.posterUrl.endsWith('.jpg') || reel.posterUrl.endsWith('.png')) && (
+                          <source type="image/webp" srcSet={reel.posterUrl.replace(/\.(jpg|png)$/, '.webp')} />
+                        )}
+                        <img
+                          src={reel.posterUrl || '/images/hakkiveda_108_oil_gold.jpg'}
+                          alt={reel.title}
+                          width="320"
+                          height="568"
+                          className="w-full h-full object-cover select-none pointer-events-none group-hover:scale-105 transition-transform duration-700 ease-out"
+                          loading="lazy"
+                          decoding="async"
+                          draggable={false}
+                        />
+                      </picture>
                       {/* Play Icon Placeholder on side cards */}
                       <div className="absolute inset-0 flex items-center justify-center z-10 pointer-events-none opacity-70">
                         <div className="w-10 h-10 rounded-full bg-black/60 text-white flex items-center justify-center border border-white/20">

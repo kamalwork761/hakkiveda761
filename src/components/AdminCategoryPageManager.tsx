@@ -382,7 +382,7 @@ export const AdminCategoryPageManager: React.FC = () => {
                     value={activeConfig.desktopHeroImage}
                     onChange={(e) => handleFieldChange('desktopHeroImage', e.target.value)}
                     className="flex-1 text-xs p-2 border border-gray-300 rounded-lg"
-                    placeholder="/images/hero-desktop.jpg"
+                    placeholder="/images/hero_tribal_elders.jpg"
                   />
                   <label className="bg-emerald-900 hover:bg-emerald-950 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer">
                     <Upload className="w-3.5 h-3.5" />
@@ -413,7 +413,7 @@ export const AdminCategoryPageManager: React.FC = () => {
                     value={activeConfig.mobileHeroImage}
                     onChange={(e) => handleFieldChange('mobileHeroImage', e.target.value)}
                     className="flex-1 text-xs p-2 border border-gray-300 rounded-lg"
-                    placeholder="/images/hero-mobile.jpg"
+                    placeholder="/images/hero_tribal_elders.jpg"
                   />
                   <label className="bg-emerald-900 hover:bg-emerald-950 text-white px-3 py-2 rounded-lg text-xs font-bold flex items-center gap-1 cursor-pointer">
                     <Upload className="w-3.5 h-3.5" />

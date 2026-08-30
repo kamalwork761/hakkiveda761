@@ -95,12 +95,19 @@ export const BrandStory: React.FC = () => {
                 />
               ) : (
                 <picture className="w-full">
-                  <source media="(max-width: 640px)" srcSet={mobileHero} />
+                  {mobileHero && <source media="(max-width: 640px)" srcSet={mobileHero} />}
+                  {desktopHero && (desktopHero.endsWith('.jpg') || desktopHero.endsWith('.png')) && (
+                    <source type="image/webp" srcSet={desktopHero.replace(/\.(jpg|png)$/, '.webp')} />
+                  )}
                   <img
                     key={desktopHero}
                     src={desktopHero}
                     alt={seoAlt}
                     title={seoTitle}
+                    width="600"
+                    height="480"
+                    loading="lazy"
+                    decoding="async"
                     className="w-full h-[480px] object-cover transition-transform duration-700 group-hover:scale-105"
                   />
                 </picture>
@@ -203,11 +210,20 @@ export const BrandStory: React.FC = () => {
                   onClick={() => setSelectedGalleryImg(img.url)}
                   className="group relative rounded-xl overflow-hidden border border-white/10 hover:border-[var(--brand-gold)]/60 cursor-pointer shadow-lg transition-all dark-media-card"
                 >
-                  <img
-                    src={img.url}
-                    alt={img.altText || img.title || 'Tribal Gallery'}
-                    className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
+                  <picture className="w-full h-48 block">
+                    {img.url && (img.url.endsWith('.jpg') || img.url.endsWith('.png')) && (
+                      <source type="image/webp" srcSet={img.url.replace(/\.(jpg|png)$/, '.webp')} />
+                    )}
+                    <img
+                      src={img.url}
+                      alt={img.altText || img.title || 'Tribal Gallery'}
+                      width="400"
+                      height="200"
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full h-48 object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </picture>
                   <div className="image-overlay bg-gradient-to-t from-black/80 via-black/20 to-transparent opacity-80 group-hover:opacity-100 transition-opacity" />
                   <div className="overlay-content p-4 flex flex-col justify-end h-full">
                     <span className="text-xs font-bold font-serif-luxury">

@@ -198,14 +198,20 @@ export const BestSellersCarousel: React.FC = () => {
               >
                 {/* Product Image Box */}
                 <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#FAF8F2] flex items-center justify-center">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    loading="lazy"
-                    width={320}
-                    height={400}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
+                  <picture className="w-full h-full flex items-center justify-center">
+                    {product.image && (product.image.endsWith('.jpg') || product.image.endsWith('.png')) && (
+                      <source type="image/webp" srcSet={product.image.replace(/\.(jpg|png)$/, '.webp')} />
+                    )}
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      loading="lazy"
+                      decoding="async"
+                      width={320}
+                      height={400}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </picture>
 
                   {/* Badges */}
                   <div className="absolute top-2.5 left-2.5 flex flex-col gap-1 z-10">
@@ -348,14 +354,20 @@ export const BestSellersCarousel: React.FC = () => {
               >
                 {/* Product Image Box */}
                 <div className="relative aspect-square w-full overflow-hidden bg-slate-100">
-                  <img
-                    src={product.image}
-                    alt={product.name}
-                    loading="lazy"
-                    width={320}
-                    height={320}
-                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
-                  />
+                  <picture className="w-full h-full flex items-center justify-center">
+                    {product.image && (product.image.endsWith('.jpg') || product.image.endsWith('.png')) && (
+                      <source type="image/webp" srcSet={product.image.replace(/\.(jpg|png)$/, '.webp')} />
+                    )}
+                    <img
+                      src={product.image}
+                      alt={product.name}
+                      loading="lazy"
+                      decoding="async"
+                      width={320}
+                      height={320}
+                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500"
+                    />
+                  </picture>
 
                   {/* Badges */}
                   <div className="absolute top-3 left-3 flex flex-col gap-1 z-10">

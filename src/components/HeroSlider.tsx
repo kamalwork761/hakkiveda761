@@ -311,12 +311,49 @@ export const HeroSlider: React.FC = () => {
                 />
               ) : (
                 <picture className="w-full h-full block">
-                  {mobileImageUrl && (
-                    <source media="(max-width: 640px)" srcSet={mobileImageUrl} />
+                  {/* Dedicated responsive srcset for hero tribal elders */}
+                  {imageUrl.includes('hero_tribal_elders') ? (
+                    <>
+                      <source
+                        type="image/webp"
+                        srcSet="/images/hero_tribal_elders-768.webp 768w, /images/hero_tribal_elders-1280.webp 1280w, /images/hero_tribal_elders-1920.webp 1920w"
+                        sizes="(max-width: 768px) 100vw, (max-width: 1280px) 100vw, 1920px"
+                      />
+                      <source
+                        type="image/jpeg"
+                        srcSet="/images/hero_tribal_elders.jpg"
+                      />
+                    </>
+                  ) : imageUrl.includes('hakkiveda_oil_couple_herbs') ? (
+                    <>
+                      <source
+                        type="image/webp"
+                        srcSet="/images/hakkiveda_oil_couple_herbs-768.webp 768w, /images/hakkiveda_oil_couple_herbs-1280.webp 1280w"
+                        sizes="(max-width: 768px) 100vw, 1280px"
+                      />
+                      <source
+                        type="image/jpeg"
+                        srcSet="/images/hakkiveda_oil_couple_herbs.jpg"
+                      />
+                    </>
+                  ) : (
+                    <>
+                      {mobileImageUrl && (
+                        <source media="(max-width: 640px)" srcSet={mobileImageUrl} />
+                      )}
+                      {(imageUrl.endsWith('.jpg') || imageUrl.endsWith('.png')) && (
+                        <source
+                          type="image/webp"
+                          srcSet={imageUrl.replace(/\.(jpg|png)$/, '.webp')}
+                        />
+                      )}
+                    </>
                   )}
                   <img
                     src={imageUrl}
                     alt={slide.altText || slide.title || 'HakkiVeda Hero Banner'}
+                    width="1920"
+                    height="1080"
                     onError={(e) => {
                       const fallback = '/images/hakkiveda_108_oil_gold.jpg';
                       if (e.currentTarget.src !== window.location.origin + fallback) {
@@ -324,8 +361,9 @@ export const HeroSlider: React.FC = () => {
                       }
                     }}
                     className="w-full h-full object-cover object-center sm:scale-105"
-                    loading="eager"
+                    loading={idx === 0 ? 'eager' : 'lazy'}
                     decoding="async"
+                    fetchPriority={idx === 0 ? 'high' : 'low'}
                   />
                 </picture>
               )}
@@ -390,9 +428,12 @@ export const HeroSlider: React.FC = () => {
                 <img
                   src={cutoutUrl}
                   alt={slide.title || '3D Foreground Subject Cutout'}
+                  width={dWidth}
+                  height="560"
                   className="w-full h-auto object-contain pointer-events-none select-none hero-3d-overflow-shadow animate-subtle-hero-float"
-                  loading="eager"
+                  loading={idx === 0 ? 'eager' : 'lazy'}
                   decoding="async"
+                  fetchPriority={idx === 0 ? 'high' : 'low'}
                 />
               </div>
 
@@ -410,9 +451,12 @@ export const HeroSlider: React.FC = () => {
                   <img
                     src={cutoutUrl}
                     alt={slide.title || '3D Foreground Subject Cutout'}
+                    width={mWidth}
+                    height="280"
                     className="w-full h-auto max-w-full object-contain pointer-events-none select-none hero-3d-overflow-shadow"
-                    loading="eager"
+                    loading={idx === 0 ? 'eager' : 'lazy'}
                     decoding="async"
+                    fetchPriority={idx === 0 ? 'high' : 'low'}
                   />
                 </div>
               )}

@@ -5007,7 +5007,7 @@
       "testApiKey": "rzp_test_HAKKIVEDA_DEMO",
       "testSecretKey": "sec_test_1102938102938",
       "webhookStatus": "SYNCED",
-      "webhookUrl": "https://api.hakkiveda.com/api/webhooks/razorpay",
+      "webhookUrl": "https://hakkiveda.com/api/webhooks/razorpay",
       "lastTestedAt": "2026-07-28 09:30 AM",
       "connectionStatus": "CONNECTED",
       "supportedCurrencies": [
@@ -5033,7 +5033,7 @@
       "testApiKey": "pk_test_51P_DEMO_KEY_10293",
       "testSecretKey": "sk_test_51P_DEMO_SECRET_00912",
       "webhookStatus": "ACTIVE",
-      "webhookUrl": "https://api.hakkiveda.com/api/webhooks/stripe",
+      "webhookUrl": "https://hakkiveda.com/api/webhooks/stripe",
       "lastTestedAt": "2026-07-28 09:15 AM",
       "connectionStatus": "CONNECTED",
       "supportedCurrencies": [
@@ -5062,7 +5062,7 @@
       "testApiKey": "client_id_test_paypal_demo",
       "testSecretKey": "secret_test_paypal_demo",
       "webhookStatus": "ACTIVE",
-      "webhookUrl": "https://api.hakkiveda.com/api/webhooks/paypal",
+      "webhookUrl": "https://hakkiveda.com/api/webhooks/paypal",
       "lastTestedAt": "2026-07-28 08:45 AM",
       "connectionStatus": "CONNECTED",
       "supportedCurrencies": [
@@ -5088,7 +5088,7 @@
       "testApiKey": "PG_MERCHANT_TEST_DEMO",
       "testSecretKey": "SALT_KEY_INDEX_1_TEST_SECRET",
       "webhookStatus": "SYNCED",
-      "webhookUrl": "https://api.hakkiveda.com/api/webhooks/phonepe",
+      "webhookUrl": "https://hakkiveda.com/api/webhooks/phonepe",
       "lastTestedAt": "2026-07-28 09:00 AM",
       "connectionStatus": "CONNECTED",
       "supportedCurrencies": [
@@ -5108,7 +5108,7 @@
       "testApiKey": "demo@upi",
       "testSecretKey": "demo_upi_secret_key",
       "webhookStatus": "ACTIVE",
-      "webhookUrl": "https://api.hakkiveda.com/api/webhooks/upi",
+      "webhookUrl": "https://hakkiveda.com/api/webhooks/upi",
       "lastTestedAt": "2026-07-28 09:10 AM",
       "connectionStatus": "CONNECTED",
       "supportedCurrencies": [

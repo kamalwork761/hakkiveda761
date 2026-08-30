@@ -42,13 +42,23 @@ export const HomepageEditorialSections: React.FC<HomepageEditorialSectionsProps>
             <div className="lg:col-span-6 order-1">
               <div className="relative group mx-auto max-w-lg lg:max-w-none">
                 <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-[var(--brand-gold)]/20 shadow-xl bg-[var(--brand-primary-dark)]">
-                  <img
-                    src={config.section1.image || '/images/hero_tribal_elders.jpg'}
-                    alt={config.section1.imageAlt || config.section1.heading}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full aspect-[4/3] object-cover object-center transform group-hover:scale-105 transition-transform duration-700 ease-out"
-                  />
+                  <picture className="w-full aspect-[4/3] block">
+                    {(config.section1.image || '/images/hero_tribal_elders.jpg') && (
+                      <source
+                        type="image/webp"
+                        srcSet={(config.section1.image || '/images/hero_tribal_elders.jpg').replace(/\.(jpg|png)$/, '.webp')}
+                      />
+                    )}
+                    <img
+                      src={config.section1.image || '/images/hero_tribal_elders.jpg'}
+                      alt={config.section1.imageAlt || config.section1.heading}
+                      width="600"
+                      height="450"
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full aspect-[4/3] object-cover object-center transform group-hover:scale-105 transition-transform duration-700 ease-out"
+                    />
+                  </picture>
                   
                   {/* Subtle Badge with dedicated contrast */}
                   <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 flex items-center gap-2 bg-black/75 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 text-xs font-semibold text-white shadow-md">
@@ -122,13 +132,23 @@ export const HomepageEditorialSections: React.FC<HomepageEditorialSectionsProps>
             <div className="lg:col-span-6 order-1 lg:order-2">
               <div className="relative group mx-auto max-w-lg lg:max-w-none">
                 <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-[var(--brand-gold)]/20 shadow-xl bg-[var(--brand-primary-dark)]">
-                  <img
-                    src={config.section2.image || '/images/hakkiveda_108_herbs_infographic.jpg'}
-                    alt={config.section2.imageAlt || config.section2.heading}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full aspect-[4/3] object-cover object-center transform group-hover:scale-105 transition-transform duration-700 ease-out"
-                  />
+                  <picture className="w-full aspect-[4/3] block">
+                    {(config.section2.image || '/images/hakkiveda_108_herbs_infographic.jpg') && (
+                      <source
+                        type="image/webp"
+                        srcSet={(config.section2.image || '/images/hakkiveda_108_herbs_infographic.jpg').replace(/\.(jpg|png)$/, '.webp')}
+                      />
+                    )}
+                    <img
+                      src={config.section2.image || '/images/hakkiveda_108_herbs_infographic.jpg'}
+                      alt={config.section2.imageAlt || config.section2.heading}
+                      width="600"
+                      height="450"
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full aspect-[4/3] object-cover object-center transform group-hover:scale-105 transition-transform duration-700 ease-out"
+                    />
+                  </picture>
                   
                   {/* Subtle Badge with dedicated contrast */}
                   <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 flex items-center gap-2 bg-black/75 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 text-xs font-semibold text-white shadow-md">
@@ -148,13 +168,23 @@ export const HomepageEditorialSections: React.FC<HomepageEditorialSectionsProps>
             <div className="lg:col-span-6 order-1">
               <div className="relative group mx-auto max-w-lg lg:max-w-none">
                 <div className="relative overflow-hidden rounded-2xl sm:rounded-3xl border border-[var(--brand-gold)]/20 shadow-xl bg-[var(--brand-primary-dark)]">
-                  <img
-                    src={config.section3.image || '/images/hakkiveda_oil_couple_herbs.jpg'}
-                    alt={config.section3.imageAlt || config.section3.heading}
-                    loading="lazy"
-                    decoding="async"
-                    className="w-full aspect-[4/3] object-cover object-center transform group-hover:scale-105 transition-transform duration-700 ease-out"
-                  />
+                  <picture className="w-full aspect-[4/3] block">
+                    {(config.section3.image || '/images/hakkiveda_oil_couple_herbs.jpg') && (
+                      <source
+                        type="image/webp"
+                        srcSet={(config.section3.image || '/images/hakkiveda_oil_couple_herbs.jpg').replace(/\.(jpg|png)$/, '.webp')}
+                      />
+                    )}
+                    <img
+                      src={config.section3.image || '/images/hakkiveda_oil_couple_herbs.jpg'}
+                      alt={config.section3.imageAlt || config.section3.heading}
+                      width="600"
+                      height="450"
+                      loading="lazy"
+                      decoding="async"
+                      className="w-full aspect-[4/3] object-cover object-center transform group-hover:scale-105 transition-transform duration-700 ease-out"
+                    />
+                  </picture>
                   
                   {/* Subtle Badge with dedicated contrast */}
                   <div className="absolute bottom-4 left-4 sm:bottom-6 sm:left-6 flex items-center gap-2 bg-black/75 backdrop-blur-md px-3.5 py-1.5 rounded-full border border-white/20 text-xs font-semibold text-white shadow-md">

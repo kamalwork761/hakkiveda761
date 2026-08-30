@@ -108,7 +108,7 @@ export const AIChatModal: React.FC = () => {
           <div className="bg-black/30 p-2 border-b border-white/10 flex gap-1.5 overflow-x-auto text-[10px]">
             {[
               'How to apply Tribal Gold Oil?',
-              'Does it cure dandruff?',
+              'How does it help dandruff & itchy scalp?',
               'Worldwide Shipping rates?',
               'Is it safe for colored hair?',
             ].map((prompt, i) => (
@@ -152,6 +152,11 @@ export const AIChatModal: React.FC = () => {
               </div>
             )}
             <div ref={chatEndRef} />
+          </div>
+
+          {/* Chat Disclaimer */}
+          <div className="px-3 py-1 bg-[var(--brand-primary-dark)]/90 border-t border-white/5 text-[9px] text-slate-400 text-center leading-tight">
+            AI Botanical Advisor provides traditional herbal care guidance, not medical diagnosis or prescription.
           </div>
 
           {/* Input Footer */}

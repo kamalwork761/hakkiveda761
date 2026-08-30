@@ -176,7 +176,7 @@ export const VideoRitualsPage: React.FC<VideoRitualsPageProps> = ({
         product ? product.name : 'your tribal hair formulas'
       }.`
     );
-    window.open(`https://wa.me/919900000000?text=${text}`, '_blank');
+    window.open(`https://wa.me/917619536831?text=${text}`, '_blank');
   };
 
   if (total === 0) {

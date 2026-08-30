@@ -11,7 +11,7 @@ export const AIHairQuiz: React.FC = () => {
   const [scalpCondition, setScalpCondition] = useState('Dry / Flaky / Itchy');
   const [primaryConcern, setPrimaryConcern] = useState('Advanced Baldness & Thin Patches');
   const [hairLossLevel, setHairLossLevel] = useState('Visible Bald Patches / Receding Hairline');
-  const [hairGoal, setHairGoal] = useState('Reverse Baldness & Fill Thin Patches');
+  const [hairGoal, setHairGoal] = useState('Nourish Scalp & Improve Hair Density');
   const [lifestyle, setLifestyle] = useState('High Stress / Urban Pollution / Hard Water');
 
   const [isLoading, setIsLoading] = useState(false);
@@ -28,7 +28,8 @@ export const AIHairQuiz: React.FC = () => {
       hairLossLevel.toLowerCase().includes('bald') ||
       hairLossLevel.toLowerCase().includes('receding') ||
       hairLossLevel.toLowerCase().includes('visible') ||
-      hairGoal.toLowerCase().includes('bald');
+      hairGoal.toLowerCase().includes('bald') ||
+      hairGoal.toLowerCase().includes('density');
 
     const isLongHair =
       hairGoal.toLowerCase().includes('long') ||
@@ -57,7 +58,7 @@ export const AIHairQuiz: React.FC = () => {
           recommendationTitle:
             data.recommendationTitle ||
             (isBaldness
-              ? 'HAKKIVEDA 3-Step Baldness & Intensive Follicle Care Kit'
+              ? 'HAKKIVEDA 3-Step Baldness & Intensive Scalp Care Kit'
               : isLongHair
               ? 'HAKKIVEDA Long Hair Growth & Root Strength System'
               : 'HAKKIVEDA Essential Hair Oil & Shampoo Routine'),
@@ -74,13 +75,13 @@ export const AIHairQuiz: React.FC = () => {
     } catch (e) {
       if (isBaldness) {
         setQuizResult({
-          summary: `For advanced baldness and scalp thinning, our Master Vaidya prescribes the 3-step intensive regimen: HAKKIVEDA Herbal Hair Oil + HAKKIVEDA Herbal Baldness Care Powder + HAKKIVEDA Clarifying Shampoo for deep root activation.`,
+          summary: `For bald spots and scalp thinning, our traditional wisdom recommends the 3-step intensive ritual: HAKKIVEDA Herbal Hair Oil + HAKKIVEDA Herbal Baldness Care Powder + HAKKIVEDA Clarifying Shampoo for deep root nourishment.`,
           doshaType: 'Vata-Pitta Imbalance',
-          recommendationTitle: 'HAKKIVEDA 3-Step Baldness & Intensive Follicle Care System',
+          recommendationTitle: 'HAKKIVEDA 3-Step Baldness & Intensive Scalp Care System',
           recommendedProductIds: ['prod-1', 'prod-4', 'prod-2', 'prod-5'],
           recommendedRoutine: [
             'Massage HAKKIVEDA Herbal Hair Oil 3x weekly onto scalp and roots',
-            'Apply HAKKIVEDA Herbal Baldness Care Powder paste directly on bald patches 2x weekly',
+            'Apply HAKKIVEDA Herbal Baldness Care Powder paste directly on sparse scalp areas 2x weekly',
             'Cleanse thoroughly with HAKKIVEDA 42 Mountain Herbs Clarifying Shampoo',
           ],
           keyHerbs: ['Gunja Seed Elixir', 'Wild Bhringraj', 'Devadaru Bark', 'Wild Neem', 'Amla'],
@@ -88,7 +89,7 @@ export const AIHairQuiz: React.FC = () => {
         });
       } else if (isLongHair) {
         setQuizResult({
-          summary: `To grow long, thick, healthy hair, HAKKIVEDA Herbal Hair Oil combined with HAKKIVEDA Clarifying Shampoo provides optimal root strength, elasticity, and fast strand growth.`,
+          summary: `To support long, thick, and healthy hair, HAKKIVEDA Herbal Hair Oil combined with HAKKIVEDA Clarifying Shampoo provides optimal root strength, elasticity, and strand luster.`,
           doshaType: 'Pitta-Vata Imbalance',
           recommendationTitle: 'HAKKIVEDA Long Hair Growth & Root Strength System',
           recommendedProductIds: ['prod-1', 'prod-2'],
@@ -101,7 +102,7 @@ export const AIHairQuiz: React.FC = () => {
         });
       } else {
         setQuizResult({
-          summary: `Your hair concerns are mild and manageable. Using HAKKIVEDA Herbal Hair Oil paired with HAKKIVEDA Clarifying Shampoo is more than enough to nourish hair roots and stop daily hair fall.`,
+          summary: `Your hair concerns are mild and manageable. Using HAKKIVEDA Herbal Hair Oil paired with HAKKIVEDA Clarifying Shampoo is more than enough to nourish hair roots and reduce daily hair shedding.`,
           doshaType: 'Pitta-Kapha',
           recommendationTitle: 'HAKKIVEDA Essential Hair Oil & Shampoo Routine',
           recommendedProductIds: ['prod-1', 'prod-2'],
@@ -175,7 +176,7 @@ export const AIHairQuiz: React.FC = () => {
         <div className="flex items-center gap-2 mb-4 text-[#123F2B]">
           <Sparkles className="w-5 h-5 text-[#D4AF37] animate-spin" />
           <span className="text-xs sm:text-sm uppercase font-bold tracking-[0.2em] text-[#123F2B]">
-            HAKKIVEDA AI Trichology Diagnostic
+            HAKKIVEDA AI Tribal Hair Assessment
           </span>
         </div>
 
@@ -344,7 +345,7 @@ export const AIHairQuiz: React.FC = () => {
                 </p>
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
                   {[
-                    'Reverse Baldness & Fill Thin Patches',
+                    'Nourish Scalp & Improve Hair Density',
                     'Grow Long & Thick Hair',
                     'Stop Hair Fall & Strengthen Roots',
                     'Scalp Health & Anti-Dandruff',
@@ -444,7 +445,7 @@ export const AIHairQuiz: React.FC = () => {
                   ) : (
                     <>
                       <Sparkles className="w-4 h-4" />
-                      <span>Generate AI Tribal Diagnosis</span>
+                      <span>Generate AI Hair Assessment</span>
                     </>
                   )}
                 </button>
@@ -453,22 +454,22 @@ export const AIHairQuiz: React.FC = () => {
           </div>
         )}
 
-        {/* Step 7: Diagnostic Results */}
+        {/* Step 7: Assessment Results */}
         {step === 7 && quizResult && (
           <div className="space-y-6 animate-in fade-in duration-500">
-            {/* Diagnosis Overview Header */}
+            {/* Overview Header */}
             <div className="bg-[#123F2B] text-white border-2 border-[#D4AF37] p-5 sm:p-6 rounded-2xl space-y-3 shadow-md">
               <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-[#D4AF37]/30 pb-3">
                 <div>
                   <span className="text-[10px] uppercase font-bold text-[#D4AF37] tracking-widest block">
-                    Ayurvedic Trichology Assessment
+                    Ayurvedic Herbal Hair Assessment
                   </span>
                   <h3 className="text-lg sm:text-xl font-serif-luxury font-bold text-white">
                     Classification: <span className="text-[#D4AF37]">{quizResult.doshaType}</span>
                   </h3>
                 </div>
                 <span className="self-start sm:self-auto bg-[#D4AF37]/20 border border-[#D4AF37] text-[#D4AF37] text-[10px] sm:text-[11px] font-bold px-3 py-1 rounded-full">
-                  Expected Transformation: {quizResult.estimatedResultsWeeks} Weeks
+                  Recommended Ritual Duration: {quizResult.estimatedResultsWeeks} Weeks
                 </span>
               </div>
 
@@ -482,7 +483,7 @@ export const AIHairQuiz: React.FC = () => {
               <div className="flex items-center justify-between gap-2">
                 <div>
                   <span className="text-[10px] uppercase tracking-widest font-bold text-[#B8891E]">
-                    Master Vaidya Prescription
+                    Tribal Vaidya Recommended Ritual
                   </span>
                   <h4 className="text-sm sm:text-base font-serif-luxury font-bold text-[#123F2B]">
                     {quizResult.recommendationTitle || 'Recommended HAKKIVEDA Hair Products'}
@@ -592,11 +593,18 @@ export const AIHairQuiz: React.FC = () => {
                 onClick={resetQuiz}
                 className="text-xs text-[#405B4A] hover:text-[#123F2B] underline font-bold transition-colors p-2"
               >
-                Retake Hair Diagnostic
+                Retake Hair Assessment
               </button>
             </div>
           </div>
         )}
+
+        {/* Quiz Wellness Notice */}
+        <div className="mt-5 pt-3 border-t border-[#D4AF37]/30 text-[10px] text-[#556B5D] leading-relaxed">
+          <p>
+            <strong>Wellness Notice:</strong> This AI hair assessment provides cosmetic and traditional botanical hair-care recommendations based on Hakki-Pikki tribal wisdom. It is not a medical diagnosis and is not intended to treat clinical scalp conditions or medical alopecia. Individual results vary.
+          </p>
+        </div>
       </div>
     </div>
   );

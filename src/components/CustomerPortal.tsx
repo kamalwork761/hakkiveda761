@@ -1017,7 +1017,7 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
                       </button>
 
                       <a
-                        href="https://wa.me/919900000000?text=Hi%20Hakkiveda%20Care,%20I%20need%20help%20accessing%20my%20account."
+                        href="https://wa.me/917619536831?text=Hi%20Hakkiveda%20Care,%20I%20need%20help%20accessing%20my%20account."
                         target="_blank"
                         rel="noopener noreferrer"
                         className="text-[#8E7026] hover:text-[#0F2E22] underline underline-offset-2 font-medium"
@@ -2238,10 +2238,13 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
             </button>
 
             <div>
-              <span className="text-[var(--brand-gold)] text-[10px] uppercase font-bold tracking-widest block">100% Satisfaction Guarantee</span>
+              <span className="text-[var(--brand-gold)] text-[10px] uppercase font-bold tracking-widest block">7-Day Return & Replacement Policy</span>
               <h3 className="text-xl font-bold font-serif-luxury text-slate-100">
                 Return Request for {returnOrder.orderNumber}
               </h3>
+              <p className="text-[11px] text-slate-300 mt-1">
+                Return or replacement requests must be raised within 7 days of delivery. For hygiene reasons, opened items are non-returnable unless damaged or defective.
+              </p>
             </div>
 
             {returnSuccessMsg ? (
@@ -2666,7 +2669,22 @@ Thank you for supporting 100% authentic Hakki-Pikki tribal heritage!
               )}
             </div>
 
-            <div className="pt-2 text-right">
+            <div className="pt-2 flex items-center justify-between">
+              <a
+                href={policyModal === 'PRIVACY' ? '/privacy-policy' : '/terms-and-conditions'}
+                onClick={(e) => {
+                  e.preventDefault();
+                  setPolicyModal(null);
+                  setIsAuthModalOpen?.(false);
+                  const targetUrl = policyModal === 'PRIVACY' ? '/privacy-policy' : '/terms-and-conditions';
+                  window.history.pushState({}, '', targetUrl);
+                  window.dispatchEvent(new PopStateEvent('popstate'));
+                  window.scrollTo({ top: 0, behavior: 'smooth' });
+                }}
+                className="text-xs text-[var(--brand-gold)] hover:underline font-medium"
+              >
+                View Full Public {policyModal === 'PRIVACY' ? 'Privacy Policy' : 'Terms & Conditions'} →
+              </a>
               <button
                 onClick={() => setPolicyModal(null)}
                 className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-5 py-2 rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-white transition-colors"

@@ -153,7 +153,7 @@ export const INITIAL_CATEGORIES: Category[] = [
     mobileBanner: '/images/hakkiveda_108_oil_gold.jpg',
     mobileBannerFilename: 'hakkiveda_108_oil_gold.jpg',
     description: 'Slow-brewed in copper cauldrons with 42 rare mountain herbs for deep scalp penetration.',
-    fullDescription: 'Experience the 100% authentic Hakki-Pikki tribal hair oil formulation. Handcrafted in Mysore over 21 solar cycles using 108 wild forest herbs and virgin sesame oil.',
+    fullDescription: 'Experience the authentic Hakki-Pikki tribal hair oil formulation. Handcrafted in Mysore over 21 solar cycles using 108 wild forest herbs and virgin sesame oil.',
     itemCount: 4,
     status: 'ACTIVE',
     showInNav: true,
@@ -162,7 +162,7 @@ export const INITIAL_CATEGORIES: Category[] = [
     parentId: null,
     sortOrder: 1,
     seoTitle: 'Adivasi Hair Oils & Natural Elixirs - HakkiVeda',
-    seoMetaDescription: 'Pure tribal adivasi 108 herbal hair oils handcrafted for root regrowth, stopping hair fall, and deep scalp nourishment.',
+    seoMetaDescription: 'Pure tribal adivasi 108 herbal hair oils handcrafted for root strength, reducing hair fall, and deep scalp nourishment.',
     seoKeywords: 'adivasi hair oil, 108 herbs oil, natural hair elixir, hakkiveda hair oil',
   },
   {
@@ -181,7 +181,7 @@ export const INITIAL_CATEGORIES: Category[] = [
     parentId: null,
     sortOrder: 2,
     seoTitle: 'Herbal Cleansers & Sulfate-Free Shampoos - HakkiVeda',
-    seoMetaDescription: 'Shop natural soapnut and shikakai scalp cleansers for smooth, residue-free hair growth.',
+    seoMetaDescription: 'Shop natural soapnut and shikakai scalp cleansers for smooth, residue-free hair and scalp wellness.',
     seoKeywords: 'herbal cleanser, adivasi shampoo, shikakai hair wash',
   },
   {
@@ -190,8 +190,8 @@ export const INITIAL_CATEGORIES: Category[] = [
     slug: 'follicle-serums',
     image: '/images/hakkiveda_108_oil_back_label.jpg',
     imageFilename: 'hakkiveda_108_oil_back_label.jpg',
-    description: 'Targeted scalp drops to reactivate dormant hair roots and improve shaft density.',
-    fullDescription: 'Potent tribal drop concentrate formulated with wild Bhringraj and Gunja seeds to stimulate blood micro-circulation in thinning scalp zones.',
+    description: 'Targeted scalp drops to nourish hair roots and improve strand density.',
+    fullDescription: 'Potent tribal drop concentrate formulated with wild Bhringraj and Gunja seeds to nourish and revitalize thinning scalp zones.',
     itemCount: 2,
     status: 'ACTIVE',
     showInNav: true,
@@ -199,9 +199,9 @@ export const INITIAL_CATEGORIES: Category[] = [
     isFeatured: false,
     parentId: 'cat-1',
     sortOrder: 3,
-    seoTitle: 'Follicle Reactivation Serums - HakkiVeda',
-    seoMetaDescription: 'Concentrated adivasi scalp drops designed to boost root density and awaken dormant follicles.',
-    seoKeywords: 'follicle serum, hair growth drops, root booster',
+    seoTitle: 'Follicle Nourishing Serums - HakkiVeda',
+    seoMetaDescription: 'Concentrated adivasi scalp drops designed to boost root vitality and improve hair density.',
+    seoKeywords: 'follicle serum, hair density drops, root booster',
   },
   {
     id: 'cat-4',
@@ -210,7 +210,7 @@ export const INITIAL_CATEGORIES: Category[] = [
     image: '/images/hakkiveda_baldness_powder.jpg',
     imageFilename: 'hakkiveda_baldness_powder.jpg',
     description: 'Traditional forest herbal muds and restorative scalp detox pastes.',
-    fullDescription: 'Ancient herbal mud packs infused with wild Brahmi, Neem, and volcanic red clay to cool inflamed hair roots and clear scalp toxins.',
+    fullDescription: 'Ancient herbal mud packs infused with wild Brahmi, Neem, and volcanic red clay to cool inflamed hair roots and clear scalp buildup.',
     itemCount: 2,
     status: 'ACTIVE',
     showInNav: true,
@@ -228,8 +228,8 @@ export const INITIAL_CATEGORIES: Category[] = [
     slug: 'wellness-combos',
     image: '/images/hakkiveda_oil_couple_herbs.jpg',
     imageFilename: 'hakkiveda_oil_couple_herbs.jpg',
-    description: 'Complete 90-day hair regrowth and scalp rehabilitation bundles.',
-    fullDescription: 'Curated herbal therapy kits combining 108 oil, herbal cleanser, and scalp lepas for holistic 90-day hair restoration cycles.',
+    description: 'Complete 90-day hair density and scalp care bundles.',
+    fullDescription: 'Curated herbal therapy kits combining 108 oil, herbal cleanser, and scalp lepas for holistic 90-day hair care cycles.',
     itemCount: 3,
     status: 'ACTIVE',
     showInNav: true,
@@ -237,9 +237,9 @@ export const INITIAL_CATEGORIES: Category[] = [
     isFeatured: true,
     parentId: null,
     sortOrder: 5,
-    seoTitle: '90-Day Hair Regrowth & Wellness Combos - HakkiVeda',
-    seoMetaDescription: 'Save big on complete adivasi hair care regimen kits and 90-day hair growth combo packs.',
-    seoKeywords: 'hair growth combo, adivasi hair care kit, regrowth bundle',
+    seoTitle: '90-Day Hair Density & Wellness Combos - HakkiVeda',
+    seoMetaDescription: 'Save on complete adivasi hair care regimen kits and 90-day hair wellness combo packs.',
+    seoKeywords: 'hair care combo, adivasi hair care kit, wellness bundle',
   },
 ];
 
@@ -263,9 +263,9 @@ export const INITIAL_PRODUCTS: Product[] = [
     ],
     description: 'The crown jewel of Hakki-Pikki tribal wisdom. Handcrafted in small artisanal batches in Mysore using 108 rare wild-harvested herbs, root extracts, and virgin sesame & coconut oils slow-cooked in traditional copper cauldrons over woodfire for 21 solar cycles.',
     benefits: [
-      'Reactivates dormant hair follicles within 45-60 days',
-      'Stops severe hair fall and root breakage from root to tip',
-      'Promotes natural dark melanin retention and rapid length growth',
+      'Nourishes scalp roots and supports visible hair density',
+      'Significantly reduces excessive hair fall and root breakage from root to tip',
+      'Promotes natural dark luster and healthy length vitality',
       'Relieves dry scalp, persistent itchiness, and flaky buildup',
       'Deeply conditions coarse, dry, and chemically treated hair strands'
     ],
@@ -286,14 +286,14 @@ export const INITIAL_PRODUCTS: Product[] = [
       'Part your hair into clean sections using your fingers or a wide-tooth neem comb.',
       'Massage the herbal oil deeply into your scalp roots in circular, gentle rhythmic motions for 8–10 minutes.',
       'Smooth remaining oil down to the hair tips to prevent split ends and cuticle roughness.',
-      'Leave overnight for deep restorative follicular penetration, or leave for a minimum of 2 hours wrapped in a warm damp towel.',
+      'Leave overnight for deep restorative scalp nourishment, or leave for a minimum of 2 hours wrapped in a warm damp towel.',
       'Rinse with lukewarm water and HAKKIVEDA 42 Mountain Herbs Clarifying Shampoo.'
     ],
     whoItIsFor: [
-      'Men and women suffering from excessive hair shedding and crown thinning',
-      'Postpartum hair loss, stress-induced alopecia, and receding hairline spots',
+      'Men and women looking to address excessive hair shedding and crown thinning',
+      'Those experiencing stress-related hair thinning or sparse hairline spots',
       'Anyone dealing with dry, itchy, or dandruff-prone scalp terrain',
-      'Those seeking thick, glossy, and natural dark hair growth with Ayurvedic purity',
+      'Those seeking thick, glossy, and natural dark hair vitality with Ayurvedic purity',
       'Safe and effective for all hair types (Straight, Wavy, Curly, Coily) and color-treated hair'
     ],
     safetyPrecautions: [
@@ -304,7 +304,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     ],
     storageInstructions: 'Store in a cool, dry place away from direct sunlight and moisture. Keep the cap tightly sealed after each use. No artificial preservatives added.',
     shippingAndDelivery: 'Dispatched within 24 hours in tamper-proof botanical protective packaging. Express Delivery: 2–4 business days across India; 4–7 business days for international express air shipping (USA, Singapore, Malaysia, Mauritius, UAE, Fiji, and Global).',
-    returnsPolicy: '100% Authenticity Guarantee. We provide a 15-day replacement or refund policy for transit-damaged or defective goods. Seals must be intact for change-of-mind returns.',
+    returnsPolicy: 'Eligible return, replacement or refund requests should be raised within 7 days of delivery. Opened/used personal-care products are generally non-returnable for hygiene reasons except for damaged, defective or incorrect items.',
     productAttributes: [
       { label: 'Item Form', value: 'Cold-infusion Botanical Herbal Oil' },
       { label: 'Volume / Net Quantity', value: '200 ml / 6.7 fl oz (Standard)' },
@@ -312,7 +312,7 @@ export const INITIAL_PRODUCTS: Product[] = [
       { label: 'Scent', value: 'Authentic Earthy Forest Herbs & Devadaru' },
       { label: 'Formulation Method', value: '21 Solar Cycles Woodfire Copper Brewing' },
       { label: 'Country of Origin', value: 'Mysore, Karnataka, India' },
-      { label: 'Ayush Certification', value: 'GMP & AYUSH Certified Tribal Formulation' },
+      { label: 'Formulation Heritage', value: 'Traditional Hakki-Pikki Herbal Formulation' },
       { label: 'Shelf Life', value: '24 Months from Manufacturing Date' }
     ],
     variants: [
@@ -342,7 +342,7 @@ export const INITIAL_PRODUCTS: Product[] = [
       },
       {
         id: 'var-103',
-        name: '500 ml (Family Regrowth Pack)',
+        name: '500 ml (Family Value Pack)',
         sku: 'HV-TGHO-500',
         priceINR: 4999,
         originalPriceINR: 6499,
@@ -420,7 +420,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     ],
     storageInstructions: 'Keep in a cool place away from direct heat and water splashes. Close pump tightly when travelling.',
     shippingAndDelivery: 'Fast dispatch within 24 hours. Arrives in 2-4 business days across India, 4-7 days worldwide.',
-    returnsPolicy: 'Easy 15-day return policy for unopened or transit-damaged items.',
+    returnsPolicy: 'Eligible return, replacement or refund requests should be raised within 7 days of delivery. Opened/used personal-care products are generally non-returnable for hygiene reasons except for damaged, defective or incorrect items.',
     productAttributes: [
       { label: 'Item Form', value: 'Botanical Liquid Scalp Cleanser' },
       { label: 'Volume', value: '250 ml / 8.4 fl oz' },
@@ -520,7 +520,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     ],
     storageInstructions: 'Store in an amber glass bottle at room temperature away from direct sunlight.',
     shippingAndDelivery: 'Packaged in shock-proof air-cushioned boxes. Express delivery in 2-4 business days.',
-    returnsPolicy: '15-day return and exchange policy on all authentic orders.',
+    returnsPolicy: 'Eligible return, replacement or refund requests should be raised within 7 days of delivery. Opened/used personal-care products are generally non-returnable for hygiene reasons except for damaged, defective or incorrect items.',
     productAttributes: [
       { label: 'Item Form', value: 'Weightless Aqueous Scalp Drops' },
       { label: 'Volume', value: '50 ml / 1.7 fl oz' },
@@ -576,7 +576,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     name: 'HAKKIVEDA Natural Adivasi Baldness Powder & Lepa',
     category: 'Tribal Masks & Lepas',
     primaryCategory: 'skin-care',
-    subtitle: 'Follicle Reactivating & Bald Spot Scalp Treatment Powder',
+    subtitle: 'Nourishing & Bald Spot Scalp Care Powder',
     priceINR: 1499,
     originalPriceINR: 1799,
     rating: 4.91,
@@ -586,11 +586,11 @@ export const INITIAL_PRODUCTS: Product[] = [
       '/images/hakkiveda_baldness_powder_ingredients.jpg',
       '/images/hakkiveda_108_oil_gold.jpg'
     ],
-    description: 'Specialized Hakki-Pikki tribal herbal powder formula for advanced baldness, receding temple lines, and dormant hair root patches. Mix with water or oil to form an active herbal paste (Lepa).',
+    description: 'Specialized Hakki-Pikki tribal herbal powder formula for bald spots, receding temple lines, and thinning hair root patches. Mix with water or oil to form a traditional herbal paste (Lepa).',
     benefits: [
-      'Targeted root reactivation on visible bald patches & thinning spots',
-      'Eradicates severe dandruff flakes and clears clogged scalp sebum pores',
-      'Stimulates micro-blood circulation to dormant hair roots with natural camphor cooling'
+      'Targeted root nourishment on visible bald patches & thinning spots',
+      'Helps reduce severe dandruff flakes and clears clogged scalp sebum pores',
+      'Soothes and stimulates the scalp terrain with natural camphor cooling'
     ],
     ingredients: [
       'Wild Neem Leaf Powder (Azadirachta indica)',
@@ -618,7 +618,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     ],
     storageInstructions: 'Store in an airtight jar in a cool, dry place. Keep spoon dry when scooping powder.',
     shippingAndDelivery: 'Fast dispatch within 24 hours with sealed moisture-barrier packaging.',
-    returnsPolicy: '15-day easy return policy with complete authenticity guarantee.',
+    returnsPolicy: 'Eligible return, replacement or refund requests should be raised within 7 days of delivery. Opened/used personal-care products are generally non-returnable for hygiene reasons except for damaged, defective or incorrect items.',
     productAttributes: [
       { label: 'Item Form', value: 'Micro-milled Forest Herbal Lepa Powder' },
       { label: 'Net Weight', value: '150 g / 5.3 oz' },
@@ -652,7 +652,7 @@ export const INITIAL_PRODUCTS: Product[] = [
       },
       {
         id: 'var-403',
-        name: '500 g (Therapeutic Mud Tub)',
+        name: '500 g (Herbal Mud Tub)',
         sku: 'HV-HBCP-500',
         priceINR: 3999,
         originalPriceINR: 5499,
@@ -685,12 +685,12 @@ export const INITIAL_PRODUCTS: Product[] = [
       '/images/hakkiveda_baldness_powder.jpg',
       '/images/hakkiveda_108_herbs_infographic.jpg'
     ],
-    description: 'The ultimate 3-step baldness care & hair regrowth system. Includes 1x HAKKIVEDA Herbal Hair Oil (200ml), 1x HAKKIVEDA Herbal Baldness Care Powder (150g), and 1x HAKKIVEDA 42 Herbs Shampoo (250ml). Includes free brass head massager tool!',
+    description: 'The complete 3-step baldness care & hair density regimen. Includes 1x HAKKIVEDA Herbal Hair Oil (200ml), 1x HAKKIVEDA Herbal Baldness Care Powder (150g), and 1x HAKKIVEDA 42 Herbs Shampoo (250ml). Includes free brass head massager tool!',
     benefits: [
       'Save over 20% compared to purchasing items individually',
       'Comprehensive 3-step holistic solution for baldness, severe thinning & root hair fall',
       'Includes complimentary handmade brass Kansa scalp massage wand',
-      'Guaranteed priority express worldwide door delivery'
+      'Priority express worldwide door delivery'
     ],
     ingredients: [
       'Full 108 Hakki-Pikki Mountain Herbs (Amla, Bhringraj, Gunja, Shikakai, Devadaru, Reetha, Hibiscus, Neem)'
@@ -703,17 +703,17 @@ export const INITIAL_PRODUCTS: Product[] = [
       'Cleansing: Wash gently with 42 Mountain Herbs Shampoo.'
     ],
     whoItIsFor: [
-      'Individuals suffering from advanced crown bald spots or receding temples wanting the most intensive holistic regrowth regimen.'
+      'Individuals looking to care for crown bald spots or receding temples with an intensive holistic hair regimen.'
     ],
     safetyPrecautions: [
       'Follow individual product instructions for optimal synergistic benefit.'
     ],
     storageInstructions: 'Keep in the provided artisanal wooden-style box in a dry, room-temperature room.',
     shippingAndDelivery: 'Eligible for Free Priority Express Air Shipping worldwide.',
-    returnsPolicy: '30-Day Authentic Regrowth Guarantee with hassle-free replacements.',
+    returnsPolicy: 'Eligible return, replacement or refund requests should be raised within 7 days of delivery for damaged, defective, or incorrect items.',
     productAttributes: [
       { label: 'Bundle Contents', value: '200ml 108 Oil + 150g Baldness Lepa + 250ml Shampoo + Free Kansa Wand' },
-      { label: 'Treatment Duration', value: 'Complete 90-Day Regrowth Regimen' },
+      { label: 'Usage Duration', value: 'Complete 90-Day Hair Care Regimen' },
       { label: 'Savings', value: 'Save over 20% compared to individual items' }
     ],
     variants: [
@@ -731,7 +731,7 @@ export const INITIAL_PRODUCTS: Product[] = [
       },
       {
         id: 'var-502',
-        name: 'Full 90-Day Regrowth Kit (Best Value)',
+        name: 'Full 90-Day Care Kit (Best Value)',
         sku: 'HV-CHDR-90D',
         priceINR: 4999,
         originalPriceINR: 5697,
@@ -743,7 +743,7 @@ export const INITIAL_PRODUCTS: Product[] = [
       },
       {
         id: 'var-503',
-        name: '180-Day Intensive Restoration Bundle',
+        name: '180-Day Intensive Care Bundle',
         sku: 'HV-CHDR-180D',
         priceINR: 8999,
         originalPriceINR: 11394,
@@ -800,7 +800,7 @@ export const INITIAL_PRODUCTS: Product[] = [
     ],
     storageInstructions: 'Store in a cool and dry spot away from high temperatures.',
     shippingAndDelivery: 'Fast dispatch within 24 hours.',
-    returnsPolicy: '15-day return and exchange policy on all authentic items.',
+    returnsPolicy: 'Eligible return, replacement or refund requests should be raised within 7 days of delivery. Opened/used personal-care products are generally non-returnable for hygiene reasons except for damaged, defective or incorrect items.',
     productAttributes: [
       { label: 'Item Form', value: 'Weightless Botanical Fine Mist' },
       { label: 'Volume', value: '100 ml / 3.4 fl oz' },
@@ -877,7 +877,7 @@ export const INITIAL_HERO_SLIDES: HeroSlide[] = [
   },
   {
     id: 'slide-3',
-    tag: 'AI Trichology Diagnostic',
+    tag: 'AI Hair Consultation',
     title: 'Personalized Tribal',
     highlightText: 'Hair Analysis',
     subtitle: 'Take our 60-second AI Hair Quiz to unlock your tailor-made Ayurvedic scalp routine & herb selection.',
@@ -893,32 +893,32 @@ export const INITIAL_BEFORE_AFTER: BeforeAfterItem[] = [
     id: 'ba-1',
     title: '90 Days Crown Density Transformation',
     days: 90,
-    concern: 'Severe Crown Baldness & Top Scalp Thinning',
+    concern: 'Crown Thinning & Sparse Scalp Patches',
     beforeImage: '/images/before_male_top.jpg',
     afterImage: '/images/after_male_top.jpg',
-    testimonial: 'My crown was completely sparse and balding. After using HAKKIVEDA Tribal Gold Oil 3x a week for 90 days, my crown density returned remarkably with new dark growth!',
+    testimonial: 'My crown was sparse and thinning. After using HAKKIVEDA Tribal Gold Oil 3x a week for 90 days, my crown density and luster improved remarkably!',
     author: 'Rajesh K.',
     location: 'Delhi, India',
   },
   {
     id: 'ba-2',
-    title: '60 Days Crown Bald Patch Regrowth',
+    title: '60 Days Scalp Patch Density Care',
     days: 60,
-    concern: 'Crown Bald Patch & Severe Breakage',
+    concern: 'Crown Thinning Patch & Breakage',
     beforeImage: '/images/before_male_back.jpg',
     afterImage: '/images/after_male_back.jpg',
-    testimonial: 'The round bald patch at the back of my head was embarrassing. By week 8 of applying HAKKIVEDA oil, it is now completely covered in thick healthy hair!',
+    testimonial: 'The sparse patch at the back of my head needed serious nourishment. By week 8 of applying HAKKIVEDA oil, it looked significantly fuller and healthier!',
     author: 'Arjun V.',
     location: 'Singapore',
   },
   {
     id: 'ba-3',
-    title: '120 Days Scalp Parting Reversal',
+    title: '120 Days Scalp Parting Care',
     days: 120,
     concern: 'Widening Scalp Parting & Sparse Hairline',
     beforeImage: '/images/before_female_parting.jpg',
     afterImage: '/images/after_female_parting.jpg',
-    testimonial: 'My hair parting gap was widening and showing white scalp. The 42-herb infusion brought back thick density and closed the scalp gap completely.',
+    testimonial: 'My hair parting gap was widening and showing scalp. The 42-herb infusion brought back thick density and visibly improved the parting coverage.',
     author: 'Priya S.',
     location: 'Bengaluru, India',
   }
@@ -1032,7 +1032,7 @@ export const INITIAL_SITE_SETTINGS: SiteSettings = {
   address: 'Door No. 574, V.P. Bore, Hunsur, Mysore, Karnataka, India - 571105',
   phone: '+91 76195 36831',
   whatsappNumber: '917619536831',
-  email: 'hakkiveda@gmail.com',
+  email: 'support@hakkiveda.com',
 
   heroCtaText: 'Shop Tribal Elixir',
   heroCtaLink: '#products',
@@ -1050,7 +1050,7 @@ export const INITIAL_SITE_SETTINGS: SiteSettings = {
   razorpayKeyId: 'rzp_live_hakkiveda_key',
   expressCourierPartner: 'DHL / BlueDart Express',
 
-  quizHeadline: 'AI Ayurvedic Scalp & Hair Density Diagnostic',
+  quizHeadline: 'AI Ayurvedic Scalp & Hair Density Assessment',
   quizSubtitle: 'Unlock your personalized 42-herb formulation in 60 seconds.',
 };
 
@@ -1880,7 +1880,7 @@ export const INITIAL_FOOTER_CONFIG: FooterConfig = {
   address: 'Door No. 574, V.P. Bore, Hunsur, Mysore, Karnataka, India - 571105',
   phone: '+91 76195 36831',
   whatsappNumber: '917619536831',
-  email: 'hakkiveda@gmail.com',
+  email: 'support@hakkiveda.com',
 
   columns: [
     {
@@ -1888,22 +1888,25 @@ export const INITIAL_FOOTER_CONFIG: FooterConfig = {
       title: 'Botanical Catalog',
       enabled: true,
       links: [
-        { id: '1', label: 'Tribal Gold Oil', url: '#products' },
-        { id: '2', label: 'Density Serums', url: '#products' },
-        { id: '3', label: 'Soapnut Shampoos', url: '#products' },
-        { id: '4', label: 'Hair Masks & Lepas', url: '#products' },
+        { id: '1', label: 'Hair Care Rituals', url: '/hair-care' },
+        { id: '2', label: 'Skin Care & Lepas', url: '/skin-care' },
+        { id: '3', label: 'Tribal Wellness Kits', url: '/tribal-wellness' },
+        { id: '4', label: 'Video Rituals', url: '/video-rituals' },
         { id: '5', label: 'AI Hair Quiz', url: 'quiz', isBadge: true, badgeText: 'AI Powered' },
       ],
     },
     {
       id: 'customer_care',
-      title: 'Customer Care',
+      title: 'Legal & Customer Care',
       enabled: true,
       links: [
-        { id: 'c1', label: 'Order Tracking', url: '#orders' },
-        { id: 'c2', label: 'Authenticity Guarantee', url: '#about' },
-        { id: 'c3', label: 'FAQs & Herb Guide', url: '#faq' },
-        { id: 'c4', label: 'Contact Support', url: '#contact' },
+        { id: 'c1', label: 'Privacy Policy', url: '/privacy-policy' },
+        { id: 'c2', label: 'Terms & Conditions', url: '/terms-and-conditions' },
+        { id: 'c3', label: 'Shipping & Delivery', url: '/shipping-policy' },
+        { id: 'c4', label: 'Return & Refund Policy', url: '/refund-policy' },
+        { id: 'c5', label: 'Cancellation Policy', url: '/cancellation-policy' },
+        { id: 'c6', label: 'Product Disclaimer', url: '/disclaimer' },
+        { id: 'c7', label: 'Contact Us & Grievance', url: '/contact' },
       ],
     },
   ],
@@ -1911,15 +1914,15 @@ export const INITIAL_FOOTER_CONFIG: FooterConfig = {
   showShippingColumn: true,
   shippingTitle: 'WORLDWIDE SHIPPING',
   shippingItems: [
-    { id: 's1', text: 'Ships Worldwide' },
-    { id: 's2', text: 'Express International Delivery' },
-    { id: 's3', text: 'Secure Packaging' },
-    { id: 's4', text: 'Real-Time Order Tracking' },
-    { id: 's5', text: 'Customs Assistance' },
-    { id: 's6', text: 'Delivery in 3–12 Business Days*' },
+    { id: 's1', text: 'Ships Worldwide (200+ Countries)' },
+    { id: 's2', text: 'Express Air Courier Dispatch' },
+    { id: 's3', text: 'Tamper-Proof Glass Packaging' },
+    { id: 's4', text: 'Digital AWB & Live Tracking' },
+    { id: 's5', text: 'Estimated 3–12 Business Days*' },
+    { id: 's6', text: 'Recipient Customs & Duty Terms' },
   ],
   shippingPolicyButtonText: 'View Shipping Policy',
-  shippingPolicyModalContent: 'Shipping Policy:\n• Orders dispatched within 24-48 business hours.\n• Tracked shipping via DHL/FedEx/SpeedPost.\n• Free Express Shipping on orders over ₹1,999 (India) or $99 (Global).',
+  shippingPolicyModalContent: 'Shipping Policy:\n• Orders dispatched within 24-48 business hours.\n• Tracked shipping via DHL/FedEx/SpeedPost/Delhivery.\n• Free Express Shipping on eligible orders.',
   wholesaleLinkText: 'Wholesale & Export Enquiries →',
 
   showNewsletterColumn: true,
@@ -1938,7 +1941,7 @@ export const INITIAL_FOOTER_CONFIG: FooterConfig = {
   ],
 
   showPaymentBadges: true,
-  paymentBadgesTitle: '100% SECURE CHECKOUT & GUARANTEED PAYMENTS',
+  paymentBadgesTitle: 'SECURE PAYMENT & WORLDWIDE CHECKOUT',
   paymentMethods: {
     upi: true,
     visa: true,
@@ -1953,8 +1956,12 @@ export const INITIAL_FOOTER_CONFIG: FooterConfig = {
   showSoundToggle: true,
   showBottomLinks: true,
   bottomLinks: [
-    { id: 'b1', label: 'Tribal Lore', url: '#brand-story' },
-    { id: 'b2', label: '100% Organic Guarantee', url: '#products' },
+    { id: 'b1', label: 'Privacy Policy', url: '/privacy-policy' },
+    { id: 'b2', label: 'Terms & Conditions', url: '/terms-and-conditions' },
+    { id: 'b3', label: 'Shipping Policy', url: '/shipping-policy' },
+    { id: 'b4', label: 'Return & Refund', url: '/refund-policy' },
+    { id: 'b5', label: 'Disclaimer', url: '/disclaimer' },
+    { id: 'b6', label: 'Contact Support', url: '/contact' },
   ],
   mobileFooter: {
     enabled: true,
@@ -2150,9 +2157,9 @@ export const INITIAL_SHOPPABLE_REELS: ShoppableReel[] = [
     title: 'Ultimate 3-Step Baldness Combo',
     videoUrl: 'https://assets.mixkit.co/videos/preview/mixkit-woman-applying-oil-to-her-hair-41226-large.mp4',
     posterUrl: '/images/hakkiveda_baldness_powder.jpg',
-    customerName: 'Dr. Vikramaditya',
+    customerName: 'Vikramaditya S.',
     country: 'Singapore',
-    caption: 'As an Ayurvedic practitioner, I endorse this authentic Hakki-Pikki tribal formula. The 3-Step kit is our #1 prescribed treatment.',
+    caption: 'As a botanical wellness consultant, I admire this authentic Hakki-Pikki tribal formulation. The 3-Step ritual is a favorite comprehensive hair care routine.',
     verifiedBadge: true,
     linkedProductId: 'prod-5',
     showViewProductButton: true,
@@ -2171,7 +2178,7 @@ export const INITIAL_CATEGORY_PAGES: CategoryPageConfig[] = [
     categoryName: 'Hair Care',
     enabled: true,
     title: 'Hair Care Formulations',
-    shortDescription: '100% authentic Adivasi herbal hair oils, follicle growth drops, and root activation serums.',
+    shortDescription: 'Authentic Adivasi herbal hair oils, density drops, and root nourishing serums.',
     cardImage: '/images/hakkiveda_108_oil_gold.jpg',
     cardCtaText: 'Shop Hair Care',
     desktopHeroImage: '/images/hakkiveda_108_oil_gold.jpg',
@@ -2193,7 +2200,7 @@ export const INITIAL_CATEGORY_PAGES: CategoryPageConfig[] = [
       {
         id: 'routine-1',
         type: 'routine',
-        title: '3-Step Tribal Hair Regrowth Ritual',
+        title: '3-Step Tribal Hair Care Ritual',
         subtitle: 'Ancient application process passed down through generations',
         enabled: true,
         displayOrder: 1,
@@ -2214,7 +2221,7 @@ export const INITIAL_CATEGORY_PAGES: CategoryPageConfig[] = [
       {
         id: 'reviews-1',
         type: 'reviews',
-        title: 'Real Regrowth Results',
+        title: 'Customer Hair Density Stories',
         subtitle: 'Verified customer experiences from around the world',
         enabled: true,
         displayOrder: 3
@@ -2226,9 +2233,9 @@ export const INITIAL_CATEGORY_PAGES: CategoryPageConfig[] = [
         enabled: true,
         displayOrder: 4,
         items: [
-          { q: 'How soon can I expect visible hair growth and reduced hair fall?', a: 'Most customers notice a dramatic reduction in hair fall and root breakage within 14 to 21 days of consistent 3x weekly oiling and shampooing. Dormant follicle reactivation and baby hair sprouting typically appear within 45 to 60 days.' },
-          { q: 'Is HAKKIVEDA Hair Care safe for color-treated or bleached hair?', a: 'Yes, 100%! All our hair care products are sulfate-free, paraben-free, and formulated with 100% cold-pressed virgin oils that preserve color vibrance while restoring moisture lost during chemical treatments.' },
-          { q: 'How often should I apply the 108 Herbs Hair Oil?', a: 'For optimal scalp stimulation, apply 10-15ml of warm oil 3 times a week. Massage thoroughly into dry scalp for 5 minutes and leave it on overnight or for at least 2 hours before washing.' },
+          { q: 'How soon can I expect visible hair density and reduced hair fall?', a: 'Most customers notice a noticeable reduction in hair fall and root breakage within 14 to 21 days of consistent 3x weekly oiling and shampooing. Improved hair luster and healthy strand vitality typically appear within 45 to 60 days.' },
+          { q: 'Is HAKKIVEDA Hair Care safe for color-treated or bleached hair?', a: 'Yes! All our hair care products are sulfate-free, paraben-free, and formulated with natural cold-pressed virgin oils that preserve color vibrance while restoring moisture lost during chemical treatments.' },
+          { q: 'How often should I apply the 108 Herbs Hair Oil?', a: 'For optimal scalp nourishment, apply 10-15ml of warm oil 3 times a week. Massage thoroughly into dry scalp for 5 minutes and leave it on overnight or for at least 2 hours before washing.' },
           { q: 'Do I need to wash out the Root Density Follicle Serum?', a: 'No! The Root Density Serum is a lightweight, non-greasy aqueous formula designed to be left on the scalp daily. Apply 1 full dropper onto scalp sections and leave it in.' }
         ]
       },
@@ -2291,7 +2298,7 @@ export const INITIAL_CATEGORY_PAGES: CategoryPageConfig[] = [
       {
         id: 'reviews-2',
         type: 'reviews',
-        title: 'Customer Radiance & Regrowth Stories',
+        title: 'Customer Radiance & Hair Wellness Stories',
         enabled: true,
         displayOrder: 3
       },
@@ -2303,7 +2310,7 @@ export const INITIAL_CATEGORY_PAGES: CategoryPageConfig[] = [
         displayOrder: 4,
         items: [
           { q: 'What is an Adivasi Lepa and how is it used?', a: 'Lepa is a traditional Adivasi paste made by mixing finely ground wild herbs, clay, and botanicals with water, hydrosol, or oil. It is applied topically to detoxify, soothe, and nourish the skin or scalp.' },
-          { q: 'Is the Lepa suitable for sensitive skin or facial use?', a: 'Yes, our Lepas are 100% natural and free from chemical fillers. We recommend performing a 24-hour patch test behind the ear or inner wrist prior to full facial or scalp application.' },
+          { q: 'Is the Lepa suitable for sensitive skin or facial use?', a: 'Yes, our Lepas are formulated with natural botanicals and free from chemical fillers. We recommend performing a 24-hour patch test behind the ear or inner wrist prior to full facial or scalp application.' },
           { q: 'How often should I apply the Skin Care Lepa?', a: 'Apply 2 to 3 times a week for optimal deep cleansing and skin barrier replenishment. Leave on for 15-20 minutes until semi-dry, then rinse with lukewarm water.' }
         ]
       },
@@ -2322,8 +2329,8 @@ export const INITIAL_CATEGORY_PAGES: CategoryPageConfig[] = [
     slug: 'tribal-wellness',
     categoryName: 'Tribal Wellness',
     enabled: true,
-    title: 'Tribal Wellness & Regrowth Combos',
-    shortDescription: 'Holistic 90-day regrowth kits, wellness combos, and ancestral herbal therapies.',
+    title: 'Tribal Wellness & Hair Density Combos',
+    shortDescription: 'Holistic 90-day hair density kits, wellness combos, and ancestral herbal therapies.',
     cardImage: '/images/hakkiveda_oil_couple_herbs.jpg',
     cardCtaText: 'Shop Tribal Wellness',
     desktopHeroImage: '/images/hakkiveda_oil_couple_herbs.jpg',
@@ -2335,28 +2342,28 @@ export const INITIAL_CATEGORY_PAGES: CategoryPageConfig[] = [
     heroHeightMobile: 'auto',
     heroOverlayOpacity: 0,
     heroTextColor: '#FFFFFF',
-    ctaText: 'Explore Regrowth Kits',
+    ctaText: 'Explore Hair Care Kits',
     ctaLink: '#products',
     displayOrder: 3,
-    seoTitle: 'Tribal Wellness & Regrowth Combos | Adivasi Kits - HAKKIVEDA',
-    seoDescription: 'Explore 90-day ancestral Hair Care and Tribal Wellness kits. Complete Adivasi regrowth systems handcrafted in Mysore with 108 mountain herbs.',
+    seoTitle: 'Tribal Wellness & Hair Density Combos | Adivasi Kits - HAKKIVEDA',
+    seoDescription: 'Explore 90-day ancestral Hair Care and Tribal Wellness kits. Complete Adivasi hair care systems handcrafted in Mysore with 108 mountain herbs.',
     ogImage: '/images/hakkiveda_oil_couple_herbs.jpg',
     sections: [
       {
         id: 'routine-3',
         type: 'routine',
-        title: '90-Day Regrowth System Protocol',
-        subtitle: 'Complete internal & scalp wellness regimen',
+        title: '90-Day Hair Care System Protocol',
+        subtitle: 'Complete scalp & root nourishment regimen',
         enabled: true,
         displayOrder: 1,
         items: [
-          { q: 'Months 1-3 Regimen', a: 'Combine 3x weekly hair oiling, bi-weekly powder mask detox, and daily scalp stimulation for maximum follicular reactivation.' }
+          { q: 'Months 1-3 Regimen', a: 'Combine 3x weekly hair oiling, bi-weekly powder mask detox, and scalp massage for comprehensive root nourishment.' }
         ]
       },
       {
         id: 'quiz-3',
         type: 'quiz',
-        title: 'Find Your Regrowth System',
+        title: 'Find Your Hair Care System',
         subtitle: 'Find out which 90-day bundle matches your needs best',
         enabled: true,
         displayOrder: 2
@@ -2375,16 +2382,16 @@ export const INITIAL_CATEGORY_PAGES: CategoryPageConfig[] = [
         enabled: true,
         displayOrder: 4,
         items: [
-          { q: 'What is included in the Tribal Wellness Regrowth Kit?', a: 'The complete kit includes 1x HAKKIVEDA 108 Herbs Hair Oil (200ml), 1x Herbal Baldness Care Powder (150g), 1x 42 Herbs Shampoo (250ml), plus a complimentary handcrafted brass head massager tool.' },
-          { q: 'Why is a 90-day regimen recommended for tribal remedies?', a: 'Hair growth follows natural 90-day follicular cycles. The Hakki-Pikki tribe traditional regimen aligns with 3 lunar cycles to allow deep botanical lipid absorption, scalp detoxification, and new root sprouting.' },
+          { q: 'What is included in the Tribal Wellness Kit?', a: 'The complete kit includes 1x HAKKIVEDA 108 Herbs Hair Oil (200ml), 1x Herbal Baldness Care Powder (150g), 1x 42 Herbs Shampoo (250ml), plus a complimentary handcrafted brass head massager tool.' },
+          { q: 'Why is a 90-day regimen recommended for tribal remedies?', a: 'Hair vitality follows natural 90-day growth and resting cycles. The Hakki-Pikki tribe traditional regimen aligns with 3 lunar cycles to allow deep botanical lipid absorption, scalp conditioning, and root revitalization.' },
           { q: 'Are there any dietary or lifestyle guidelines during the regimen?', a: 'For best results, maintain good hydration, avoid washing hair with scalding hot water, and allow hair to air-dry naturally after applying the shampoo and oil.' }
         ]
       },
       {
         id: 'safety-3',
         type: 'safety',
-        title: 'Quality Guarantee',
-        subtitle: '100% natural ingredients, zero synthetic mineral oils or parabens.',
+        title: 'Quality Commitment',
+        subtitle: 'Natural botanicals, zero synthetic mineral oils or parabens.',
         enabled: true,
         displayOrder: 5
       }

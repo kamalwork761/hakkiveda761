@@ -393,8 +393,8 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(8.5);
     doc.text('Door No. 574, V.P. Bore, Hunsur, Mysore, Karnataka - 571105', 14, 52);
-    doc.text('GSTIN: 29AABCH1234F1ZM | Ayush Lic: KTK/25A/1908/2021', 14, 57);
-    doc.text('Email: support@hakkiveda.com | Tel: +91 94812 89012', 14, 62);
+    doc.text('Support: support@hakkiveda.com | WhatsApp / Tel: +91 76195 36831', 14, 57);
+    doc.text('Website: https://hakkiveda.com | Dispatch: Mysore Hub', 14, 62);
 
     // Buyer Details
     doc.setFont('helvetica', 'bold');
@@ -480,7 +480,9 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     doc.text('Shipping Charges:', 120, finalY + 22);
     doc.text(shippingCharges === 0 ? 'FREE' : `INR ${shippingCharges.toLocaleString('en-IN')}`, 190, finalY + 22, { align: 'right' });
 
-    doc.text('Incl. GST (18%):', 120, finalY + 29);
+    const isExportOrder = order.customer.country && order.customer.country.trim().toLowerCase() !== 'india';
+    const taxLabel = isExportOrder ? 'Taxes (Included):' : 'Incl. GST (18%):';
+    doc.text(taxLabel, 120, finalY + 29);
     doc.text(`INR ${taxGST.toLocaleString('en-IN')}`, 190, finalY + 29, { align: 'right' });
 
     doc.setDrawColor(203, 213, 225);
@@ -497,9 +499,9 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     doc.setFontSize(7.5);
     doc.setTextColor(100, 116, 139);
     doc.text('Terms & Conditions:', 14, finalY + 8);
-    doc.text('1. Certified 100% authentic Ayurvedic formulation tested in certified laboratory.', 14, finalY + 13);
-    doc.text('2. All disputes subject to Hunsur/Mysore jurisdiction.', 14, finalY + 18);
-    doc.text('3. This is a computer-generated tax invoice and requires no physical signature.', 14, finalY + 23);
+    doc.text('1. Traditional Hakki-Pikki herbal formulation handcrafted with wild botanicals.', 14, finalY + 13);
+    doc.text('2. 7-day return/replacement policy for eligible claims (hakkiveda.com/refund-policy).', 14, finalY + 18);
+    doc.text('3. This is a computer-generated invoice. All disputes subject to Mysore jurisdiction.', 14, finalY + 23);
 
     doc.save(fileName);
   };
@@ -618,7 +620,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     doc.setFont('helvetica', 'normal');
     doc.setFontSize(7);
     doc.text('HAKKIVEDA Herbal Enterprises, Door No. 574, V.P. Bore,', 7, returnY + 9);
-    doc.text('Hunsur, Mysore, KA - 571105 | Tel: +91 94812 89012', 7, returnY + 13);
+    doc.text('Hunsur, Mysore, KA - 571105 | Tel: +91 76195 36831', 7, returnY + 13);
 
     doc.save(fileName);
   };
@@ -729,7 +731,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               <h1 className="text-2xl font-black font-serif-luxury text-[var(--brand-primary-dark)] tracking-wider">HAKKIVEDA</h1>
               <p className="text-xs text-slate-500 font-serif">100% Authentic Tribal Ayurvedic Formulations</p>
               <p className="text-[11px] text-slate-600 mt-1">Door No. 574, V.P. Bore, Hunsur, Mysore, Karnataka - 571105</p>
-              <p className="text-[11px] text-slate-600">GSTIN: 29AABCH1234F1ZM | Ayush Lic: KTK/25A/1908/2021</p>
+              <p className="text-[11px] text-slate-600">Email: support@hakkiveda.com | Tel: +91 76195 36831</p>
             </div>
             <div className="text-right">
               <span className="inline-block bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] text-xs font-bold px-3 py-1 rounded uppercase tracking-widest">
@@ -808,7 +810,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                 <span className="font-mono">{shippingCharges === 0 ? 'FREE' : formatPrice(shippingCharges)}</span>
               </div>
               <div className="flex justify-between text-slate-500 text-[11px]">
-                <span>Incl. GST (18%):</span>
+                <span>{order.customer.country && order.customer.country.trim().toLowerCase() !== 'india' ? 'Taxes (Included):' : 'Incl. GST (18%):'}</span>
                 <span className="font-mono">{formatPrice(taxGST)}</span>
               </div>
               <div className="flex justify-between font-bold text-sm text-[var(--brand-primary-dark)] border-t border-slate-300 pt-2">
@@ -909,7 +911,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
 
           <div className="text-[10px] text-slate-600 mb-6">
             <p className="font-bold">RETURN ADDRESS IF UNDELIVERED:</p>
-            <p>HAKKIVEDA Herbal Enterprises, Door No. 574, V.P. Bore, Hunsur, Mysore, KA - 571105. Tel: +91 94812 89012</p>
+            <p>HAKKIVEDA Herbal Enterprises, Door No. 574, V.P. Bore, Hunsur, Mysore, KA - 571105. Tel: +91 76195 36831</p>
           </div>
 
           <div className="flex flex-wrap items-center justify-end gap-3 print:hidden">

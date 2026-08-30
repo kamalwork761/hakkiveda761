@@ -444,8 +444,8 @@ export const CheckoutModal: React.FC = () => {
     ? [
         {
           id: 'RAZORPAY',
-          name: 'Razorpay Secure Checkout',
-          description: 'Pay securely via UPI, Google Pay, PhonePe, Cards, Net Banking & Wallets',
+          name: 'Razorpay Online Payment',
+          description: 'Pay via UPI, Google Pay, PhonePe, Cards, Net Banking & Wallets',
           mode: razorpayMode,
         },
         ...(isCodAllowed
@@ -453,7 +453,7 @@ export const CheckoutModal: React.FC = () => {
               {
                 id: 'COD' as PaymentGatewayId,
                 name: 'Cash on Delivery (COD)',
-                description: 'Pay with cash upon package delivery at your doorstep',
+                description: 'Pay with cash upon package delivery at your doorstep (India only)',
                 mode: 'LIVE',
               },
             ]
@@ -462,8 +462,8 @@ export const CheckoutModal: React.FC = () => {
     : [
         {
           id: 'RAZORPAY',
-          name: 'Razorpay Secure International Checkout',
-          description: 'Pay securely using supported international Visa, Mastercard, American Express and other enabled cards.',
+          name: 'Razorpay International Card Payment',
+          description: 'International Visa, Mastercard, American Express and enabled cards (100% prepaid)',
           mode: razorpayMode,
         },
       ];
@@ -479,7 +479,7 @@ export const CheckoutModal: React.FC = () => {
       : 'Delhivery / Shiprocket / Bluedart'
     : 'DHL Express / FedEx Worldwide';
 
-  const estimatedDelivery = isIndia ? '3–5 Business Days' : '5–8 Business Days';
+  const estimatedDelivery = isIndia ? 'Estimated 3–5 Business Days' : 'Typically 5–8 Business Days*';
 
   // Live stock validator
   const validateCartStock = (): boolean => {
@@ -1853,29 +1853,46 @@ export const CheckoutModal: React.FC = () => {
               </div>
             )}
 
-            {/* Policy Callout - No COD warning for international! */}
+            {/* Policy Callout - COD / Prepaid rules & International Customs Disclosures */}
             {isIndia ? (
-              <div className="p-4 bg-[var(--surface-muted)] border border-[var(--border-default)] rounded-xl text-xs space-y-1">
+              <div className="p-3.5 sm:p-4 bg-[var(--surface-muted)] border border-[var(--border-default)] rounded-xl text-xs space-y-2">
                 <div className="flex items-center justify-between">
-                  <span className="text-[var(--heading-primary)] font-bold block">Market & Payment Policy:</span>
+                  <span className="text-[var(--heading-primary)] font-bold block">Domestic India Order & Payment Notice:</span>
                   <span className="text-[10px] px-2 py-0.5 rounded bg-[var(--surface-background)] text-[var(--text-primary)] border border-[var(--border-default)] font-bold">
                     🇮🇳 India (INR)
                   </span>
                 </div>
-                <p className="text-[var(--text-secondary)]">
-                  • Shipments to India qualify for both Razorpay Online Payment and Cash on Delivery (COD).
+                <p className="text-[var(--text-secondary)] leading-relaxed">
+                  • <strong>Payment Methods:</strong> Shipments to India qualify for supported online payments via Razorpay or Cash on Delivery (COD) where eligible.
+                </p>
+                <p className="text-[var(--text-secondary)] leading-relaxed">
+                  • <strong>Cash on Delivery (COD):</strong> COD is available only for eligible India delivery pin codes and cart thresholds. All COD orders are subject to telephonic or WhatsApp verification and fulfillment acceptance prior to dispatch.
                 </p>
               </div>
             ) : (
-              <div className="p-4 bg-[var(--surface-muted)] border border-[var(--border-default)] rounded-xl text-xs space-y-1">
+              <div className="p-3.5 sm:p-4 bg-[var(--surface-muted)] border border-[var(--border-default)] rounded-xl text-xs space-y-2.5">
                 <div className="flex items-center justify-between">
-                  <span className="text-[var(--heading-primary)] font-bold block">International Express Checkout:</span>
+                  <span className="text-[var(--heading-primary)] font-bold block">International Dispatch & Customs Disclosures:</span>
                   <span className="text-[10px] px-2 py-0.5 rounded bg-[var(--surface-background)] text-[var(--text-primary)] border border-[var(--border-default)] font-bold">
                     {activeCountryInfo.flag} {activeCountryInfo.name} ({currentCurrency.code})
                   </span>
                 </div>
-                <p className="text-[var(--text-secondary)]">
-                  • Fast & secure prepaid international payment with instant confirmation.
+                <p className="text-[var(--text-secondary)] leading-relaxed">
+                  • <strong>100% Prepaid Order:</strong> Cash on Delivery (COD) is not available for international shipments. Cross-border orders are dispatched via express air couriers upon payment confirmation.
+                </p>
+
+                {/* International Customs Callout */}
+                <div className="p-2.5 rounded-lg bg-amber-50 dark:bg-amber-950/40 border border-amber-200 dark:border-amber-700/50 space-y-1 text-amber-900 dark:text-amber-200">
+                  <p className="font-semibold leading-relaxed">
+                    • <strong>Customs & Import Duties:</strong> International orders may be subject to customs duties, import taxes, VAT, clearance fees or other destination-country charges. Unless specifically stated otherwise at checkout, these charges are the recipient/customer's responsibility.
+                  </p>
+                  <p className="text-[11px] text-amber-800 dark:text-amber-300 leading-relaxed">
+                    • <strong>Customs Clearance:</strong> Customs inspection or clearance procedures in the destination country may affect delivery estimates.
+                  </p>
+                </div>
+
+                <p className="text-[11px] text-[var(--text-secondary)] leading-relaxed">
+                  • <strong>Import Compliance:</strong> Customers are responsible for ensuring that the ordered products can be legally imported into their destination country.
                 </p>
               </div>
             )}
@@ -1921,17 +1938,36 @@ export const CheckoutModal: React.FC = () => {
               )}
             </div>
 
-            {/* Currency Settlement Disclosure for unsupported gateway currencies (e.g. FJD) */}
-            {paymentMethod === 'RAZORPAY' && !RAZORPAY_SUPPORTED_CURRENCIES.has(currentCurrency.code) && (
+            {/* Payment Processor Transparency Callout */}
+            {paymentMethod === 'RAZORPAY' && (
+              <div className="p-3 rounded-xl bg-[var(--surface-background)] border border-[var(--border-muted)] flex items-start gap-2.5 text-xs text-[var(--text-secondary)]">
+                <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400 shrink-0 mt-0.5" />
+                <span className="leading-relaxed">
+                  Secure online payment processed by Razorpay. HAKKIVEDA does not receive or store raw card numbers or CVV data.
+                </span>
+              </div>
+            )}
+
+            {/* Currency Settlement Disclosure */}
+            {paymentMethod === 'RAZORPAY' && !RAZORPAY_SUPPORTED_CURRENCIES.has(currentCurrency.code) ? (
               <div className="p-4 bg-amber-50/90 dark:bg-amber-950/70 border border-amber-300 dark:border-amber-700/60 rounded-xl space-y-1.5 text-xs text-amber-900 dark:text-amber-200 animate-in fade-in duration-200">
                 <div className="font-bold flex items-center gap-1.5 text-amber-900 dark:text-amber-100">
                   <span>💱</span>
                   <span>Currency Charge Disclosure</span>
                 </div>
-                <p>
+                <p className="leading-relaxed">
                   Your order display total is <strong>{formatPrice(grandTotalINR)} ({currentCurrency.code})</strong>. Because Razorpay processes transactions in Indian Rupees (INR) for this currency, <strong>your card will be charged ₹{grandTotalINR.toLocaleString('en-IN')} (INR)</strong> at checkout.
                 </p>
+                <p className="text-[11px] text-amber-800 dark:text-amber-300">
+                  Your bank or card issuer may apply its own currency conversion or international transaction fees.
+                </p>
               </div>
+            ) : (
+              !isIndia && paymentMethod === 'RAZORPAY' && (
+                <p className="text-[11px] text-[var(--text-secondary)] px-1 leading-relaxed">
+                  Your bank or card issuer may apply its own currency conversion or international transaction fees.
+                </p>
+              )
             )}
 
             {/* Order Total Preview */}
@@ -1953,6 +1989,88 @@ export const CheckoutModal: React.FC = () => {
                 <span className="font-bold text-[var(--heading-primary)] text-sm">{formatPrice(grandTotalINR)}</span>
               </div>
             </div>
+
+            {/* Returns, Refunds, Cancellation & Support Notice */}
+            <div className="rounded-xl p-3.5 bg-[var(--surface-muted)] border border-[var(--border-muted)] space-y-2 text-xs text-[var(--text-secondary)]">
+              <p className="leading-relaxed">
+                Returns and refunds are subject to our{' '}
+                <a
+                  href="/refund-policy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[var(--heading-primary)] font-semibold underline hover:text-[var(--brand-gold)]"
+                >
+                  Returns & Refunds Policy
+                </a>
+                , including hygiene and product-condition requirements.
+              </p>
+              <div className="flex flex-wrap items-center justify-between gap-2 pt-1.5 border-t border-[var(--border-muted)] text-[11px]">
+                <span>
+                  Need to cancel? See our{' '}
+                  <a
+                    href="/cancellation-policy"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[var(--heading-primary)] underline hover:text-[var(--brand-gold)]"
+                  >
+                    Cancellation Policy
+                  </a>
+                  .
+                </span>
+                <span>
+                  Need help?{' '}
+                  <a
+                    href="/contact"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-[var(--heading-primary)] font-semibold underline hover:text-[var(--brand-gold)]"
+                  >
+                    Contact Support
+                  </a>
+                </span>
+              </div>
+            </div>
+
+            {/* Mandatory Checkout Consent Text (Immediately above order/payment button) */}
+            <p className="text-[11px] sm:text-xs text-[var(--text-secondary)] leading-relaxed text-center px-1">
+              By placing your order, you agree to HAKKIVEDA's{' '}
+              <a
+                href="/terms-and-conditions"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--heading-primary)] font-semibold underline hover:text-[var(--brand-gold)]"
+              >
+                Terms & Conditions
+              </a>
+              ,{' '}
+              <a
+                href="/privacy-policy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--heading-primary)] font-semibold underline hover:text-[var(--brand-gold)]"
+              >
+                Privacy Policy
+              </a>
+              ,{' '}
+              <a
+                href="/shipping-policy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--heading-primary)] font-semibold underline hover:text-[var(--brand-gold)]"
+              >
+                Shipping Policy
+              </a>
+              {' '}and{' '}
+              <a
+                href="/refund-policy"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--heading-primary)] font-semibold underline hover:text-[var(--brand-gold)]"
+              >
+                Returns & Refunds Policy
+              </a>
+              .
+            </p>
 
             <div className="flex gap-3">
               <button

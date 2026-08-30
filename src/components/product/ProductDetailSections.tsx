@@ -516,7 +516,7 @@ export const ProductDetailSections: React.FC<ProductDetailSectionsProps> = ({
           {hasReturns && (
             <div
               id="section-returns"
-              className="bg-white dark:bg-[#123F2B] border border-[#E7E1D5] dark:border-white/10 rounded-2xl p-5 sm:p-6 shadow-sm"
+              className="bg-white dark:bg-[#123F2B] border border-[#E7E1D5] dark:border-white/10 rounded-2xl p-5 sm:p-6 shadow-sm space-y-2"
             >
               <div className="flex items-center gap-2.5 mb-2">
                 <RotateCcw className="w-4 h-4 text-blue-600 dark:text-blue-400" />
@@ -527,6 +527,16 @@ export const ProductDetailSections: React.FC<ProductDetailSectionsProps> = ({
               <p className="text-xs text-[#37463D] dark:text-slate-300 leading-relaxed font-sans">
                 {product.returnsPolicy}
               </p>
+              <div className="pt-1">
+                <a
+                  href="/refund-policy"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-xs text-[#8E7026] dark:text-[var(--brand-gold)] font-semibold underline hover:text-[#0F2E22] dark:hover:text-white transition-colors"
+                >
+                  View Full Returns & Refunds Policy →
+                </a>
+              </div>
             </div>
           )}
         </div>

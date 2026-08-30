@@ -30,8 +30,8 @@ const toAbsoluteUrl = (url: string | undefined | null, fallback: string, siteUrl
 const CATEGORY_FAQS_MAP: Record<string, Array<{ q: string; a: string }>> = {
   'hair-care': [
     {
-      q: 'How soon can I expect visible hair growth and reduced hair fall?',
-      a: 'Most customers notice a dramatic reduction in hair fall and root breakage within 14 to 21 days of consistent 3x weekly oiling and shampooing. Dormant follicle reactivation and baby hair sprouting typically appear within 45 to 60 days.',
+      q: 'How soon can I expect visible results and reduced hair fall?',
+      a: 'Most customers notice a noticeable reduction in routine hair shedding and breakage within 14 to 21 days of consistent 3x weekly oiling and shampooing. Visible improvements in scalp nourishment, strand thickness, and hair vitality typically appear within 45 to 60 days of regular ritual care.',
     },
     {
       q: 'Is HAKKIVEDA Hair Care safe for color-treated or bleached hair?',
@@ -273,6 +273,46 @@ export const SeoSchemaInjector: React.FC = () => {
       pageDesc = 'Evidence-based Ayurvedic guides, herbal ingredient deep-dives, and Hakki-Pikki tribal remedies for hair growth, dandruff, and scalp vitality.';
       pageImage = defaultProductImage;
       pageKeywords = 'Ayurvedic Hair Growth Blog, Hakki Pikki Herbal Journal, Tribal Scalp Guides, Hair Fall Natural Solutions, HAKKIVEDA Journal';
+    } else if (cleanPath === '/privacy-policy' || cleanPath === '/privacy') {
+      pageTitle = 'Privacy Policy | HAKKIVEDA Herbal Enterprises';
+      pageDesc = 'Learn how HAKKIVEDA protects your privacy, personal information, customer account data, and secures payment transactions via PCI-DSS certified gateway.';
+      pageImage = fallbackSocialImage;
+      pageKeywords = 'HAKKIVEDA Privacy Policy, customer data security, payment security, cookie policy, Hakki Pikki store privacy';
+    } else if (cleanPath === '/terms-and-conditions' || cleanPath === '/terms' || cleanPath === '/terms-of-service') {
+      pageTitle = 'Terms & Conditions | HAKKIVEDA Herbal Enterprises';
+      pageDesc = 'Read the official Terms and Conditions for HAKKIVEDA. Learn about order placement, customer accounts, intellectual property, and botanical product sales.';
+      pageImage = fallbackSocialImage;
+      pageKeywords = 'HAKKIVEDA Terms and Conditions, website terms, store policies, commercial terms, user agreement';
+    } else if (cleanPath === '/shipping-policy' || cleanPath === '/shipping') {
+      pageTitle = 'Shipping & Delivery Policy | Domestic & International - HAKKIVEDA';
+      pageDesc = 'Discover HAKKIVEDA shipping timelines, domestic COD delivery, international air express logistics, courier tracking, and destination customs duty guidance.';
+      pageImage = fallbackSocialImage;
+      pageKeywords = 'HAKKIVEDA Shipping Policy, delivery timelines, express courier, international shipping, customs duty';
+    } else if (cleanPath === '/refund-policy' || cleanPath === '/refunds' || cleanPath === '/returns' || cleanPath === '/return-policy') {
+      pageTitle = 'Return & Refund Policy | HAKKIVEDA Herbal Enterprises';
+      pageDesc = 'Understand our return, replacement, and refund policies for damaged or missing items, personal care hygiene guidelines, and reimbursement timelines.';
+      pageImage = fallbackSocialImage;
+      pageKeywords = 'HAKKIVEDA Refund Policy, return policy, damaged item replacement, order refund, hygiene policy';
+    } else if (cleanPath === '/cancellation-policy' || cleanPath === '/cancellation') {
+      pageTitle = 'Cancellation Policy | HAKKIVEDA Herbal Enterprises';
+      pageDesc = 'Guidelines for order modification and pre-dispatch cancellation for domestic and international orders on HAKKIVEDA.';
+      pageImage = fallbackSocialImage;
+      pageKeywords = 'HAKKIVEDA Cancellation Policy, cancel order, order modification, pre-dispatch cancellation';
+    } else if (cleanPath === '/disclaimer' || cleanPath === '/disclaimers') {
+      pageTitle = 'Botanical & Product Disclaimer | HAKKIVEDA Herbal Enterprises';
+      pageDesc = 'General informational disclaimer, Ayurvedic herbal cosmetics disclosure, patch test advice, and individual results variability for HAKKIVEDA.';
+      pageImage = fallbackSocialImage;
+      pageKeywords = 'HAKKIVEDA Disclaimer, Ayurvedic herbal disclaimer, cosmetic disclosure, patch test recommendation';
+    } else if (cleanPath === '/contact' || cleanPath === '/contact-us' || cleanPath === '/support') {
+      pageTitle = 'Contact Us & Customer Support | HAKKIVEDA Herbal Enterprises';
+      pageDesc = 'Get in touch with HAKKIVEDA customer care. Official address in Mysore, phone +91 76195 36831, email support@hakkiveda.com, and WhatsApp concierge.';
+      pageImage = fallbackSocialImage;
+      pageKeywords = 'Contact HAKKIVEDA, customer support, Mysore office, customer care phone, WhatsApp support, grievance redressal';
+    } else if (cleanPath === '/legal' || cleanPath === '/legal-center' || cleanPath === '/policies') {
+      pageTitle = 'Legal & Customer Care Policy Directory | HAKKIVEDA';
+      pageDesc = 'Official directory of HAKKIVEDA legal terms, privacy guidelines, shipping rates, refund rules, and consumer care policies.';
+      pageImage = fallbackSocialImage;
+      pageKeywords = 'HAKKIVEDA Legal Directory, store policies, privacy, terms, shipping, refunds';
     } else if (quickViewProduct && cleanPath === '/') {
       pageTitle = `${quickViewProduct.name} | HAKKIVEDA Hakki-Pikki Tribal Hair Care`;
       pageDesc = quickViewProduct.description ? quickViewProduct.description.slice(0, 160) : `Buy ${quickViewProduct.name} - Authentic Hakki-Pikki tribal Ayurvedic formula from HAKKIVEDA. Fast worldwide express shipping.`;

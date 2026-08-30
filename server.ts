@@ -1042,6 +1042,13 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
         { url: `${siteUrl}/b2b-enquiry`, priority: '0.7', changefreq: 'monthly', lastmod: today },
         { url: `${siteUrl}/video-rituals`, priority: '0.7', changefreq: 'weekly', lastmod: today },
         { url: `${siteUrl}/journal`, priority: '0.8', changefreq: 'daily', lastmod: today },
+        { url: `${siteUrl}/privacy-policy`, priority: '0.6', changefreq: 'monthly', lastmod: today },
+        { url: `${siteUrl}/terms-and-conditions`, priority: '0.6', changefreq: 'monthly', lastmod: today },
+        { url: `${siteUrl}/shipping-policy`, priority: '0.7', changefreq: 'monthly', lastmod: today },
+        { url: `${siteUrl}/refund-policy`, priority: '0.6', changefreq: 'monthly', lastmod: today },
+        { url: `${siteUrl}/cancellation-policy`, priority: '0.6', changefreq: 'monthly', lastmod: today },
+        { url: `${siteUrl}/disclaimer`, priority: '0.6', changefreq: 'monthly', lastmod: today },
+        { url: `${siteUrl}/contact`, priority: '0.7', changefreq: 'monthly', lastmod: today },
       ];
 
       const productUrls: SitemapItem[] = products.map((p) => ({
@@ -2820,18 +2827,18 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
       ];
 
       if (isBaldness) {
-        recommendationTitle = 'HAKKIVEDA 3-Step Baldness & Intensive Follicle Reactivation Kit';
+        recommendationTitle = 'HAKKIVEDA 3-Step Baldness & Intensive Scalp Care Kit';
         recommendedProductIds = ['prod-1', 'prod-4', 'prod-2', 'prod-5'];
         defaultRoutine = [
-          'Massage HAKKIVEDA Herbal Hair Oil 3x weekly onto scalp and dormant roots',
-          'Apply HAKKIVEDA Herbal Baldness Care Powder paste directly on bald patches & thin areas 2x weekly',
+          'Massage HAKKIVEDA Herbal Hair Oil 3x weekly onto scalp and hair roots',
+          'Apply HAKKIVEDA Herbal Baldness Care Powder paste directly on sparse scalp areas 2x weekly',
           'Cleanse thoroughly with HAKKIVEDA 42 Mountain Herbs Clarifying Shampoo',
         ];
       } else if (isLongHair) {
         recommendationTitle = 'HAKKIVEDA Long Hair Growth & Root Strength System';
         recommendedProductIds = ['prod-1', 'prod-2'];
         defaultRoutine = [
-          'Apply HAKKIVEDA Herbal Hair Oil to scalp and full hair lengths 3x weekly for rapid growth',
+          'Apply HAKKIVEDA Herbal Hair Oil to scalp and full hair lengths 3x weekly for rich nourishment',
           'Cleanse with HAKKIVEDA 42 Mountain Herbs Clarifying Shampoo to prevent breakage and split ends',
         ];
       }
@@ -2841,10 +2848,10 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
         return res.json({
           success: true,
           summary: isBaldness
-            ? `Based on your severe hair loss profile, our Master Vaidya prescribes the 3-Step Intensive System: HAKKIVEDA Herbal Hair Oil + HAKKIVEDA Herbal Baldness Care Powder + HAKKIVEDA Clarifying Shampoo.`
+            ? `Based on your hair thinning concern, our traditional botanical advisor recommends the 3-Step Intensive System: HAKKIVEDA Herbal Hair Oil + HAKKIVEDA Herbal Baldness Care Powder + HAKKIVEDA Clarifying Shampoo for deep root nourishment.`
             : isLongHair
-            ? `To achieve long, lush hair, HAKKIVEDA Herbal Hair Oil paired with HAKKIVEDA Clarifying Shampoo provides deep follicle stimulation and strand elasticity.`
-            : `For your hair profile, the combination of HAKKIVEDA Herbal Hair Oil and HAKKIVEDA Clarifying Shampoo is more than enough to maintain root health and stop hair fall.`,
+            ? `To achieve long, lush hair, HAKKIVEDA Herbal Hair Oil paired with HAKKIVEDA Clarifying Shampoo provides deep scalp nourishment and strand elasticity.`
+            : `For your hair profile, the combination of HAKKIVEDA Herbal Hair Oil and HAKKIVEDA Clarifying Shampoo is ideal to maintain root health and reduce daily hair fall.`,
           doshaType: sScalpCondition === 'Dry / Flaky / Itchy' ? 'Vata-Pitta Imbalance' : 'Pitta-Kapha',
           recommendationTitle,
           recommendedProductIds,
@@ -2854,7 +2861,7 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
         });
       }
 
-      const prompt = `You are the Master Vaidya of HAKKIVEDA, an expert in Hakki-Pikki ancient tribal herbal wisdom and traditional Ayurvedic trichology.
+      const prompt = `You are the Tribal Botanical Advisor of HAKKIVEDA, an expert in Hakki-Pikki tribal herbal traditions and Ayurvedic wellness philosophy.
 Analyze the following customer hair profile:
 - Hair Type: ${sHairType}
 - Scalp Condition: ${sScalpCondition}
@@ -2863,24 +2870,27 @@ Analyze the following customer hair profile:
 - Desired Goal: ${sHairGoal}
 - Lifestyle / Daily Stress: ${sLifestyle}
 
-IMPORTANT PRODUCT RECOMMENDATION RULES:
-1. If the user has Baldness / Advanced Thinning / Receding Hairline / Visible Scalp:
-   - Prescribe the 3-step baldness care protocol: HAKKIVEDA Herbal Hair Oil + HAKKIVEDA Herbal Baldness Care Powder & Lepa + HAKKIVEDA 42 Mountain Herbs Clarifying Shampoo (or Complete Kit prod-5).
-   - Set "recommendationTitle": "HAKKIVEDA 3-Step Baldness & Intensive Follicle Reactivation Kit"
+IMPORTANT COMPLIANCE & PRODUCT RECOMMENDATION RULES:
+1. This is a cosmetic & traditional wellness assessment, NOT a medical diagnosis or disease treatment.
+2. Do NOT use medical diagnostic terms (e.g. do not diagnose medical alopecia, dermatitis, fungal infections, or claim medical cures).
+3. Frame recommendations around traditional tribal botanical nourishment, scalp care rituals, and cosmetic strand strength.
+4. If the user has Baldness / Advanced Thinning / Receding Hairline / Visible Scalp:
+   - Recommend the 3-step baldness care protocol: HAKKIVEDA Herbal Hair Oil + HAKKIVEDA Herbal Baldness Care Powder & Lepa + HAKKIVEDA 42 Mountain Herbs Clarifying Shampoo (or Complete Kit prod-5).
+   - Set "recommendationTitle": "HAKKIVEDA 3-Step Baldness & Intensive Scalp Care Kit"
    - Set "recommendedProductIds": ["prod-1", "prod-4", "prod-2", "prod-5"]
 
-2. If the user wants Long Hair / Fast Growth / Length:
-   - Prescribe: HAKKIVEDA Herbal Hair Oil + HAKKIVEDA 42 Mountain Herbs Clarifying Shampoo.
+5. If the user wants Long Hair / Fast Growth / Length:
+   - Recommend: HAKKIVEDA Herbal Hair Oil + HAKKIVEDA 42 Mountain Herbs Clarifying Shampoo.
    - Set "recommendationTitle": "HAKKIVEDA Long Hair Growth & Root Strength System"
    - Set "recommendedProductIds": ["prod-1", "prod-2"]
 
-3. If the concern is mild or not too serious (normal shedding, general hair fall, dry/frizzy hair):
-   - Prescribe: HAKKIVEDA Herbal Hair Oil + HAKKIVEDA 42 Mountain Herbs Clarifying Shampoo (this is more than enough).
+6. If the concern is mild or general maintenance (normal shedding, general hair fall, dry/frizzy hair):
+   - Recommend: HAKKIVEDA Herbal Hair Oil + HAKKIVEDA 42 Mountain Herbs Clarifying Shampoo.
    - Set "recommendationTitle": "HAKKIVEDA Essential Hair Oil & Shampoo Routine"
    - Set "recommendedProductIds": ["prod-1", "prod-2"]
 
-Provide a personalized botanical diagnosis in valid JSON format with keys:
-- "summary": A warm 2-3 sentence tribal diagnosis explaining the recommended products and root cause.
+Provide a personalized botanical assessment in valid JSON format with keys:
+- "summary": A warm 2-3 sentence traditional tribal guidance explaining the recommended products and ritual. (Avoid medical cure/diagnosis language).
 - "doshaType": Ayurvedic dosha classification (e.g. Vata-Pitta, Pitta-Kapha).
 - "recommendationTitle": String title of the recommended routine.
 - "recommendedProductIds": Array of product IDs string.
@@ -2946,15 +2956,19 @@ Return ONLY raw JSON, no markdown code blocks.`;
         });
       }
 
-      const systemInstruction = `You are the AI Tribal Botanical Advisor for HAKKIVEDA, a luxury international Ayurvedic herbal e-commerce brand inspired by the Hakki-Pikki tribe in Karnataka, India.
+      const systemInstruction = `You are the AI Tribal Botanical Advisor for HAKKIVEDA, an authentic botanical and herbal hair wellness brand rooted in the Hakki-Pikki tribal heritage of Mysore, Karnataka, India.
 Company Info:
 - Address: Door No. 574, V.P. Bore, Hunsur, Mysore, Karnataka, India
-- WhatsApp Support: +91 76195 36831 | Email: hakkiveda@gmail.com
-- Main Product: Tribal Gold Hair Oil (42 rare herbs slow-cooked in traditional copper cauldrons over woodfire for 21 days).
+- WhatsApp Support: +91 76195 36831 | Email: support@hakkiveda.com
+- Main Product: Tribal Gold Hair Oil (42 wild herbs slow-cooked in traditional copper cauldrons over woodfire for 21 days).
 - Worldwide Express Shipping: India (INR), Singapore (SGD), Malaysia (MYR), Fiji (FJD), Mauritius (MUR), Worldwide (USD).
-- Key Benefits: Stops severe hair fall, stimulates dormant follicles, darkens premature graying, removes stubborn dandruff naturally.
+- Authentic Benefits: Deeply nourishes hair roots, conditions dry and flaky scalp, promotes visible hair density and strand luster, helps manage breakage and split ends.
 
-Keep responses polite, herbal-expert oriented, concise, and luxurious. Always encourage holistic care and tribal wisdom.`;
+COMPLIANCE & COMMUNICATION RULES:
+1. You are providing traditional herbal hair care guidance and cosmetic product assistance, NOT medical advice, diagnosis, or disease prescriptions.
+2. Never claim to "cure" alopecia, baldness, fungal diseases, or guarantee 100% medical regrowth.
+3. Frame advice around traditional tribal formulations, healthy scalp maintenance, and regular oiling rituals.
+4. Keep responses polite, welcoming, culturally respectful, and concise.`;
 
       const formattedMessages = boundedMessages.map((m: any) => `${m.role === 'user' ? 'Customer' : 'Advisor'}: ${m.content}`).join('\n');
       const prompt = `${systemInstruction}\n\nChat History:\n${formattedMessages}\nAdvisor:`;

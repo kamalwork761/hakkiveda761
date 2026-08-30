@@ -63,7 +63,7 @@ export const Footer: React.FC = () => {
     'Door No. 574, V.P. Bore, Hunsur, Mysore, Karnataka, India - 571105';
   const phoneText = cfg.phone || siteSettings?.phone || '+91 76195 36831';
   const whatsappNum = cfg.whatsappNumber || siteSettings?.whatsappNumber || '917619536831';
-  const emailText = cfg.email || siteSettings?.email || 'hakkiveda@gmail.com';
+  const emailText = cfg.email || siteSettings?.email || 'support@hakkiveda.com';
   const brandDesc =
     cfg.brandDescription ||
     siteSettings?.footerAbout ||
@@ -176,6 +176,79 @@ export const Footer: React.FC = () => {
             </p>
           </div>
 
+          {/* Mobile Legal Links Bar */}
+          <div className="flex items-center justify-center flex-wrap gap-x-3 gap-y-1 text-[11px] text-[#E5D8B5]/80 font-sans pt-2 border-t border-[#D4AF37]/15">
+            <a
+              href="/privacy-policy"
+              onClick={(e) => {
+                e.preventDefault();
+                playSound?.('nav_click');
+                window.history.pushState({}, '', '/privacy-policy');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="hover:text-white transition-colors"
+            >
+              Privacy Policy
+            </a>
+            <span>•</span>
+            <a
+              href="/terms-and-conditions"
+              onClick={(e) => {
+                e.preventDefault();
+                playSound?.('nav_click');
+                window.history.pushState({}, '', '/terms-and-conditions');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="hover:text-white transition-colors"
+            >
+              Terms
+            </a>
+            <span>•</span>
+            <a
+              href="/shipping-policy"
+              onClick={(e) => {
+                e.preventDefault();
+                playSound?.('nav_click');
+                window.history.pushState({}, '', '/shipping-policy');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="hover:text-white transition-colors"
+            >
+              Shipping
+            </a>
+            <span>•</span>
+            <a
+              href="/refund-policy"
+              onClick={(e) => {
+                e.preventDefault();
+                playSound?.('nav_click');
+                window.history.pushState({}, '', '/refund-policy');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="hover:text-white transition-colors"
+            >
+              Refunds
+            </a>
+            <span>•</span>
+            <a
+              href="/contact"
+              onClick={(e) => {
+                e.preventDefault();
+                playSound?.('nav_click');
+                window.history.pushState({}, '', '/contact');
+                window.dispatchEvent(new PopStateEvent('popstate'));
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+              }}
+              className="hover:text-white transition-colors"
+            >
+              Contact
+            </a>
+          </div>
+
           {/* Dynamic Copyright Year */}
           <p className="text-[10px] text-[#E5D8B5] font-sans tracking-wider pt-1">
             {mobileCopyrightText}
@@ -275,6 +348,15 @@ export const Footer: React.FC = () => {
                                 href={lnk.url}
                                 target={lnk.isExternal ? '_blank' : '_self'}
                                 rel={lnk.isExternal ? 'noreferrer' : undefined}
+                                onClick={(e) => {
+                                  if (!lnk.isExternal && lnk.url && lnk.url.startsWith('/')) {
+                                    e.preventDefault();
+                                    playSound?.('nav_click');
+                                    window.history.pushState({}, '', lnk.url);
+                                    window.dispatchEvent(new PopStateEvent('popstate'));
+                                    window.scrollTo({ top: 0, behavior: 'smooth' });
+                                  }
+                                }}
                                 className="hover:text-[var(--brand-gold)] transition-colors inline-flex items-center gap-1.5"
                               >
                                 <span>{lnk.label}</span>
@@ -309,18 +391,20 @@ export const Footer: React.FC = () => {
                 </ul>
 
                 <div className="pt-2 flex flex-col gap-1.5">
-                  <button
-                    onClick={() => {
-                      alert(
-                        cfg.shippingPolicyModalContent ||
-                          'Shipping Policy:\n• Orders dispatched within 24-48 business hours.\n• Tracked shipping via DHL/FedEx/SpeedPost.\n• Free Express Shipping on orders over ₹1,999 (India) or $99 (Global).'
-                      );
+                  <a
+                    href="/shipping-policy"
+                    onClick={(e) => {
+                      e.preventDefault();
+                      playSound?.('nav_click');
+                      window.history.pushState({}, '', '/shipping-policy');
+                      window.dispatchEvent(new PopStateEvent('popstate'));
+                      window.scrollTo({ top: 0, behavior: 'smooth' });
                     }}
                     className="text-xs font-bold text-[var(--brand-gold)] hover:text-white transition-colors inline-flex items-center gap-1 group text-left cursor-pointer"
                   >
                     <span>{cfg.shippingPolicyButtonText || 'View Shipping Policy'}</span>
                     <span className="group-hover:translate-x-1 transition-transform">→</span>
-                  </button>
+                  </a>
 
                   <button
                     onClick={() => {
@@ -379,8 +463,15 @@ export const Footer: React.FC = () => {
           {/* Secure Payments Section */}
           {cfg.showPaymentBadges !== false && <PaymentIcons />}
 
+          {/* Global Botanical & Cosmetic Wellness Disclaimer */}
+          <div className="pt-6 pb-2 border-t border-white/10 text-[10px] text-slate-400 leading-relaxed text-center sm:text-left">
+            <p>
+              <strong>Wellness & Cosmetic Notice:</strong> HAKKIVEDA products are authentic Ayurvedic and tribal herbal cosmetic formulations handcrafted for regular hair and scalp care. Descriptions of traditional herb benefits are rooted in historical folklore and botanical traditions; they have not been evaluated as medical claims and are not intended to diagnose, treat, cure, or prevent any medical condition or disease. Individual results vary.
+            </p>
+          </div>
+
           {/* Footer Bottom bar */}
-          <div className="pt-8 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
+          <div className="pt-6 flex flex-col sm:flex-row items-center justify-between text-xs text-slate-400 gap-4">
             <p>{copyrightStr}</p>
 
             <div className="flex items-center gap-4 flex-wrap">
@@ -391,7 +482,19 @@ export const Footer: React.FC = () => {
                 cfg.bottomLinks.map((lnk) => (
                   <React.Fragment key={lnk.id}>
                     <span>•</span>
-                    <a href={lnk.url} className="hover:text-[var(--brand-gold)] transition-colors">
+                    <a
+                      href={lnk.url}
+                      onClick={(e) => {
+                        if (lnk.url && lnk.url.startsWith('/')) {
+                          e.preventDefault();
+                          playSound?.('nav_click');
+                          window.history.pushState({}, '', lnk.url);
+                          window.dispatchEvent(new PopStateEvent('popstate'));
+                          window.scrollTo({ top: 0, behavior: 'smooth' });
+                        }
+                      }}
+                      className="hover:text-[var(--brand-gold)] transition-colors"
+                    >
                       {lnk.label}
                     </a>
                   </React.Fragment>

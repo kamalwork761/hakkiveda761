@@ -183,7 +183,7 @@ export const AdminAnnouncementManager: React.FC<AdminAnnouncementManagerProps> =
     'Worldwide Express Shipping • 100% Authentic 42 Mountain Herbs Formula',
     'Handcrafted in 21-Day Slow Woodfire Decoction by Hakki-Pikki Tribe',
     'Complimentary Express Delivery on Orders Over ₹999 / $50',
-    'Certified AYUSH Compliant • Wildcrafted Mysore Botanicals',
+    'Traditional Hakki-Pikki Herbal Formulation • Wildcrafted Mysore Botanicals',
     'Special Festive Offer: Use code TRIBAL10 for 10% Off Your First Order',
   ];
 

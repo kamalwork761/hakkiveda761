@@ -43,7 +43,7 @@ const ESTIMATED_QUANTITY_OPTIONS = [
 
 const PRODUCT_INTEREST_OPTIONS = [
   'Adivasi Herbal Hair Growth Oil (Original 42-Herb)',
-  'Adivasi Anti-Dandruff & Scalp Healing Oil',
+  'Adivasi Anti-Dandruff & Scalp Nourishing Oil',
   'Herbal Scalp Cleansing & Strengthening Shampoo',
   'Tribal Herbal Hair Rejuvenating Mask',
   'Bulk Raw Oil Formulation (25L - 200L Drums)',
@@ -190,8 +190,8 @@ export const B2BEnquiryPage: React.FC<B2BEnquiryPageProps> = ({ onReturnHome }) 
           </p>
 
           <p className="text-xs sm:text-sm text-[#37463D] max-w-2xl mx-auto leading-relaxed">
-            Direct factory supply for distributors, retailers, wellness spas, salons, and international herbal importers.
-            We provide full documentation, batch certification, phytosanitary clearance, and custom bulk supply.
+            Direct supply for distributors, retailers, wellness spas, salons, and international herbal importers.
+            We provide standard export documentation, batch analysis reports, phytosanitary clearance, and custom bulk supply.
           </p>
         </div>
       </header>
@@ -255,8 +255,8 @@ export const B2BEnquiryPage: React.FC<B2BEnquiryPageProps> = ({ onReturnHome }) 
               <div className="flex items-start gap-2.5">
                 <ShieldCheck className="w-4 h-4 text-[#123F2A] shrink-0 mt-0.5" />
                 <div>
-                  <strong className="text-[#123F2A] block font-bold">Factory Guarantee</strong>
-                  <span>100% genuine Pakka Adivasi traditional herbs.</span>
+                  <strong className="text-[#123F2A] block font-bold">Authentic Formulation</strong>
+                  <span>Traditional Hakki-Pikki tribal herbal botanical craft.</span>
                 </div>
               </div>
             </div>

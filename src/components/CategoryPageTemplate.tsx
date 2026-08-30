@@ -116,8 +116,8 @@ const CATEGORY_DEFAULTS: Record<string, CategoryPageConfig> = {
 const CATEGORY_FAQS: Record<string, Array<{ q: string; a: string }>> = {
   'hair-care': [
     {
-      q: 'How soon can I expect visible hair growth and reduced hair fall?',
-      a: 'Most customers notice a dramatic reduction in hair fall and root breakage within 14 to 21 days of consistent 3x weekly oiling and shampooing. Dormant follicle reactivation and baby hair sprouting typically appear within 45 to 60 days.',
+      q: 'How soon can I expect visible results and reduced hair fall?',
+      a: 'Most customers notice a noticeable reduction in routine hair shedding and breakage within 14 to 21 days of consistent 3x weekly oiling and shampooing. Visible improvements in scalp nourishment, strand thickness, and hair vitality typically appear within 45 to 60 days of regular ritual care.',
     },
     {
       q: 'Is HAKKIVEDA Hair Care safe for color-treated or bleached hair?',

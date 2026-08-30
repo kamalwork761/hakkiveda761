@@ -31,6 +31,7 @@ const OurStoryPage = lazy(() => import('./components/OurStoryPage').then(m => ({
 const JournalListingPage = lazy(() => import('./components/JournalListingPage').then(m => ({ default: m.JournalListingPage })));
 const BlogArticlePage = lazy(() => import('./components/BlogArticlePage').then(m => ({ default: m.BlogArticlePage })));
 const VideoRitualsPage = lazy(() => import('./pages/VideoRitualsPage').then(m => ({ default: m.VideoRitualsPage })));
+const LegalPolicyPage = lazy(() => import('./pages/LegalPolicyPage').then(m => ({ default: m.LegalPolicyPage })));
 
 // Dynamic Modals & Drawers
 const ProductDetailModal = lazy(() => import('./components/ProductDetailModal').then(m => ({ default: m.ProductDetailModal })));
@@ -230,6 +231,32 @@ export function AppContent() {
     normalizedPath === '/the-journal'
   );
 
+  // Legal & Customer Care Policy Routes
+  const isPrivacyRoute = normalizedPath === '/privacy-policy' || normalizedPath === '/privacy';
+  const isTermsRoute = normalizedPath === '/terms-and-conditions' || normalizedPath === '/terms' || normalizedPath === '/terms-of-service';
+  const isShippingRoute = normalizedPath === '/shipping-policy' || normalizedPath === '/shipping';
+  const isRefundRoute = normalizedPath === '/refund-policy' || normalizedPath === '/refunds' || normalizedPath === '/returns' || normalizedPath === '/return-policy';
+  const isCancellationRoute = normalizedPath === '/cancellation-policy' || normalizedPath === '/cancellation';
+  const isDisclaimerRoute = normalizedPath === '/disclaimer' || normalizedPath === '/disclaimers';
+  const isContactRoute = normalizedPath === '/contact' || normalizedPath === '/contact-us' || normalizedPath === '/support';
+  const isLegalLandingRoute = normalizedPath === '/legal' || normalizedPath === '/legal-center' || normalizedPath === '/policies';
+
+  const isLegalRoute = isPrivacyRoute || isTermsRoute || isShippingRoute || isRefundRoute || isCancellationRoute || isDisclaimerRoute || isContactRoute || isLegalLandingRoute;
+
+  const legalPolicyKey: 'privacy-policy' | 'terms-and-conditions' | 'shipping-policy' | 'refund-policy' | 'cancellation-policy' | 'disclaimer' | 'contact' = isTermsRoute
+    ? 'terms-and-conditions'
+    : isShippingRoute
+    ? 'shipping-policy'
+    : isRefundRoute
+    ? 'refund-policy'
+    : isCancellationRoute
+    ? 'cancellation-policy'
+    : isDisclaimerRoute
+    ? 'disclaimer'
+    : isContactRoute
+    ? 'contact'
+    : 'privacy-policy';
+
   return (
     <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-text)] flex flex-col font-sans selection:bg-[var(--brand-gold)] selection:text-[var(--color-button-text)] transition-colors duration-300">
       {/* Schema.org Structured Data Injector */}
@@ -366,6 +393,14 @@ export function AppContent() {
         ) : isB2BRoute ? (
           <Suspense fallback={<SectionSkeleton />}>
             <B2BEnquiryPage onReturnHome={() => navigate('/')} />
+          </Suspense>
+        ) : isLegalRoute ? (
+          <Suspense fallback={<SectionSkeleton />}>
+            <LegalPolicyPage
+              initialPolicy={legalPolicyKey}
+              onReturnHome={() => navigate('/')}
+              onNavigatePolicy={(key) => navigate(`/${key}`)}
+            />
           </Suspense>
         ) : (
           <>

@@ -14,17 +14,37 @@ import {
   createShiprocketOrder,
   generateAwb,
   schedulePickup,
+  syncShiprocketOrder,
   trackShipment,
   downloadLabel,
   downloadInvoice,
 } from './src/server/shiprocketService';
-import { INITIAL_HERO_SLIDES, INITIAL_PRODUCTS, INITIAL_CURRENCIES } from './src/data/initialData';
+import { getAuthoritativeShippingQuote, isIndiaCountry, normalizeCountryCode, getDestinationCourierInfo } from './src/utils/shipping';
+import { isProductAvailableForCountry, getProductPriceINRForCountry } from './src/utils/productUtils';
+import { INITIAL_HERO_SLIDES, INITIAL_PRODUCTS, INITIAL_CURRENCIES, INITIAL_SITE_SETTINGS } from './src/data/initialData';
 import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import cookieParser from 'cookie-parser';
 import bcrypt from 'bcryptjs';
 
 dotenv.config();
+
+/**
+ * Custom error type for expected checkout validation failures (400 / 409).
+ * Preserves true 500 status codes for unexpected internal errors.
+ */
+class CheckoutValidationError extends Error {
+  statusCode: number;
+  code?: string;
+
+  constructor(statusCode: number, message: string, code?: string) {
+    super(message);
+    this.name = 'CheckoutValidationError';
+    this.statusCode = statusCode;
+    this.code = code;
+    Object.setPrototypeOf(this, CheckoutValidationError.prototype);
+  }
+}
 
 // Token cookie names used across authentication & CSRF validation
 const ADMIN_TOKEN_COOKIE = 'hakkiveda_admin_token';
@@ -104,7 +124,7 @@ const upload = multer({
 
 async function startServer() {
   const app = express();
-  const PORT = process.env.PORT || 3000;
+  const PORT = 3000;
 
   // Trust proxy for secure cookies behind reverse proxies (Cloud Run / Nginx)
   app.set('trust proxy', 1);
@@ -1844,6 +1864,111 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
     return null;
   };
 
+  /**
+   * Shared idempotency helper for Shiprocket order fulfillment creation.
+   * Reloads latest saved order from DB.
+   * If shiprocketOrderId already exists: skips creation and returns existing state.
+   * On success: persists shiprocketOrderId, shipmentId, real awbCode, real courierName, real trackingUrl, shipmentStatus, and fulfillmentStatus = 'SHIPROCKET_CREATED'.
+   * On failure: persists fulfillmentStatus = 'FULFILLMENT_RETRY_REQUIRED' without breaking the underlying order/payment.
+   */
+  const createShiprocketOrderIfNeeded = async (orderInput: any): Promise<any> => {
+    const targetId = typeof orderInput === 'string'
+      ? orderInput
+      : (orderInput?.id || orderInput?.orderNumber || orderInput?.orderId);
+
+    if (!targetId) {
+      return { success: false, error: 'Order reference not provided for Shiprocket fulfillment' };
+    }
+
+    // 1. Reload latest saved order from DB
+    const orders = (await getStoreValue<any[]>('orders')) || [];
+    const latestOrder = orders.find(
+      (o: any) => String(o.id) === String(targetId) || String(o.orderNumber) === String(targetId)
+    );
+
+    const orderToUse = latestOrder || (typeof orderInput === 'object' ? orderInput : null);
+
+    if (!orderToUse) {
+      return { success: false, error: 'Order not found in database store' };
+    }
+
+    // 2. If shiprocketOrderId already exists: DO NOT create another Shiprocket order
+    if (orderToUse.shiprocketOrderId) {
+      return {
+        success: true,
+        alreadyCreated: true,
+        shiprocketOrderId: orderToUse.shiprocketOrderId,
+        shipmentId: orderToUse.shipmentId,
+        awbCode: orderToUse.awbCode || null,
+        courierName: orderToUse.courierName || null,
+        trackingUrl: orderToUse.trackingUrl || null,
+        shipmentStatus: orderToUse.shipmentStatus || 'NEW',
+        fulfillmentStatus: orderToUse.fulfillmentStatus || 'SHIPROCKET_CREATED',
+        order: orderToUse,
+      };
+    }
+
+    // 3. Otherwise call createShiprocketOrder()
+    try {
+      const result = await createShiprocketOrder(orderToUse);
+
+      if (result && result.success) {
+        const hasRealAwb = Boolean(result.awbCode && typeof result.awbCode === 'string' && result.awbCode.trim() !== '');
+        const hasRealCourier = Boolean(result.courierName && typeof result.courierName === 'string' && result.courierName.trim() !== '');
+        const hasRealTrackingUrl = Boolean(result.trackingUrl && typeof result.trackingUrl === 'string' && result.trackingUrl.trim() !== '');
+
+        const updates: Record<string, any> = {
+          shiprocketOrderId: result.shiprocketOrderId,
+          shipmentId: result.shipmentId,
+          shipmentStatus: result.shipmentStatus || 'NEW',
+          fulfillmentStatus: 'SHIPROCKET_CREATED',
+          trackingStatus: result.shipmentStatus || 'NEW',
+        };
+
+        if (hasRealAwb) {
+          updates.awbCode = result.awbCode;
+          updates.trackingNumber = result.awbCode;
+        }
+        if (hasRealCourier) {
+          updates.courierName = result.courierName;
+        }
+        if (hasRealTrackingUrl) {
+          updates.trackingUrl = result.trackingUrl;
+        }
+
+        const updated = await updateOrderShiprocketData(orderToUse.id || targetId, updates);
+        return {
+          ...result,
+          fulfillmentStatus: 'SHIPROCKET_CREATED',
+          order: updated || orderToUse,
+        };
+      } else {
+        const failureUpdates: Record<string, any> = {
+          fulfillmentStatus: 'FULFILLMENT_RETRY_REQUIRED',
+          fulfillmentError: result?.error || 'Shiprocket order creation failed',
+        };
+        await updateOrderShiprocketData(orderToUse.id || targetId, failureUpdates);
+        return {
+          success: false,
+          error: result?.error || 'Shiprocket order creation failed',
+          fulfillmentStatus: 'FULFILLMENT_RETRY_REQUIRED',
+        };
+      }
+    } catch (err: any) {
+      console.warn('[createShiprocketOrderIfNeeded Exception]:', err?.message || err);
+      const failureUpdates: Record<string, any> = {
+        fulfillmentStatus: 'FULFILLMENT_RETRY_REQUIRED',
+        fulfillmentError: err?.message || 'Shiprocket service exception',
+      };
+      await updateOrderShiprocketData(orderToUse.id || targetId, failureUpdates);
+      return {
+        success: false,
+        error: err?.message || 'Shiprocket service exception',
+        fulfillmentStatus: 'FULFILLMENT_RETRY_REQUIRED',
+      };
+    }
+  };
+
   // ==========================================
   // SHIPROCKET REST API INTEGRATION ROUTES
   // ==========================================
@@ -2193,29 +2318,126 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
     }
   });
 
-  // 3. Shipping Rate Estimation & Business Rules (India vs International COD rules)
-  app.post('/api/shiprocket/estimate-rate', async (req, res) => {
+  // 3. Customer Shipping Rate Estimation (Authoritative weight from DB products, client weight not trusted)
+  const handleEstimateShippingRate = async (req: express.Request, res: express.Response) => {
     try {
-      const { deliveryPincode, country, weightInKg, cod } = req.body;
-      const isInternational = Boolean(
-        country && country.trim().toUpperCase() !== 'INDIA' && country.trim().toUpperCase() !== 'IN'
+      const { items, deliveryPincode, country, countryCode, cod, couponCode } = req.body;
+      const selectedCountry = country || countryCode || 'India';
+      const isInternational = !isIndiaCountry(selectedCountry);
+
+      if (!items || !Array.isArray(items) || items.length === 0) {
+        throw new CheckoutValidationError(400, 'Cart items are required to estimate shipping rate.', 'INVALID_CART');
+      }
+
+      const {
+        subtotalINR,
+        discountINR,
+        taxINR,
+        shippingFeeINR,
+        grandTotalINR,
+        shippingQuote,
+      } = await calculateOrderTotalServer(
+        items,
+        selectedCountry,
+        couponCode,
+        deliveryPincode,
+        { validateStock: false, allowUnserviceable: true }
       );
 
+      if (!shippingQuote.serviceable) {
+        return res.json({
+          success: true,
+          serviceable: false,
+          isInternational,
+          shippingFeeINR: 0,
+          estimatedRateINR: 0,
+          shippingSource: 'UNSERVICEABLE',
+          source: 'UNSERVICEABLE',
+          shippingCourier: null,
+          courierName: null,
+          estimatedDelivery: undefined,
+          estimatedDays: undefined,
+          availableCouriers: [],
+          subtotalINR,
+          discountINR,
+          taxINR,
+          grandTotalINR,
+          message: 'Shipping is currently unavailable to this destination. Please contact HAKKIVEDA support.',
+          code: 'SHIPPING_UNAVAILABLE',
+        });
+      }
+
+      return res.json({
+        success: true,
+        serviceable: true,
+        isInternational,
+        shippingFeeINR,
+        estimatedRateINR: shippingFeeINR,
+        shippingSource: shippingQuote.source,
+        source: shippingQuote.source,
+        shippingCourier: shippingQuote.courierLabel || null,
+        courierName: shippingQuote.courierLabel || null,
+        estimatedDelivery: shippingQuote.estimatedDelivery,
+        estimatedDays: shippingQuote.estimatedDelivery,
+        subtotalINR,
+        discountINR,
+        taxINR,
+        grandTotalINR,
+        codAllowed: !isInternational && Boolean(cod),
+        availableCouriers: [
+          {
+            courier_name: shippingQuote.courierLabel || 'Express Courier',
+            rate: shippingFeeINR,
+            etd: shippingQuote.estimatedDelivery,
+            cod_available: !isInternational,
+          },
+        ],
+      });
+    } catch (err: any) {
+      if (err instanceof CheckoutValidationError) {
+        return res.status(err.statusCode).json({
+          success: false,
+          error: err.message,
+          message: err.message,
+          code: err.code,
+        });
+      }
+      console.error('[API /shiprocket/estimate-rate Error]:', err.message);
+      return res.status(500).json({ success: false, error: err.message || 'Failed to estimate rate' });
+    }
+  };
+
+  app.post('/api/shiprocket/estimate-rate', handleEstimateShippingRate);
+  app.post('/api/shipping/quote', handleEstimateShippingRate);
+
+  // Admin / debug manual weight estimate endpoint protected by requireAdmin
+  app.post('/api/admin/shiprocket/estimate-rate', requireAdmin, async (req, res) => {
+    try {
+      const { deliveryPincode, country, countryCode, weightInKg, cod } = req.body;
+      const isInternational = Boolean(
+        (country && !isIndiaCountry(country)) ||
+        (countryCode && !isIndiaCountry(countryCode))
+      );
+      const siteSettings = (await getStoreValue<any>('site_settings')) || INITIAL_SITE_SETTINGS;
+
       const result = await estimateShippingRate({
-        deliveryPincode: deliveryPincode || '110001',
-        weightInKg: weightInKg || 0.5,
+        deliveryPincode: deliveryPincode || (isInternational ? '00000' : '110001'),
+        weightInKg: typeof weightInKg === 'number' && weightInKg > 0 ? weightInKg : 0.5,
         cod: isInternational ? false : Boolean(cod),
         isInternational,
+        country: country || countryCode,
+        countryCode: countryCode || country,
+        siteSettings,
       });
 
-      res.json(result);
+      return res.json(result);
     } catch (err: any) {
-      console.error('[API /shiprocket/estimate-rate Error]:', err.message);
-      res.status(500).json({ success: false, error: err.message || 'Failed to estimate rate' });
+      console.error('[API /admin/shiprocket/estimate-rate Error]:', err.message);
+      return res.status(500).json({ success: false, error: err.message || 'Failed to estimate rate' });
     }
   });
 
-  // 4. Create Shipment / Order on Shiprocket
+  // 4. Create Shipment / Order on Shiprocket (Protected against duplicate order creation)
   app.post('/api/shiprocket/create-order', requireAdmin, async (req, res) => {
     try {
       const { orderId, orderData } = req.body;
@@ -2230,26 +2452,12 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
         return res.status(400).json({ success: false, error: 'Order not found or not provided' });
       }
 
-      const result = await createShiprocketOrder(targetOrder);
-
-      // Save Shiprocket order details with order in DB
-      if (result.success) {
-        const updates = {
-          shiprocketOrderId: result.shiprocketOrderId,
-          shipmentId: result.shipmentId,
-          awbCode: result.awbCode || targetOrder.awbCode,
-          courierName: result.courierName || targetOrder.courierName,
-          trackingUrl: result.trackingUrl || targetOrder.trackingUrl,
-          shipmentStatus: result.shipmentStatus || 'MANIFESTED',
-          trackingStatus: 'PROCESSING',
-        };
-        await updateOrderShiprocketData(targetOrder.id || orderId, updates);
-      }
-
-      res.json(result);
+      // Use shared idempotency helper: returns existing fulfillment state if shiprocketOrderId already exists
+      const result = await createShiprocketOrderIfNeeded(targetOrder);
+      return res.json(result);
     } catch (err: any) {
       console.error('[API /shiprocket/create-order Error]:', err.message);
-      res.status(500).json({ success: false, error: err.message || 'Failed to create Shiprocket shipment' });
+      return res.status(500).json({ success: false, error: err.message || 'Failed to create Shiprocket shipment' });
     }
   });
 
@@ -2272,14 +2480,18 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
 
       const result = await generateAwb(targetShipmentId, courierId);
 
-      if (result.success && targetOrderId) {
+      if (!result.success) {
+        return res.status(400).json(result);
+      }
+
+      if (result.success && result.awbCode && targetOrderId) {
         await updateOrderShiprocketData(targetOrderId, {
           awbCode: result.awbCode,
           courierName: result.courierName,
           trackingUrl: result.trackingUrl,
           shipmentStatus: 'AWB_GENERATED',
           trackingNumber: result.awbCode,
-          trackingStatus: 'DISPATCHED',
+          trackingStatus: 'AWB_GENERATED',
         });
       }
 
@@ -2313,7 +2525,7 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
         await updateOrderShiprocketData(targetOrderId, {
           pickupScheduledDate: result.pickupScheduledDate,
           shipmentStatus: 'PICKUP_SCHEDULED',
-          trackingStatus: 'DISPATCHED',
+          trackingStatus: 'PICKUP_SCHEDULED',
         });
       }
 
@@ -2423,6 +2635,49 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
     } catch (err: any) {
       console.error('[API /shiprocket/generate-invoice Error]:', err.message);
       res.status(500).json({ success: false, error: err.message || 'Failed to generate invoice' });
+    }
+  });
+
+  // 10. Sync Real Shiprocket Status from API
+  app.post('/api/shiprocket/sync-status', requireAdmin, async (req, res) => {
+    try {
+      const { orderId, shiprocketOrderId } = req.body;
+      let targetShiprocketOrderId = shiprocketOrderId;
+      let targetOrderId = orderId;
+
+      if (!targetShiprocketOrderId && targetOrderId) {
+        const orders = (await getStoreValue<any[]>('orders')) || [];
+        const ord = orders.find((o: any) => String(o.id) === String(targetOrderId) || String(o.orderNumber) === String(targetOrderId));
+        if (ord) {
+          targetShiprocketOrderId = ord.shiprocketOrderId;
+        }
+      }
+
+      if (!targetShiprocketOrderId) {
+        return res.status(400).json({ success: false, error: 'shiprocketOrderId is required to sync status' });
+      }
+
+      const result = await syncShiprocketOrder(targetShiprocketOrderId);
+
+      if (result.success && targetOrderId) {
+        const updatePayload: any = {};
+        if (result.shipmentId) updatePayload.shipmentId = result.shipmentId;
+        if (result.awbCode) {
+          updatePayload.awbCode = result.awbCode;
+          updatePayload.trackingNumber = result.awbCode;
+        }
+        if (result.courierName) updatePayload.courierName = result.courierName;
+        if (result.shipmentStatus) updatePayload.shipmentStatus = result.shipmentStatus;
+        if (result.trackingUrl) updatePayload.trackingUrl = result.trackingUrl;
+        if (result.pickupScheduledDate) updatePayload.pickupScheduledDate = result.pickupScheduledDate;
+
+        await updateOrderShiprocketData(targetOrderId, updatePayload);
+      }
+
+      res.json(result);
+    } catch (err: any) {
+      console.error('[API /shiprocket/sync-status Error]:', err.message);
+      res.status(500).json({ success: false, error: err.message || 'Failed to sync Shiprocket status' });
     }
   });
 
@@ -3010,23 +3265,77 @@ COMPLIANCE & COMMUNICATION RULES:
   async function calculateOrderTotalServer(
     items: Array<{ productId?: string; id?: string; quantity: number }>,
     customerCountry: string,
-    couponCode?: string
+    couponCode?: string,
+    customerPincode?: string,
+    options?: { validateStock?: boolean; allowUnserviceable?: boolean }
   ) {
+    if (!items || !Array.isArray(items) || items.length === 0) {
+      throw new CheckoutValidationError(400, 'Cart items are required.', 'INVALID_CART');
+    }
+
     let dbProducts = (await getStoreValue<any[]>('products')) || [];
     if (!dbProducts || dbProducts.length === 0) {
       dbProducts = INITIAL_PRODUCTS;
     }
 
+    const siteSettings = (await getStoreValue<any>('site_settings')) || INITIAL_SITE_SETTINGS;
+
+    const isIndia = isIndiaCountry(customerCountry);
     let subtotalINR = 0;
+    let totalWeightKg = 0;
+    let allProductsHaveAuthoritativeWeight = true;
     const validatedItems: any[] = [];
 
     for (const item of items) {
       const pId = item.productId || item.id;
       const prod = dbProducts.find((p) => p.id === pId);
-      if (!prod) continue;
-      const qty = Math.max(1, Math.min(100, Number(item.quantity) || 1));
-      const itemPrice = Number(prod.priceINR ?? prod.price) || 0;
+      if (!prod) {
+        throw new CheckoutValidationError(400, `Product "${pId}" was not found or is currently unavailable.`, 'PRODUCT_NOT_FOUND');
+      }
+
+      // Server-authoritative country availability validation
+      const availCheck = isProductAvailableForCountry(prod, customerCountry);
+      if (!availCheck.available) {
+        throw new CheckoutValidationError(400, availCheck.reason || `Item "${prod.name}" is not eligible for delivery to ${customerCountry}.`, 'DESTINATION_RESTRICTED');
+      }
+
+      const rawQty = Number(item.quantity);
+      if (!Number.isFinite(rawQty) || rawQty <= 0 || !Number.isInteger(rawQty)) {
+        throw new CheckoutValidationError(400, `Invalid quantity for "${prod.name}".`, 'INVALID_QUANTITY');
+      }
+      if (rawQty > 100) {
+        throw new CheckoutValidationError(400, `Maximum allowable order quantity for "${prod.name}" is 100 units per order.`, 'EXCESSIVE_QUANTITY');
+      }
+      const qty = rawQty;
+
+      // Strict server-side stock validation
+      if (options?.validateStock !== false) {
+        if (prod.inStock === false) {
+          throw new CheckoutValidationError(400, `"${prod.name}" is currently out of stock.`, 'OUT_OF_STOCK');
+        }
+        if (typeof prod.stock === 'number' && Number.isFinite(prod.stock) && prod.stock < qty) {
+          throw new CheckoutValidationError(
+            400,
+            `Only ${prod.stock} unit(s) available for "${prod.name}". Please adjust quantity.`,
+            'INSUFFICIENT_STOCK'
+          );
+        }
+      }
+
+      const itemPrice = getProductPriceINRForCountry(prod, customerCountry);
+
+      const rawWeight = prod.weightInKg ?? prod.weight;
+      const hasAuthoritativeWeight = typeof rawWeight === 'number' && Number.isFinite(rawWeight) && rawWeight > 0;
+
+      if (!hasAuthoritativeWeight) {
+        allProductsHaveAuthoritativeWeight = false;
+      }
+
+      const itemWeight = hasAuthoritativeWeight ? rawWeight : (isIndia ? 0.5 : 0);
+
       subtotalINR += itemPrice * qty;
+      totalWeightKg += itemWeight * qty;
+
       validatedItems.push({
         product: prod,
         quantity: qty,
@@ -3036,7 +3345,7 @@ COMPLIANCE & COMMUNICATION RULES:
     }
 
     if (validatedItems.length === 0 && items.length > 0) {
-      throw new Error('Invalid cart products or unavailable items.');
+      throw new CheckoutValidationError(400, 'Invalid cart products or unavailable items.', 'INVALID_CART');
     }
 
     let discountINR = 0;
@@ -3058,16 +3367,41 @@ COMPLIANCE & COMMUNICATION RULES:
     const taxableAmount = Math.max(0, subtotalINR - discountINR);
     const taxINR = Math.round(taxableAmount * 0.05);
 
-    const countryNormalized = (customerCountry || '').trim().toLowerCase();
-    const isIndia = countryNormalized === 'india' || countryNormalized === 'in';
+    // Dynamic carrier query ONLY if international & every product has authoritative weight & Shiprocket configured
+    let customLiveRateINR: number | null = null;
+    let customCourierLabel: string | undefined = undefined;
 
-    let shippingFeeINR = 0;
-    if (isIndia) {
-      shippingFeeINR = taxableAmount >= 999 ? 0 : 99;
-    } else {
-      shippingFeeINR = taxableAmount >= 2500 ? 0 : 499;
+    if (!isIndia && allProductsHaveAuthoritativeWeight && isShiprocketConfigured()) {
+      try {
+        const liveRateRes = await estimateShippingRate({
+          deliveryPincode: customerPincode || '00000',
+          country: customerCountry,
+          countryCode: normalizeCountryCode(customerCountry),
+          weightInKg: Math.max(0.5, totalWeightKg),
+          siteSettings,
+        });
+        if (liveRateRes.serviceable && Number.isFinite(liveRateRes.estimatedRateINR) && liveRateRes.estimatedRateINR > 0) {
+          customLiveRateINR = liveRateRes.estimatedRateINR;
+          customCourierLabel = liveRateRes.courierName;
+        }
+      } catch (err: any) {
+        console.warn('[Live Shiprocket rate query warning]:', err?.message || err);
+      }
     }
 
+    const shippingQuote = getAuthoritativeShippingQuote(
+      taxableAmount,
+      customerCountry,
+      customLiveRateINR,
+      customCourierLabel,
+      siteSettings
+    );
+
+    if (!shippingQuote.serviceable && !options?.allowUnserviceable) {
+      throw new CheckoutValidationError(400, `Shipping is currently not available to ${customerCountry}. Please contact support.`, 'SHIPPING_UNAVAILABLE');
+    }
+
+    const shippingFeeINR = shippingQuote.serviceable ? shippingQuote.shippingFeeINR : 0;
     const grandTotalINR = Math.max(1, Math.round(taxableAmount + shippingFeeINR));
 
     return {
@@ -3078,6 +3412,9 @@ COMPLIANCE & COMMUNICATION RULES:
       grandTotalINR,
       validatedItems,
       isIndia,
+      shippingQuote,
+      totalWeightKg,
+      courierName: shippingQuote.courierLabel,
     };
   }
 
@@ -3092,7 +3429,15 @@ COMPLIANCE & COMMUNICATION RULES:
         });
       }
 
-      const { items, customer, couponCode, currencyCode } = req.body;
+      const {
+        items,
+        customer,
+        couponCode,
+        currencyCode,
+        expectedShippingFeeINR,
+        expectedGrandTotalINR,
+        expectedShippingSource,
+      } = req.body;
 
       if (!items || !Array.isArray(items) || items.length === 0) {
         return res.status(400).json({ success: false, error: 'Cart items are required.' });
@@ -3101,14 +3446,60 @@ COMPLIANCE & COMMUNICATION RULES:
         return res.status(400).json({ success: false, error: 'Customer details (name & email) are required.' });
       }
 
-      const { subtotalINR, discountINR, taxINR, shippingFeeINR, grandTotalINR, validatedItems, isIndia } =
-        await calculateOrderTotalServer(items, customer.country || 'India', couponCode);
+      const {
+        subtotalINR,
+        discountINR,
+        taxINR,
+        shippingFeeINR,
+        grandTotalINR,
+        validatedItems,
+        isIndia,
+        shippingQuote,
+      } = await calculateOrderTotalServer(items, customer.country || 'India', couponCode, customer.pincode);
+
+      // Stale quote protection
+      const hasExpectedQuote =
+        (expectedShippingFeeINR !== undefined && expectedShippingFeeINR !== null) ||
+        (expectedGrandTotalINR !== undefined && expectedGrandTotalINR !== null);
+
+      if (hasExpectedQuote) {
+        const feeDiff = (expectedShippingFeeINR !== undefined && expectedShippingFeeINR !== null)
+          ? Math.abs(Number(expectedShippingFeeINR) - shippingFeeINR)
+          : 0;
+        const totalDiff = (expectedGrandTotalINR !== undefined && expectedGrandTotalINR !== null)
+          ? Math.abs(Number(expectedGrandTotalINR) - grandTotalINR)
+          : 0;
+        const sourceDiff = expectedShippingSource && expectedShippingSource !== shippingQuote.source;
+
+        if (feeDiff > 0.01 || totalDiff > 0.01 || sourceDiff) {
+          return res.status(409).json({
+            success: false,
+            code: 'QUOTE_CHANGED',
+            error: 'Shipping rates or order total have updated. Please review the updated total and continue.',
+            message: 'Shipping rates or order total have updated. Please review the updated total and continue.',
+            shippingFeeINR,
+            grandTotalINR,
+            shippingSource: shippingQuote.source,
+            shippingCourier: shippingQuote.courierLabel || null,
+            subtotalINR,
+            discountINR,
+            taxINR,
+          });
+        }
+      }
 
       const keyId = process.env.RAZORPAY_KEY_ID;
       const keySecret = process.env.RAZORPAY_KEY_SECRET;
 
-      if (!keyId || !keySecret) {
-        console.warn('RAZORPAY_KEY_ID or RAZORPAY_KEY_SECRET missing from environment variables.');
+      if (!keyId || !keySecret || keyId === 'rzp_test_placeholder' || keySecret === 'placeholder_secret') {
+        console.warn('[Razorpay Init Warning] Razorpay credentials missing or placeholder.');
+        return res.status(400).json({
+          success: false,
+          error: isIndia
+            ? 'Razorpay gateway is not configured on this instance. Please select Cash on Delivery or configure RAZORPAY_KEY_ID & RAZORPAY_KEY_SECRET in Settings.'
+            : 'Razorpay gateway is not configured for online payments. Please configure RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET in environment settings.',
+          code: 'RAZORPAY_KEYS_NOT_CONFIGURED',
+        });
       }
 
       const rzp = getRazorpayInstance();
@@ -3116,16 +3507,26 @@ COMPLIANCE & COMMUNICATION RULES:
       // Load active currencies from database store or fallback to INITIAL_CURRENCIES
       const dbCurrencies = (await getStoreValue<any[]>('currencies')) || INITIAL_CURRENCIES;
 
-      // Determine requested currency code and exchange rate
+      // Determine requested currency code and exchange rate (strictly validated, no silent 83.5 fallback)
       let requestedCurrency = (currencyCode || '').toString().trim().toUpperCase();
       if (!requestedCurrency) {
         requestedCurrency = isIndia ? 'INR' : 'USD';
       }
 
-      const matchedCurrency = dbCurrencies.find((c: any) => c.code === requestedCurrency) ||
-        INITIAL_CURRENCIES.find((c: any) => c.code === requestedCurrency);
+      if (isIndia && requestedCurrency !== 'INR') {
+        throw new CheckoutValidationError(400, 'Orders within India must be processed in INR.', 'INVALID_CURRENCY');
+      }
 
-      const rateToINR = matchedCurrency && matchedCurrency.rateToINR ? Number(matchedCurrency.rateToINR) : (requestedCurrency === 'INR' ? 1 : 83.5);
+      let rateToINR = 1;
+      if (requestedCurrency !== 'INR') {
+        const matchedCurrency = dbCurrencies.find((c: any) => c.code === requestedCurrency) ||
+          INITIAL_CURRENCIES.find((c: any) => c.code === requestedCurrency);
+
+        if (!matchedCurrency || typeof matchedCurrency.rateToINR !== 'number' || !Number.isFinite(matchedCurrency.rateToINR) || matchedCurrency.rateToINR <= 0) {
+          throw new CheckoutValidationError(400, `Currency "${requestedCurrency}" is not supported or has an invalid exchange rate.`, 'INVALID_CURRENCY');
+        }
+        rateToINR = matchedCurrency.rateToINR;
+      }
 
       // Determine display amount and currency
       const displayCurrency = requestedCurrency;
@@ -3176,9 +3577,19 @@ COMPLIANCE & COMMUNICATION RULES:
         });
       } catch (rzpErr: any) {
         console.error(`[Razorpay Order Creation Error] Failed creating order in ${validatedChargeCurrency}:`, rzpErr?.message || rzpErr);
+        const rzpErrMsg = (rzpErr?.error?.description || rzpErr?.message || '').toString();
+        let errorMsg = 'Failed to create payment order with Razorpay.';
+        if (rzpErrMsg.toLowerCase().includes('auth')) {
+          errorMsg = 'Razorpay authentication failed. Please verify your RAZORPAY_KEY_ID and RAZORPAY_KEY_SECRET credentials.';
+        } else if (rzpErrMsg.toLowerCase().includes('currency')) {
+          errorMsg = `Currency ${validatedChargeCurrency} cannot currently be charged directly via Razorpay. Please choose INR or Cash on Delivery.`;
+        } else if (rzpErrMsg) {
+          errorMsg = `Razorpay error: ${rzpErrMsg}`;
+        }
         return res.status(400).json({
           success: false,
-          error: 'This currency cannot currently be charged directly. Please review the alternative charge currency.',
+          error: errorMsg,
+          code: 'RAZORPAY_API_ERROR',
         });
       }
 
@@ -3203,6 +3614,11 @@ COMPLIANCE & COMMUNICATION RULES:
         discountAmountINR: discountINR,
         totalAmountINR: grandTotalINR,
 
+        // Shipping Quote Metadata
+        shippingSource: shippingQuote.source,
+        shippingCourier: shippingQuote.courierLabel || null,
+        shippingQuotedAt: new Date().toISOString(),
+
         // Single Source of Truth Currency Metadata
         displayAmount,
         displayCurrency,
@@ -3217,7 +3633,7 @@ COMPLIANCE & COMMUNICATION RULES:
         razorpayOrderId: razorpayOrder.id,
         receipt,
         trackingNumber: 'Awaiting Fulfillment',
-        courierName: isIndia ? 'Express Surface Courier' : 'DHL International Express',
+        courierName: null,
       };
 
       const existingOrders = (await getStoreValue<any[]>('orders')) || [];
@@ -3239,6 +3655,13 @@ COMPLIANCE & COMMUNICATION RULES:
         displayOrder: localOrder,
       });
     } catch (error: any) {
+      if (error instanceof CheckoutValidationError) {
+        return res.status(error.statusCode).json({
+          success: false,
+          error: error.message,
+          code: error.code,
+        });
+      }
       console.error('[Razorpay Create Order Error]:', error?.message);
       return res.status(500).json({
         success: false,
@@ -3309,9 +3732,10 @@ COMPLIANCE & COMMUNICATION RULES:
       }
 
       // Double-check with Razorpay SDK
+      let paymentDetails: any = null;
       try {
         const rzp = getRazorpayInstance();
-        const paymentDetails = await rzp.payments.fetch(razorpay_payment_id);
+        paymentDetails = await rzp.payments.fetch(razorpay_payment_id);
         if (paymentDetails && paymentDetails.status !== 'captured' && paymentDetails.status !== 'authorized') {
           return res.status(400).json({
             success: false,
@@ -3334,6 +3758,43 @@ COMPLIANCE & COMMUNICATION RULES:
 
       const orderToUpdate = existingOrders[orderIndex];
 
+      // Order ID consistency check
+      if (orderToUpdate.razorpayOrderId && orderToUpdate.razorpayOrderId !== razorpay_order_id) {
+        return res.status(400).json({ success: false, error: 'Razorpay order ID mismatch.' });
+      }
+
+      // Strict amount and currency verification
+      if (paymentDetails) {
+        const expectedCurrency = (orderToUpdate.chargeCurrency || 'INR').toUpperCase();
+        let expectedSubunit = Math.round(orderToUpdate.totalAmountINR * 100);
+        if (orderToUpdate.chargeCurrency && orderToUpdate.chargeCurrency.toUpperCase() !== 'INR' && typeof orderToUpdate.chargeAmount === 'number') {
+          const zeroDecimalCurrencies = new Set(['JPY', 'KRW', 'UGX', 'VND', 'CLP', 'PYG', 'RWF']);
+          const threeDecimalCurrencies = new Set(['BHD', 'KWD', 'OMR']);
+          if (zeroDecimalCurrencies.has(expectedCurrency)) {
+            expectedSubunit = Math.round(orderToUpdate.chargeAmount);
+          } else if (threeDecimalCurrencies.has(expectedCurrency)) {
+            expectedSubunit = Math.round(orderToUpdate.chargeAmount * 1000);
+          } else {
+            expectedSubunit = Math.round(orderToUpdate.chargeAmount * 100);
+          }
+        }
+
+        if (typeof paymentDetails.amount === 'number' && paymentDetails.amount !== expectedSubunit) {
+          console.error(`[Razorpay Verify Mismatch] Expected ${expectedSubunit} (${expectedCurrency}), received ${paymentDetails.amount}`);
+          return res.status(400).json({
+            success: false,
+            error: 'Payment amount mismatch. Payment flagged for security review.',
+          });
+        }
+        if (paymentDetails.currency && paymentDetails.currency.toUpperCase() !== expectedCurrency) {
+          console.error(`[Razorpay Verify Mismatch] Expected currency ${expectedCurrency}, received ${paymentDetails.currency}`);
+          return res.status(400).json({
+            success: false,
+            error: 'Payment currency mismatch.',
+          });
+        }
+      }
+
       // Idempotency guard: if already marked paid, return success directly
       if (orderToUpdate.paymentStatus === 'PAID' || orderToUpdate.paymentStatus === 'Paid') {
         return res.json({
@@ -3348,14 +3809,17 @@ COMPLIANCE & COMMUNICATION RULES:
         paymentStatus: 'Paid',
         trackingStatus: 'ORDER_PLACED',
         razorpayPaymentId: razorpay_payment_id,
-        paidAt: new Date().toISOString(),
+        paidAt: orderToUpdate.paidAt || new Date().toISOString(),
+        stockDeductedAt: orderToUpdate.stockDeductedAt || new Date().toISOString(),
+        isStockDeducted: true,
       };
 
       existingOrders[orderIndex] = updatedOrder;
       await setStoreValue('orders', existingOrders);
 
-      // Stock Deduction
-      if (updatedOrder.items && Array.isArray(updatedOrder.items)) {
+      // Stock Deduction: strictly idempotent using stockDeductedAt
+      const isAlreadyDeducted = Boolean(orderToUpdate.stockDeductedAt || orderToUpdate.isStockDeducted);
+      if (!isAlreadyDeducted && updatedOrder.items && Array.isArray(updatedOrder.items)) {
         const dbProducts = (await getStoreValue<any[]>('products')) || [];
         const updatedProducts = dbProducts.map((prod: any) => {
           const itemMatch = updatedOrder.items.find(
@@ -3394,10 +3858,10 @@ COMPLIANCE & COMMUNICATION RULES:
       };
       await setStoreValue('payment_logs', [newLog, ...paymentLogs]);
 
-      // Non-blocking Shiprocket order creation if configured
+      // Non-blocking Shiprocket order creation if configured (with idempotency guard)
       if (isShiprocketConfigured()) {
-        createShiprocketOrder(updatedOrder).catch((srErr) => {
-          console.warn('[Shiprocket Order Creation Error]:', srErr?.message || srErr);
+        createShiprocketOrderIfNeeded(updatedOrder).catch((srErr) => {
+          console.warn('[Shiprocket Order Creation Error in Razorpay verify]:', srErr?.message || srErr);
         });
       }
 
@@ -3426,7 +3890,14 @@ COMPLIANCE & COMMUNICATION RULES:
         });
       }
 
-      const { items, customer, couponCode } = req.body;
+      const {
+        items,
+        customer,
+        couponCode,
+        expectedShippingFeeINR,
+        expectedGrandTotalINR,
+        expectedShippingSource,
+      } = req.body;
 
       if (!items || !Array.isArray(items) || items.length === 0) {
         return res.status(400).json({ success: false, error: 'Cart items are required.' });
@@ -3439,14 +3910,53 @@ COMPLIANCE & COMMUNICATION RULES:
       const isIndia = countryNormalized === 'india' || countryNormalized === 'in';
 
       if (!isIndia) {
-        return res.status(400).json({
-          success: false,
-          error: 'Cash on Delivery (COD) is strictly available only for shipments within India.',
-        });
+        throw new CheckoutValidationError(
+          400,
+          'Cash on Delivery (COD) is strictly available only for shipments within India.',
+          'COD_NOT_AVAILABLE'
+        );
       }
 
-      const { subtotalINR, discountINR, taxINR, shippingFeeINR, grandTotalINR, validatedItems } =
-        await calculateOrderTotalServer(items, customer.country || 'India', couponCode);
+      const {
+        subtotalINR,
+        discountINR,
+        taxINR,
+        shippingFeeINR,
+        grandTotalINR,
+        validatedItems,
+        shippingQuote,
+      } = await calculateOrderTotalServer(items, customer.country || 'India', couponCode, customer.pincode);
+
+      // Stale quote protection
+      const hasExpectedQuote =
+        (expectedShippingFeeINR !== undefined && expectedShippingFeeINR !== null) ||
+        (expectedGrandTotalINR !== undefined && expectedGrandTotalINR !== null);
+
+      if (hasExpectedQuote) {
+        const feeDiff = (expectedShippingFeeINR !== undefined && expectedShippingFeeINR !== null)
+          ? Math.abs(Number(expectedShippingFeeINR) - shippingFeeINR)
+          : 0;
+        const totalDiff = (expectedGrandTotalINR !== undefined && expectedGrandTotalINR !== null)
+          ? Math.abs(Number(expectedGrandTotalINR) - grandTotalINR)
+          : 0;
+        const sourceDiff = expectedShippingSource && expectedShippingSource !== shippingQuote.source;
+
+        if (feeDiff > 0.01 || totalDiff > 0.01 || sourceDiff) {
+          return res.status(409).json({
+            success: false,
+            code: 'QUOTE_CHANGED',
+            error: 'Shipping rates or order total have updated. Please review the updated total and continue.',
+            message: 'Shipping rates or order total have updated. Please review the updated total and continue.',
+            shippingFeeINR,
+            grandTotalINR,
+            shippingSource: shippingQuote.source,
+            shippingCourier: shippingQuote.courierLabel || null,
+            subtotalINR,
+            discountINR,
+            taxINR,
+          });
+        }
+      }
 
       const localOrderId = `ord-${Date.now()}`;
       const orderNumber = `HV-ORD-${Date.now().toString().slice(-6)}-${Math.floor(100 + Math.random() * 900)}`;
@@ -3468,12 +3978,20 @@ COMPLIANCE & COMMUNICATION RULES:
         shippingFeeINR,
         discountAmountINR: discountINR,
         totalAmountINR: grandTotalINR,
+
+        // Shipping Quote Metadata
+        shippingSource: shippingQuote.source,
+        shippingCourier: shippingQuote.courierLabel || null,
+        shippingQuotedAt: new Date().toISOString(),
+
         currencyCode: 'INR',
         paymentMethod: 'COD',
         paymentStatus: 'COD Confirmed',
+        stockDeductedAt: new Date().toISOString(),
+        isStockDeducted: true,
         trackingStatus: 'Pending Fulfillment',
         trackingNumber: 'Awaiting Fulfillment',
-        courierName: 'Express Surface Courier (COD)',
+        courierName: null,
       };
 
       const existingOrders = (await getStoreValue<any[]>('orders')) || [];
@@ -3515,9 +4033,9 @@ COMPLIANCE & COMMUNICATION RULES:
       };
       await setStoreValue('payment_logs', [newLog, ...paymentLogs]);
 
-      // Shiprocket Creation for COD
+      // Shiprocket Creation for COD (with idempotency guard)
       if (isShiprocketConfigured()) {
-        createShiprocketOrder(newOrder).catch((srErr) => {
+        createShiprocketOrderIfNeeded(newOrder).catch((srErr) => {
           console.warn('[Shiprocket COD Order Creation Error]:', srErr?.message || srErr);
         });
       }
@@ -3527,6 +4045,13 @@ COMPLIANCE & COMMUNICATION RULES:
         order: newOrder,
       });
     } catch (error: any) {
+      if (error instanceof CheckoutValidationError) {
+        return res.status(error.statusCode).json({
+          success: false,
+          error: error.message,
+          code: error.code,
+        });
+      }
       console.error('[COD Create Order Error]:', error?.message);
       return res.status(500).json({
         success: false,
@@ -3605,15 +4130,36 @@ COMPLIANCE & COMMUNICATION RULES:
           if (orderIdx !== -1) {
             const targetOrder = existingOrders[orderIdx];
 
+            const expectedCurrency = (targetOrder.chargeCurrency || 'INR').toUpperCase();
+            let expectedSubunit = Math.round(targetOrder.totalAmountINR * 100);
+            if (targetOrder.chargeCurrency && targetOrder.chargeCurrency.toUpperCase() !== 'INR' && typeof targetOrder.chargeAmount === 'number') {
+              const zeroDecimalCurrencies = new Set(['JPY', 'KRW', 'UGX', 'VND', 'CLP', 'PYG', 'RWF']);
+              const threeDecimalCurrencies = new Set(['BHD', 'KWD', 'OMR']);
+              if (zeroDecimalCurrencies.has(expectedCurrency)) {
+                expectedSubunit = Math.round(targetOrder.chargeAmount);
+              } else if (threeDecimalCurrencies.has(expectedCurrency)) {
+                expectedSubunit = Math.round(targetOrder.chargeAmount * 1000);
+              } else {
+                expectedSubunit = Math.round(targetOrder.chargeAmount * 100);
+              }
+            }
+
+            // Strict amount verification
+            if (paymentEntity?.amount && typeof paymentEntity.amount === 'number') {
+              if (paymentEntity.amount !== expectedSubunit) {
+                console.error(`[Razorpay Webhook Mismatch] Expected amount ${expectedSubunit} (${expectedCurrency}), received ${paymentEntity.amount}`);
+                return res.status(400).json({ success: false, error: 'Payment amount mismatch in webhook payload.' });
+              }
+            }
+            // Strict currency verification
+            if (paymentEntity?.currency && paymentEntity.currency.toUpperCase() !== expectedCurrency) {
+              console.error(`[Razorpay Webhook Mismatch] Expected currency ${expectedCurrency}, received ${paymentEntity.currency}`);
+              return res.status(400).json({ success: false, error: 'Payment currency mismatch in webhook payload.' });
+            }
+
             // Idempotency: if order is already marked Paid, return without duplicate side effects
             if (targetOrder.paymentStatus === 'Paid' || targetOrder.paymentStatus === 'PAID') {
               return res.json({ success: true, message: 'Order was already verified and marked paid.' });
-            }
-
-            // Verify payment entity amount is valid/positive if provided
-            if (paymentEntity?.amount && typeof paymentEntity.amount === 'number' && paymentEntity.amount <= 0) {
-              console.warn(`[Razorpay Webhook] Non-positive amount in event payload: ${paymentEntity.amount}`);
-              return res.status(400).json({ success: false, error: 'Invalid payment amount in event payload.' });
             }
 
             const updatedOrder = {
@@ -3621,14 +4167,17 @@ COMPLIANCE & COMMUNICATION RULES:
               paymentStatus: 'Paid',
               trackingStatus: 'ORDER_PLACED',
               razorpayPaymentId: razorpayPaymentId || targetOrder.razorpayPaymentId,
-              paidAt: new Date().toISOString(),
+              paidAt: targetOrder.paidAt || new Date().toISOString(),
+              stockDeductedAt: targetOrder.stockDeductedAt || new Date().toISOString(),
+              isStockDeducted: true,
             };
 
             existingOrders[orderIdx] = updatedOrder;
             await setStoreValue('orders', existingOrders);
 
-            // Deduct stock idempotently
-            if (targetOrder.items && Array.isArray(targetOrder.items)) {
+            // Deduct stock idempotently using stockDeductedAt check
+            const isAlreadyDeducted = Boolean(targetOrder.stockDeductedAt || targetOrder.isStockDeducted);
+            if (!isAlreadyDeducted && targetOrder.items && Array.isArray(targetOrder.items)) {
               const dbProducts = (await getStoreValue<any[]>('products')) || [];
               const updatedProds = dbProducts.map((p: any) => {
                 const itemMatch = targetOrder.items.find(
@@ -3666,9 +4215,9 @@ COMPLIANCE & COMMUNICATION RULES:
               await setStoreValue('payment_logs', [newLog, ...paymentLogs]);
             }
 
-            // Trigger Shiprocket order sync if configured
+            // Trigger Shiprocket order sync if configured (with idempotency guard)
             if (isShiprocketConfigured()) {
-              createShiprocketOrder(updatedOrder).catch((srErr) => {
+              createShiprocketOrderIfNeeded(updatedOrder).catch((srErr) => {
                 console.warn('[Shiprocket Webhook Order Creation Error]:', srErr?.message || srErr);
               });
             }
@@ -3683,6 +4232,28 @@ COMPLIANCE & COMMUNICATION RULES:
       console.error('[Razorpay Webhook Error]:', err?.message || err);
       return res.status(500).json({ success: false, error: 'Webhook processing failed.' });
     }
+  });
+
+  // Explicit 404 handler for any unmatched /api/* requests so they NEVER return HTML
+  app.all('/api/*', (req, res) => {
+    res.status(404).json({
+      success: false,
+      error: `API endpoint not found: ${req.method} ${req.originalUrl}`,
+      code: 'ROUTE_NOT_FOUND',
+    });
+  });
+
+  // Global error handler for API routes ensuring clean JSON output
+  app.use('/api', (err: any, req: any, res: any, next: any) => {
+    console.error('[API Unhandled Error]:', err);
+    if (res.headersSent) {
+      return next(err);
+    }
+    res.status(err.status || err.statusCode || 500).json({
+      success: false,
+      error: err.message || 'Internal server error occurred.',
+      code: err.code || 'INTERNAL_SERVER_ERROR',
+    });
   });
 
   // Vite middleware for development vs static serve for production

@@ -13,6 +13,9 @@ export const ProductDetailModal: React.FC = () => {
     isInWishlist,
     reviews,
     addReview,
+    selectedCountry,
+    getProductEffectivePriceINR,
+    checkProductCountryAvailability,
   } = useStore();
 
   const [quantity, setQuantity] = useState(1);
@@ -33,6 +36,8 @@ export const ProductDetailModal: React.FC = () => {
   // Mobile Touch Swipe state
   const touchStartX = useRef<number>(0);
   const touchEndX = useRef<number>(0);
+  const touchStartY = useRef<number>(0);
+  const touchEndY = useRef<number>(0);
 
   // Reset image index when product changes
   useEffect(() => {
@@ -62,6 +67,9 @@ export const ProductDetailModal: React.FC = () => {
   if (!isQuickViewOpen || !quickViewProduct) return null;
 
   const product = quickViewProduct;
+  const effectivePriceINR = getProductEffectivePriceINR(product);
+  const countryAvailability = checkProductCountryAvailability(product);
+  const isRestricted = !countryAvailability.available;
   const productImages = [product.image, ...(product.additionalImages || [])].filter(Boolean);
   if (productImages.length === 0) {
     productImages.push('/images/hakkiveda_108_oil_gold.jpg');
@@ -70,6 +78,7 @@ export const ProductDetailModal: React.FC = () => {
   const productReviews = reviews.filter((r) => r.productId === product.id);
 
   const handleAddToCart = () => {
+    if (isRestricted) return;
     addToCart(product, quantity);
     setIsAdded(true);
     setTimeout(() => setIsAdded(false), 1800);
@@ -93,9 +102,6 @@ export const ProductDetailModal: React.FC = () => {
   };
 
   // Touch gestures for mobile swipe (allows vertical page scrolling while capturing horizontal swipes)
-  const touchStartY = useRef<number>(0);
-  const touchEndY = useRef<number>(0);
-
   const handleTouchStart = (e: React.TouchEvent) => {
     touchStartX.current = e.touches[0].clientX;
     touchStartY.current = e.touches[0].clientY;
@@ -333,17 +339,23 @@ export const ProductDetailModal: React.FC = () => {
                 </div>
 
                 {/* Price */}
-                <div className="pt-1 sm:pt-2 flex items-baseline gap-3">
+                <div className="pt-1 sm:pt-2 flex items-baseline gap-3 flex-wrap">
                   <span className="price text-xl sm:text-2xl font-bold font-sans text-[#B8891E]">
-                    {formatPrice(product.priceINR)}
+                    {formatPrice(effectivePriceINR)}
                   </span>
-                  {product.originalPriceINR && (
+                  {product.originalPriceINR && product.originalPriceINR > effectivePriceINR && (
                     <span className="old-price text-sm text-[#5F6F63] line-through">
                       {formatPrice(product.originalPriceINR)}
                     </span>
                   )}
                   <span className="secondary text-xs text-[#718176]">({product.volume})</span>
                 </div>
+
+                {isRestricted && (
+                  <div className="p-2.5 bg-rose-50 border border-rose-200 rounded-lg text-xs text-rose-700 font-medium">
+                    {countryAvailability.reason || `Unavailable for delivery to ${selectedCountry?.name || 'your region'}`}
+                  </div>
+                )}
 
                 <p className="product-description text-xs text-[#405B4A] leading-relaxed font-sans">{product.description}</p>
               </div>
@@ -498,10 +510,13 @@ export const ProductDetailModal: React.FC = () => {
 
                   <button
                     type="button"
+                    disabled={isRestricted}
                     onClick={handleAddToCart}
-                    className={`flex-1 min-h-[48px] py-3 px-4 rounded-lg font-sans text-xs sm:text-sm font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-xl cursor-pointer ${
+                    className={`flex-1 min-h-[48px] py-3 px-4 rounded-lg font-sans text-xs sm:text-sm font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-2 shadow-xl cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                       isAdded
                         ? 'bg-emerald-700 text-white border border-emerald-500'
+                        : isRestricted
+                        ? 'bg-slate-300 text-slate-500'
                         : 'bg-[#123F2B] text-white hover:bg-[#245C3A]'
                     }`}
                   >
@@ -510,10 +525,12 @@ export const ProductDetailModal: React.FC = () => {
                         <Check className="w-4 h-4 shrink-0 text-[var(--brand-gold,#D4AF37)] stroke-[3]" />
                         <span>✓ ADDED TO CART</span>
                       </>
+                    ) : isRestricted ? (
+                      <span>Restricted In Your Country</span>
                     ) : (
                       <>
                         <ShoppingBag className="w-4 h-4 shrink-0 text-[#D4AF37]" />
-                        <span>Add To Bag • {formatPrice(product.priceINR * quantity)}</span>
+                        <span>Add To Bag • {formatPrice(effectivePriceINR * quantity)}</span>
                       </>
                     )}
                   </button>

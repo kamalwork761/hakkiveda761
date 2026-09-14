@@ -11,6 +11,8 @@ interface ProductStickyBarProps {
   onBuyNow: () => void;
   formatPrice: (priceINR: number) => string;
   isAdded?: boolean;
+  isRestricted?: boolean;
+  restrictionReason?: string;
 }
 
 export const ProductStickyBar: React.FC<ProductStickyBarProps> = ({
@@ -22,6 +24,8 @@ export const ProductStickyBar: React.FC<ProductStickyBarProps> = ({
   onBuyNow,
   formatPrice,
   isAdded = false,
+  isRestricted = false,
+  restrictionReason,
 }) => {
   const [isVisible, setIsVisible] = useState(false);
 
@@ -104,41 +108,50 @@ export const ProductStickyBar: React.FC<ProductStickyBarProps> = ({
             </button>
           </div>
 
-          {/* Add to Bag */}
-          <button
-            type="button"
-            onClick={onAddToCart}
-            className={`h-10 px-3.5 sm:px-5 rounded-xl font-sans text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-md active:scale-98 cursor-pointer ${
-              isAdded
-                ? 'bg-emerald-700 text-white border border-emerald-500'
-                : 'bg-[#123F2A] hover:bg-[#0B2F20] dark:bg-white dark:text-[#0B2F20] text-white'
-            }`}
-          >
-            {isAdded ? (
-              <>
-                <Check className="w-3.5 h-3.5 text-[var(--brand-gold,#C9A84E)] stroke-[3]" />
-                <span className="hidden xs:inline">✓ Added</span>
-                <span className="xs:hidden">Added</span>
-              </>
-            ) : (
-              <>
-                <ShoppingBag className="w-3.5 h-3.5 text-[var(--brand-gold)] dark:text-[#0B2F20]" />
-                <span className="hidden xs:inline">Add to Bag</span>
-                <span className="xs:hidden">Add</span>
-              </>
-            )}
-          </button>
+          {/* Action Buttons or Restricted Notice */}
+          {isRestricted ? (
+            <div className="h-10 px-4 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-600 dark:text-rose-400 font-sans text-xs font-bold flex items-center justify-center">
+              {restrictionReason || 'Not Available In Your Country'}
+            </div>
+          ) : (
+            <>
+              {/* Add to Bag */}
+              <button
+                type="button"
+                onClick={onAddToCart}
+                className={`h-10 px-3.5 sm:px-5 rounded-xl font-sans text-xs font-bold uppercase tracking-wider transition-all flex items-center justify-center gap-1.5 shadow-md active:scale-98 cursor-pointer ${
+                  isAdded
+                    ? 'bg-emerald-700 text-white border border-emerald-500'
+                    : 'bg-[#123F2A] hover:bg-[#0B2F20] dark:bg-white dark:text-[#0B2F20] text-white'
+                }`}
+              >
+                {isAdded ? (
+                  <>
+                    <Check className="w-3.5 h-3.5 text-[var(--brand-gold,#C9A84E)] stroke-[3]" />
+                    <span className="hidden xs:inline">✓ Added</span>
+                    <span className="xs:hidden">Added</span>
+                  </>
+                ) : (
+                  <>
+                    <ShoppingBag className="w-3.5 h-3.5 text-[var(--brand-gold)] dark:text-[#0B2F20]" />
+                    <span className="hidden xs:inline">Add to Bag</span>
+                    <span className="xs:hidden">Add</span>
+                  </>
+                )}
+              </button>
 
-          {/* Buy Now */}
-          <button
-            type="button"
-            onClick={onBuyNow}
-            className="h-10 px-3.5 sm:px-5 rounded-xl bg-[var(--brand-gold,#D4AF37)] hover:bg-amber-400 text-[#0B2F20] font-sans text-xs font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 shadow-lg active:scale-98 cursor-pointer"
-          >
-            <Sparkles className="w-3.5 h-3.5" />
-            <span className="hidden sm:inline">Instant Buy</span>
-            <span className="sm:hidden">Buy</span>
-          </button>
+              {/* Buy Now */}
+              <button
+                type="button"
+                onClick={onBuyNow}
+                className="h-10 px-3.5 sm:px-5 rounded-xl bg-[var(--brand-gold,#D4AF37)] hover:bg-amber-400 text-[#0B2F20] font-sans text-xs font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-1.5 shadow-lg active:scale-98 cursor-pointer"
+              >
+                <Sparkles className="w-3.5 h-3.5" />
+                <span className="hidden sm:inline">Instant Buy</span>
+                <span className="sm:hidden">Buy</span>
+              </button>
+            </>
+          )}
         </div>
       </div>
     </div>

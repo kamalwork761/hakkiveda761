@@ -30,6 +30,7 @@ import {
 import { Product, ProductVariant, Category } from '../../types/store';
 import { AdminProductGalleryEditor } from './AdminProductGalleryEditor';
 import { AdminProductVariantsEditor } from './AdminProductVariantsEditor';
+import { AdminProductInternationalEditor } from './AdminProductInternationalEditor';
 import { AdminProductSectionsEditor } from './AdminProductSectionsEditor';
 import { AdminProductSeoEditor } from './AdminProductSeoEditor';
 import { AdminProductRelatedEditor } from './AdminProductRelatedEditor';
@@ -46,7 +47,7 @@ interface AdminProductManagerProps {
   formatINR: (val: number) => string;
 }
 
-type EditorTab = 'basic' | 'gallery' | 'variants' | 'sections' | 'related' | 'seo';
+type EditorTab = 'basic' | 'gallery' | 'variants' | 'international' | 'sections' | 'related' | 'seo';
 
 export const AdminProductManager: React.FC<AdminProductManagerProps> = ({
   products,
@@ -113,6 +114,12 @@ export const AdminProductManager: React.FC<AdminProductManagerProps> = ({
     inStock: true,
     displayOrder: products.length + 1,
     status: 'ACTIVE',
+    internationalEnabled: true,
+    internationalPricingMode: 'SAME_AS_INDIA',
+    internationalPriceINR: 1499,
+    internationalMarkupPercent: 0,
+    internationalAllowedCountries: [],
+    internationalBlockedCountries: [],
     productAttributes: [
       { label: 'Formulation Type', value: '100% Cold-Pressed Ayurvedic Extraction' },
       { label: 'Shelf Life', value: '24 Months from MFD' },
@@ -548,6 +555,19 @@ export const AdminProductManager: React.FC<AdminProductManagerProps> = ({
 
               <button
                 type="button"
+                onClick={() => setActiveEditorTab('international')}
+                className={`px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 whitespace-nowrap transition-all ${
+                  activeEditorTab === 'international'
+                    ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] shadow'
+                    : 'text-slate-300 hover:text-white'
+                }`}
+              >
+                <Globe className="w-3.5 h-3.5" />
+                <span>4. International & Pricing ({editingProduct.internationalEnabled !== false ? 'Active' : 'India Only'})</span>
+              </button>
+
+              <button
+                type="button"
                 onClick={() => setActiveEditorTab('sections')}
                 className={`px-3 py-1.5 rounded-xl font-bold flex items-center gap-1.5 whitespace-nowrap transition-all ${
                   activeEditorTab === 'sections'
@@ -556,7 +576,7 @@ export const AdminProductManager: React.FC<AdminProductManagerProps> = ({
                 }`}
               >
                 <FileText className="w-3.5 h-3.5" />
-                <span>4. PDP Sections & Rituals</span>
+                <span>5. PDP Sections & Rituals</span>
               </button>
 
               <button
@@ -569,7 +589,7 @@ export const AdminProductManager: React.FC<AdminProductManagerProps> = ({
                 }`}
               >
                 <Link2 className="w-3.5 h-3.5" />
-                <span>5. Cross-Sell</span>
+                <span>6. Cross-Sell</span>
               </button>
 
               <button
@@ -582,7 +602,7 @@ export const AdminProductManager: React.FC<AdminProductManagerProps> = ({
                 }`}
               >
                 <Share2 className="w-3.5 h-3.5" />
-                <span>6. SEO & Social</span>
+                <span>7. SEO & Social</span>
               </button>
             </div>
 
@@ -771,7 +791,23 @@ export const AdminProductManager: React.FC<AdminProductManagerProps> = ({
                 </div>
               )}
 
-              {/* Tab 4: Sections */}
+              {/* Tab: International */}
+              {activeEditorTab === 'international' && (
+                <div className="animate-fadeIn">
+                  <AdminProductInternationalEditor
+                    product={editingProduct}
+                    onChange={(updates) => {
+                      setEditingProduct({
+                        ...editingProduct,
+                        ...updates,
+                      });
+                    }}
+                    formatINR={formatINR}
+                  />
+                </div>
+              )}
+
+              {/* Tab 5: Sections */}
               {activeEditorTab === 'sections' && (
                 <div className="animate-fadeIn">
                   <AdminProductSectionsEditor

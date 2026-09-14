@@ -54,7 +54,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   const [srShiprocketOrderId, setSrShiprocketOrderId] = useState<string | number | undefined>(order.shiprocketOrderId);
   const [srShipmentId, setSrShipmentId] = useState<string | number | undefined>(order.shipmentId);
   const [srAwbCode, setSrAwbCode] = useState<string | undefined>(order.awbCode || order.trackingNumber);
-  const [srCourierName, setSrCourierName] = useState<string | undefined>(order.courierName || 'Shiprocket Partner');
+  const [srCourierName, setSrCourierName] = useState<string | undefined>(order.courierName || undefined);
   const [srShipmentStatus, setSrShipmentStatus] = useState<string | undefined>(order.shipmentStatus || 'NEW');
   const [srTrackingUrl, setSrTrackingUrl] = useState<string | undefined>(order.trackingUrl);
   const [srLabelUrl, setSrLabelUrl] = useState<string | undefined>(order.labelUrl);
@@ -65,16 +65,25 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   const [trackingStatus, setTrackingStatus] = useState<string>(order.trackingStatus);
   const [paymentStatus, setPaymentStatus] = useState<string>(order.paymentStatus || 'PAID');
   const [trackingNumber, setTrackingNumber] = useState<string>(order.trackingNumber || '');
-  const [courierName, setCourierName] = useState<string>(order.courierName || 'BlueDart Air Express');
+  const [courierName, setCourierName] = useState<string>(order.courierName || '');
   const [adminNotes, setAdminNotes] = useState<string>(order.adminNotes || '');
-  const [customerNotes, setCustomerNotes] = useState<string>(order.customerNotes || 'Fragile bottle. Handle with care.');
+  const [customerNotes, setCustomerNotes] = useState<string>(order.customerNotes || '');
 
   // Financial calculations
   const subtotal = order.subtotalINR || order.items.reduce((acc, item) => acc + (item.product?.priceINR || item.priceINR || 0) * item.quantity, 0);
-  const discount = order.discountINR || 0;
-  const shippingCharges = order.shippingChargesINR || (subtotal > 1999 ? 0 : 150);
-  const taxGST = order.taxINR || Math.round(subtotal * 0.18);
+  const discount = order.discountINR || order.discountAmountINR || 0;
+  const isForeign = order.customer?.country && order.customer.country.trim().toLowerCase() !== 'india' && order.customer.country.trim().toLowerCase() !== 'in';
+  const defaultShipping = isForeign ? 0 : (subtotal >= 999 ? 0 : 99);
+  const shippingCharges = order.shippingFeeINR !== undefined ? order.shippingFeeINR : (order.shippingChargesINR !== undefined ? order.shippingChargesINR : defaultShipping);
+  const taxGST = order.taxINR || Math.round(subtotal * 0.05);
   const finalTotal = order.totalAmountINR || (subtotal - discount + shippingCharges);
+
+  // Sync real status from Shiprocket on mount if shiprocketOrderId exists
+  useEffect(() => {
+    if (order.shiprocketOrderId) {
+      handleSrSyncStatus(true);
+    }
+  }, [order.shiprocketOrderId]);
 
   // Keyboard shortcut listener for ESC key
   useEffect(() => {
@@ -153,6 +162,62 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     }
   };
 
+  // Shiprocket Real API Sync Handler
+  const handleSrSyncStatus = async (silent = false) => {
+    const targetSrId = srShiprocketOrderId || order.shiprocketOrderId;
+    if (!targetSrId) {
+      if (!silent) alert('No Shiprocket Order ID associated with this order yet.');
+      return;
+    }
+    if (!silent) setSrLoading('Syncing Real Status from Shiprocket...');
+    try {
+      const res = await fetch('/api/shiprocket/sync-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ orderId: order.id, shiprocketOrderId: targetSrId }),
+      });
+      const data = await res.json();
+      if (data.success) {
+        if (data.shipmentId) setSrShipmentId(data.shipmentId);
+        if (data.awbCode) {
+          setSrAwbCode(data.awbCode);
+          setTrackingNumber(data.awbCode);
+        }
+        if (data.courierName) {
+          setSrCourierName(data.courierName);
+          setCourierName(data.courierName);
+        }
+        if (data.shipmentStatus) {
+          setSrShipmentStatus(data.shipmentStatus);
+          if (data.shipmentStatus === 'AWB_GENERATED' || data.shipmentStatus === 'PICKUP_SCHEDULED' || data.shipmentStatus === 'IN_TRANSIT') {
+            setTrackingStatus(data.shipmentStatus);
+          }
+        }
+        if (data.trackingUrl) setSrTrackingUrl(data.trackingUrl);
+
+        updateOrderDetails(order.id, {
+          shipmentId: data.shipmentId || srShipmentId,
+          awbCode: data.awbCode || srAwbCode,
+          courierName: data.courierName || srCourierName,
+          shipmentStatus: data.shipmentStatus || srShipmentStatus,
+          trackingUrl: data.trackingUrl || srTrackingUrl,
+          ...(data.awbCode ? { trackingNumber: data.awbCode } : {}),
+        });
+        if (!silent) {
+          playSound('notification_chime');
+          onShowToast(`Synced with Shiprocket: Status is ${data.shipmentStatus || 'UPDATED'}`);
+        }
+      } else if (!silent) {
+        alert(`Sync Notice: ${data.error || 'Could not fetch live Shiprocket status'}`);
+      }
+    } catch (err: any) {
+      if (!silent) alert(`Sync error: ${err.message}`);
+    } finally {
+      if (!silent) setSrLoading(null);
+    }
+  };
+
   // Shiprocket API Action Handlers
   const handleSrCreateOrder = async () => {
     setSrLoading('Creating Shiprocket Order...');
@@ -178,12 +243,13 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           awbCode: data.awbCode || srAwbCode,
           courierName: data.courierName || srCourierName,
           trackingUrl: data.trackingUrl || srTrackingUrl,
-          shipmentStatus: data.shipmentStatus || 'MANIFESTED',
+          shipmentStatus: data.shipmentStatus || 'NEW',
+          fulfillmentStatus: 'SHIPROCKET_CREATED',
         });
         playSound('order_success');
         onShowToast('Shiprocket order created successfully!');
       } else {
-        alert(`Error: ${data.error || 'Failed to create Shiprocket order'}`);
+        alert(`Shiprocket Notice: ${data.error || 'Failed to create Shiprocket order'}`);
       }
     } catch (err: any) {
       alert(`Error: ${err.message}`);
@@ -193,7 +259,11 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   };
 
   const handleSrGenerateAwb = async () => {
-    setSrLoading('Assigning Courier & Generating AWB...');
+    if (!srShipmentId) {
+      alert('A Shiprocket shipment must be created before generating an AWB code.');
+      return;
+    }
+    setSrLoading('Assigning Courier & Requesting AWB from Shiprocket...');
     try {
       const res = await fetch('/api/shiprocket/generate-awb', {
         method: 'POST',
@@ -202,11 +272,16 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
         body: JSON.stringify({ orderId: order.id, shipmentId: srShipmentId }),
       });
       const data = await res.json();
-      if (data.success) {
+      if (data.success && data.awbCode) {
         setSrAwbCode(data.awbCode);
-        if (data.courierName) setSrCourierName(data.courierName);
+        setTrackingNumber(data.awbCode);
+        if (data.courierName) {
+          setSrCourierName(data.courierName);
+          setCourierName(data.courierName);
+        }
         if (data.trackingUrl) setSrTrackingUrl(data.trackingUrl);
         setSrShipmentStatus('AWB_GENERATED');
+        setTrackingStatus('DISPATCHED');
 
         updateOrderDetails(order.id, {
           awbCode: data.awbCode,
@@ -217,9 +292,9 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
           trackingStatus: 'DISPATCHED',
         });
         playSound('order_success');
-        onShowToast(`AWB ${data.awbCode} generated successfully!`);
+        onShowToast(`Real AWB ${data.awbCode} generated successfully!`);
       } else {
-        alert(`Error: ${data.error || 'Failed to generate AWB'}`);
+        alert(`Shiprocket AWB Notice: ${data.error || 'Failed to generate AWB. Please check courier serviceability or recharge your wallet.'}`);
       }
     } catch (err: any) {
       alert(`Error: ${err.message}`);
@@ -229,6 +304,10 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
   };
 
   const handleSrSchedulePickup = async () => {
+    if (!srShipmentId) {
+      alert('Shipment ID is missing. Create shipment and generate AWB first.');
+      return;
+    }
     setSrLoading('Scheduling Courier Pickup...');
     try {
       const res = await fetch('/api/shiprocket/schedule-pickup', {
@@ -248,7 +327,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
         playSound('order_success');
         onShowToast(`Pickup scheduled for ${data.pickupScheduledDate || 'tomorrow'}!`);
       } else {
-        alert(`Error: ${data.error || 'Failed to schedule pickup'}`);
+        alert(`Pickup Scheduling Notice: ${data.error || 'Failed to schedule pickup'}`);
       }
     } catch (err: any) {
       alert(`Error: ${err.message}`);
@@ -1104,6 +1183,17 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                 <h3 className="font-bold font-serif-luxury text-sm text-[var(--brand-gold)]">
                   Shiprocket Logistics & Express Fulfillment
                 </h3>
+                {order.fulfillmentStatus && (
+                  <span className={`px-2 py-0.5 rounded text-[10px] font-mono uppercase font-bold ${
+                    order.fulfillmentStatus === 'SHIPROCKET_CREATED'
+                      ? 'bg-emerald-900/60 text-emerald-300 border border-emerald-500/30'
+                      : order.fulfillmentStatus === 'FULFILLMENT_RETRY_REQUIRED'
+                      ? 'bg-rose-900/60 text-rose-300 border border-rose-500/30'
+                      : 'bg-amber-900/60 text-amber-300 border border-amber-500/30'
+                  }`}>
+                    {order.fulfillmentStatus}
+                  </span>
+                )}
               </div>
               {srLoading && (
                 <span className="text-xs text-amber-300 font-mono animate-pulse flex items-center gap-1.5">
@@ -1112,6 +1202,23 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                 </span>
               )}
             </div>
+
+            {order.fulfillmentStatus === 'FULFILLMENT_RETRY_REQUIRED' && (
+              <div className="bg-rose-950/60 border border-rose-500/40 p-3 rounded-xl flex items-center justify-between text-xs text-rose-200">
+                <div>
+                  <span className="font-bold block text-rose-300">Fulfillment Retry Required</span>
+                  <span className="text-[11px] text-rose-300/80">{order.fulfillmentError || 'Shiprocket order creation failed. Please retry.'}</span>
+                </div>
+                <button
+                  type="button"
+                  onClick={handleSrCreateOrder}
+                  disabled={!!srLoading}
+                  className="px-3 py-1.5 bg-rose-700 hover:bg-rose-600 text-white font-bold rounded-lg text-xs cursor-pointer"
+                >
+                  Retry Fulfillment
+                </button>
+              </div>
+            )}
 
             {/* Shipment Metadata Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
@@ -1132,14 +1239,25 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
 
               <div className="bg-[var(--brand-primary-dark)] p-3 rounded-xl border border-white/5 space-y-1">
                 <span className="text-[10px] text-slate-400 font-bold block uppercase">Courier & Status</span>
-                <span className="font-bold text-emerald-400 text-xs block truncate">{srCourierName}</span>
+                <span className="font-bold text-emerald-400 text-xs block truncate">{srCourierName || 'Unassigned'}</span>
                 <span className="text-[10px] text-slate-300 block font-mono">[{srShipmentStatus || 'NEW'}]</span>
               </div>
             </div>
 
             {/* Action Buttons Toolbar */}
             <div className="flex flex-wrap items-center gap-2 pt-1 text-xs">
-              {!srShiprocketOrderId ? (
+              {srShiprocketOrderId ? (
+                <button
+                  type="button"
+                  onClick={() => handleSrSyncStatus(false)}
+                  disabled={!!srLoading}
+                  className="px-3.5 py-2 bg-sky-700 hover:bg-sky-600 text-white font-bold rounded-xl flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+                  title="Sync Real Live Status directly from Shiprocket API"
+                >
+                  <RefreshCw className={`w-4 h-4 ${srLoading ? 'animate-spin' : ''}`} />
+                  <span>Sync Live Status</span>
+                </button>
+              ) : (
                 <button
                   type="button"
                   onClick={handleSrCreateOrder}
@@ -1149,23 +1267,35 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
                   <Package className="w-4 h-4" />
                   <span>Create Shiprocket Shipment</span>
                 </button>
-              ) : null}
+              )}
 
               <button
                 type="button"
                 onClick={handleSrGenerateAwb}
-                disabled={!!srLoading}
-                className="px-3.5 py-2 bg-emerald-700 hover:bg-emerald-600 text-white font-bold rounded-xl flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+                disabled={!!srLoading || !srShipmentId || !!srAwbCode}
+                className={`px-3.5 py-2 font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm ${
+                  srAwbCode
+                    ? 'bg-slate-800 text-slate-400 cursor-default'
+                    : !srShipmentId
+                    ? 'bg-slate-800 text-slate-500 cursor-not-allowed opacity-60'
+                    : 'bg-emerald-700 hover:bg-emerald-600 text-white cursor-pointer'
+                }`}
+                title={srAwbCode ? `AWB ${srAwbCode} already generated` : !srShipmentId ? 'Create shipment first' : 'Request real AWB from courier partner'}
               >
                 <Tag className="w-4 h-4" />
-                <span>Generate AWB</span>
+                <span>{srAwbCode ? `AWB: ${srAwbCode}` : 'Generate AWB'}</span>
               </button>
 
               <button
                 type="button"
                 onClick={handleSrSchedulePickup}
-                disabled={!!srLoading}
-                className="px-3.5 py-2 bg-amber-600 hover:bg-amber-500 text-slate-950 font-bold rounded-xl flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+                disabled={!!srLoading || !srShipmentId}
+                className={`px-3.5 py-2 font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm ${
+                  !srShipmentId
+                    ? 'bg-slate-800 text-slate-500 cursor-not-allowed opacity-60'
+                    : 'bg-amber-600 hover:bg-amber-500 text-slate-950 cursor-pointer'
+                }`}
+                title={!srShipmentId ? 'Shipment required first' : 'Schedule courier pickup'}
               >
                 <Calendar className="w-4 h-4" />
                 <span>Schedule Pickup</span>
@@ -1174,8 +1304,12 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               <button
                 type="button"
                 onClick={handleSrPrintLabel}
-                disabled={!!srLoading}
-                className="px-3.5 py-2 bg-indigo-700 hover:bg-indigo-600 text-white font-bold rounded-xl flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+                disabled={!!srLoading || !srShipmentId}
+                className={`px-3.5 py-2 font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm ${
+                  !srShipmentId
+                    ? 'bg-slate-800 text-slate-500 cursor-not-allowed opacity-60'
+                    : 'bg-indigo-700 hover:bg-indigo-600 text-white cursor-pointer'
+                }`}
               >
                 <Printer className="w-4 h-4" />
                 <span>Print Label</span>
@@ -1184,8 +1318,12 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               <button
                 type="button"
                 onClick={handleSrPrintInvoice}
-                disabled={!!srLoading}
-                className="px-3.5 py-2 bg-slate-800 hover:bg-slate-700 text-white font-bold rounded-xl flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+                disabled={!!srLoading || !srShiprocketOrderId}
+                className={`px-3.5 py-2 font-bold rounded-xl flex items-center gap-1.5 transition-all shadow-sm ${
+                  !srShiprocketOrderId
+                    ? 'bg-slate-800 text-slate-500 cursor-not-allowed opacity-60'
+                    : 'bg-slate-800 hover:bg-slate-700 text-white cursor-pointer'
+                }`}
               >
                 <FileText className="w-4 h-4" />
                 <span>Print Invoice</span>
@@ -1194,11 +1332,11 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
               <button
                 type="button"
                 onClick={handleSrTrackShipment}
-                disabled={!!srLoading}
-                className="px-3.5 py-2 bg-sky-700 hover:bg-sky-600 text-white font-bold rounded-xl flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
+                disabled={!!srLoading || (!srAwbCode && !srShipmentId && !order.orderNumber)}
+                className="px-3.5 py-2 bg-sky-800 hover:bg-sky-700 text-white font-bold rounded-xl flex items-center gap-1.5 transition-all cursor-pointer shadow-sm"
               >
                 <ExternalLink className="w-4 h-4" />
-                <span>Track Shipment</span>
+                <span>Track Live</span>
               </button>
             </div>
 

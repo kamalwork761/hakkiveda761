@@ -6,7 +6,18 @@ import { getProductUrl } from '../utils/productUtils';
 import { useSmoothAutoScroll } from '../hooks/useSmoothAutoScroll';
 
 export const BestSellersCarousel: React.FC = () => {
-  const { products, formatPrice, addToCart, toggleWishlist, isInWishlist, openQuickView, playSound } = useStore();
+  const {
+    products,
+    formatPrice,
+    addToCart,
+    toggleWishlist,
+    isInWishlist,
+    openQuickView,
+    playSound,
+    selectedCountry,
+    getProductEffectivePriceINR,
+    checkProductCountryAvailability,
+  } = useStore();
   const desktopScrollContainerRef = useRef<HTMLDivElement>(null);
   const [addedProductId, setAddedProductId] = useState<string | null>(null);
 
@@ -178,8 +189,11 @@ export const BestSellersCarousel: React.FC = () => {
         >
           {mobileDisplayProducts.map((product, idx) => {
             const inWishlist = isInWishlist(product.id);
-            const discountPct = product.originalPriceINR
-              ? Math.round(((product.originalPriceINR - product.priceINR) / product.originalPriceINR) * 100)
+            const effectivePriceINR = getProductEffectivePriceINR(product);
+            const availability = checkProductCountryAvailability(product);
+            const isRestricted = !availability.available;
+            const discountPct = product.originalPriceINR && product.originalPriceINR > effectivePriceINR
+              ? Math.round(((product.originalPriceINR - effectivePriceINR) / product.originalPriceINR) * 100)
               : 0;
 
             return (
@@ -194,7 +208,9 @@ export const BestSellersCarousel: React.FC = () => {
                     handleProductNavigate(product);
                   }
                 }}
-                className="w-[80vw] max-w-[325px] shrink-0 bg-white text-slate-900 rounded-2xl overflow-hidden border border-[#E7E1D5] dark:border-white/10 shadow-md hover:shadow-xl active:scale-[0.99] transition-all duration-300 flex flex-col group cursor-pointer text-left focus:outline-none focus:ring-2 focus:ring-[var(--brand-gold,#C9A84E)]"
+                className={`w-[80vw] max-w-[325px] shrink-0 bg-white text-slate-900 rounded-2xl overflow-hidden border shadow-md hover:shadow-xl active:scale-[0.99] transition-all duration-300 flex flex-col group cursor-pointer text-left focus:outline-none focus:ring-2 focus:ring-[var(--brand-gold,#C9A84E)] ${
+                  isRestricted ? 'border-rose-300 opacity-90' : 'border-[#E7E1D5] dark:border-white/10'
+                }`}
               >
                 {/* Product Image Box */}
                 <div className="relative aspect-[4/5] w-full overflow-hidden bg-[#FAF8F2] flex items-center justify-center">
@@ -215,10 +231,16 @@ export const BestSellersCarousel: React.FC = () => {
 
                   {/* Badges */}
                   <div className="absolute top-2.5 left-2.5 flex flex-col gap-1 z-10">
-                    <span className="bg-[#123F2A]/95 text-[var(--brand-gold,#C9A84E)] text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full border border-[var(--brand-gold,#C9A84E)]/40 shadow-sm backdrop-blur-xs">
-                      Best Seller
-                    </span>
-                    {discountPct > 0 && (
+                    {isRestricted ? (
+                      <span className="bg-rose-600 text-white text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full shadow-sm">
+                        Restricted in {selectedCountry?.code || 'region'}
+                      </span>
+                    ) : (
+                      <span className="bg-[#123F2A]/95 text-[var(--brand-gold,#C9A84E)] text-[9px] font-extrabold uppercase px-2 py-0.5 rounded-full border border-[var(--brand-gold,#C9A84E)]/40 shadow-sm backdrop-blur-xs">
+                        Best Seller
+                      </span>
+                    )}
+                    {discountPct > 0 && !isRestricted && (
                       <span className="bg-emerald-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-full shadow-sm">
                         {discountPct}% OFF
                       </span>
@@ -275,9 +297,9 @@ export const BestSellersCarousel: React.FC = () => {
                   <div className="pt-2 border-t border-slate-100 space-y-2.5">
                     <div className="flex items-baseline gap-2">
                       <span className="text-base font-extrabold text-[#123F2A] font-sans">
-                        {formatPrice(product.priceINR)}
+                        {formatPrice(effectivePriceINR)}
                       </span>
-                      {product.originalPriceINR && product.originalPriceINR > product.priceINR && (
+                      {product.originalPriceINR && product.originalPriceINR > effectivePriceINR && (
                         <span className="text-xs text-slate-400 line-through">
                           {formatPrice(product.originalPriceINR)}
                         </span>
@@ -285,36 +307,42 @@ export const BestSellersCarousel: React.FC = () => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={(e) => handleAddToCart(e, product)}
-                        className={`w-full min-h-[44px] py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95 ${
-                          addedProductId === product.id
-                            ? 'bg-emerald-700 text-white'
-                            : 'bg-[#123F2A] hover:bg-[#0B2F20] text-white'
-                        }`}
-                      >
-                        {addedProductId === product.id ? (
-                          <>
-                            <Check className="w-3.5 h-3.5 text-[var(--brand-gold,#C9A84E)] stroke-[3]" />
-                            <span>Added</span>
-                          </>
-                        ) : (
-                          <>
-                            <ShoppingBag className="w-3.5 h-3.5" />
-                            <span>Add</span>
-                          </>
-                        )}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => handleBuyNow(e, product)}
-                        className="w-full min-h-[44px] py-2 px-2 bg-[var(--brand-gold,#C9A84E)] hover:bg-[#b8891e] text-[#0B2F20] rounded-xl text-xs font-bold flex items-center justify-center transition-colors cursor-pointer active:scale-95 shadow-sm font-sans"
-                      >
-                        Buy Now
-                      </button>
-                    </div>
+                    {isRestricted ? (
+                      <div className="w-full py-2 text-center text-xs font-bold text-rose-600 bg-rose-50 rounded-xl border border-rose-200">
+                        Unavailable in {selectedCountry?.code || 'region'}
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={(e) => handleAddToCart(e, product)}
+                          className={`w-full min-h-[44px] py-2 px-2 rounded-xl text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95 ${
+                            addedProductId === product.id
+                              ? 'bg-emerald-700 text-white'
+                              : 'bg-[#123F2A] hover:bg-[#0B2F20] text-white'
+                          }`}
+                        >
+                          {addedProductId === product.id ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-[var(--brand-gold,#C9A84E)] stroke-[3]" />
+                              <span>Added</span>
+                            </>
+                          ) : (
+                            <>
+                              <ShoppingBag className="w-3.5 h-3.5" />
+                              <span>Add</span>
+                            </>
+                          )}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => handleBuyNow(e, product)}
+                          className="w-full min-h-[44px] py-2 px-2 bg-[var(--brand-gold,#C9A84E)] hover:bg-[#b8891e] text-[#0B2F20] rounded-xl text-xs font-bold flex items-center justify-center transition-colors cursor-pointer active:scale-95 shadow-sm font-sans"
+                        >
+                          Buy Now
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>
@@ -338,8 +366,11 @@ export const BestSellersCarousel: React.FC = () => {
         >
           {bestSellers.map((product) => {
             const inWishlist = isInWishlist(product.id);
-            const discountPct = product.originalPriceINR
-              ? Math.round(((product.originalPriceINR - product.priceINR) / product.originalPriceINR) * 100)
+            const effectivePriceINR = getProductEffectivePriceINR(product);
+            const availability = checkProductCountryAvailability(product);
+            const isRestricted = !availability.available;
+            const discountPct = product.originalPriceINR && product.originalPriceINR > effectivePriceINR
+              ? Math.round(((product.originalPriceINR - effectivePriceINR) / product.originalPriceINR) * 100)
               : 0;
 
             return (
@@ -350,7 +381,9 @@ export const BestSellersCarousel: React.FC = () => {
                   window.dispatchEvent(new PopStateEvent('popstate'));
                   window.scrollTo({ top: 0, behavior: 'smooth' });
                 }}
-                className="w-[78vw] sm:w-[42vw] md:w-[30%] lg:w-[calc(25%-18px)] flex-shrink-0 snap-start bg-white text-slate-900 rounded-2xl overflow-hidden border border-[#E7E1D5] dark:border-white/10 shadow-md hover:shadow-xl active:scale-[0.99] transition-all duration-300 flex flex-col group cursor-pointer"
+                className={`w-[78vw] sm:w-[42vw] md:w-[30%] lg:w-[calc(25%-18px)] flex-shrink-0 snap-start bg-white text-slate-900 rounded-2xl overflow-hidden border shadow-md hover:shadow-xl active:scale-[0.99] transition-all duration-300 flex flex-col group cursor-pointer ${
+                  isRestricted ? 'border-rose-300 opacity-90' : 'border-[#E7E1D5] dark:border-white/10'
+                }`}
               >
                 {/* Product Image Box */}
                 <div className="relative aspect-square w-full overflow-hidden bg-slate-100">
@@ -371,10 +404,16 @@ export const BestSellersCarousel: React.FC = () => {
 
                   {/* Badges */}
                   <div className="absolute top-3 left-3 flex flex-col gap-1 z-10">
-                    <span className="bg-[#123F2A] text-[var(--brand-gold)] text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border border-[var(--brand-gold)]/30 shadow-md">
-                      Best Seller
-                    </span>
-                    {discountPct > 0 && (
+                    {isRestricted ? (
+                      <span className="bg-rose-600 text-white text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full shadow-md">
+                        Restricted in {selectedCountry?.code || 'region'}
+                      </span>
+                    ) : (
+                      <span className="bg-[#123F2A] text-[var(--brand-gold)] text-[10px] font-extrabold uppercase px-2.5 py-1 rounded-full border border-[var(--brand-gold)]/30 shadow-md">
+                        Best Seller
+                      </span>
+                    )}
+                    {discountPct > 0 && !isRestricted && (
                       <span className="bg-emerald-600 text-white text-[10px] font-bold px-2 py-0.5 rounded-full shadow">
                         {discountPct}% OFF
                       </span>
@@ -446,9 +485,9 @@ export const BestSellersCarousel: React.FC = () => {
                   <div className="pt-2 border-t border-slate-100 space-y-3">
                     <div className="flex items-baseline gap-2">
                       <span className="text-base font-extrabold text-[#123F2A] font-sans">
-                        {formatPrice(product.priceINR)}
+                        {formatPrice(effectivePriceINR)}
                       </span>
-                      {product.originalPriceINR && product.originalPriceINR > product.priceINR && (
+                      {product.originalPriceINR && product.originalPriceINR > effectivePriceINR && (
                         <span className="text-xs text-slate-400 line-through">
                           {formatPrice(product.originalPriceINR)}
                         </span>
@@ -456,36 +495,42 @@ export const BestSellersCarousel: React.FC = () => {
                     </div>
 
                     {/* Action Buttons */}
-                    <div className="grid grid-cols-2 gap-2">
-                      <button
-                        type="button"
-                        onClick={(e) => handleAddToCart(e, product)}
-                        className={`w-full py-2 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95 ${
-                          addedProductId === product.id
-                            ? 'bg-emerald-700 text-white'
-                            : 'bg-[#123F2A] hover:bg-[#0B2F20] text-white'
-                        }`}
-                      >
-                        {addedProductId === product.id ? (
-                          <>
-                            <Check className="w-3.5 h-3.5 text-[var(--brand-gold,#C9A84E)] stroke-[3]" />
-                            <span>Added</span>
-                          </>
-                        ) : (
-                          <>
-                            <ShoppingBag className="w-3.5 h-3.5" />
-                            <span>Add</span>
-                          </>
-                        )}
-                      </button>
-                      <button
-                        type="button"
-                        onClick={(e) => handleBuyNow(e, product)}
-                        className="w-full py-2 px-2 bg-[var(--brand-gold)] hover:bg-[#b8891e] text-[#0B2F20] rounded-lg text-xs font-bold flex items-center justify-center transition-colors cursor-pointer active:scale-95 shadow-sm"
-                      >
-                        Buy Now
-                      </button>
-                    </div>
+                    {isRestricted ? (
+                      <div className="w-full py-2 text-center text-xs font-bold text-rose-600 bg-rose-50 rounded-lg border border-rose-200">
+                        Unavailable in {selectedCountry?.code || 'region'}
+                      </div>
+                    ) : (
+                      <div className="grid grid-cols-2 gap-2">
+                        <button
+                          type="button"
+                          onClick={(e) => handleAddToCart(e, product)}
+                          className={`w-full py-2 px-2 rounded-lg text-xs font-bold flex items-center justify-center gap-1.5 transition-all cursor-pointer shadow-sm active:scale-95 ${
+                            addedProductId === product.id
+                              ? 'bg-emerald-700 text-white'
+                              : 'bg-[#123F2A] hover:bg-[#0B2F20] text-white'
+                          }`}
+                        >
+                          {addedProductId === product.id ? (
+                            <>
+                              <Check className="w-3.5 h-3.5 text-[var(--brand-gold,#C9A84E)] stroke-[3]" />
+                              <span>Added</span>
+                            </>
+                          ) : (
+                            <>
+                              <ShoppingBag className="w-3.5 h-3.5" />
+                              <span>Add</span>
+                            </>
+                          )}
+                        </button>
+                        <button
+                          type="button"
+                          onClick={(e) => handleBuyNow(e, product)}
+                          className="w-full py-2 px-2 bg-[var(--brand-gold)] hover:bg-[#b8891e] text-[#0B2F20] rounded-lg text-xs font-bold flex items-center justify-center transition-colors cursor-pointer active:scale-95 shadow-sm"
+                        >
+                          Buy Now
+                        </button>
+                      </div>
+                    )}
                   </div>
                 </div>
               </div>

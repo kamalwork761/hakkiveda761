@@ -173,7 +173,13 @@ export async function getDb() {
     // Ensure missing configs and partial records are safely merged with defaults in existing database
     let needsFlush = false;
     if (store.site_settings) {
-      store.site_settings = { ...INITIAL_SITE_SETTINGS, ...store.site_settings };
+      store.site_settings = {
+        ...INITIAL_SITE_SETTINGS,
+        ...store.site_settings,
+        internationalCountryShippingRates: {
+          ...(store.site_settings.internationalCountryShippingRates || {}),
+        },
+      };
     } else {
       store.site_settings = INITIAL_SITE_SETTINGS;
       needsFlush = true;

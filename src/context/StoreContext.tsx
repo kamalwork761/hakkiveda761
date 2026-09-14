@@ -75,6 +75,7 @@ import {
 } from '../data/initialData';
 import { idbGet, idbSet, idbClear } from '../utils/idbStorage';
 import { CountryItem, DEFAULT_COUNTRY } from '../data/countriesData';
+import { isProductAvailableForCountry, getProductPriceINRForCountry } from '../utils/productUtils';
 
 import { soundManager } from '../utils/soundManager';
 import { SoundType, SoundPackId } from '../config/soundConfig';
@@ -159,6 +160,9 @@ interface StoreContextType {
   formatPrice: (priceINR: number) => string;
   convertPrice: (priceINR: number) => number;
   updateCurrencyRate: (code: string, newRateToINR: number) => void;
+  getProductEffectivePriceINR: (product: Product, countryCodeOrName?: string) => number;
+  checkProductCountryAvailability: (product: Product, countryCodeOrName?: string) => { available: boolean; reason?: string };
+  formatProductPrice: (product: Product, countryCodeOrName?: string) => string;
 
   // Selected Country & Market
   selectedCountry: CountryItem;
@@ -1600,6 +1604,21 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     return `${currentCurrency.symbol}${converted.toLocaleString()}`;
   };
 
+  const getProductEffectivePriceINR = (product: Product, countryCodeOrName?: string): number => {
+    const target = countryCodeOrName || selectedCountry?.code || selectedCountry?.name;
+    return getProductPriceINRForCountry(product, target);
+  };
+
+  const checkProductCountryAvailability = (product: Product, countryCodeOrName?: string) => {
+    const target = countryCodeOrName || selectedCountry?.code || selectedCountry?.name;
+    return isProductAvailableForCountry(product, target);
+  };
+
+  const formatProductPrice = (product: Product, countryCodeOrName?: string) => {
+    const effectiveINR = getProductEffectivePriceINR(product, countryCodeOrName);
+    return formatPrice(effectiveINR);
+  };
+
   // Catalog State
   const hasUserMutatedHeroSlidesRef = useRef(false);
 
@@ -1822,7 +1841,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Cart Calculations
   const cartItemsCount = cart.reduce((sum, item) => sum + item.quantity, 0);
-  const cartSubtotalINR = cart.reduce((sum, item) => sum + item.product.priceINR * item.quantity, 0);
+  const cartSubtotalINR = cart.reduce((sum, item) => {
+    const itemPrice = getProductEffectivePriceINR(item.product);
+    return sum + itemPrice * item.quantity;
+  }, 0);
 
   const discountAmountINR = appliedCoupon
     ? appliedCoupon.discountType === 'PERCENT'
@@ -1834,8 +1856,17 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Cart Actions
   const addToCart = (product: Product, quantity = 1, variant?: ProductVariant) => {
+    // Check destination country availability
+    const countryCheck = checkProductCountryAvailability(product);
+    if (!countryCheck.available) {
+      soundManager.play('error_warning');
+      showCartToast(countryCheck.reason || `Unavailable for shipping to ${selectedCountry?.name || 'your country'}`, product.name);
+      return;
+    }
+
     soundManager.play('add_to_cart');
 
+    const effectivePrice = getProductEffectivePriceINR(product);
     const activeVariant = variant || product.selectedVariant;
     const finalProduct: Product = activeVariant
       ? {
@@ -1848,7 +1879,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           image: activeVariant.image || product.image,
           selectedVariant: activeVariant,
         }
-      : product;
+      : {
+          ...product,
+          priceINR: effectivePrice,
+        };
 
     const variantKey = activeVariant ? `${product.id}-${activeVariant.id}` : product.id;
 
@@ -3011,6 +3045,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         formatPrice,
         convertPrice,
         updateCurrencyRate,
+        getProductEffectivePriceINR,
+        checkProductCountryAvailability,
+        formatProductPrice,
         selectedCountry,
         selectCountry,
         currentMarket,

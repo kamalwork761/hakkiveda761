@@ -14,6 +14,7 @@ import {
   Package,
   Eye,
   AlertCircle,
+  AlertTriangle,
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { Product, ProductVariant } from '../types/store';
@@ -56,6 +57,9 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     openQuickView,
     playSound,
     setIsCartOpen,
+    selectedCountry,
+    getProductEffectivePriceINR,
+    checkProductCountryAvailability,
   } = useStore();
 
   const [quantity, setQuantity] = useState(1);
@@ -120,8 +124,18 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
     );
   }
 
+  // Country pricing & restriction check
+  const countryAvailability = checkProductCountryAvailability(product);
+  const isCountryRestricted = !countryAvailability.available;
+  const effectiveBasePriceINR = getProductEffectivePriceINR(product);
+
   // Active pricing, discount, and SKU derived from selected variant or base product
-  const activePriceINR = selectedVariant ? selectedVariant.priceINR : product.priceINR;
+  const activePriceINR = selectedVariant
+    ? selectedVariant.priceINR !== product.priceINR
+      ? Math.round((selectedVariant.priceINR / (product.priceINR || 1)) * effectiveBasePriceINR)
+      : effectiveBasePriceINR
+    : effectiveBasePriceINR;
+
   const activeOriginalPriceINR = selectedVariant?.originalPriceINR ?? product.originalPriceINR;
   const activeSku = selectedVariant?.sku || product.sku;
   const activeStock = selectedVariant ? selectedVariant.stock : (product.stock ?? 150);
@@ -169,7 +183,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   }, [product, products]);
 
   const handleAddToCart = () => {
-    if (isOutOfStock) return;
+    if (isOutOfStock || isCountryRestricted) return;
     playSound('add_to_cart');
     addToCart(product, quantity, selectedVariant || undefined);
     setIsAdded(true);
@@ -177,7 +191,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
   };
 
   const handleBuyNow = () => {
-    if (isOutOfStock) return;
+    if (isOutOfStock || isCountryRestricted) return;
     playSound('add_to_cart');
     addToCart(product, quantity, selectedVariant || undefined);
     setIsCartOpen(true);
@@ -397,7 +411,7 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                         MRP: {formatPrice(activeOriginalPriceINR)}
                       </span>
                     )}
-                    {discountPct > 0 && (
+                    {discountPct > 0 && !isCountryRestricted && (
                       <span className="bg-emerald-600 text-white text-xs font-bold px-2.5 py-0.5 rounded-full shadow-sm font-sans">
                         Save {discountPct}%
                       </span>
@@ -406,6 +420,14 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   <p className="text-[11px] text-[#5F6B63] dark:text-slate-400 font-sans">
                     Inclusive of all taxes. Free express shipping automatically applied.
                   </p>
+
+                  {/* Country Restriction Notice */}
+                  {isCountryRestricted && (
+                    <div className="mt-2 p-3 bg-rose-500/10 border border-rose-500/30 rounded-xl flex items-center gap-2.5 text-xs text-rose-700 dark:text-rose-400 font-sans font-semibold">
+                      <AlertTriangle className="w-4 h-4 shrink-0 text-rose-600" />
+                      <span>{countryAvailability.reason || `This herbal formulation cannot be shipped to ${selectedCountry?.name || 'your region'}.`}</span>
+                    </div>
+                  )}
                 </div>
 
                 {/* Short Description */}
@@ -457,11 +479,13 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                   {/* Add to Cart Button (Desktop only - mobile uses sticky bottom bar) */}
                   <button
                     type="button"
-                    disabled={isOutOfStock}
+                    disabled={isOutOfStock || isCountryRestricted}
                     onClick={handleAddToCart}
                     className={`hidden sm:flex flex-1 h-12 px-6 rounded-xl font-sans text-xs sm:text-sm font-bold uppercase tracking-wider transition-all items-center justify-center gap-2 shadow-lg active:scale-98 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed ${
                       isAdded
                         ? 'bg-emerald-700 hover:bg-emerald-800 text-white border border-emerald-500 shadow-emerald-900/30'
+                        : isCountryRestricted
+                        ? 'bg-slate-300 dark:bg-slate-800 text-slate-500 dark:text-slate-400'
                         : 'bg-[#123F2A] hover:bg-[#0B2F20] dark:bg-white dark:text-[#0B2F20] text-white'
                     }`}
                   >
@@ -474,7 +498,9 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                       <>
                         <ShoppingBag className="w-4 h-4 text-[var(--brand-gold)] dark:text-[#0B2F20]" />
                         <span>
-                          {isOutOfStock
+                          {isCountryRestricted
+                            ? 'Restricted In Your Country'
+                            : isOutOfStock
                             ? 'Sold Out'
                             : `Add to Bag • ${formatPrice(activePriceINR * quantity)}`}
                         </span>
@@ -513,13 +539,15 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
                 {/* Buy Now Immediate Checkout Button */}
                 <button
                   type="button"
-                  disabled={isOutOfStock}
+                  disabled={isOutOfStock || isCountryRestricted}
                   onClick={handleBuyNow}
                   className="w-full h-12 rounded-xl bg-[var(--brand-gold,#D4AF37)] hover:bg-amber-400 text-[#0B2F20] font-sans text-xs sm:text-sm font-bold uppercase tracking-widest transition-all flex items-center justify-center gap-2 shadow-xl active:scale-98 cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <Sparkles className="w-4 h-4" />
                   <span>
-                    {isOutOfStock
+                    {isCountryRestricted
+                      ? `Unavailable for Shipping to ${selectedCountry?.name || 'Your Country'}`
+                      : isOutOfStock
                       ? 'Out of Stock'
                       : 'Buy Now — Instant Express Checkout'}
                   </span>
@@ -756,6 +784,8 @@ export const ProductDetailPage: React.FC<ProductDetailPageProps> = ({
         onBuyNow={handleBuyNow}
         formatPrice={formatPrice}
         isAdded={isAdded}
+        isRestricted={isCountryRestricted}
+        restrictionReason={countryAvailability.reason}
       />
     </div>
   );

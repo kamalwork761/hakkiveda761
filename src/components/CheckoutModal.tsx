@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { X, ShieldCheck, CheckCircle2, Truck, ArrowRight, Building2, FileText, Globe } from 'lucide-react';
+import { X, ShieldCheck, CheckCircle2, Truck, ArrowRight, Building2, FileText, Globe, AlertTriangle } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { Order, PaymentGatewayId } from '../types/store';
 import { PaymentIcon } from './PaymentIcons';
 import { WORLD_COUNTRIES, getCountryDetails, formatE164, CountryItem } from '../data/countriesData';
+import { getAuthoritativeShippingQuote } from '../utils/shipping';
 
 export interface CountryDetails {
   code: string;
@@ -67,6 +68,9 @@ export const CheckoutModal: React.FC = () => {
     appliedCoupon,
     applyCoupon,
     removeCoupon,
+    getProductEffectivePriceINR,
+    checkProductCountryAvailability,
+    siteSettings,
   } = useStore();
 
   const [step, setStep] = useState<'address' | 'review' | 'payment' | 'processing' | 'confirmation'>('address');
@@ -124,6 +128,27 @@ export const CheckoutModal: React.FC = () => {
   const [stockWarnings, setStockWarnings] = useState<string[]>([]);
   const [checkoutCouponInput, setCheckoutCouponInput] = useState('');
   const [couponFeedback, setCouponFeedback] = useState<{ success: boolean; message: string } | null>(null);
+
+  const [backendQuote, setBackendQuote] = useState<{
+    loading: boolean;
+    hasQuote: boolean;
+    serviceable: boolean;
+    shippingFeeINR: number;
+    shippingSource: string;
+    shippingCourier: string | null;
+    estimatedDelivery?: string;
+    grandTotalINR?: number;
+    errorMessage?: string;
+  }>({
+    loading: false,
+    hasQuote: false,
+    serviceable: false,
+    shippingFeeINR: 0,
+    shippingSource: '',
+    shippingCourier: null,
+  });
+
+  const [quoteAlertMessage, setQuoteAlertMessage] = useState<string | null>(null);
 
   // Restore draft on initial load
   useEffect(() => {
@@ -251,8 +276,6 @@ export const CheckoutModal: React.FC = () => {
     };
   }, [isCheckoutOpen, selectedCountry?.name]);
 
-  if (!isCheckoutOpen) return null;
-
   const activeCountryInfo = getCountryDetails(country);
   const billingCountryInfo = getCountryDetails(billingCountry);
 
@@ -323,7 +346,7 @@ export const CheckoutModal: React.FC = () => {
         setPincodeStatus({ checked: false, serviceable: true, couriers: [], codAllowed: true, message: '' });
 
         fetch(`/api/shipping/address-lookup?country=IN&postalCode=${cleanPincode}`)
-          .then((res) => res.json())
+          .then((res) => (res.headers.get('content-type')?.includes('application/json') ? res.json() : { success: false }))
           .then((data) => {
             setIsCheckingPincode(false);
             if (data.success && data.city && data.state) {
@@ -334,7 +357,7 @@ export const CheckoutModal: React.FC = () => {
               setPincodeStatus({
                 checked: true,
                 serviceable: true,
-                couriers: ['Delhivery', 'Xpressbees', 'Bluedart'],
+                couriers: [],
                 codAllowed: true,
                 message: `${data.city}, ${data.state}`,
               });
@@ -401,7 +424,7 @@ export const CheckoutModal: React.FC = () => {
       if (triggerLookup) {
         setIsCheckingPincode(true);
         fetch(`/api/shipping/address-lookup?country=${encodeURIComponent(activeCountryInfo.code)}&postalCode=${encodeURIComponent(cleanVal)}`)
-          .then((res) => res.json())
+          .then((res) => (res.headers.get('content-type')?.includes('application/json') ? res.json() : { success: false }))
           .then((data) => {
             setIsCheckingPincode(false);
             if (data.success && data.city && data.state) {
@@ -468,18 +491,162 @@ export const CheckoutModal: React.FC = () => {
         },
       ];
 
-  // Dynamic Shipping & Grand Total Calculation
-  const isFreeShipping = isIndia ? cartTotalINR >= 999 : cartTotalINR >= 2500;
-  const shippingFeeINR = isFreeShipping ? 0 : isIndia ? 99 : 499;
-  const grandTotalINR = cartTotalINR + shippingFeeINR;
+  const hasEnoughDestinationInfo = isIndia
+    ? pincode.replace(/\D/g, '').length === 6
+    : (activeCountryInfo.code === 'AE' || pincode.trim().length >= 3);
 
+  // International Backend Authoritative Quote Fetcher
+  useEffect(() => {
+    if (!isCheckoutOpen) return;
+
+    if (isIndia) {
+      const domesticFee = cartTotalINR >= 999 ? 0 : 99;
+      setBackendQuote({
+        loading: false,
+        hasQuote: true,
+        serviceable: true,
+        shippingFeeINR: domesticFee,
+        shippingSource: domesticFee === 0 ? 'DOMESTIC_FREE' : 'DOMESTIC_STANDARD',
+        shippingCourier: 'Express Surface Courier',
+        estimatedDelivery: 'Estimated 3–5 Business Days',
+        grandTotalINR: cartTotalINR + domesticFee,
+      });
+      return;
+    }
+
+    if (!hasEnoughDestinationInfo) {
+      setBackendQuote({
+        loading: false,
+        hasQuote: false,
+        serviceable: false,
+        shippingFeeINR: 0,
+        shippingSource: 'UNSERVICEABLE',
+        shippingCourier: null,
+      });
+      return;
+    }
+
+    let isCurrent = true;
+    setBackendQuote((prev) => ({ ...prev, loading: true }));
+
+    const timer = setTimeout(async () => {
+      try {
+        const res = await fetch('/api/shipping/quote', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            items: cart.map((i) => ({ productId: i.product?.id || (i as any).productId, quantity: i.quantity })),
+            country: activeCountryInfo.name,
+            countryCode: activeCountryInfo.code,
+            deliveryPincode: pincode.trim(),
+            couponCode: appliedCoupon?.code,
+          }),
+        });
+
+        let data: any = null;
+
+        try {
+          const contentType = res.headers.get('content-type') || '';
+          if (contentType.includes('application/json')) {
+            data = await res.json();
+          }
+        } catch {
+          data = null;
+        }
+
+        if (!isCurrent) return;
+
+        if (data && data.serviceable === true) {
+          const fee = typeof data.shippingFeeINR === 'number' ? data.shippingFeeINR : (data.estimatedRateINR || 0);
+          setBackendQuote({
+            loading: false,
+            hasQuote: true,
+            serviceable: true,
+            shippingFeeINR: fee,
+            shippingSource: data.shippingSource || data.source || 'ADMIN_DEFAULT_RATE',
+            shippingCourier: data.shippingCourier || data.courierName || 'International Express Courier',
+            estimatedDelivery: data.estimatedDelivery || data.estimatedDays || 'Typically 5–8 Business Days*',
+            grandTotalINR: data.grandTotalINR ?? (cartTotalINR + fee),
+            errorMessage: undefined,
+          });
+          return;
+        }
+
+        // If backend returned unserviceable status, or any non-serviceable response payload (HTTP 400, HTTP 409, etc.):
+        // The visible checkout error MUST be exactly:
+        // "Shipping is currently unavailable to this destination. Please contact HAKKIVEDA support."
+        setBackendQuote({
+          loading: false,
+          hasQuote: true,
+          serviceable: false,
+          shippingFeeINR: 0,
+          shippingSource: 'UNSERVICEABLE',
+          shippingCourier: null,
+          estimatedDelivery: undefined,
+          errorMessage: 'Shipping is currently unavailable to this destination. Please contact HAKKIVEDA support.',
+        });
+      } catch (err: any) {
+        if (!isCurrent) return;
+        // True network/fetch failure only
+        setBackendQuote((prev) => ({
+          loading: false,
+          hasQuote: true,
+          serviceable: false,
+          shippingFeeINR: 0,
+          shippingSource: 'UNSERVICEABLE',
+          shippingCourier: null,
+          estimatedDelivery: undefined,
+          errorMessage:
+            prev.shippingSource === 'UNSERVICEABLE' &&
+            prev.errorMessage &&
+            prev.errorMessage === 'Shipping is currently unavailable to this destination. Please contact HAKKIVEDA support.'
+              ? prev.errorMessage
+              : 'Could not connect to shipping quote service.',
+        }));
+      }
+    }, 350);
+
+    return () => {
+      isCurrent = false;
+      clearTimeout(timer);
+    };
+  }, [
+    isCheckoutOpen,
+    isIndia,
+    activeCountryInfo.name,
+    activeCountryInfo.code,
+    pincode,
+    hasEnoughDestinationInfo,
+    cart,
+    cartTotalINR,
+    appliedCoupon?.code,
+  ]);
+
+  const isServiceable = isIndia ? true : (backendQuote.hasQuote && backendQuote.serviceable);
+  const isFreeShipping = isIndia
+    ? cartTotalINR >= 999
+    : (backendQuote.hasQuote && backendQuote.serviceable && backendQuote.shippingFeeINR === 0);
+  const shippingFeeINR = isIndia
+    ? (cartTotalINR >= 999 ? 0 : 99)
+    : (backendQuote.hasQuote && backendQuote.serviceable ? backendQuote.shippingFeeINR : 0);
+  const shippingSource = isIndia
+    ? (cartTotalINR >= 999 ? 'DOMESTIC_FREE' : 'DOMESTIC_STANDARD')
+    : (backendQuote.shippingSource || 'UNSERVICEABLE');
   const courierName = isIndia
-    ? pincodeStatus.couriers.length > 0
-      ? pincodeStatus.couriers.join(', ')
-      : 'Delhivery / Shiprocket / Bluedart'
-    : 'DHL Express / FedEx Worldwide';
+    ? 'Express Surface Courier'
+    : (backendQuote.shippingCourier || (isServiceable ? 'International Express Courier' : 'Shipping Unavailable'));
+  const estimatedDelivery = isIndia
+    ? 'Estimated 3–5 Business Days'
+    : (backendQuote.estimatedDelivery || (isServiceable ? 'Typically 5–8 Business Days*' : undefined));
+  const grandTotalINR = isIndia
+    ? (cartTotalINR + shippingFeeINR)
+    : (backendQuote.grandTotalINR !== undefined && backendQuote.serviceable ? backendQuote.grandTotalINR : (cartTotalINR + shippingFeeINR));
 
-  const estimatedDelivery = isIndia ? 'Estimated 3–5 Business Days' : 'Typically 5–8 Business Days*';
+  // Country-specific product restriction checks
+  const restrictedItems = cart.filter(
+    (item) => !checkProductCountryAvailability(item.product, activeCountryInfo.name).available
+  );
+  const hasRestrictedItems = restrictedItems.length > 0;
 
   // Live stock validator
   const validateCartStock = (): boolean => {
@@ -610,8 +777,51 @@ export const CheckoutModal: React.FC = () => {
       setPaymentMethod(availableGateways[0].id);
     }
 
+    if (hasRestrictedItems) {
+      setAddressFormError(
+        `The following items cannot be shipped to ${activeCountryInfo.name}: ${restrictedItems.map((i) => i.product.name).join(', ')}. Please remove them from your cart.`
+      );
+      return;
+    }
+
     validateCartStock();
     setStep('review');
+  };
+
+  const safeParseResponse = async (
+    res: Response,
+    fallbackErrorMessage = 'Unexpected response received from server.'
+  ): Promise<{ ok: boolean; data: any; error?: string }> => {
+    const contentType = res.headers.get('content-type') || '';
+    if (contentType.includes('application/json')) {
+      try {
+        const data = await res.json();
+        return { ok: res.ok, data, error: data?.error || data?.message };
+      } catch (err: any) {
+        console.warn('[JSON Parse Error]:', err?.message);
+      }
+    }
+    const rawText = await res.text().catch(() => '');
+    console.warn('[Non-JSON Response]:', res.status, rawText.slice(0, 150));
+    if (res.status === 502 || res.status === 503 || res.status === 504) {
+      return {
+        ok: false,
+        data: null,
+        error: 'The server is currently starting or busy. Please wait a few moments and try again.',
+      };
+    }
+    if (res.status === 404) {
+      return {
+        ok: false,
+        data: null,
+        error: 'Payment endpoint was not found on the server. Please refresh the page.',
+      };
+    }
+    return {
+      ok: false,
+      data: null,
+      error: fallbackErrorMessage,
+    };
   };
 
   const loadRazorpayScript = (): Promise<boolean> => {
@@ -636,6 +846,23 @@ export const CheckoutModal: React.FC = () => {
     if (cart.length === 0) {
       setAddressFormError('Your cart is empty. Please add items to proceed.');
       setStep('address');
+      return;
+    }
+
+    if (hasRestrictedItems) {
+      setAddressFormError(
+        `The following items cannot be shipped to ${activeCountryInfo.name}: ${restrictedItems.map((i) => i.product.name).join(', ')}. Please remove them from your cart.`
+      );
+      setStep('review');
+      return;
+    }
+
+    if (!isIndia && !isServiceable) {
+      setAddressFormError(
+        backendQuote.errorMessage ||
+        'Shipping is currently unavailable to this destination. Please contact HAKKIVEDA support.'
+      );
+      setStep('review');
       return;
     }
 
@@ -688,10 +915,14 @@ export const CheckoutModal: React.FC = () => {
             customer: customerPayload,
             couponCode: appliedCoupon?.code,
             currencyCode: 'INR',
+            expectedShippingFeeINR: shippingFeeINR,
+            expectedGrandTotalINR: grandTotalINR,
+            expectedShippingSource: shippingSource,
           }),
         });
 
-        const data = await res.json();
+        const parsed = await safeParseResponse(res, 'Failed to place Cash on Delivery order.');
+        const data = parsed.data || {};
 
         // Enforce smooth display timing (~1.2s minimum for processing text)
         const elapsed = Date.now() - startTime;
@@ -699,7 +930,28 @@ export const CheckoutModal: React.FC = () => {
           await new Promise((resolve) => setTimeout(resolve, 1200 - elapsed));
         }
 
-        if (data.success && data.order) {
+        if (res.status === 409 || data.code === 'QUOTE_CHANGED') {
+          setStep('review');
+          setProcessingPhase('idle');
+          setIsProcessingPayment(false);
+          if (data.shippingFeeINR !== undefined) {
+            setBackendQuote((prev) => ({
+              ...prev,
+              hasQuote: true,
+              serviceable: true,
+              shippingFeeINR: data.shippingFeeINR,
+              grandTotalINR: data.grandTotalINR,
+              shippingSource: data.shippingSource || prev.shippingSource,
+              shippingCourier: data.shippingCourier || prev.shippingCourier,
+            }));
+          }
+          setQuoteAlertMessage(
+            data.message || 'Shipping rates or order total have updated. Please review the updated total and continue.'
+          );
+          return;
+        }
+
+        if (parsed.ok && data.success && data.order) {
           addOrder(data.order);
           setCompletedOrder(data.order);
           clearCart();
@@ -718,7 +970,7 @@ export const CheckoutModal: React.FC = () => {
         } else {
           setStep('payment');
           setProcessingPhase('idle');
-          setAddressFormError(data.error || 'Failed to place Cash on Delivery order.');
+          setAddressFormError(data.error || parsed.error || 'Failed to place Cash on Delivery order.');
         }
       } catch (err: any) {
         console.error('[COD Checkout Error]:', err);
@@ -749,12 +1001,38 @@ export const CheckoutModal: React.FC = () => {
           customer: customerPayload,
           couponCode: appliedCoupon?.code,
           currencyCode: currentCurrency.code,
+          expectedShippingFeeINR: shippingFeeINR,
+          expectedGrandTotalINR: grandTotalINR,
+          expectedShippingSource: shippingSource,
         }),
       });
 
-      const orderData = await createRes.json();
-      if (!orderData.success) {
-        setAddressFormError(orderData.error || 'Failed to initiate Razorpay order.');
+      const parsedOrder = await safeParseResponse(createRes, 'Failed to initiate Razorpay order.');
+      const orderData = parsedOrder.data || {};
+
+      if (createRes.status === 409 || orderData.code === 'QUOTE_CHANGED') {
+        setStep('review');
+        setProcessingPhase('idle');
+        setIsProcessingPayment(false);
+        if (orderData.shippingFeeINR !== undefined) {
+          setBackendQuote((prev) => ({
+            ...prev,
+            hasQuote: true,
+            serviceable: true,
+            shippingFeeINR: orderData.shippingFeeINR,
+            grandTotalINR: orderData.grandTotalINR,
+            shippingSource: orderData.shippingSource || prev.shippingSource,
+            shippingCourier: orderData.shippingCourier || prev.shippingCourier,
+          }));
+        }
+        setQuoteAlertMessage(
+          orderData.message || 'Shipping rates or order total have updated. Please review the updated total and continue.'
+        );
+        return;
+      }
+
+      if (!parsedOrder.ok || !orderData.success) {
+        setAddressFormError(orderData.error || parsedOrder.error || 'Failed to initiate Razorpay order.');
         setIsProcessingPayment(false);
         return;
       }
@@ -795,7 +1073,8 @@ export const CheckoutModal: React.FC = () => {
               }),
             });
 
-            const verifyData = await verifyRes.json();
+            const parsedVerify = await safeParseResponse(verifyRes, 'Payment verification failed on server.');
+            const verifyData = parsedVerify.data || {};
 
             // Enforce smooth display timing (~1.2s minimum for verification text)
             const elapsed = Date.now() - verifyStartTime;
@@ -803,7 +1082,7 @@ export const CheckoutModal: React.FC = () => {
               await new Promise((resolve) => setTimeout(resolve, 1200 - elapsed));
             }
 
-            if (verifyData.success && verifyData.order) {
+            if (parsedVerify.ok && verifyData.success && verifyData.order) {
               addOrder(verifyData.order);
               setCompletedOrder(verifyData.order);
               clearCart();
@@ -822,7 +1101,7 @@ export const CheckoutModal: React.FC = () => {
             } else {
               setStep('payment');
               setProcessingPhase('idle');
-              setAddressFormError(verifyData.error || 'Payment verification failed on server.');
+              setAddressFormError(verifyData.error || parsedVerify.error || 'Payment verification failed on server.');
             }
           } catch (vErr) {
             console.error('[Razorpay Verify Error]:', vErr);
@@ -851,10 +1130,15 @@ export const CheckoutModal: React.FC = () => {
       rzpInstance.open();
     } catch (err: any) {
       console.error('[Razorpay Flow Error]:', err);
-      alert('An error occurred initializing payment: ' + (err.message || 'Unknown error'));
+      const friendlyMessage = err?.message?.includes('Unexpected token')
+        ? 'The payment service encountered a connection issue. Please try again or select Cash on Delivery.'
+        : (err?.message || 'Payment initialization failed. Please try again.');
+      setAddressFormError(friendlyMessage);
       setIsProcessingPayment(false);
     }
   };
+
+  if (!isCheckoutOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md overflow-hidden">
@@ -1573,23 +1857,37 @@ export const CheckoutModal: React.FC = () => {
                   Order Summary ({cart.reduce((sum, item) => sum + item.quantity, 0)} Items)
                 </span>
                 <div className="max-h-36 overflow-y-auto space-y-2 pr-1">
-                  {cart.map((item) => (
-                    <div key={item.product.id} className="flex items-center gap-3 bg-[var(--surface-background)] p-2 rounded-lg border border-[var(--border-muted)]">
-                      <img
-                        src={item.product.image}
-                        alt={item.product.name}
-                        loading="lazy"
-                        className="w-10 h-10 object-contain rounded bg-white p-0.5 border border-slate-200 shrink-0"
-                      />
-                      <div className="flex-1 min-w-0">
-                        <h4 className="text-xs font-bold text-[var(--text-primary)] truncate">{item.product.name}</h4>
-                        <p className="text-[10px] text-[var(--text-secondary)]">Qty: {item.quantity} × {formatPrice(item.product.priceINR)}</p>
+                  {cart.map((item) => {
+                    const effPrice = getProductEffectivePriceINR(item.product, activeCountryInfo.name);
+                    const avail = checkProductCountryAvailability(item.product, activeCountryInfo.name);
+                    return (
+                      <div
+                        key={item.product.id}
+                        className={`flex items-center gap-3 p-2 rounded-lg border ${
+                          !avail.available
+                            ? 'bg-rose-950/20 border-rose-500/50'
+                            : 'bg-[var(--surface-background)] border-[var(--border-muted)]'
+                        }`}
+                      >
+                        <img
+                          src={item.product.image}
+                          alt={item.product.name}
+                          loading="lazy"
+                          className="w-10 h-10 object-contain rounded bg-white p-0.5 border border-slate-200 shrink-0"
+                        />
+                        <div className="flex-1 min-w-0">
+                          <h4 className="text-xs font-bold text-[var(--text-primary)] truncate">{item.product.name}</h4>
+                          <p className="text-[10px] text-[var(--text-secondary)]">Qty: {item.quantity} × {formatPrice(effPrice)}</p>
+                          {!avail.available && (
+                            <span className="text-[9px] font-bold text-rose-500 block">Restricted for {activeCountryInfo.name}</span>
+                          )}
+                        </div>
+                        <span className="text-xs font-bold text-[var(--heading-primary)] shrink-0">
+                          {formatPrice(effPrice * item.quantity)}
+                        </span>
                       </div>
-                      <span className="text-xs font-bold text-[var(--heading-primary)] shrink-0">
-                        {formatPrice(item.product.priceINR * item.quantity)}
-                      </span>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             )}
@@ -1761,30 +2059,78 @@ export const CheckoutModal: React.FC = () => {
                 Products ({cart.reduce((sum, item) => sum + item.quantity, 0)} Items)
               </span>
               <div className="space-y-2 max-h-56 overflow-y-auto pr-1">
-                {cart.map((item) => (
-                  <div
-                    key={item.product.id}
-                    className="flex items-center gap-3 p-3 bg-[var(--surface-background)] border border-[var(--border-muted)] rounded-xl"
-                  >
-                    <img
-                      src={item.product.image}
-                      alt={item.product.name}
-                      loading="lazy"
-                      className="w-12 h-12 object-contain rounded bg-white p-1 border border-slate-200 shrink-0"
-                    />
-                    <div className="flex-1 min-w-0">
-                      <h4 className="text-xs font-bold text-[var(--text-primary)] truncate">{item.product.name}</h4>
-                      <p className="text-[11px] text-[var(--text-secondary)]">
-                        {item.product.volume || '100ml'} • Qty: {item.quantity} × {formatPrice(item.product.priceINR)}
-                      </p>
+                {cart.map((item) => {
+                  const effectivePrice = getProductEffectivePriceINR(item.product, activeCountryInfo.name);
+                  const availability = checkProductCountryAvailability(item.product, activeCountryInfo.name);
+                  const isItemRestricted = !availability.available;
+
+                  return (
+                    <div
+                      key={item.product.id}
+                      className={`flex items-center gap-3 p-3 border rounded-xl ${
+                        isItemRestricted
+                          ? 'bg-rose-950/20 border-rose-500/50'
+                          : 'bg-[var(--surface-background)] border-[var(--border-muted)]'
+                      }`}
+                    >
+                      <img
+                        src={item.product.image}
+                        alt={item.product.name}
+                        loading="lazy"
+                        className="w-12 h-12 object-contain rounded bg-white p-1 border border-slate-200 shrink-0"
+                      />
+                      <div className="flex-1 min-w-0">
+                        <h4 className="text-xs font-bold text-[var(--text-primary)] truncate">{item.product.name}</h4>
+                        <p className="text-[11px] text-[var(--text-secondary)]">
+                          {item.product.volume || '100ml'} • Qty: {item.quantity} × {formatPrice(effectivePrice)}
+                        </p>
+                        {isItemRestricted && (
+                          <span className="text-[10px] font-bold text-rose-500 block mt-0.5">
+                            ⚠️ {availability.reason || `Restricted in ${activeCountryInfo.name}`}
+                          </span>
+                        )}
+                      </div>
+                      <span className="text-xs font-bold text-[var(--heading-primary)] shrink-0 font-mono">
+                        {formatPrice(effectivePrice * item.quantity)}
+                      </span>
                     </div>
-                    <span className="text-xs font-bold text-[var(--heading-primary)] shrink-0 font-mono">
-                      {formatPrice(item.product.priceINR * item.quantity)}
-                    </span>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
+
+            {hasRestrictedItems && (
+              <div className="p-4 bg-rose-50 dark:bg-rose-950/70 border border-rose-300 dark:border-rose-500/60 rounded-xl text-xs text-rose-800 dark:text-rose-200 space-y-1">
+                <span className="font-bold flex items-center gap-1.5 text-rose-700 dark:text-rose-300">
+                  ⚠️ Shipping Restrictions Detected
+                </span>
+                <p>
+                  Some items in your cart cannot be delivered to <strong>{activeCountryInfo.name}</strong> due to regional import or store regulations. Please remove restricted items to proceed with payment.
+                </p>
+              </div>
+            )}
+
+            {/* Stale Quote Alert Message */}
+            {quoteAlertMessage && (
+              <div className="p-3.5 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700/60 rounded-xl flex items-start gap-2.5 text-xs text-amber-900 dark:text-amber-200 animate-in fade-in duration-200">
+                <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="font-semibold">{quoteAlertMessage}</p>
+                  <p className="text-[11px] text-amber-700 dark:text-amber-300 mt-0.5">Please review your updated order total before proceeding.</p>
+                </div>
+                <button type="button" onClick={() => setQuoteAlertMessage(null)} className="text-amber-700 hover:text-amber-900 text-xs font-bold">✕</button>
+              </div>
+            )}
+
+            {/* Unserviceable Destination Warning */}
+            {!isIndia && !isServiceable && backendQuote.hasQuote && (
+              <div className="p-3.5 bg-rose-50 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-700/60 rounded-xl flex items-start gap-2.5 text-xs text-rose-900 dark:text-rose-200 animate-in fade-in duration-200">
+                <AlertTriangle className="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1 font-semibold">
+                  {backendQuote.errorMessage || 'Shipping is currently unavailable to this destination. Please contact HAKKIVEDA support.'}
+                </div>
+              </div>
+            )}
 
             {/* Shipping & Tax Calculation Summary */}
             <div className="p-4 rounded-xl bg-[var(--surface-muted)] border border-[var(--border-default)] space-y-2 text-xs">
@@ -1801,7 +2147,19 @@ export const CheckoutModal: React.FC = () => {
               <div className="flex justify-between text-[var(--text-secondary)]">
                 <span>Shipping Charges:</span>
                 <span className="font-bold text-emerald-600 dark:text-emerald-400 font-mono">
-                  {isFreeShipping ? 'FREE Express Shipping' : formatPrice(shippingFeeINR)}
+                  {isIndia
+                    ? isFreeShipping
+                      ? 'FREE Express Shipping'
+                      : formatPrice(shippingFeeINR)
+                    : !hasEnoughDestinationInfo
+                    ? 'Shipping calculated at checkout'
+                    : backendQuote.loading
+                    ? 'Calculating shipping...'
+                    : !isServiceable
+                    ? 'Unavailable'
+                    : isFreeShipping
+                    ? 'FREE Express Shipping'
+                    : formatPrice(shippingFeeINR)}
                 </span>
               </div>
               <div className="flex justify-between text-[var(--text-secondary)]">
@@ -1829,10 +2187,25 @@ export const CheckoutModal: React.FC = () => {
               </button>
               <button
                 type="button"
+                disabled={hasRestrictedItems || (!isIndia && (!isServiceable || backendQuote.loading || !hasEnoughDestinationInfo))}
                 onClick={() => setStep('payment')}
-                className="flex-1 bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:opacity-95 transition-all shadow-xl flex items-center justify-center gap-2"
+                className={`flex-1 py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all shadow-xl flex items-center justify-center gap-2 ${
+                  hasRestrictedItems || (!isIndia && (!isServiceable || backendQuote.loading || !hasEnoughDestinationInfo))
+                    ? 'bg-[var(--button-disabled-bg)] text-[var(--button-disabled-text)] cursor-not-allowed opacity-60'
+                    : 'bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:opacity-95'
+                }`}
               >
-                <span>Proceed to Payment Methods</span>
+                <span>
+                  {hasRestrictedItems
+                    ? 'Remove Restricted Items'
+                    : !isIndia && !hasEnoughDestinationInfo
+                    ? 'Enter Postal Details to Calculate Shipping'
+                    : !isIndia && backendQuote.loading
+                    ? 'Calculating Shipping...'
+                    : !isIndia && !isServiceable
+                    ? 'Shipping Unavailable'
+                    : 'Proceed to Payment Methods'}
+                </span>
                 <ArrowRight className="w-4 h-4" />
               </button>
             </div>
@@ -2072,6 +2445,28 @@ export const CheckoutModal: React.FC = () => {
               .
             </p>
 
+            {/* Stale Quote Alert Message */}
+            {quoteAlertMessage && (
+              <div className="p-3.5 bg-amber-50 dark:bg-amber-950/60 border border-amber-300 dark:border-amber-700/60 rounded-xl flex items-start gap-2.5 text-xs text-amber-900 dark:text-amber-200 animate-in fade-in duration-200">
+                <AlertTriangle className="w-4 h-4 text-amber-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1">
+                  <p className="font-semibold">{quoteAlertMessage}</p>
+                  <p className="text-[11px] text-amber-700 dark:text-amber-300 mt-0.5">Please review your updated order total before proceeding.</p>
+                </div>
+                <button type="button" onClick={() => setQuoteAlertMessage(null)} className="text-amber-700 hover:text-amber-900 text-xs font-bold">✕</button>
+              </div>
+            )}
+
+            {/* Unserviceable Destination Warning */}
+            {!isIndia && !isServiceable && backendQuote.hasQuote && (
+              <div className="p-3.5 bg-rose-50 dark:bg-rose-950/60 border border-rose-300 dark:border-rose-700/60 rounded-xl flex items-start gap-2.5 text-xs text-rose-900 dark:text-rose-200 animate-in fade-in duration-200">
+                <AlertTriangle className="w-4 h-4 text-rose-600 flex-shrink-0 mt-0.5" />
+                <div className="flex-1 font-semibold">
+                  {backendQuote.errorMessage || 'Shipping is currently unavailable to this destination. Please contact HAKKIVEDA support.'}
+                </div>
+              </div>
+            )}
+
             <div className="flex gap-3">
               <button
                 onClick={() => setStep('review')}
@@ -2081,8 +2476,12 @@ export const CheckoutModal: React.FC = () => {
               </button>
               <button
                 onClick={handlePlaceOrder}
-                disabled={isProcessingPayment}
-                className="flex-1 bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-[var(--button-primary-hover)] transition-all shadow-xl flex items-center justify-center gap-2"
+                disabled={isProcessingPayment || (!isIndia && (!isServiceable || backendQuote.loading || !hasEnoughDestinationInfo))}
+                className={`flex-1 py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all shadow-xl flex items-center justify-center gap-2 ${
+                  isProcessingPayment || (!isIndia && (!isServiceable || backendQuote.loading || !hasEnoughDestinationInfo))
+                    ? 'bg-[var(--button-disabled-bg)] text-[var(--button-disabled-text)] cursor-not-allowed opacity-60'
+                    : 'bg-[var(--button-primary-bg)] text-[var(--button-primary-text)] hover:bg-[var(--button-primary-hover)]'
+                }`}
               >
                 {isProcessingPayment ? (
                   <span>Processing Secure Payment...</span>
@@ -2092,6 +2491,10 @@ export const CheckoutModal: React.FC = () => {
                       ? paymentMethod === 'COD'
                         ? 'PLACE CASH ON DELIVERY ORDER'
                         : `PAY ₹${grandTotalINR.toLocaleString('en-IN')} SECURELY`
+                      : !isServiceable
+                      ? 'SHIPPING UNAVAILABLE'
+                      : backendQuote.loading
+                      ? 'CALCULATING SHIPPING...'
                       : `PAY ${currentCurrency.code} ${
                           currentCurrency.code === 'INR'
                             ? grandTotalINR.toLocaleString('en-IN')

@@ -86,6 +86,16 @@ export interface Product {
   seoMetaDescription?: string;
   canonicalUrl?: string;
   ogImage?: string;
+
+  // International Product & Pricing Rules
+  internationalEnabled?: boolean;
+  internationalPricingMode?: 'SAME_AS_INDIA' | 'FIXED_INR' | 'MARKUP_PERCENT';
+  internationalPriceINR?: number;
+  internationalMarkupPercent?: number;
+  internationalAllowedCountries?: string[];
+  internationalBlockedCountries?: string[];
+  internationalTitle?: string;
+  internationalDescription?: string;
 }
 
 export interface Category {
@@ -796,6 +806,13 @@ export interface SiteSettings {
   codEnabled: boolean;
   razorpayKeyId: string;
   expressCourierPartner: string;
+
+  // Phase 10D: Admin-Controlled International Shipping
+  internationalShippingEnabled?: boolean;
+  internationalDefaultShippingRateINR?: number;
+  internationalCountryShippingRates?: Record<string, number>;
+  internationalFreeShippingEnabled?: boolean;
+  internationalFreeShippingThresholdINR?: number | null;
 
   // Quiz Settings
   quizHeadline: string;

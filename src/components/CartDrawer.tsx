@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { X, Trash2, ShoppingBag, ArrowRight, Sparkles, Tag, Shield } from 'lucide-react';
+import { X, Trash2, ShoppingBag, ArrowRight, Sparkles, Tag, Shield, AlertTriangle } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { getAuthoritativeShippingQuote } from '../utils/shipping';
 
 export const CartDrawer: React.FC = () => {
   const {
@@ -17,6 +18,10 @@ export const CartDrawer: React.FC = () => {
     removeCoupon,
     discountAmountINR,
     setIsCheckoutOpen,
+    selectedCountry,
+    getProductEffectivePriceINR,
+    checkProductCountryAvailability,
+    siteSettings,
   } = useStore();
 
   const [couponInput, setCouponInput] = useState('');
@@ -32,8 +37,31 @@ export const CartDrawer: React.FC = () => {
     if (res.success) setCouponInput('');
   };
 
-  const freeShippingThresholdINR = 1500;
-  const progressPercent = Math.min(100, Math.round((cartSubtotalINR / freeShippingThresholdINR) * 100));
+  const isIndia = !selectedCountry?.code || selectedCountry.code === 'IN' || selectedCountry.name?.toLowerCase() === 'india';
+
+  const shippingQuote = getAuthoritativeShippingQuote(
+    cartSubtotalINR,
+    selectedCountry?.code || selectedCountry?.name,
+    null,
+    undefined,
+    siteSettings
+  );
+
+  const showFreeShippingBar = isIndia || Boolean(
+    siteSettings?.internationalFreeShippingEnabled &&
+    typeof siteSettings?.internationalFreeShippingThresholdINR === 'number' &&
+    siteSettings.internationalFreeShippingThresholdINR > 0
+  );
+
+  const progressPercent = (showFreeShippingBar && shippingQuote.thresholdINR && shippingQuote.thresholdINR < Infinity)
+    ? Math.min(100, Math.round((cartSubtotalINR / shippingQuote.thresholdINR) * 100))
+    : 0;
+
+  // Check if any cart item is restricted for the selected country
+  const restrictedItems = cart.filter(
+    (item) => !checkProductCountryAvailability(item.product, selectedCountry?.code || selectedCountry?.name).available
+  );
+  const hasRestrictedItems = restrictedItems.length > 0;
 
   return (
     <div className="fixed inset-0 z-50 overflow-hidden">
@@ -60,27 +88,39 @@ export const CartDrawer: React.FC = () => {
           </div>
 
           {/* Free Shipping Progress */}
-          <div className="bg-black/30 px-6 py-3 border-b border-white/10 space-y-1.5">
-            <div className="flex justify-between text-xs font-semibold">
-              <span className="text-[var(--brand-gold)] flex items-center gap-1">
-                <Sparkles className="w-3.5 h-3.5" />
-                <span>
-                  {cartSubtotalINR >= freeShippingThresholdINR
-                    ? '🎉 You unlocked Free Express Worldwide Shipping!'
-                    : `Add ${formatPrice(freeShippingThresholdINR - cartSubtotalINR)} for Free Shipping`}
+          {showFreeShippingBar && shippingQuote.thresholdINR && shippingQuote.thresholdINR < Infinity && (
+            <div className="bg-black/30 px-6 py-3 border-b border-white/10 space-y-1.5">
+              <div className="flex justify-between text-xs font-semibold">
+                <span className="text-[var(--brand-gold)] flex items-center gap-1">
+                  <Sparkles className="w-3.5 h-3.5" />
+                  <span>
+                    {shippingQuote.isFree
+                      ? (isIndia ? '🎉 You unlocked Free Express Shipping!' : '🎉 You unlocked Free Express Worldwide Shipping!')
+                      : `Add ${formatPrice(shippingQuote.amountNeededForFreeINR)} for Free Shipping`}
+                  </span>
                 </span>
-              </span>
+              </div>
+              <div className="w-full bg-black/50 h-1.5 rounded-full overflow-hidden">
+                <div
+                  className="bg-[var(--brand-gold)] h-full transition-all duration-500"
+                  style={{ width: `${progressPercent}%` }}
+                ></div>
+              </div>
             </div>
-            <div className="w-full bg-black/50 h-1.5 rounded-full overflow-hidden">
-              <div
-                className="bg-[var(--brand-gold)] h-full transition-all duration-500"
-                style={{ width: `${progressPercent}%` }}
-              ></div>
-            </div>
-          </div>
+          )}
 
           {/* Cart Items List */}
           <div className="flex-1 p-6 overflow-y-auto space-y-4">
+            {hasRestrictedItems && (
+              <div className="p-3 bg-rose-950/80 border border-rose-500/50 rounded-xl text-xs text-rose-200 flex items-start gap-2.5">
+                <AlertTriangle className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+                <div>
+                  <strong className="block font-bold text-rose-300">Shipping Notice:</strong>
+                  <span>Some items in your cart cannot be shipped to {selectedCountry?.name || 'your region'}. Please remove them before checkout.</span>
+                </div>
+              </div>
+            )}
+
             {cart.length === 0 ? (
               <div className="text-center py-16 space-y-4">
                 <ShoppingBag className="w-16 h-16 text-slate-600 mx-auto" />
@@ -95,10 +135,16 @@ export const CartDrawer: React.FC = () => {
             ) : (
               cart.map((item) => {
                 const itemKey = item.selectedVariant ? `${item.product.id}-${item.selectedVariant.id}` : item.product.id;
+                const availability = checkProductCountryAvailability(item.product, selectedCountry?.code || selectedCountry?.name);
+                const isItemRestricted = !availability.available;
+                const effectiveItemPrice = getProductEffectivePriceINR(item.product, selectedCountry?.code || selectedCountry?.name);
+
                 return (
                   <div
                     key={itemKey}
-                    className="flex gap-4 p-3 bg-[var(--brand-primary-dark)] border border-white/10 rounded-xl hover:border-[var(--brand-gold)]/40 transition-colors"
+                    className={`flex gap-4 p-3 bg-[var(--brand-primary-dark)] border rounded-xl transition-colors ${
+                      isItemRestricted ? 'border-rose-500/60 bg-rose-950/20' : 'border-white/10 hover:border-[var(--brand-gold)]/40'
+                    }`}
                   >
                     <img
                       src={item.product.image}
@@ -121,6 +167,12 @@ export const CartDrawer: React.FC = () => {
                               </span>
                             )}
                           </div>
+                          {isItemRestricted && (
+                            <div className="mt-1 px-2 py-0.5 rounded bg-rose-950/90 border border-rose-500/50 text-[10px] text-rose-300 font-semibold flex items-center gap-1">
+                              <AlertTriangle className="w-3 h-3 text-rose-400 shrink-0" />
+                              <span>{availability.reason || `Unavailable in ${selectedCountry?.name || 'your region'}`}</span>
+                            </div>
+                          )}
                         </div>
                         <button
                           onClick={() => removeFromCart(itemKey)}
@@ -149,7 +201,7 @@ export const CartDrawer: React.FC = () => {
                         </div>
 
                         <span className="text-xs font-bold text-[var(--brand-gold)]">
-                          {formatPrice(item.product.priceINR * item.quantity)}
+                          {formatPrice(effectiveItemPrice * item.quantity)}
                         </span>
                       </div>
                     </div>
@@ -217,26 +269,54 @@ export const CartDrawer: React.FC = () => {
                     <span>-{formatPrice(discountAmountINR)}</span>
                   </div>
                 )}
-                <div className="flex justify-between text-slate-300">
-                  <span>Shipping</span>
-                  <span>{cartSubtotalINR >= freeShippingThresholdINR ? 'FREE' : formatPrice(150)}</span>
-                </div>
-                <div className="flex justify-between text-base font-bold text-[var(--brand-gold)] border-t border-white/10 pt-2">
-                  <span>Total</span>
-                  <span>{formatPrice(cartTotalINR + (cartSubtotalINR >= freeShippingThresholdINR ? 0 : 150))}</span>
-                </div>
+                {isIndia ? (
+                  <>
+                    <div className="flex justify-between text-slate-300">
+                      <span>Shipping (India)</span>
+                      <span>{cartSubtotalINR >= 999 ? 'FREE' : formatPrice(99)}</span>
+                    </div>
+                    <div className="flex justify-between text-base font-bold text-[var(--brand-gold)] border-t border-white/10 pt-2">
+                      <span>Total</span>
+                      <span>{formatPrice(cartTotalINR + (cartSubtotalINR >= 999 ? 0 : 99))}</span>
+                    </div>
+                  </>
+                ) : (
+                  <>
+                    <div className="flex justify-between text-slate-300">
+                      <span>Shipping ({selectedCountry?.name || 'International'})</span>
+                      <span className="text-slate-400 italic">Shipping calculated at checkout</span>
+                    </div>
+                    <div className="flex justify-between text-base font-bold text-[var(--brand-gold)] border-t border-white/10 pt-2">
+                      <div className="flex flex-col">
+                        <span>Total</span>
+                        <span className="text-[10px] font-normal text-slate-400">Excl. shipping</span>
+                      </div>
+                      <span>{formatPrice(cartTotalINR)}</span>
+                    </div>
+                  </>
+                )}
               </div>
 
-              <button
-                onClick={() => {
-                  setIsCartOpen(false);
-                  setIsCheckoutOpen(true);
-                }}
-                className="w-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-white transition-all shadow-xl flex items-center justify-center gap-2"
-              >
-                <span>Proceed To Secure Checkout</span>
-                <ArrowRight className="w-4 h-4" />
-              </button>
+              {hasRestrictedItems ? (
+                <button
+                  disabled
+                  className="w-full bg-rose-900/60 border border-rose-500/50 text-rose-200 py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider cursor-not-allowed flex items-center justify-center gap-2"
+                >
+                  <AlertTriangle className="w-4 h-4 text-rose-400" />
+                  <span>Remove Restricted Items to Checkout</span>
+                </button>
+              ) : (
+                <button
+                  onClick={() => {
+                    setIsCartOpen(false);
+                    setIsCheckoutOpen(true);
+                  }}
+                  className="w-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-white transition-all shadow-xl flex items-center justify-center gap-2"
+                >
+                  <span>Proceed To Secure Checkout</span>
+                  <ArrowRight className="w-4 h-4" />
+                </button>
+              )}
             </div>
           )}
         </div>

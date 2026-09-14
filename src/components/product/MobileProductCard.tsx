@@ -14,13 +14,25 @@ export const MobileProductCard: React.FC<MobileProductCardProps> = ({
   onNavigateProduct,
   isDragging,
 }) => {
-  const { isInWishlist, toggleWishlist, formatPrice, playSound } = useStore();
+  const {
+    isInWishlist,
+    toggleWishlist,
+    formatPrice,
+    playSound,
+    getProductEffectivePriceINR,
+    checkProductCountryAvailability,
+    selectedCountry,
+  } = useStore();
   const inWishlist = isInWishlist(product.id);
 
+  const effectivePriceINR = getProductEffectivePriceINR(product);
+  const availability = checkProductCountryAvailability(product);
+  const isRestricted = !availability.available;
+
   const discount =
-    product.originalPriceINR && product.originalPriceINR > product.priceINR
+    product.originalPriceINR && product.originalPriceINR > effectivePriceINR
       ? Math.round(
-          ((product.originalPriceINR - product.priceINR) / product.originalPriceINR) * 100
+          ((product.originalPriceINR - effectivePriceINR) / product.originalPriceINR) * 100
         )
       : 0;
 
@@ -53,7 +65,11 @@ export const MobileProductCard: React.FC<MobileProductCardProps> = ({
           onNavigateProduct(product);
         }
       }}
-      className="w-[155px] sm:w-[180px] shrink-0 bg-white dark:bg-[#123F2B] rounded-xl border border-[#E7E1D5] dark:border-white/10 overflow-hidden shadow-xs hover:shadow-md transition-all duration-200 flex flex-col cursor-pointer select-none group text-left"
+      className={`w-[155px] sm:w-[180px] shrink-0 bg-white dark:bg-[#123F2B] rounded-xl border overflow-hidden shadow-xs hover:shadow-md transition-all duration-200 flex flex-col cursor-pointer select-none group text-left ${
+        isRestricted
+          ? 'border-rose-300 dark:border-rose-900/60 opacity-90'
+          : 'border-[#E7E1D5] dark:border-white/10'
+      }`}
     >
       {/* Product Image Container */}
       <div className="relative aspect-square w-full bg-[#FAF8F2] dark:bg-black/20 p-2 overflow-hidden flex items-center justify-center">
@@ -72,14 +88,20 @@ export const MobileProductCard: React.FC<MobileProductCardProps> = ({
           />
         </picture>
 
-        {/* Discount Badge */}
-        {discount > 0 && (
+        {/* Restriction or Discount Badge */}
+        {isRestricted ? (
+          <div className="absolute top-2 left-2 z-10">
+            <span className="bg-rose-600 text-white text-[8px] sm:text-[9px] font-bold px-1.5 py-0.5 rounded-md shadow-xs">
+              RESTRICTED
+            </span>
+          </div>
+        ) : discount > 0 ? (
           <div className="absolute top-2 left-2 z-10">
             <span className="bg-emerald-600 text-white text-[9px] font-bold px-1.5 py-0.5 rounded-md shadow-xs">
               {discount}% OFF
             </span>
           </div>
-        )}
+        ) : null}
 
         {/* Wishlist Button */}
         <button
@@ -129,9 +151,9 @@ export const MobileProductCard: React.FC<MobileProductCardProps> = ({
         <div className="pt-1.5 border-t border-[#E7E1D5]/60 dark:border-white/10 flex items-baseline justify-between gap-1">
           <div className="flex items-baseline gap-1">
             <span className="text-xs sm:text-sm font-extrabold text-[#123F2A] dark:text-[var(--brand-gold)]">
-              {formatPrice(product.priceINR)}
+              {formatPrice(effectivePriceINR)}
             </span>
-            {product.originalPriceINR && product.originalPriceINR > product.priceINR && (
+            {product.originalPriceINR && product.originalPriceINR > effectivePriceINR && (
               <span className="text-[10px] text-slate-400 line-through">
                 {formatPrice(product.originalPriceINR)}
               </span>

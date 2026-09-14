@@ -1050,6 +1050,13 @@ export const INITIAL_SITE_SETTINGS: SiteSettings = {
   razorpayKeyId: 'rzp_live_hakkiveda_key',
   expressCourierPartner: 'DHL / BlueDart Express',
 
+  // Phase 10D: Admin-Controlled International Shipping Defaults
+  internationalShippingEnabled: true,
+  internationalDefaultShippingRateINR: undefined,
+  internationalCountryShippingRates: {},
+  internationalFreeShippingEnabled: false,
+  internationalFreeShippingThresholdINR: null,
+
   quizHeadline: 'AI Ayurvedic Scalp & Hair Density Assessment',
   quizSubtitle: 'Unlock your personalized 42-herb formulation in 60 seconds.',
 };

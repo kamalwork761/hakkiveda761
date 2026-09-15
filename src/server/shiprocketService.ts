@@ -287,7 +287,19 @@ export async function estimateShippingRate(params: {
         }
 
         const endpoint = `/courier/international/serviceability?pickup_postcode=${pickupPincode}&delivery_country=${countryParam}${postalQuery}&weight=${weight}&cod=0${dimQuery}`;
-        const data = await shiprocketFetch(endpoint, { method: 'GET', suppressErrorLog: true });
+
+        console.log('[Shiprocket International Quote Request]', {
+          endpoint,
+          pickupPincode,
+          countryCode,
+          deliveryPincode: params.deliveryPincode || null,
+          weightInKg: weight,
+          length: params.length ?? null,
+          breadth: params.breadth ?? null,
+          height: params.height ?? null,
+        });
+
+        const data = await shiprocketFetch(endpoint, { method: 'GET' });
 
         const available = data?.data?.available_courier_companies || data?.available_couriers || [];
         if (Array.isArray(available) && available.length > 0) {
@@ -316,8 +328,15 @@ export async function estimateShippingRate(params: {
             };
           }
         }
-      } catch (_ignoredIntlErr) {
-        // Shiprocket has no direct courier configured for this destination/weight; smoothly fallback to Admin Country Rates
+      } catch (err: any) {
+        console.error(
+          '[Shiprocket International Quote Error]',
+          err?.message || err,
+          err?.status ? `(HTTP Status: ${err.status})` : '',
+          err?.data ? JSON.stringify(err.data) : ''
+        );
+        // Fallback behavior remains exactly unchanged:
+        // LIVE_CARRIER failed -> fallback to ADMIN_COUNTRY_RATE -> ADMIN_DEFAULT_RATE -> UNSERVICEABLE
       }
     }
 

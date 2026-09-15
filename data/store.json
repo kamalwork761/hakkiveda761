@@ -2057,77 +2057,7 @@
     }
   ],
   "site_settings": {
-    "announcementText": "Worldwide Express Shipping • 100% Authentic 42 Mountain Herbs Formula",
-    "announcementActive": true,
-    "announcementBgColor": "#D4AF37",
-    "announcementTextColor": "#1C550E",
-    "announcementMode": "slide",
-    "announcementPauseDuration": 3,
-    "announcementTransitionSpeed": "normal",
-    "announcementDirection": "right_to_left",
-    "announcementMessages": [
-      {
-        "id": "ann-1",
-        "text": "Worldwide Express Shipping • 100% Authentic 42 Mountain Herbs Formula",
-        "link": "",
-        "enabled": true,
-        "sortOrder": 1
-      },
-      {
-        "id": "ann-2",
-        "text": "Handcrafted in 21-Day Slow Woodfire Decoction by Hakki-Pikki Tribe",
-        "link": "#about",
-        "enabled": true,
-        "sortOrder": 2
-      },
-      {
-        "id": "ann-3",
-        "text": "Complimentary Express Delivery on Orders Over ₹999 / $50",
-        "link": "#products",
-        "enabled": true,
-        "sortOrder": 3
-      }
-    ],
-    "logoText": "HAKKIVEDA",
-    "logoSubtext": "Hakki-Pikki Tribe & Ayurveda",
-    "logoInitials": "HV",
-    "headerHvLogo": "",
-    "logoImageUrl": "",
-    "companyName": "HAKKIVEDA Herbal Enterprises",
-    "address": "Door No. 574, V.P. Bore, Hunsur, Mysore, Karnataka, India - 571105",
-    "phone": "+91 76195 36831",
-    "whatsappNumber": "917619536831",
-    "email": "hakkiveda@gmail.com",
-    "heroCtaText": "Shop Tribal Elixir",
-    "heroCtaLink": "#products",
-    "footerAbout": "Blend of Hakki-Pikki Tribe & Ayurveda. Handcrafted in small batches with 42 wild mountain herbs slow-cooked over woodfire in copper cauldrons for 21 days.",
-    "footerCopyright": "© 2026 HAKKIVEDA Herbal Enterprises. All Rights Reserved. Door No. 574, V.P. Bore, Hunsur, Mysore.",
-    "seoTitle": "HAKKIVEDA | 42 Mountain Herbs Tribal Hair Oil & Ayurveda",
-    "seoDescription": "Handcrafted in Mysore with 42 wild mountain herbs by the Hakki-Pikki tribe.",
-    "seoKeywords": "hair oil, ayurveda, tribal hair oil, hair growth, hakkiveda, mysore",
-    "maintenanceMode": false,
-    "freeShippingThresholdINR": 1500,
-    "codEnabled": true,
-    "razorpayKeyId": "rzp_live_hakkiveda_key",
-    "expressCourierPartner": "DHL / BlueDart Express",
-    "internationalShippingEnabled": true,
-    "internationalDefaultShippingRateINR": 2500,
-    "internationalCountryShippingRates": {
-      "FJ": 2800,
-      "US": 3500,
-      "AE": 1800,
-      "AU": 3800,
-      "GB": 2400,
-      "CA": 3500,
-      "SG": 1800,
-      "MY": 1800,
-      "NZ": 3800,
-      "MU": 2800
-    },
-    "internationalFreeShippingEnabled": false,
-    "internationalFreeShippingThresholdINR": null,
-    "quizHeadline": "AI Ayurvedic Scalp & Hair Density Diagnostic",
-    "quizSubtitle": "Unlock your personalized 42-herb formulation in 60 seconds."
+    "shiprocketPickupPincode": "571105"
   },
   "brand_identity": {
     "headerHvLogo": "",

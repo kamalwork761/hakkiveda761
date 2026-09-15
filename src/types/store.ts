@@ -812,6 +812,7 @@ export interface SiteSettings {
   codEnabled: boolean;
   razorpayKeyId: string;
   expressCourierPartner: string;
+  shiprocketPickupPincode?: string;
 
   // Phase 10D: Admin-Controlled International Shipping
   internationalShippingEnabled?: boolean;

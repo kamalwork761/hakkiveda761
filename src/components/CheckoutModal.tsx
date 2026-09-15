@@ -572,9 +572,9 @@ export const CheckoutModal: React.FC = () => {
           return;
         }
 
-        // If backend returned unserviceable status, or any non-serviceable response payload (HTTP 400, HTTP 409, etc.):
-        // The visible checkout error MUST be exactly:
-        // "Shipping is currently unavailable to this destination. Please contact HAKKIVEDA support."
+        // If backend returns serviceable: false OR code === 'SHIPPING_UNAVAILABLE' OR source === 'UNSERVICEABLE',
+        // or any non-serviceable response payload:
+        // display: "Shipping is currently unavailable to this destination. Please contact HAKKIVEDA support."
         setBackendQuote({
           loading: false,
           hasQuote: true,
@@ -587,7 +587,12 @@ export const CheckoutModal: React.FC = () => {
         });
       } catch (err: any) {
         if (!isCurrent) return;
-        // True network/fetch failure only
+        // True network/fetch failure only (e.g. offline, connection dropped)
+        const isNetworkFailure =
+          typeof navigator !== 'undefined' && !navigator.onLine
+            ? true
+            : err instanceof TypeError || /network|failed to fetch|abort/i.test(err?.message || '');
+
         setBackendQuote((prev) => ({
           loading: false,
           hasQuote: true,
@@ -596,12 +601,9 @@ export const CheckoutModal: React.FC = () => {
           shippingSource: 'UNSERVICEABLE',
           shippingCourier: null,
           estimatedDelivery: undefined,
-          errorMessage:
-            prev.shippingSource === 'UNSERVICEABLE' &&
-            prev.errorMessage &&
-            prev.errorMessage === 'Shipping is currently unavailable to this destination. Please contact HAKKIVEDA support.'
-              ? prev.errorMessage
-              : 'Could not connect to shipping quote service.',
+          errorMessage: isNetworkFailure
+            ? 'Could not connect to shipping quote service.'
+            : 'Shipping is currently unavailable to this destination. Please contact HAKKIVEDA support.',
         }));
       }
     }, 350);

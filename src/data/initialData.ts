@@ -1049,6 +1049,7 @@ export const INITIAL_SITE_SETTINGS: SiteSettings = {
   codEnabled: true,
   razorpayKeyId: 'rzp_live_hakkiveda_key',
   expressCourierPartner: 'DHL / BlueDart Express',
+  shiprocketPickupPincode: '560001',
 
   // Phase 10D: Admin-Controlled International Shipping Defaults
   internationalShippingEnabled: true,

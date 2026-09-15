@@ -2297,7 +2297,12 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
       if (!deliveryPincode) {
         return res.status(400).json({ success: false, error: 'deliveryPincode is required' });
       }
-      const result = await checkServiceability({ deliveryPincode, pickupPincode, weightInKg, cod });
+      const siteSettings = (await getStoreValue<any>('site_settings')) || INITIAL_SITE_SETTINGS;
+      const resolvedPickupPincode =
+        (pickupPincode && String(pickupPincode).trim()) ||
+        (siteSettings?.shiprocketPickupPincode && String(siteSettings.shiprocketPickupPincode).trim()) ||
+        undefined;
+      const result = await checkServiceability({ deliveryPincode, pickupPincode: resolvedPickupPincode, weightInKg, cod });
       res.json(result);
     } catch (err: any) {
       console.error('[API /shiprocket/serviceability Error]:', err.message);
@@ -2311,7 +2316,13 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
       if (!deliveryPincode) {
         return res.status(400).json({ success: false, error: 'pincode query param is required' });
       }
-      const result = await checkServiceability({ deliveryPincode });
+      const pickupPincode = req.query.pickupPincode as string;
+      const siteSettings = (await getStoreValue<any>('site_settings')) || INITIAL_SITE_SETTINGS;
+      const resolvedPickupPincode =
+        (pickupPincode && String(pickupPincode).trim()) ||
+        (siteSettings?.shiprocketPickupPincode && String(siteSettings.shiprocketPickupPincode).trim()) ||
+        undefined;
+      const result = await checkServiceability({ deliveryPincode, pickupPincode: resolvedPickupPincode });
       res.json(result);
     } catch (err: any) {
       res.status(500).json({ success: false, error: err.message });
@@ -2413,15 +2424,20 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
   // Admin / debug manual weight estimate endpoint protected by requireAdmin
   app.post('/api/admin/shiprocket/estimate-rate', requireAdmin, async (req, res) => {
     try {
-      const { deliveryPincode, country, countryCode, weightInKg, cod } = req.body;
+      const { deliveryPincode, country, countryCode, weightInKg, cod, pickupPincode } = req.body;
       const isInternational = Boolean(
         (country && !isIndiaCountry(country)) ||
         (countryCode && !isIndiaCountry(countryCode))
       );
       const siteSettings = (await getStoreValue<any>('site_settings')) || INITIAL_SITE_SETTINGS;
+      const resolvedPickupPincode =
+        (pickupPincode && String(pickupPincode).trim()) ||
+        (siteSettings?.shiprocketPickupPincode && String(siteSettings.shiprocketPickupPincode).trim()) ||
+        undefined;
 
       const result = await estimateShippingRate({
         deliveryPincode: deliveryPincode || (isInternational ? '00000' : '110001'),
+        pickupPincode: resolvedPickupPincode,
         weightInKg: typeof weightInKg === 'number' && weightInKg > 0 ? weightInKg : 0.5,
         cod: isInternational ? false : Boolean(cod),
         isInternational,
@@ -3415,6 +3431,7 @@ COMPLIANCE & COMMUNICATION RULES:
 
         const liveRateRes = await estimateShippingRate({
           deliveryPincode: customerPincode || '00000',
+          pickupPincode: siteSettings?.shiprocketPickupPincode ? String(siteSettings.shiprocketPickupPincode).trim() : undefined,
           country: customerCountry,
           countryCode: normalizeCountryCode(customerCountry),
           weightInKg: totalWeightKg,

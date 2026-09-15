@@ -266,7 +266,10 @@ export async function estimateShippingRate(params: {
           throw new Error('International live carrier quote requires positive shipping weight (> 0 kg).');
         }
 
-        const pickupPincode = params.pickupPincode || '560001';
+        const pickupPincode =
+          (params.pickupPincode && String(params.pickupPincode).trim()) ||
+          (params.siteSettings?.shiprocketPickupPincode && String(params.siteSettings.shiprocketPickupPincode).trim()) ||
+          '560001';
         const weight = params.weightInKg;
         const countryParam = encodeURIComponent(countryCode);
         const hasValidPostal =
@@ -397,8 +400,13 @@ export async function estimateShippingRate(params: {
     };
   }
 
+  const domesticPickupPincode =
+    (params.pickupPincode && String(params.pickupPincode).trim()) ||
+    (params.siteSettings?.shiprocketPickupPincode && String(params.siteSettings.shiprocketPickupPincode).trim()) ||
+    '560001';
+
   const result = await checkServiceability({
-    pickupPincode: params.pickupPincode,
+    pickupPincode: domesticPickupPincode,
     deliveryPincode: params.deliveryPincode,
     weightInKg: params.weightInKg,
     cod: params.cod,

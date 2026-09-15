@@ -4,9 +4,37 @@ import { useStore } from '../context/StoreContext';
 import { ShiprocketSettings } from '../types/store';
 
 export const AdminShiprocketManager: React.FC = () => {
-  const { shiprocketSettings, updateShiprocketSettings } = useStore();
-  const [formData, setFormData] = useState<ShiprocketSettings>(shiprocketSettings);
+  const { shiprocketSettings, updateShiprocketSettings, siteSettings, updateSiteSettings } = useStore();
+  const [formData, setFormData] = useState<ShiprocketSettings>(() => ({
+    ...shiprocketSettings,
+    pickupPincode: siteSettings?.shiprocketPickupPincode || shiprocketSettings.pickupPincode || '560001',
+  }));
   const [toastMessage, setToastMessage] = useState<string | null>(null);
+
+  // Synchronize when siteSettings loads from persistent database
+  useEffect(() => {
+    if (siteSettings?.shiprocketPickupPincode) {
+      setFormData((prev) => ({
+        ...prev,
+        pickupPincode: siteSettings.shiprocketPickupPincode || prev.pickupPincode,
+      }));
+    }
+  }, [siteSettings?.shiprocketPickupPincode]);
+
+  // Also query existing settings persistence API on mount to guarantee fresh value
+  useEffect(() => {
+    fetch('/api/settings', { credentials: 'include' })
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.success && json.data?.siteSettings?.shiprocketPickupPincode) {
+          const savedPincode = String(json.data.siteSettings.shiprocketPickupPincode).trim();
+          if (savedPincode) {
+            setFormData((prev) => ({ ...prev, pickupPincode: savedPincode }));
+          }
+        }
+      })
+      .catch(() => {});
+  }, []);
 
   // Health check & Connection state
   const [isTesting, setIsTesting] = useState(false);
@@ -65,9 +93,34 @@ export const AdminShiprocketManager: React.FC = () => {
     testConnection();
   }, []);
 
-  const handleSave = () => {
-    updateShiprocketSettings(formData);
-    showToast('Shiprocket Settings & Automation Rules saved successfully!');
+  const handleSave = async () => {
+    const cleanPincode = (formData.pickupPincode || '').trim();
+    const updatedShiprocket = { ...formData, pickupPincode: cleanPincode };
+
+    // 1. Update client-side shiprocket settings
+    updateShiprocketSettings(updatedShiprocket);
+
+    // 2. Persist to siteSettings (persists to backend via /api/store/site_settings)
+    updateSiteSettings({ shiprocketPickupPincode: cleanPincode });
+
+    // 3. Persist to existing settings persistence API (/api/settings)
+    try {
+      await fetch('/api/settings', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({
+          siteSettings: {
+            ...siteSettings,
+            shiprocketPickupPincode: cleanPincode,
+          },
+        }),
+      });
+    } catch (e) {
+      console.warn('[AdminShiprocketManager] Could not post to /api/settings:', e);
+    }
+
+    showToast('Shiprocket Settings & Pickup Pincode saved successfully!');
   };
 
   return (

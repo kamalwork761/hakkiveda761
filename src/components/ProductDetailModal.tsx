@@ -45,6 +45,9 @@ export const ProductDetailModal: React.FC = () => {
     setIsZoomed(false);
   }, [quickViewProduct?.id]);
 
+  const closeQuickViewRef = useRef(closeQuickView);
+  closeQuickViewRef.current = closeQuickView;
+
   // Lock background scrolling and attach Esc key handler when open
   useEffect(() => {
     if (isQuickViewOpen) {
@@ -52,7 +55,7 @@ export const ProductDetailModal: React.FC = () => {
 
       const handleKeyDown = (e: KeyboardEvent) => {
         if (e.key === 'Escape') {
-          closeQuickView();
+          closeQuickViewRef.current();
         }
       };
       window.addEventListener('keydown', handleKeyDown);
@@ -62,7 +65,7 @@ export const ProductDetailModal: React.FC = () => {
         window.removeEventListener('keydown', handleKeyDown);
       };
     }
-  }, [isQuickViewOpen, closeQuickView]);
+  }, [isQuickViewOpen]);
 
   if (!isQuickViewOpen || !quickViewProduct) return null;
 

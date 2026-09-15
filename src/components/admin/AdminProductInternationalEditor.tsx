@@ -12,6 +12,7 @@ import {
   Ban,
   ArrowRight,
   Info,
+  Truck,
 } from 'lucide-react';
 import { Product } from '../../types/store';
 import { WORLD_COUNTRIES } from '../../data/countriesData';
@@ -493,7 +494,126 @@ export const AdminProductInternationalEditor: React.FC<AdminProductInternational
             </div>
           </div>
 
-          {/* 4. Optional International Content Overrides */}
+          {/* 4. SHIPPING PACKAGE DETAILS */}
+          <div className="bg-[var(--brand-primary-deep,#07150E)] border border-white/15 rounded-2xl p-5 space-y-4 shadow-lg">
+            <div className="border-b border-white/10 pb-3">
+              <h4 className="text-sm font-bold text-[var(--brand-gold,#D4AF37)] uppercase tracking-wider flex items-center gap-2 font-serif-luxury">
+                <Truck className="w-4 h-4" />
+                <span>SHIPPING PACKAGE DETAILS</span>
+              </h4>
+              <p className="text-xs text-slate-300 mt-0.5 font-sans">
+                Authoritative parcel weight and dimensions. Required for international live carrier quotes (weight &gt; 0) and international shipment manifests (dimensions &gt; 0).
+              </p>
+            </div>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  Shipping Weight (kg)
+                </label>
+                <input
+                  type="number"
+                  step="any"
+                  min="0.001"
+                  placeholder="e.g. 0.35"
+                  value={product.shippingWeightKg !== undefined && product.shippingWeightKg !== null ? product.shippingWeightKg : ''}
+                  onChange={(e) => {
+                    const val = e.target.value.trim();
+                    if (val === '') {
+                      onChange({ shippingWeightKg: undefined });
+                    } else {
+                      const num = Number(val);
+                      onChange({ shippingWeightKg: isNaN(num) ? undefined : num });
+                    }
+                  }}
+                  className="w-full bg-black/40 border border-white/20 p-2.5 rounded-xl text-slate-100 font-mono text-xs focus:border-[var(--brand-gold)]"
+                />
+                {product.shippingWeightKg !== undefined && product.shippingWeightKg !== null && product.shippingWeightKg <= 0 && (
+                  <p className="text-[10px] text-rose-400 mt-1 font-medium">Must be a positive number (&gt; 0)</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  Package Length (cm)
+                </label>
+                <input
+                  type="number"
+                  step="any"
+                  min="0.1"
+                  placeholder="e.g. 18"
+                  value={product.shippingLengthCm !== undefined && product.shippingLengthCm !== null ? product.shippingLengthCm : ''}
+                  onChange={(e) => {
+                    const val = e.target.value.trim();
+                    if (val === '') {
+                      onChange({ shippingLengthCm: undefined });
+                    } else {
+                      const num = Number(val);
+                      onChange({ shippingLengthCm: isNaN(num) ? undefined : num });
+                    }
+                  }}
+                  className="w-full bg-black/40 border border-white/20 p-2.5 rounded-xl text-slate-100 font-mono text-xs focus:border-[var(--brand-gold)]"
+                />
+                {product.shippingLengthCm !== undefined && product.shippingLengthCm !== null && product.shippingLengthCm <= 0 && (
+                  <p className="text-[10px] text-rose-400 mt-1 font-medium">Must be a positive number (&gt; 0)</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  Package Breadth (cm)
+                </label>
+                <input
+                  type="number"
+                  step="any"
+                  min="0.1"
+                  placeholder="e.g. 12"
+                  value={product.shippingBreadthCm !== undefined && product.shippingBreadthCm !== null ? product.shippingBreadthCm : ''}
+                  onChange={(e) => {
+                    const val = e.target.value.trim();
+                    if (val === '') {
+                      onChange({ shippingBreadthCm: undefined });
+                    } else {
+                      const num = Number(val);
+                      onChange({ shippingBreadthCm: isNaN(num) ? undefined : num });
+                    }
+                  }}
+                  className="w-full bg-black/40 border border-white/20 p-2.5 rounded-xl text-slate-100 font-mono text-xs focus:border-[var(--brand-gold)]"
+                />
+                {product.shippingBreadthCm !== undefined && product.shippingBreadthCm !== null && product.shippingBreadthCm <= 0 && (
+                  <p className="text-[10px] text-rose-400 mt-1 font-medium">Must be a positive number (&gt; 0)</p>
+                )}
+              </div>
+
+              <div>
+                <label className="block text-xs font-bold text-slate-300 mb-1">
+                  Package Height (cm)
+                </label>
+                <input
+                  type="number"
+                  step="any"
+                  min="0.1"
+                  placeholder="e.g. 8"
+                  value={product.shippingHeightCm !== undefined && product.shippingHeightCm !== null ? product.shippingHeightCm : ''}
+                  onChange={(e) => {
+                    const val = e.target.value.trim();
+                    if (val === '') {
+                      onChange({ shippingHeightCm: undefined });
+                    } else {
+                      const num = Number(val);
+                      onChange({ shippingHeightCm: isNaN(num) ? undefined : num });
+                    }
+                  }}
+                  className="w-full bg-black/40 border border-white/20 p-2.5 rounded-xl text-slate-100 font-mono text-xs focus:border-[var(--brand-gold)]"
+                />
+                {product.shippingHeightCm !== undefined && product.shippingHeightCm !== null && product.shippingHeightCm <= 0 && (
+                  <p className="text-[10px] text-rose-400 mt-1 font-medium">Must be a positive number (&gt; 0)</p>
+                )}
+              </div>
+            </div>
+          </div>
+
+          {/* 5. Optional International Content Overrides */}
           <div className="bg-[var(--brand-primary-deep,#07150E)] border border-white/15 rounded-2xl p-5 space-y-4 shadow-lg">
             <div className="border-b border-white/10 pb-3">
               <h4 className="text-sm font-bold text-[var(--brand-gold,#D4AF37)] uppercase tracking-wider flex items-center gap-2">

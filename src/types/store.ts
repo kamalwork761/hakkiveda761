@@ -96,6 +96,12 @@ export interface Product {
   internationalBlockedCountries?: string[];
   internationalTitle?: string;
   internationalDescription?: string;
+
+  // Authoritative Shipping Package Details
+  shippingWeightKg?: number;
+  shippingLengthCm?: number;
+  shippingBreadthCm?: number;
+  shippingHeightCm?: number;
 }
 
 export interface Category {

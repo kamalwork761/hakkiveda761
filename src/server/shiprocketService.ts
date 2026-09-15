@@ -232,6 +232,9 @@ export async function estimateShippingRate(params: {
   deliveryPincode: string;
   pickupPincode?: string;
   weightInKg?: number;
+  length?: number;
+  breadth?: number;
+  height?: number;
   cod?: boolean;
   isInternational?: boolean;
   country?: string;
@@ -251,8 +254,20 @@ export async function estimateShippingRate(params: {
     // If Shiprocket is live and configured, query real international serviceability endpoint
     if (isShiprocketConfigured()) {
       try {
+        // Validation: international live carrier quote requires shippingWeightKg > 0.
+        // Do not invent 0.5 kg for international!
+        if (
+          params.weightInKg === undefined ||
+          params.weightInKg === null ||
+          typeof params.weightInKg !== 'number' ||
+          !Number.isFinite(params.weightInKg) ||
+          params.weightInKg <= 0
+        ) {
+          throw new Error('International live carrier quote requires positive shipping weight (> 0 kg).');
+        }
+
         const pickupPincode = params.pickupPincode || '560001';
-        const weight = Math.max(0.5, Number(params.weightInKg) || 0.5);
+        const weight = params.weightInKg;
         const countryParam = encodeURIComponent(countryCode);
         const hasValidPostal =
           params.deliveryPincode &&
@@ -262,7 +277,16 @@ export async function estimateShippingRate(params: {
           ? `&delivery_postcode=${encodeURIComponent(params.deliveryPincode.trim())}`
           : '';
 
-        const endpoint = `/courier/international/serviceability?pickup_postcode=${pickupPincode}&delivery_country=${countryParam}${postalQuery}&weight=${weight}&cod=0`;
+        let dimQuery = '';
+        if (
+          typeof params.length === 'number' && Number.isFinite(params.length) && params.length > 0 &&
+          typeof params.breadth === 'number' && Number.isFinite(params.breadth) && params.breadth > 0 &&
+          typeof params.height === 'number' && Number.isFinite(params.height) && params.height > 0
+        ) {
+          dimQuery = `&length=${encodeURIComponent(params.length)}&breadth=${encodeURIComponent(params.breadth)}&height=${encodeURIComponent(params.height)}`;
+        }
+
+        const endpoint = `/courier/international/serviceability?pickup_postcode=${pickupPincode}&delivery_country=${countryParam}${postalQuery}&weight=${weight}&cod=0${dimQuery}`;
         const data = await shiprocketFetch(endpoint, { method: 'GET', suppressErrorLog: true });
 
         const available = data?.data?.available_courier_companies || data?.available_couriers || [];
@@ -429,7 +453,15 @@ export async function createShiprocketOrder(order: any) {
       };
     }
     for (const item of itemsList) {
-      const rawWeight = item.product?.weightInKg ?? item.weightInKg;
+      const prod = item.product || {};
+      const rawWeight =
+        typeof prod.shippingWeightKg === 'number' && Number.isFinite(prod.shippingWeightKg) && prod.shippingWeightKg > 0
+          ? prod.shippingWeightKg
+          : (typeof prod.weightInKg === 'number' && Number.isFinite(prod.weightInKg) && prod.weightInKg > 0
+            ? prod.weightInKg
+            : (typeof item.weightInKg === 'number' && Number.isFinite(item.weightInKg) && item.weightInKg > 0
+              ? item.weightInKg
+              : undefined));
       if (
         rawWeight === undefined ||
         rawWeight === null ||
@@ -445,14 +477,14 @@ export async function createShiprocketOrder(order: any) {
     }
   }
 
-  // Parcel dimensions: use valid order/package dimensions if present
-  const rawLength =
+  // Parcel dimensions: prefer explicit order package dimensions, or aggregate from product shipping dimensions
+  let rawLength =
     order.packageDimensions?.length ??
     order.dimensions?.length ??
     order.length ??
     order.packageDefaults?.defaultLengthCm;
 
-  const rawBreadth =
+  let rawBreadth =
     order.packageDimensions?.breadth ??
     order.packageDimensions?.width ??
     order.dimensions?.breadth ??
@@ -461,11 +493,40 @@ export async function createShiprocketOrder(order: any) {
     order.width ??
     order.packageDefaults?.defaultWidthCm;
 
-  const rawHeight =
+  let rawHeight =
     order.packageDimensions?.height ??
     order.dimensions?.height ??
     order.height ??
     order.packageDefaults?.defaultHeightCm;
+
+  if (rawLength == null || rawBreadth == null || rawHeight == null) {
+    const validLengths: number[] = [];
+    const validBreadths: number[] = [];
+    let totalHeight = 0;
+    let allHaveDimensions = itemsList.length > 0;
+
+    for (const item of itemsList) {
+      const prod = item.product || {};
+      const l = typeof prod.shippingLengthCm === 'number' && Number.isFinite(prod.shippingLengthCm) && prod.shippingLengthCm > 0 ? prod.shippingLengthCm : undefined;
+      const b = typeof prod.shippingBreadthCm === 'number' && Number.isFinite(prod.shippingBreadthCm) && prod.shippingBreadthCm > 0 ? prod.shippingBreadthCm : undefined;
+      const h = typeof prod.shippingHeightCm === 'number' && Number.isFinite(prod.shippingHeightCm) && prod.shippingHeightCm > 0 ? prod.shippingHeightCm : undefined;
+      const qty = Math.max(1, Number(item.quantity) || 1);
+
+      if (l !== undefined && b !== undefined && h !== undefined) {
+        validLengths.push(l);
+        validBreadths.push(b);
+        totalHeight += h * qty;
+      } else {
+        allHaveDimensions = false;
+      }
+    }
+
+    if (allHaveDimensions && itemsList.length > 0) {
+      if (rawLength == null) rawLength = Math.max(...validLengths);
+      if (rawBreadth == null) rawBreadth = Math.max(...validBreadths);
+      if (rawHeight == null) rawHeight = totalHeight;
+    }
+  }
 
   const hasValidDimensions =
     typeof rawLength === 'number' && Number.isFinite(rawLength) && rawLength > 0 &&
@@ -496,7 +557,12 @@ export async function createShiprocketOrder(order: any) {
       ? resolvedPrice
       : (Number(item.totalPriceINR) > 0 ? Math.round(Number(item.totalPriceINR) / itemUnits) : 1);
 
-    const rawWeight = prod.weightInKg ?? item.weightInKg;
+    const rawWeight =
+      typeof prod.shippingWeightKg === 'number' && Number.isFinite(prod.shippingWeightKg) && prod.shippingWeightKg > 0
+        ? prod.shippingWeightKg
+        : (typeof prod.weightInKg === 'number' && Number.isFinite(prod.weightInKg) && prod.weightInKg > 0
+          ? prod.weightInKg
+          : item.weightInKg);
     const itemWeight = isIntl ? Number(rawWeight) : Number(rawWeight ?? 0.5);
 
     calculatedSubtotal += itemPrice * itemUnits;

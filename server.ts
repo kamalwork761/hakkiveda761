@@ -3324,7 +3324,15 @@ COMPLIANCE & COMMUNICATION RULES:
 
       const itemPrice = getProductPriceINRForCountry(prod, customerCountry);
 
-      const rawWeight = prod.weightInKg ?? prod.weight;
+      // Prefer authoritative shippingWeightKg, fallback to weightInKg or weight
+      const rawWeight =
+        typeof prod.shippingWeightKg === 'number' && Number.isFinite(prod.shippingWeightKg) && prod.shippingWeightKg > 0
+          ? prod.shippingWeightKg
+          : (typeof prod.weightInKg === 'number' && Number.isFinite(prod.weightInKg) && prod.weightInKg > 0
+            ? prod.weightInKg
+            : (typeof prod.weight === 'number' && Number.isFinite(prod.weight) && prod.weight > 0
+              ? prod.weight
+              : undefined));
       const hasAuthoritativeWeight = typeof rawWeight === 'number' && Number.isFinite(rawWeight) && rawWeight > 0;
 
       if (!hasAuthoritativeWeight) {
@@ -3371,13 +3379,48 @@ COMPLIANCE & COMMUNICATION RULES:
     let customLiveRateINR: number | null = null;
     let customCourierLabel: string | undefined = undefined;
 
-    if (!isIndia && allProductsHaveAuthoritativeWeight && isShiprocketConfigured()) {
+    if (!isIndia && allProductsHaveAuthoritativeWeight && totalWeightKg > 0 && isShiprocketConfigured()) {
       try {
+        // Collect package dimensions from products if available
+        let packageLength: number | undefined = undefined;
+        let packageBreadth: number | undefined = undefined;
+        let packageHeight: number | undefined = undefined;
+
+        const lengths: number[] = [];
+        const breadths: number[] = [];
+        let aggregatedHeight = 0;
+        let allHaveDims = validatedItems.length > 0;
+
+        for (const item of validatedItems) {
+          const prod = item.product || {};
+          const l = typeof prod.shippingLengthCm === 'number' && Number.isFinite(prod.shippingLengthCm) && prod.shippingLengthCm > 0 ? prod.shippingLengthCm : undefined;
+          const b = typeof prod.shippingBreadthCm === 'number' && Number.isFinite(prod.shippingBreadthCm) && prod.shippingBreadthCm > 0 ? prod.shippingBreadthCm : undefined;
+          const h = typeof prod.shippingHeightCm === 'number' && Number.isFinite(prod.shippingHeightCm) && prod.shippingHeightCm > 0 ? prod.shippingHeightCm : undefined;
+          const qty = item.quantity || 1;
+
+          if (l !== undefined && b !== undefined && h !== undefined) {
+            lengths.push(l);
+            breadths.push(b);
+            aggregatedHeight += h * qty;
+          } else {
+            allHaveDims = false;
+          }
+        }
+
+        if (allHaveDims && validatedItems.length > 0) {
+          packageLength = Math.max(...lengths);
+          packageBreadth = Math.max(...breadths);
+          packageHeight = aggregatedHeight;
+        }
+
         const liveRateRes = await estimateShippingRate({
           deliveryPincode: customerPincode || '00000',
           country: customerCountry,
           countryCode: normalizeCountryCode(customerCountry),
-          weightInKg: Math.max(0.5, totalWeightKg),
+          weightInKg: totalWeightKg,
+          length: packageLength,
+          breadth: packageBreadth,
+          height: packageHeight,
           siteSettings,
         });
         if (liveRateRes.serviceable && Number.isFinite(liveRateRes.estimatedRateINR) && liveRateRes.estimatedRateINR > 0) {

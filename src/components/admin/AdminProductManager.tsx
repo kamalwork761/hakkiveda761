@@ -26,6 +26,7 @@ import {
   Globe,
   ExternalLink,
   ChevronRight,
+  Truck,
 } from 'lucide-react';
 import { Product, ProductVariant, Category } from '../../types/store';
 import { AdminProductGalleryEditor } from './AdminProductGalleryEditor';
@@ -175,6 +176,31 @@ export const AdminProductManager: React.FC<AdminProductManagerProps> = ({
     if (e) e.preventDefault();
     if (!editingProduct) return;
 
+    if (editingProduct.shippingWeightKg !== undefined && editingProduct.shippingWeightKg !== null) {
+      if (typeof editingProduct.shippingWeightKg !== 'number' || !Number.isFinite(editingProduct.shippingWeightKg) || editingProduct.shippingWeightKg <= 0) {
+        onShowToast('Shipping Weight (kg) must be a positive number (> 0).');
+        return;
+      }
+    }
+    if (editingProduct.shippingLengthCm !== undefined && editingProduct.shippingLengthCm !== null) {
+      if (typeof editingProduct.shippingLengthCm !== 'number' || !Number.isFinite(editingProduct.shippingLengthCm) || editingProduct.shippingLengthCm <= 0) {
+        onShowToast('Package Length (cm) must be a positive number (> 0).');
+        return;
+      }
+    }
+    if (editingProduct.shippingBreadthCm !== undefined && editingProduct.shippingBreadthCm !== null) {
+      if (typeof editingProduct.shippingBreadthCm !== 'number' || !Number.isFinite(editingProduct.shippingBreadthCm) || editingProduct.shippingBreadthCm <= 0) {
+        onShowToast('Package Breadth (cm) must be a positive number (> 0).');
+        return;
+      }
+    }
+    if (editingProduct.shippingHeightCm !== undefined && editingProduct.shippingHeightCm !== null) {
+      if (typeof editingProduct.shippingHeightCm !== 'number' || !Number.isFinite(editingProduct.shippingHeightCm) || editingProduct.shippingHeightCm <= 0) {
+        onShowToast('Package Height (cm) must be a positive number (> 0).');
+        return;
+      }
+    }
+
     onUpdateProduct(editingProduct.id, editingProduct);
     onShowToast(`Formulation "${editingProduct.name}" updated successfully!`);
     setEditingProduct(null);
@@ -186,6 +212,31 @@ export const AdminProductManager: React.FC<AdminProductManagerProps> = ({
     if (!newProductForm.name.trim()) {
       onShowToast('Product Title is required.');
       return;
+    }
+
+    if (newProductForm.shippingWeightKg !== undefined && newProductForm.shippingWeightKg !== null) {
+      if (typeof newProductForm.shippingWeightKg !== 'number' || !Number.isFinite(newProductForm.shippingWeightKg) || newProductForm.shippingWeightKg <= 0) {
+        onShowToast('Shipping Weight (kg) must be a positive number (> 0).');
+        return;
+      }
+    }
+    if (newProductForm.shippingLengthCm !== undefined && newProductForm.shippingLengthCm !== null) {
+      if (typeof newProductForm.shippingLengthCm !== 'number' || !Number.isFinite(newProductForm.shippingLengthCm) || newProductForm.shippingLengthCm <= 0) {
+        onShowToast('Package Length (cm) must be a positive number (> 0).');
+        return;
+      }
+    }
+    if (newProductForm.shippingBreadthCm !== undefined && newProductForm.shippingBreadthCm !== null) {
+      if (typeof newProductForm.shippingBreadthCm !== 'number' || !Number.isFinite(newProductForm.shippingBreadthCm) || newProductForm.shippingBreadthCm <= 0) {
+        onShowToast('Package Breadth (cm) must be a positive number (> 0).');
+        return;
+      }
+    }
+    if (newProductForm.shippingHeightCm !== undefined && newProductForm.shippingHeightCm !== null) {
+      if (typeof newProductForm.shippingHeightCm !== 'number' || !Number.isFinite(newProductForm.shippingHeightCm) || newProductForm.shippingHeightCm <= 0) {
+        onShowToast('Package Height (cm) must be a positive number (> 0).');
+        return;
+      }
     }
 
     onAddProduct(newProductForm);
@@ -749,6 +800,131 @@ export const AdminProductManager: React.FC<AdminProductManagerProps> = ({
                         </span>
                       </label>
                     </div>
+
+                    {/* SHIPPING PACKAGE DETAILS */}
+                    <div className="sm:col-span-2 pt-4 border-t border-white/10">
+                      <div className="bg-black/30 border border-white/15 rounded-2xl p-4 sm:p-5 space-y-4">
+                        <div className="flex items-center gap-2.5">
+                          <div className="w-8 h-8 rounded-lg bg-[var(--brand-gold,#D4AF37)]/20 text-[var(--brand-gold,#D4AF37)] flex items-center justify-center">
+                            <Truck className="w-4 h-4 text-[var(--brand-gold,#D4AF37)]" />
+                          </div>
+                          <div>
+                            <h4 className="text-sm font-bold tracking-wider text-[var(--brand-gold,#D4AF37)] uppercase font-serif-luxury">
+                              SHIPPING PACKAGE DETAILS
+                            </h4>
+                            <p className="text-[11px] text-slate-400">
+                              Authoritative package weight and dimensions used for shipping rates and courier manifests.
+                            </p>
+                          </div>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                          <div>
+                            <label className="block text-xs font-bold text-slate-300 mb-1">
+                              Shipping Weight (kg)
+                            </label>
+                            <input
+                              type="number"
+                              step="any"
+                              min="0.001"
+                              placeholder="e.g. 0.35"
+                              value={editingProduct.shippingWeightKg !== undefined && editingProduct.shippingWeightKg !== null ? editingProduct.shippingWeightKg : ''}
+                              onChange={(e) => {
+                                const val = e.target.value.trim();
+                                if (val === '') {
+                                  setEditingProduct({ ...editingProduct, shippingWeightKg: undefined });
+                                } else {
+                                  const num = Number(val);
+                                  setEditingProduct({ ...editingProduct, shippingWeightKg: isNaN(num) ? undefined : num });
+                                }
+                              }}
+                              className="w-full bg-[var(--brand-primary-deep,#07150E)] border border-white/20 p-2.5 rounded-xl text-slate-100 font-mono text-sm focus:border-[var(--brand-gold)]"
+                            />
+                            {editingProduct.shippingWeightKg !== undefined && editingProduct.shippingWeightKg !== null && editingProduct.shippingWeightKg <= 0 && (
+                              <p className="text-[10px] text-rose-400 mt-1 font-medium">Must be a positive number (&gt; 0)</p>
+                            )}
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-bold text-slate-300 mb-1">
+                              Package Length (cm)
+                            </label>
+                            <input
+                              type="number"
+                              step="any"
+                              min="0.1"
+                              placeholder="e.g. 18"
+                              value={editingProduct.shippingLengthCm !== undefined && editingProduct.shippingLengthCm !== null ? editingProduct.shippingLengthCm : ''}
+                              onChange={(e) => {
+                                const val = e.target.value.trim();
+                                if (val === '') {
+                                  setEditingProduct({ ...editingProduct, shippingLengthCm: undefined });
+                                } else {
+                                  const num = Number(val);
+                                  setEditingProduct({ ...editingProduct, shippingLengthCm: isNaN(num) ? undefined : num });
+                                }
+                              }}
+                              className="w-full bg-[var(--brand-primary-deep,#07150E)] border border-white/20 p-2.5 rounded-xl text-slate-100 font-mono text-sm focus:border-[var(--brand-gold)]"
+                            />
+                            {editingProduct.shippingLengthCm !== undefined && editingProduct.shippingLengthCm !== null && editingProduct.shippingLengthCm <= 0 && (
+                              <p className="text-[10px] text-rose-400 mt-1 font-medium">Must be a positive number (&gt; 0)</p>
+                            )}
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-bold text-slate-300 mb-1">
+                              Package Breadth (cm)
+                            </label>
+                            <input
+                              type="number"
+                              step="any"
+                              min="0.1"
+                              placeholder="e.g. 12"
+                              value={editingProduct.shippingBreadthCm !== undefined && editingProduct.shippingBreadthCm !== null ? editingProduct.shippingBreadthCm : ''}
+                              onChange={(e) => {
+                                const val = e.target.value.trim();
+                                if (val === '') {
+                                  setEditingProduct({ ...editingProduct, shippingBreadthCm: undefined });
+                                } else {
+                                  const num = Number(val);
+                                  setEditingProduct({ ...editingProduct, shippingBreadthCm: isNaN(num) ? undefined : num });
+                                }
+                              }}
+                              className="w-full bg-[var(--brand-primary-deep,#07150E)] border border-white/20 p-2.5 rounded-xl text-slate-100 font-mono text-sm focus:border-[var(--brand-gold)]"
+                            />
+                            {editingProduct.shippingBreadthCm !== undefined && editingProduct.shippingBreadthCm !== null && editingProduct.shippingBreadthCm <= 0 && (
+                              <p className="text-[10px] text-rose-400 mt-1 font-medium">Must be a positive number (&gt; 0)</p>
+                            )}
+                          </div>
+
+                          <div>
+                            <label className="block text-xs font-bold text-slate-300 mb-1">
+                              Package Height (cm)
+                            </label>
+                            <input
+                              type="number"
+                              step="any"
+                              min="0.1"
+                              placeholder="e.g. 8"
+                              value={editingProduct.shippingHeightCm !== undefined && editingProduct.shippingHeightCm !== null ? editingProduct.shippingHeightCm : ''}
+                              onChange={(e) => {
+                                const val = e.target.value.trim();
+                                if (val === '') {
+                                  setEditingProduct({ ...editingProduct, shippingHeightCm: undefined });
+                                } else {
+                                  const num = Number(val);
+                                  setEditingProduct({ ...editingProduct, shippingHeightCm: isNaN(num) ? undefined : num });
+                                }
+                              }}
+                              className="w-full bg-[var(--brand-primary-deep,#07150E)] border border-white/20 p-2.5 rounded-xl text-slate-100 font-mono text-sm focus:border-[var(--brand-gold)]"
+                            />
+                            {editingProduct.shippingHeightCm !== undefined && editingProduct.shippingHeightCm !== null && editingProduct.shippingHeightCm <= 0 && (
+                              <p className="text-[10px] text-rose-400 mt-1 font-medium">Must be a positive number (&gt; 0)</p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    </div>
                   </div>
                 </div>
               )}
@@ -1018,6 +1194,131 @@ export const AdminProductManager: React.FC<AdminProductManagerProps> = ({
                     placeholder="Concise overview of the formulation..."
                     className="w-full bg-[var(--brand-primary-deep,#07150E)] border border-white/20 p-2.5 rounded-xl text-slate-100"
                   />
+                </div>
+
+                {/* SHIPPING PACKAGE DETAILS */}
+                <div className="sm:col-span-2 pt-2">
+                  <div className="bg-black/30 border border-white/15 rounded-2xl p-4 sm:p-5 space-y-4">
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-8 h-8 rounded-lg bg-[var(--brand-gold,#D4AF37)]/20 text-[var(--brand-gold,#D4AF37)] flex items-center justify-center">
+                        <Truck className="w-4 h-4 text-[var(--brand-gold,#D4AF37)]" />
+                      </div>
+                      <div>
+                        <h4 className="text-sm font-bold tracking-wider text-[var(--brand-gold,#D4AF37)] uppercase font-serif-luxury">
+                          SHIPPING PACKAGE DETAILS
+                        </h4>
+                        <p className="text-[11px] text-slate-400">
+                          Authoritative package weight and dimensions used for shipping rates and courier manifests.
+                        </p>
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                      <div>
+                        <label className="block text-xs font-bold text-slate-300 mb-1">
+                          Shipping Weight (kg)
+                        </label>
+                        <input
+                          type="number"
+                          step="any"
+                          min="0.001"
+                          placeholder="e.g. 0.35"
+                          value={newProductForm.shippingWeightKg !== undefined && newProductForm.shippingWeightKg !== null ? newProductForm.shippingWeightKg : ''}
+                          onChange={(e) => {
+                            const val = e.target.value.trim();
+                            if (val === '') {
+                              setNewProductForm({ ...newProductForm, shippingWeightKg: undefined });
+                            } else {
+                              const num = Number(val);
+                              setNewProductForm({ ...newProductForm, shippingWeightKg: isNaN(num) ? undefined : num });
+                            }
+                          }}
+                          className="w-full bg-[var(--brand-primary-deep,#07150E)] border border-white/20 p-2.5 rounded-xl text-slate-100 font-mono text-sm focus:border-[var(--brand-gold)]"
+                        />
+                        {newProductForm.shippingWeightKg !== undefined && newProductForm.shippingWeightKg !== null && newProductForm.shippingWeightKg <= 0 && (
+                          <p className="text-[10px] text-rose-400 mt-1 font-medium">Must be a positive number (&gt; 0)</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-300 mb-1">
+                          Package Length (cm)
+                        </label>
+                        <input
+                          type="number"
+                          step="any"
+                          min="0.1"
+                          placeholder="e.g. 18"
+                          value={newProductForm.shippingLengthCm !== undefined && newProductForm.shippingLengthCm !== null ? newProductForm.shippingLengthCm : ''}
+                          onChange={(e) => {
+                            const val = e.target.value.trim();
+                            if (val === '') {
+                              setNewProductForm({ ...newProductForm, shippingLengthCm: undefined });
+                            } else {
+                              const num = Number(val);
+                              setNewProductForm({ ...newProductForm, shippingLengthCm: isNaN(num) ? undefined : num });
+                            }
+                          }}
+                          className="w-full bg-[var(--brand-primary-deep,#07150E)] border border-white/20 p-2.5 rounded-xl text-slate-100 font-mono text-sm focus:border-[var(--brand-gold)]"
+                        />
+                        {newProductForm.shippingLengthCm !== undefined && newProductForm.shippingLengthCm !== null && newProductForm.shippingLengthCm <= 0 && (
+                          <p className="text-[10px] text-rose-400 mt-1 font-medium">Must be a positive number (&gt; 0)</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-300 mb-1">
+                          Package Breadth (cm)
+                        </label>
+                        <input
+                          type="number"
+                          step="any"
+                          min="0.1"
+                          placeholder="e.g. 12"
+                          value={newProductForm.shippingBreadthCm !== undefined && newProductForm.shippingBreadthCm !== null ? newProductForm.shippingBreadthCm : ''}
+                          onChange={(e) => {
+                            const val = e.target.value.trim();
+                            if (val === '') {
+                              setNewProductForm({ ...newProductForm, shippingBreadthCm: undefined });
+                            } else {
+                              const num = Number(val);
+                              setNewProductForm({ ...newProductForm, shippingBreadthCm: isNaN(num) ? undefined : num });
+                            }
+                          }}
+                          className="w-full bg-[var(--brand-primary-deep,#07150E)] border border-white/20 p-2.5 rounded-xl text-slate-100 font-mono text-sm focus:border-[var(--brand-gold)]"
+                        />
+                        {newProductForm.shippingBreadthCm !== undefined && newProductForm.shippingBreadthCm !== null && newProductForm.shippingBreadthCm <= 0 && (
+                          <p className="text-[10px] text-rose-400 mt-1 font-medium">Must be a positive number (&gt; 0)</p>
+                        )}
+                      </div>
+
+                      <div>
+                        <label className="block text-xs font-bold text-slate-300 mb-1">
+                          Package Height (cm)
+                        </label>
+                        <input
+                          type="number"
+                          step="any"
+                          min="0.1"
+                          placeholder="e.g. 8"
+                          value={newProductForm.shippingHeightCm !== undefined && newProductForm.shippingHeightCm !== null ? newProductForm.shippingHeightCm : ''}
+                          onChange={(e) => {
+                            const val = e.target.value.trim();
+                            if (val === '') {
+                              setNewProductForm({ ...newProductForm, shippingHeightCm: undefined });
+                            } else {
+                              const num = Number(val);
+                              setNewProductForm({ ...newProductForm, shippingHeightCm: isNaN(num) ? undefined : num });
+                            }
+                          }}
+                          className="w-full bg-[var(--brand-primary-deep,#07150E)] border border-white/20 p-2.5 rounded-xl text-slate-100 font-mono text-sm focus:border-[var(--brand-gold)]"
+                        />
+                        {newProductForm.shippingHeightCm !== undefined && newProductForm.shippingHeightCm !== null && newProductForm.shippingHeightCm <= 0 && (
+                          <p className="text-[10px] text-rose-400 mt-1 font-medium">Must be a positive number (&gt; 0)</p>
+                        )}
+                      </div>
+                    </div>
+                  </div>
                 </div>
 
                 {/* Gallery component in new form */}

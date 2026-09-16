@@ -39,10 +39,10 @@ export const MobileProductCarousel: React.FC<MobileProductCarouselProps> = ({
   const hasMultiple = safeImages.length > 1;
 
   // Coverflow dimension parameters
-  // Slide width 76% of container allows ~12% on left and ~12% on right for adjacent previews
-  const SLIDE_WIDTH_PERCENT = 76;
-  const GAP_PX = 12;
-  const CENTER_OFFSET_PERCENT = (100 - SLIDE_WIDTH_PERCENT) / 2; // 12%
+  // Slide width 88% allows active image to be wide and dominant with ~6% peeking adjacent preview on each side
+  const SLIDE_WIDTH_PERCENT = 88;
+  const GAP_PX = 10;
+  const CENTER_OFFSET_PERCENT = (100 - SLIDE_WIDTH_PERCENT) / 2; // 6%
 
   const handleTouchStart = (e: React.TouchEvent) => {
     if (!hasMultiple) return;
@@ -131,13 +131,13 @@ export const MobileProductCarousel: React.FC<MobileProductCarouselProps> = ({
 
   return (
     <div
-      className={`w-full select-none flex flex-col items-center ${className}`}
+      className={`w-full max-w-full select-none flex flex-col items-center overflow-hidden ${className}`}
       aria-roledescription="carousel"
       aria-label={`${productName} mobile image gallery`}
     >
       {/* Carousel Stage Container */}
       <div
-        className="w-full relative overflow-hidden py-1 touch-pan-y"
+        className="w-full max-w-full relative overflow-hidden py-1 touch-pan-y"
         onTouchStart={handleTouchStart}
         onTouchMove={handleTouchMove}
         onTouchEnd={handleTouchEnd}
@@ -182,11 +182,10 @@ export const MobileProductCarousel: React.FC<MobileProductCarouselProps> = ({
             const isActive = diff === 0;
             const isAdjacent = diff === 1;
 
-            // Requirements:
-            // Active slide: scale(1), opacity: 1
-            // Adjacent slides: scale around 0.88–0.92, opacity around 0.55–0.7
-            const scale = isActive ? 1 : isAdjacent ? 0.90 : 0.82;
-            const opacity = isActive ? 1 : isAdjacent ? 0.65 : 0.35;
+            // Active slide is centered at full scale(1) and full opacity
+            // Adjacent slides peek slightly from left/right at natural width
+            const scale = isActive ? 1 : isAdjacent ? 0.96 : 0.92;
+            const opacity = isActive ? 1 : isAdjacent ? 0.65 : 0.4;
             const zIndex = isActive ? 20 : isAdjacent ? 10 : 1;
 
             return (
@@ -203,18 +202,15 @@ export const MobileProductCarousel: React.FC<MobileProductCarouselProps> = ({
                     ? 'none'
                     : 'transform 350ms cubic-bezier(0.25, 1, 0.5, 1), opacity 350ms ease',
                 }}
-                className={`shrink-0 cursor-pointer origin-center transform-gpu transition-all`}
+                className="shrink-0 cursor-pointer origin-center transform-gpu"
                 role="group"
                 aria-roledescription="slide"
                 aria-label={`Image ${idx + 1} of ${safeImages.length}`}
               >
-                {/* Slide Card Container with rounded corners & premium styling */}
+                {/* Full-width Image Slide without boxed card styling or borders */}
                 <div
-                  className={`w-full aspect-square rounded-2xl overflow-hidden relative border bg-white/90 dark:bg-[#0c2a1c]/60 flex items-center justify-center p-3 sm:p-4 transition-all duration-300 ${
-                    isActive
-                      ? 'border-[var(--brand-gold,#D4AF37)]/60 shadow-lg ring-1 ring-[var(--brand-gold,#D4AF37)]/30'
-                      : 'border-[#E7E1D5] dark:border-white/10 shadow-xs'
-                  }`}
+                  className="w-full relative flex items-center justify-center select-none"
+                  style={{ aspectRatio: '1 / 1' }}
                 >
                   <picture className="w-full h-full flex items-center justify-center pointer-events-none">
                     {img && (img.endsWith('.jpg') || img.endsWith('.png')) && (
@@ -226,16 +222,17 @@ export const MobileProductCarousel: React.FC<MobileProductCarouselProps> = ({
                       fetchPriority={idx === 0 ? 'high' : 'auto'}
                       loading={idx === 0 ? 'eager' : 'lazy'}
                       decoding="async"
-                      width="500"
-                      height="500"
-                      className="w-full h-full object-contain pointer-events-none select-none transition-transform duration-200"
+                      width="823"
+                      height="823"
+                      style={{
+                        width: '100%',
+                        height: 'auto',
+                        aspectRatio: '1 / 1',
+                        objectFit: 'contain',
+                      }}
+                      className="w-full h-auto aspect-square object-contain pointer-events-none select-none"
                     />
                   </picture>
-
-                  {/* Gentle darkening overlay for adjacent preview slides to focus center */}
-                  {!isActive && (
-                    <div className="absolute inset-0 bg-black/5 dark:bg-black/25 pointer-events-none rounded-2xl transition-opacity" />
-                  )}
                 </div>
               </div>
             );

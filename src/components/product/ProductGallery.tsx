@@ -9,6 +9,7 @@ import {
   Share2,
 } from 'lucide-react';
 import { ProductFullscreenViewer } from './ProductFullscreenViewer';
+import { MobileProductCarousel } from './MobileProductCarousel';
 
 interface ProductGalleryProps {
   images: string[];
@@ -159,8 +160,77 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
         </div>
       )}
 
-      {/* Main Showcase Stage */}
-      <div className="flex-1 relative w-full overflow-hidden">
+      {/* MOBILE PREMIUM CAROUSEL (Mobile only: < md) */}
+      <div className="block md:hidden w-full">
+        <MobileProductCarousel
+          images={images}
+          selectedIndex={selectedIndex}
+          onSelectIndex={setSelectedIndex}
+          productName={productName}
+          onImageClick={() => setIsFullscreenOpen(true)}
+          badges={
+            <>
+              {isBestseller && (
+                <span className="bg-[#123F2A] text-[var(--brand-gold)] text-[10px] font-extrabold uppercase tracking-widest px-3 py-1 rounded-full border border-[var(--brand-gold)]/40 shadow-lg flex items-center gap-1">
+                  <Sparkles className="w-3 h-3 text-[var(--brand-gold)]" />
+                  <span>Tribal Bestseller</span>
+                </span>
+              )}
+              {discountPct > 0 && (
+                <span className="bg-emerald-600 text-white text-[10px] font-bold px-2.5 py-0.5 rounded-full shadow-md self-start">
+                  {discountPct}% OFF
+                </span>
+              )}
+            </>
+          }
+          topRightBadge={
+            sku ? (
+              <span className="bg-[#123F2A]/90 text-[var(--brand-gold)] text-[10px] uppercase font-mono font-bold tracking-wider px-2.5 py-1 rounded-full border border-[var(--brand-gold)]/30 backdrop-blur-xs shadow-xs">
+                {sku}
+              </span>
+            ) : undefined
+          }
+          actions={
+            <>
+              {onShare && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onShare();
+                  }}
+                  className="w-9 h-9 rounded-full bg-white/90 dark:bg-black/75 text-[#123F2A] dark:text-white border border-[#E7E1D5] dark:border-white/20 shadow-md backdrop-blur-xs flex items-center justify-center active:scale-90 transition-all cursor-pointer hover:bg-white hover:border-[var(--brand-gold)]"
+                  aria-label="Share product formulation"
+                  title="Share product"
+                >
+                  <Share2 className="w-4 h-4 text-[#123F2A] dark:text-slate-100" />
+                </button>
+              )}
+              {onToggleWishlist && (
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    onToggleWishlist();
+                  }}
+                  className={`w-9 h-9 rounded-full border shadow-md backdrop-blur-xs flex items-center justify-center active:scale-90 transition-all cursor-pointer ${
+                    isInWishlist
+                      ? 'bg-rose-500 border-rose-500 text-white shadow-rose-500/30'
+                      : 'bg-white/90 dark:bg-black/75 border-[#E7E1D5] dark:border-white/20 text-[#123F2A] dark:text-white hover:border-rose-400'
+                  }`}
+                  aria-label={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                  title={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
+                >
+                  <Heart className={`w-4 h-4 ${isInWishlist ? 'fill-current text-white' : 'text-[#123F2A] dark:text-slate-100'}`} />
+                </button>
+              )}
+            </>
+          }
+        />
+      </div>
+
+      {/* Main Showcase Stage (Desktop & Tablet: md+) */}
+      <div className="hidden md:flex flex-1 relative w-full overflow-hidden flex-col">
         <div
           ref={mainImageContainerRef}
           onMouseEnter={() => setIsZoomActive(true)}
@@ -222,43 +292,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             )}
           </div>
 
-          {/* Mobile Overlay Action Icons: Share & Wishlist (Stacked in bottom-right corner) */}
-          <div className="flex md:hidden absolute bottom-3 right-3 z-20 flex-col gap-2 pointer-events-auto">
-            {onShare && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onShare();
-                }}
-                className="w-9 h-9 rounded-full bg-white/90 dark:bg-black/75 text-[#123F2A] dark:text-white border border-[#E7E1D5] dark:border-white/20 shadow-md backdrop-blur-xs flex items-center justify-center active:scale-90 transition-all cursor-pointer hover:bg-white hover:border-[var(--brand-gold)]"
-                aria-label="Share product formulation"
-                title="Share product"
-              >
-                <Share2 className="w-4 h-4 text-[#123F2A] dark:text-slate-100" />
-              </button>
-            )}
-            {onToggleWishlist && (
-              <button
-                type="button"
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onToggleWishlist();
-                }}
-                className={`w-9 h-9 rounded-full border shadow-md backdrop-blur-xs flex items-center justify-center active:scale-90 transition-all cursor-pointer ${
-                  isInWishlist
-                    ? 'bg-rose-500 border-rose-500 text-white shadow-rose-500/30'
-                    : 'bg-white/90 dark:bg-black/75 border-[#E7E1D5] dark:border-white/20 text-[#123F2A] dark:text-white hover:border-rose-400'
-                }`}
-                aria-label={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
-                title={isInWishlist ? 'Remove from Wishlist' : 'Add to Wishlist'}
-              >
-                <Heart className={`w-4 h-4 ${isInWishlist ? 'fill-current text-white' : 'text-[#123F2A] dark:text-slate-100'}`} />
-              </button>
-            )}
-          </div>
-
-          {/* Fullscreen Button Trigger (Desktop Only, on mobile tapping image opens fullscreen) */}
+          {/* Fullscreen Button Trigger (Desktop Only) */}
           <button
             type="button"
             onClick={(e) => {
@@ -273,7 +307,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
             <span className="hidden sm:inline text-[10px]">Fullscreen</span>
           </button>
 
-          {/* Mobile swipe / Desktop zoom hint pill (Desktop Only) */}
+          {/* Desktop zoom hint pill (Desktop Only) */}
           <div className="hidden md:flex absolute bottom-3 left-3 bg-black/60 text-slate-200 text-[10px] font-medium px-2.5 py-1 rounded-full border border-white/10 opacity-70 group-hover:opacity-0 transition-opacity items-center gap-1.5 z-10 backdrop-blur-xs pointer-events-none">
             <ZoomIn className="w-3 h-3 text-[var(--brand-gold)]" />
             <span>Hover to zoom • Click for fullscreen</span>
@@ -306,42 +340,7 @@ export const ProductGallery: React.FC<ProductGalleryProps> = ({
               </button>
             </>
           )}
-
-          {/* Desktop Only Inside-Overlay Dot Indicators (if any needed) */}
         </div>
-
-        {/* Mobile Pagination Dots: Placed directly below the main image for clean visibility & easy tap */}
-        {images.length > 1 && (
-          <div
-            className="flex md:hidden items-center justify-center gap-2 py-3 px-2 w-full select-none overflow-x-auto no-scrollbar"
-            aria-label="Product image pagination"
-          >
-            {images.map((_, idx) => {
-              const isActive = selectedIndex === idx;
-              return (
-                <button
-                  key={idx}
-                  type="button"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setSelectedIndex(idx);
-                  }}
-                  className="p-1 -m-1 flex items-center justify-center cursor-pointer touch-manipulation focus:outline-none"
-                  aria-label={`Go to slide ${idx + 1}`}
-                  aria-current={isActive ? 'true' : 'false'}
-                >
-                  <span
-                    className={`block rounded-full transition-all duration-200 ${
-                      isActive
-                        ? 'w-6 h-2 bg-[var(--brand-gold,#D4AF37)] shadow-sm'
-                        : 'w-2 h-2 bg-slate-300 dark:bg-white/30 hover:bg-slate-400 dark:hover:bg-white/50'
-                    }`}
-                  />
-                </button>
-              );
-            })}
-          </div>
-        )}
       </div>
 
       {/* Fullscreen Lightbox Modal */}

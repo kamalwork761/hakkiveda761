@@ -2057,7 +2057,66 @@
     }
   ],
   "site_settings": {
-    "shiprocketPickupPincode": "571105"
+    "announcementText": "Worldwide Express Shipping • 100% Authentic 42 Mountain Herbs Formula",
+    "announcementActive": true,
+    "announcementBgColor": "#D4AF37",
+    "announcementTextColor": "#1C550E",
+    "announcementMode": "slide",
+    "announcementPauseDuration": 3,
+    "announcementTransitionSpeed": "normal",
+    "announcementDirection": "right_to_left",
+    "announcementMessages": [
+      {
+        "id": "ann-1",
+        "text": "Worldwide Express Shipping • 100% Authentic 42 Mountain Herbs Formula",
+        "link": "",
+        "enabled": true,
+        "sortOrder": 1
+      },
+      {
+        "id": "ann-2",
+        "text": "Handcrafted in 21-Day Slow Woodfire Decoction by Hakki-Pikki Tribe",
+        "link": "#about",
+        "enabled": true,
+        "sortOrder": 2
+      },
+      {
+        "id": "ann-3",
+        "text": "Complimentary Express Delivery on Orders Over ₹999 / $50",
+        "link": "#products",
+        "enabled": true,
+        "sortOrder": 3
+      }
+    ],
+    "logoText": "HAKKIVEDA",
+    "logoSubtext": "Hakki-Pikki Tribe & Ayurveda",
+    "logoInitials": "HV",
+    "headerHvLogo": "",
+    "logoImageUrl": "",
+    "companyName": "HAKKIVEDA Herbal Enterprises",
+    "address": "Door No. 574, V.P. Bore, Hunsur, Mysore, Karnataka, India - 571105",
+    "phone": "+91 76195 36831",
+    "whatsappNumber": "917619536831",
+    "email": "support@hakkiveda.com",
+    "heroCtaText": "Shop Tribal Elixir",
+    "heroCtaLink": "#products",
+    "footerAbout": "Blend of Hakki-Pikki Tribe & Ayurveda. Handcrafted in small batches with 42 wild mountain herbs slow-cooked over woodfire in copper cauldrons for 21 days.",
+    "footerCopyright": "© 2026 HAKKIVEDA Herbal Enterprises. All Rights Reserved. Door No. 574, V.P. Bore, Hunsur, Mysore.",
+    "seoTitle": "HAKKIVEDA | Authentic Hakki-Pikki Tribal Ayurvedic Hair Care",
+    "seoDescription": "Discover authentic Hakki-Pikki tribal Ayurvedic hair care from HAKKIVEDA. Shop 108 Herbs Hair Oil, Herbal Shampoo, Baldness Powder and premium natural wellness products with worldwide shipping.",
+    "seoKeywords": "HAKKIVEDA, Adivasi Hair Oil, 108 Herbs Hair Oil, Hakki Pikki Tribe, Ayurvedic Hair Oil, Herbal Hair Growth, Natural Hair Care, Herbal Shampoo, Hair Fall Solution, Ayurvedic Wellness",
+    "maintenanceMode": false,
+    "freeShippingThresholdINR": 1500,
+    "codEnabled": true,
+    "razorpayKeyId": "rzp_live_hakkiveda_key",
+    "expressCourierPartner": "DHL / BlueDart Express",
+    "shiprocketPickupPincode": "571105",
+    "internationalShippingEnabled": true,
+    "internationalCountryShippingRates": {},
+    "internationalFreeShippingEnabled": false,
+    "internationalFreeShippingThresholdINR": null,
+    "quizHeadline": "AI Ayurvedic Scalp & Hair Density Assessment",
+    "quizSubtitle": "Unlock your personalized 42-herb formulation in 60 seconds."
   },
   "brand_identity": {
     "headerHvLogo": "",
@@ -6307,5 +6366,25 @@
   "admin_account": {
     "email": "hakkiveda@gmail.com",
     "passwordBcrypt": "$2b$10$JP1VKcwhVYP.G9Uw1EfwXecVaf4QsNXcbf/Dy5979x3kaDEQvDk.q"
-  }
+  },
+  "hair_analysis_leads": [
+    {
+      "id": "lead-1789744160276-wo02s",
+      "createdAt": "2026-09-18T15:09:20.276Z",
+      "name": "Test Customer",
+      "mobile": "9876543210",
+      "countryCode": "+91",
+      "gender": "Female",
+      "ageGroup": "25-34",
+      "country": "India",
+      "city": "Bengaluru",
+      "allAnswers": {
+        "mainConcern": "Hair Fall / Thinning"
+      },
+      "photoReferences": {},
+      "generatedProfile": {},
+      "recommendedProductIds": [],
+      "status": "NEW"
+    }
+  ]
 }

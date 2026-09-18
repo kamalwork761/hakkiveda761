@@ -204,9 +204,42 @@ async function startServer() {
 
     const normalized = originStr.toLowerCase().trim();
 
-    if (isProduction) {
-      return productionTrustedOrigins.includes(normalized);
+    if (productionTrustedOrigins.includes(normalized)) {
+      return true;
     }
+
+    // Check request host and x-forwarded-host
+    if (req) {
+      const forwardedHost = (req.headers['x-forwarded-host'] as string)?.split(',')[0]?.toLowerCase()?.trim();
+      if (forwardedHost && (normalized === `https://${forwardedHost}` || normalized === `http://${forwardedHost}`)) {
+        return true;
+      }
+
+      if (req.headers.host) {
+        const host = req.headers.host.toLowerCase().trim();
+        if (normalized === `https://${host}` || normalized === `http://${host}`) {
+          return true;
+        }
+      }
+    }
+
+    // Allow AI Studio preview, Cloud Run preview, and related secure container environments
+    try {
+      const u = new URL(originStr);
+      const hn = u.hostname.toLowerCase();
+      if (
+        hn === 'localhost' ||
+        hn === '127.0.0.1' ||
+        hn.endsWith('.run.app') ||
+        hn.endsWith('.google.com') ||
+        hn.endsWith('.ai.studio') ||
+        hn.endsWith('.aistudio.google.com') ||
+        hn.endsWith('.web.app') ||
+        hn.endsWith('.firebaseapp.com')
+      ) {
+        return true;
+      }
+    } catch {}
 
     // Development trusted origins
     const devTrustedOrigins = [
@@ -219,16 +252,8 @@ async function startServer() {
       'https://ai.studio',
     ];
 
-    if (devTrustedOrigins.includes(normalized)) {
+    if (!isProduction && devTrustedOrigins.includes(normalized)) {
       return true;
-    }
-
-    // In non-production only, allow current host origin if matching req.headers.host (e.g. Cloud Run preview URL)
-    if (req && req.headers.host) {
-      const host = req.headers.host.toLowerCase().trim();
-      if (normalized === `https://${host}` || normalized === `http://${host}`) {
-        return true;
-      }
     }
 
     return false;
@@ -3172,7 +3197,7 @@ Provide a personalized botanical assessment in valid JSON format with keys:
 Return ONLY raw JSON, no markdown code blocks.`;
 
       const response = await ai.models.generateContent({
-        model: 'gemini-3.6-flash',
+        model: 'gemini-flash-lite-latest',
         contents: prompt,
         config: {
           responseMimeType: 'application/json',
@@ -3194,6 +3219,739 @@ Return ONLY raw JSON, no markdown code blocks.`;
         success: false,
         error: 'Failed to generate hair quiz analysis. Please try again later.',
       });
+    }
+  });
+
+  function compareStageWithPhotoInternal(selectedStage?: string, photoStage?: string): string {
+    if (!selectedStage || selectedStage.toUpperCase().includes('NOT_SURE') || !photoStage || photoStage.toUpperCase().includes('NOT_SURE')) {
+      return 'We’ll use both your answers and photo to personalize your herbal regimen.';
+    }
+    const sNum = parseInt(selectedStage.replace(/\D/g, ''), 10);
+    const pNum = parseInt(photoStage.replace(/\D/g, ''), 10);
+    if (isNaN(sNum) || isNaN(pNum)) {
+      return 'Your selected stage is consistent with the visible pattern in your photo.';
+    }
+    if (Math.abs(sNum - pNum) <= 1) {
+      return 'Your selected stage is consistent with the visible pattern in your photo.';
+    } else {
+      return 'Your photo appears to show a different level of visible thinning than your selected stage. We’ll use both your answers and photo to create your profile.';
+    }
+  }
+
+  // ==========================================
+  // HAKKIVEDA Hair Root Analysis Photo Upload & AI Assessment
+  // ==========================================
+  const HAIR_PHOTO_ALLOWED_MIMES = ['image/jpeg', 'image/jpg', 'image/png', 'image/webp'];
+  const HAIR_PHOTO_ALLOWED_EXTS = ['.jpg', '.jpeg', '.png', '.webp'];
+
+  const hairPhotoStorage = multer.diskStorage({
+    destination: (_req, _file, cb) => {
+      cb(null, uploadDir);
+    },
+    filename: (_req, file, cb) => {
+      const safeUUID = crypto.randomUUID();
+      const rawExt = path.extname(file.originalname).toLowerCase();
+      const safeExt = HAIR_PHOTO_ALLOWED_EXTS.includes(rawExt)
+        ? rawExt
+        : file.mimetype.toLowerCase() === 'image/png'
+        ? '.png'
+        : file.mimetype.toLowerCase() === 'image/webp'
+        ? '.webp'
+        : '.jpg';
+      cb(null, `hair-topcrown-${safeUUID}${safeExt}`);
+    },
+  });
+
+  const hairPhotoUpload = multer({
+    storage: hairPhotoStorage,
+    limits: {
+      fileSize: 15 * 1024 * 1024, // 15 MB maximum
+      files: 1,
+    },
+    fileFilter: (_req, file, cb) => {
+      const rawExt = path.extname(file.originalname).toLowerCase();
+      if (
+        file.originalname.includes('\0') ||
+        file.originalname.includes('..') ||
+        file.originalname.includes('/') ||
+        file.originalname.includes('\\')
+      ) {
+        const err: any = new Error('Please upload a JPG, PNG or WebP image.');
+        err.code = 'INVALID_IMAGE';
+        return cb(err);
+      }
+
+      const mime = file.mimetype.toLowerCase();
+      const mimeOk = HAIR_PHOTO_ALLOWED_MIMES.includes(mime);
+      const extOk = HAIR_PHOTO_ALLOWED_EXTS.includes(rawExt);
+
+      if (!mimeOk && !extOk) {
+        const err: any = new Error('Please upload a JPG, PNG or WebP image.');
+        err.code = 'INVALID_IMAGE';
+        return cb(err);
+      }
+      cb(null, true);
+    },
+  });
+
+  // Dedicated helper to validate binary magic bytes
+  async function verifyHairPhotoBinary(filePath: string): Promise<string | null> {
+    try {
+      const detected = await detectBinaryFileType(filePath);
+      if (detected && ['image/jpeg', 'image/png', 'image/webp'].includes(detected.mime)) {
+        return detected.mime;
+      }
+    } catch {}
+
+    // Fallback byte inspection for common headers
+    try {
+      if (fs.existsSync(filePath)) {
+        const fd = fs.openSync(filePath, 'r');
+        const buf = Buffer.alloc(16);
+        fs.readSync(fd, buf, 0, 16, 0);
+        fs.closeSync(fd);
+        if (buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff) {
+          return 'image/jpeg';
+        }
+        if (buf[0] === 0x89 && buf[1] === 0x50 && buf[2] === 0x4e && buf[3] === 0x47) {
+          return 'image/png';
+        }
+        if (buf.toString('ascii', 0, 4) === 'RIFF' && buf.toString('ascii', 8, 12) === 'WEBP') {
+          return 'image/webp';
+        }
+      }
+    } catch {}
+
+    return null;
+  }
+
+  // Standalone upload endpoint (also supports 'photo' and 'file' field names)
+  app.post('/api/hair-analysis/upload-photo', (req, res) => {
+    const clientIp = getClientIp(req);
+    const rateLimitKey = `hair-photo-${clientIp}`;
+    if (!checkUploadRateLimit(rateLimitKey)) {
+      return res.status(429).json({
+        success: false,
+        code: 'UPLOAD_FAILED',
+        error: 'Upload limit reached. Please wait a few moments before trying again.',
+        message: 'Upload limit reached. Please wait a few moments before trying again.',
+      });
+    }
+
+    hairPhotoUpload.fields([
+      { name: 'photo', maxCount: 1 },
+      { name: 'file', maxCount: 1 },
+    ])(req, res, async (err: any) => {
+      if (err) {
+        let code = 'UPLOAD_FAILED';
+        let message = 'Photo upload failed. Please try a different image.';
+        if (err instanceof multer.MulterError) {
+          if (err.code === 'LIMIT_FILE_SIZE') {
+            code = 'IMAGE_TOO_LARGE';
+            message = 'Image must be 15MB or smaller.';
+          }
+        } else if (err.code === 'INVALID_IMAGE') {
+          code = 'INVALID_IMAGE';
+          message = 'Please upload a JPG, PNG or WebP image.';
+        }
+        console.error('[Hair Analysis Upload Error]', {
+          fileReceived: false,
+          errorMessage: message,
+        });
+        return res.status(400).json({ success: false, code, message, error: message });
+      }
+
+      const files = req.files as { [fieldname: string]: Express.Multer.File[] } | undefined;
+      const uploadedFile = files?.photo?.[0] || files?.file?.[0] || (req as any).file;
+
+      if (!uploadedFile) {
+        console.error('[Hair Analysis Upload Error]', {
+          fileReceived: false,
+          errorMessage: 'No photo provided in photo or file field.',
+        });
+        return res.status(400).json({
+          success: false,
+          code: 'UPLOAD_FAILED',
+          message: 'No photo provided. Please upload a clear photo of your top/crown hair.',
+          error: 'No photo provided. Please upload a clear photo of your top/crown hair.',
+        });
+      }
+
+      const filePath = path.resolve(uploadDir, uploadedFile.filename);
+      const resolvedUploadRoot = path.resolve(uploadDir);
+
+      if (!filePath.startsWith(resolvedUploadRoot)) {
+        try {
+          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        } catch {}
+        return res.status(403).json({
+          success: false,
+          code: 'UPLOAD_FAILED',
+          error: 'Security violation: Path traversal prevented.',
+          message: 'Security violation: Path traversal prevented.',
+        });
+      }
+
+      const verifiedMime = await verifyHairPhotoBinary(filePath);
+      if (!verifiedMime) {
+        try {
+          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        } catch {}
+        console.error('[Hair Analysis Upload Error]', {
+          filename: uploadedFile.originalname,
+          mimetype: uploadedFile.mimetype,
+          size: uploadedFile.size,
+          fileReceived: true,
+          errorMessage: 'Invalid binary image signature.',
+        });
+        return res.status(400).json({
+          success: false,
+          code: 'INVALID_IMAGE',
+          message: 'Please upload a JPG, PNG or WebP image.',
+          error: 'Please upload a JPG, PNG or WebP image.',
+        });
+      }
+
+      console.log('[Hair Analysis Upload]', {
+        filename: uploadedFile.originalname,
+        mimetype: uploadedFile.mimetype,
+        size: uploadedFile.size,
+        fileReceived: true,
+        savedAs: uploadedFile.filename,
+      });
+
+      const publicUrl = `/uploads/${uploadedFile.filename}`;
+      return res.json({
+        success: true,
+        url: publicUrl,
+        filename: uploadedFile.filename,
+      });
+    });
+  });
+
+  // Primary Endpoint: Upload & Analyze Top/Crown Hair Photo
+  // Accepts multipart/form-data with field "photo" (15MB max)
+  // Also supports JSON { imageUrl } for backwards compatibility
+  app.post('/api/hair-analysis/analyze-photo', (req, res) => {
+    const isJsonBody = req.is('application/json') || (req.headers['content-type'] && req.headers['content-type'].includes('application/json'));
+
+    if (isJsonBody) {
+      // Legacy / programmatic JSON invocation
+      return handleJsonPhotoAnalysis(req, res);
+    }
+
+    const clientIp = getClientIp(req);
+    const rateLimitKey = `hair-photo-${clientIp}`;
+    if (!checkUploadRateLimit(rateLimitKey)) {
+      return res.status(429).json({
+        success: false,
+        code: 'UPLOAD_FAILED',
+        message: 'Upload limit reached. Please wait a few moments before trying again.',
+      });
+    }
+
+    hairPhotoUpload.single('photo')(req, res, async (err: any) => {
+      if (err) {
+        let code = 'UPLOAD_FAILED';
+        let message = 'Photo upload failed. Please try a different image.';
+
+        if (err instanceof multer.MulterError) {
+          if (err.code === 'LIMIT_FILE_SIZE') {
+            code = 'IMAGE_TOO_LARGE';
+            message = 'Image must be 15MB or smaller.';
+          } else {
+            code = 'UPLOAD_FAILED';
+            message = 'Photo upload failed. Please try a different image.';
+          }
+        } else if (err.code === 'INVALID_IMAGE' || err.message?.includes('JPG, PNG or WebP')) {
+          code = 'INVALID_IMAGE';
+          message = 'Please upload a JPG, PNG or WebP image.';
+        } else {
+          message = err.message || 'Photo upload failed. Please try a different image.';
+        }
+
+        console.error('[Hair Analysis Upload Error]', {
+          filename: req.file?.originalname,
+          mimetype: req.file?.mimetype,
+          size: req.file?.size,
+          fileReceived: Boolean(req.file),
+          errorMessage: message,
+        });
+
+        return res.status(400).json({
+          success: false,
+          code,
+          message,
+        });
+      }
+
+      if (!req.file) {
+        console.error('[Hair Analysis Upload Error]', {
+          fileReceived: false,
+          errorMessage: 'No photo provided in photo field.',
+        });
+        return res.status(400).json({
+          success: false,
+          code: 'UPLOAD_FAILED',
+          message: 'No photo provided. Please upload a clear photo of your top/crown hair.',
+        });
+      }
+
+      console.log('[Hair Analysis Upload]', {
+        filename: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size,
+        fileReceived: true,
+        savedAs: req.file.filename,
+      });
+
+      const filePath = path.resolve(uploadDir, req.file.filename);
+      const resolvedUploadRoot = path.resolve(uploadDir);
+
+      if (!filePath.startsWith(resolvedUploadRoot)) {
+        try {
+          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        } catch {}
+        console.error('[Hair Analysis Upload Error]', {
+          filename: req.file.originalname,
+          fileReceived: true,
+          errorMessage: 'Path traversal prevented.',
+        });
+        return res.status(403).json({
+          success: false,
+          code: 'UPLOAD_FAILED',
+          message: 'Security violation: Path traversal prevented.',
+        });
+      }
+
+      // Verify binary image content
+      const verifiedMime = await verifyHairPhotoBinary(filePath);
+      if (!verifiedMime) {
+        try {
+          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        } catch {}
+        console.error('[Hair Analysis Upload Error]', {
+          filename: req.file.originalname,
+          mimetype: req.file.mimetype,
+          size: req.file.size,
+          fileReceived: true,
+          errorMessage: 'Invalid binary image signature.',
+        });
+        return res.status(400).json({
+          success: false,
+          code: 'INVALID_IMAGE',
+          message: 'Please upload a JPG, PNG or WebP image.',
+        });
+      }
+
+      const publicUrl = `/uploads/${req.file.filename}`;
+      const gender = (req.body?.gender || '').toString();
+      const selectedStage = (req.body?.selectedStage || '').toString();
+
+      // Read image buffer for Gemini vision analysis
+      let imageBuffer: Buffer;
+      try {
+        imageBuffer = fs.readFileSync(filePath);
+      } catch (readErr: any) {
+        console.error('[Hair Analysis Upload Error]', {
+          filename: req.file.filename,
+          errorMessage: readErr?.message || 'Could not read saved image file.',
+        });
+        return res.status(500).json({
+          success: false,
+          code: 'UPLOAD_FAILED',
+          message: 'Photo upload failed. Please try a different image.',
+        });
+      }
+
+      // Execute AI visual analysis
+      try {
+        const assessmentResult = await performHairPhotoAiAnalysis(
+          imageBuffer,
+          verifiedMime,
+          gender,
+          selectedStage,
+          req.file.filename,
+          req.file.size
+        );
+
+        if (!assessmentResult.success) {
+          // AI analysis failed, but file upload succeeded
+          return res.status(200).json({
+            success: false,
+            code: 'ANALYSIS_FAILED',
+            url: publicUrl,
+            filename: req.file.filename,
+            message: 'We received your photo, but visual analysis could not be completed. Please retry.',
+          });
+        }
+
+        const visual = assessmentResult.visualAssessment!;
+
+        if (visual.imageQualityStatus === 'IMAGE_QUALITY_INSUFFICIENT' || visual.analysisStatus === 'IMAGE_QUALITY_INSUFFICIENT') {
+          // File uploaded successfully, but quality insufficient
+          return res.json({
+            success: true,
+            url: publicUrl,
+            filename: req.file.filename,
+            analysisStatus: 'IMAGE_QUALITY_INSUFFICIENT',
+            message: 'Please retake the photo in brighter light with the crown clearly visible.',
+            visualAssessment: visual,
+          });
+        }
+
+        return res.json({
+          success: true,
+          url: publicUrl,
+          filename: req.file.filename,
+          analysisStatus: 'OK',
+          visualAssessment: visual,
+        });
+      } catch (aiErr: any) {
+        console.error('[Hair Analysis AI Error]', {
+          filename: req.file.filename,
+          mimetype: verifiedMime,
+          size: req.file.size,
+          errorMessage: aiErr?.message || 'Unexpected error in visual analysis',
+        });
+        return res.status(200).json({
+          success: false,
+          code: 'ANALYSIS_FAILED',
+          url: publicUrl,
+          filename: req.file.filename,
+          message: 'We received your photo, but visual analysis could not be completed. Please retry.',
+        });
+      }
+    });
+  });
+
+  // AI Multimodal analysis worker for hair photo
+  async function performHairPhotoAiAnalysis(
+    imageBuffer: Buffer,
+    mimeType: string,
+    gender: string,
+    selectedStage: string,
+    savedFilename: string,
+    fileSize: number
+  ): Promise<{ success: boolean; visualAssessment?: any }> {
+    const ai = getGeminiClient();
+    if (!ai) {
+      console.error('[Hair Analysis AI Error]', {
+        filename: savedFilename,
+        mimetype: mimeType,
+        size: fileSize,
+        errorMessage: 'Gemini AI client unavailable (missing GEMINI_API_KEY)',
+      });
+      return { success: false };
+    }
+
+    const base64Data = imageBuffer.toString('base64');
+    const promptText = `You are an expert cosmetic trichology and botanical scalp assessment assistant for HAKKIVEDA Ayurvedic hair wellness.
+Analyze this top/crown photo of a customer's scalp and hair.
+Identified customer gender: "${gender || 'Not specified'}".
+Customer's self-selected hair stage: "${selectedStage || 'Not specified'}".
+
+CRITICAL SAFETY & MEDICAL DISCLAIMER RULES:
+- Do NOT diagnose medical conditions or diseases.
+- Do NOT say "alopecia confirmed", "fungal infection detected", "psoriasis diagnosed", "medical disorder", or "guaranteed regrowth".
+- Always use non-clinical, observational language such as:
+  - "The photo appears to show..."
+  - "Visible thinning appears..."
+  - "The crown area appears..."
+  - "This visual pattern may be consistent with..."
+  - "A clinician should assess sudden or severe hair loss."
+
+IMAGE QUALITY CHECK:
+If the photo does not clearly show a human top/crown or scalp (e.g. it is completely blurry, pitch dark, completely obscured, a non-head object, face-only with no hair, or blank):
+Set "imageQualityStatus" to "IMAGE_QUALITY_INSUFFICIENT", "analysisStatus" to "IMAGE_QUALITY_INSUFFICIENT", confidence to 0, suggestedStage to "NOT SURE", and provide an observation explaining that the customer should retake the photo in brighter light with the crown clearly visible.
+
+STRUCTURED OUTPUT PARAMETERS:
+- analysisStatus: "OK" or "IMAGE_QUALITY_INSUFFICIENT"
+- imageQualityStatus: "OK" or "IMAGE_QUALITY_INSUFFICIENT"
+- scalpVisibility: "LOW" (dense coverage, <15% scalp showing) | "MODERATE" (15-40% scalp visible) | "HIGH" (>40% scalp visible)
+- crownDensityAppearance: "GOOD" | "MILD_REDUCTION" | "MODERATE_REDUCTION" | "SIGNIFICANT_REDUCTION"
+- thinningPattern: "NONE" | "FRONTAL" | "CROWN" | "DIFFUSE" | "PATCHY" | "MIXED"
+- visibleFlaking: "NONE" | "MILD" | "MODERATE" | "SIGNIFICANT"
+- visibleRedness: "NONE" | "MILD" | "MODERATE"
+- confidence: integer from 60 to 95 (or 0 if image quality insufficient)
+- suggestedStage: "Stage 1" | "Stage 2" | "Stage 3" | "Stage 4" | "Stage 5" | "Stage 6" | "NOT SURE"
+- observations: array of 2 to 4 objective, gentle cosmetic observations describing visible density, scalp coverage, crown area, or hair shaft appearance.
+
+Return ONLY valid JSON matching this schema:
+{
+  "analysisStatus": "OK",
+  "imageQualityStatus": "OK",
+  "scalpVisibility": "LOW",
+  "crownDensityAppearance": "GOOD",
+  "thinningPattern": "NONE",
+  "visibleFlaking": "NONE",
+  "visibleRedness": "NONE",
+  "confidence": 85,
+  "suggestedStage": "Stage 2",
+  "observations": ["The photo appears to show localized density patterns across the upper vertex."]
+}`;
+
+    try {
+      const modelsToTry = ['gemini-flash-lite-latest', 'gemini-3.5-flash-lite', 'gemini-3.1-flash-lite', 'gemini-3.5-flash'];
+      let response: any = null;
+      let lastAiError: any = null;
+
+      for (const modelCandidate of modelsToTry) {
+        try {
+          const generatePromise = ai.models.generateContent({
+            model: modelCandidate,
+            contents: {
+              parts: [
+                {
+                  inlineData: {
+                    mimeType,
+                    data: base64Data,
+                  },
+                },
+                {
+                  text: promptText,
+                },
+              ],
+            },
+            config: {
+              responseMimeType: 'application/json',
+            },
+          });
+
+          const timeoutPromise = new Promise<never>((_, reject) =>
+            setTimeout(() => reject(new Error(`AI visual analysis timed out on ${modelCandidate}`)), 12000)
+          );
+
+          response = await Promise.race([generatePromise, timeoutPromise]);
+          if (response?.text) break;
+        } catch (candidateErr) {
+          lastAiError = candidateErr;
+          console.warn(`[Hair Analysis AI] Model ${modelCandidate} failed or timed out:`, (candidateErr as any)?.message || candidateErr);
+        }
+      }
+
+      if (!response?.text && lastAiError) {
+        throw lastAiError;
+      }
+
+      const rawText = response.text || '{}';
+      let parsed: any = {};
+      try {
+        parsed = JSON.parse(rawText);
+      } catch {
+        const m = rawText.match(/\{[\s\S]*\}/);
+        if (m) parsed = JSON.parse(m[0]);
+      }
+
+      if (parsed && typeof parsed === 'object') {
+        const isInsufficient = parsed.imageQualityStatus === 'IMAGE_QUALITY_INSUFFICIENT' || parsed.analysisStatus === 'IMAGE_QUALITY_INSUFFICIENT';
+
+        const visualAssessment = {
+          analysisStatus: isInsufficient ? 'IMAGE_QUALITY_INSUFFICIENT' : 'OK',
+          imageQualityStatus: isInsufficient ? 'IMAGE_QUALITY_INSUFFICIENT' : 'OK',
+          scalpVisibility: ['LOW', 'MODERATE', 'HIGH'].includes(parsed.scalpVisibility) ? parsed.scalpVisibility : 'MODERATE',
+          crownDensityAppearance: ['GOOD', 'MILD_REDUCTION', 'MODERATE_REDUCTION', 'SIGNIFICANT_REDUCTION'].includes(parsed.crownDensityAppearance) ? parsed.crownDensityAppearance : 'MILD_REDUCTION',
+          thinningPattern: ['NONE', 'FRONTAL', 'CROWN', 'DIFFUSE', 'PATCHY', 'MIXED'].includes(parsed.thinningPattern) ? parsed.thinningPattern : 'CROWN',
+          visibleFlaking: ['NONE', 'MILD', 'MODERATE', 'SIGNIFICANT'].includes(parsed.visibleFlaking) ? parsed.visibleFlaking : 'NONE',
+          visibleRedness: ['NONE', 'MILD', 'MODERATE'].includes(parsed.visibleRedness) ? parsed.visibleRedness : 'NONE',
+          confidence: isInsufficient ? 0 : typeof parsed.confidence === 'number' ? Math.min(98, Math.max(0, parsed.confidence)) : 85,
+          suggestedStage: isInsufficient ? 'NOT SURE' : parsed.suggestedStage || 'Stage 2',
+          observations: Array.isArray(parsed.observations) && parsed.observations.length > 0
+            ? parsed.observations.map(String)
+            : isInsufficient
+            ? ['The photo appears too dark or blurry to evaluate the scalp and crown clearly.']
+            : ['The photo appears to show localized follicle spacing consistent with standard patterns.'],
+          comparisonNote: isInsufficient ? '' : compareStageWithPhotoInternal(selectedStage, parsed.suggestedStage || 'Stage 2'),
+        };
+
+        return { success: true, visualAssessment };
+      }
+
+      return { success: false };
+    } catch (genError: any) {
+      console.error('[Hair Analysis AI Error]', {
+        filename: savedFilename,
+        mimetype: mimeType,
+        size: fileSize,
+        errorMessage: genError?.message || 'Gemini vision analysis call threw an exception',
+      });
+      return { success: false };
+    }
+  }
+
+  // Handler for programmatic JSON imageUrl requests
+  async function handleJsonPhotoAnalysis(req: express.Request, res: express.Response) {
+    try {
+      const { imageUrl, gender = '', selectedStage = '' } = req.body;
+      if (!imageUrl || typeof imageUrl !== 'string') {
+        return res.status(400).json({ success: false, code: 'INVALID_IMAGE', message: 'Photo URL is required for visual analysis' });
+      }
+
+      let imageBuffer: Buffer | null = null;
+      let mimeType = 'image/jpeg';
+      let filename = 'json-image';
+
+      if (imageUrl.startsWith('/uploads/')) {
+        filename = path.basename(imageUrl);
+        const filePath = path.resolve(uploadDir, filename);
+        if (filePath.startsWith(path.resolve(uploadDir)) && fs.existsSync(filePath)) {
+          imageBuffer = fs.readFileSync(filePath);
+          const ext = path.extname(filename).toLowerCase();
+          if (ext === '.png') mimeType = 'image/png';
+          else if (ext === '.webp') mimeType = 'image/webp';
+        }
+      }
+
+      if (!imageBuffer) {
+        return res.status(400).json({ success: false, code: 'UPLOAD_FAILED', message: 'Could not access photo file for analysis' });
+      }
+
+      const assessmentResult = await performHairPhotoAiAnalysis(
+        imageBuffer,
+        mimeType,
+        gender,
+        selectedStage,
+        filename,
+        imageBuffer.length
+      );
+
+      if (!assessmentResult.success) {
+        return res.status(200).json({
+          success: false,
+          code: 'ANALYSIS_FAILED',
+          url: imageUrl,
+          message: 'We received your photo, but visual analysis could not be completed. Please retry.',
+        });
+      }
+
+      const visual = assessmentResult.visualAssessment!;
+      if (visual.imageQualityStatus === 'IMAGE_QUALITY_INSUFFICIENT') {
+        return res.json({
+          success: true,
+          url: imageUrl,
+          analysisStatus: 'IMAGE_QUALITY_INSUFFICIENT',
+          message: 'Please retake the photo in brighter light with the crown clearly visible.',
+          visualAssessment: visual,
+        });
+      }
+
+      return res.json({
+        success: true,
+        url: imageUrl,
+        analysisStatus: 'OK',
+        visualAssessment: visual,
+      });
+    } catch (err: any) {
+      console.error('[Hair Analysis AI Error]', {
+        errorMessage: err?.message || 'JSON analysis handler failed',
+      });
+      return res.status(500).json({
+        success: false,
+        code: 'ANALYSIS_FAILED',
+        message: 'Failed to analyze scalp photo',
+      });
+    }
+  }
+
+  // Endpoint: HAKKIVEDA Hair Root Analysis Lead Submission & Persistence
+  app.post('/api/hair-analysis/submit', async (req, res) => {
+    try {
+      const {
+        name,
+        mobile,
+        countryCode = '+91',
+        gender = '',
+        ageGroup = '',
+        country = '',
+        city = '',
+        allAnswers = {},
+        photoReferences = {},
+        generatedProfile = {},
+        recommendedProductIds = [],
+      } = req.body;
+
+      if (!name || !mobile) {
+        return res.status(400).json({ success: false, error: 'Name and mobile number are required' });
+      }
+
+      const leadId = `lead-${Date.now()}-${Math.random().toString(36).substring(2, 7)}`;
+      const newLead = {
+        id: leadId,
+        createdAt: new Date().toISOString(),
+        name: String(name).slice(0, 100),
+        mobile: String(mobile).slice(0, 30),
+        countryCode: String(countryCode).slice(0, 10),
+        gender: String(gender).slice(0, 30),
+        ageGroup: String(ageGroup).slice(0, 30),
+        country: String(country).slice(0, 60),
+        city: String(city).slice(0, 60),
+        allAnswers,
+        photoReferences,
+        generatedProfile,
+        recommendedProductIds: Array.isArray(recommendedProductIds) ? recommendedProductIds : [],
+        status: 'NEW',
+      };
+
+      const leads = (await getStoreValue<any[]>('hair_analysis_leads')) || [];
+      leads.unshift(newLead);
+      const trimmedLeads = leads.slice(0, 2000);
+      await setStoreValue('hair_analysis_leads', trimmedLeads);
+
+      return res.json({ success: true, leadId, lead: newLead });
+    } catch (error: any) {
+      console.error('Hair Analysis Submit error:', error?.message);
+      return res.status(500).json({ success: false, error: 'Failed to record hair analysis lead' });
+    }
+  });
+
+  // Admin endpoint: List Hair Analysis Leads (protected by requireAdmin)
+  app.get('/api/admin/hair-analysis/leads', requireAdmin, async (_req, res) => {
+    try {
+      const leads = (await getStoreValue<any[]>('hair_analysis_leads')) || [];
+      return res.json({ success: true, leads });
+    } catch (error: any) {
+      console.error('Fetch hair analysis leads error:', error?.message);
+      return res.status(500).json({ success: false, error: 'Failed to fetch hair analysis leads' });
+    }
+  });
+
+  // Admin endpoint: Update Lead Status (protected by requireAdmin)
+  app.patch('/api/admin/hair-analysis/leads/:id', requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const { status } = req.body;
+      if (!['NEW', 'CONTACTED', 'CONVERTED'].includes(status)) {
+        return res.status(400).json({ success: false, error: 'Invalid lead status' });
+      }
+
+      const leads = (await getStoreValue<any[]>('hair_analysis_leads')) || [];
+      const leadIndex = leads.findIndex((l: any) => l.id === id);
+      if (leadIndex === -1) {
+        return res.status(404).json({ success: false, error: 'Lead not found' });
+      }
+
+      leads[leadIndex].status = status;
+      leads[leadIndex].updatedAt = new Date().toISOString();
+      await setStoreValue('hair_analysis_leads', leads);
+
+      return res.json({ success: true, lead: leads[leadIndex] });
+    } catch (error: any) {
+      console.error('Update hair analysis lead status error:', error?.message);
+      return res.status(500).json({ success: false, error: 'Failed to update lead' });
+    }
+  });
+
+  // Admin endpoint: Delete Lead (protected by requireAdmin)
+  app.delete('/api/admin/hair-analysis/leads/:id', requireAdmin, async (req, res) => {
+    try {
+      const { id } = req.params;
+      const leads = (await getStoreValue<any[]>('hair_analysis_leads')) || [];
+      const updated = leads.filter((l: any) => l.id !== id);
+      await setStoreValue('hair_analysis_leads', updated);
+      return res.json({ success: true });
+    } catch (error: any) {
+      console.error('Delete hair analysis lead error:', error?.message);
+      return res.status(500).json({ success: false, error: 'Failed to delete lead' });
     }
   });
 

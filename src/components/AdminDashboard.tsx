@@ -85,6 +85,7 @@ import {
 import { useStore } from '../context/StoreContext';
 import { OrderDetailsModal } from './OrderDetailsModal';
 import { PaymentIcon } from './PaymentIcons';
+import { AdminHairAnalysisLeads } from './AdminHairAnalysisLeads';
 import {
   Product,
   Category,
@@ -217,6 +218,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
     | 'editorial_stories'
     | 'quiz'
     | 'homepage_quiz'
+    | 'hair_leads'
     | 'media'
     | 'currency'
     | 'payments'
@@ -813,6 +815,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             >
               <Bot className="w-4 h-4" />
               <span>Homepage AI Hair Quiz</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('hair_leads')}
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
+                activeTab === 'hair_leads' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
+              }`}
+            >
+              <Sparkles className="w-4 h-4 text-[var(--brand-gold)]" />
+              <span>Hair Analysis Leads</span>
             </button>
             <button
               onClick={() => setActiveTab('media')}
@@ -1428,6 +1439,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
 
         {/* Homepage AI Hair Quiz Banner Manager */}
         {activeTab === 'homepage_quiz' && <AdminHomepageQuizManager showToast={showToast} />}
+
+        {/* Hair Analysis Leads Manager */}
+        {activeTab === 'hair_leads' && <AdminHairAnalysisLeads />}
 
         {/* Tab 8: Orders & Tracking */}
         {activeTab === 'orders' && (

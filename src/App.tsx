@@ -42,6 +42,7 @@ const CartDrawer = lazy(() => import('./components/CartDrawer').then(m => ({ def
 const CheckoutModal = lazy(() => import('./components/CheckoutModal').then(m => ({ default: m.CheckoutModal })));
 const CustomerPortal = lazy(() => import('./components/CustomerPortal').then(m => ({ default: m.CustomerPortal })));
 const CountrySelectorModal = lazy(() => import('./components/CountrySelectorModal').then(m => ({ default: m.CountrySelectorModal })));
+const HairAnalysisPage = lazy(() => import('./components/HairAnalysis/HairAnalysisPage').then(m => ({ default: m.HairAnalysisPage })));
 
 import { AdminErrorBoundary } from './components/AdminErrorBoundary';
 import { ReviewsErrorBoundary } from './components/ReviewsErrorBoundary';
@@ -213,6 +214,11 @@ export function AppContent() {
   const reviewsSlug = reviewsRouteMatch ? decodeURIComponent(reviewsRouteMatch[1]) : '';
   const productSlug = productRouteMatch ? decodeURIComponent(productRouteMatch[1]) : '';
   const isCategoryRoute = currentPath === '/hair-care' || currentPath === '/skin-care' || currentPath === '/tribal-wellness';
+  const isHairAnalysisRoute =
+    normalizedPath === '/hair-analysis' ||
+    normalizedPath === '/hair-quiz' ||
+    normalizedPath === '/root-analysis' ||
+    normalizedPath === '/consultation';
   const isB2BRoute = currentPath === '/b2b-enquiry' || currentPath === '/b2b' || currentPath === '/export-enquiry';
   const isVideoRitualsRoute = normalizedPath === '/video-rituals' || normalizedPath === '/rituals' || normalizedPath === '/reels';
 
@@ -376,6 +382,13 @@ export function AppContent() {
             <JournalListingPage
               onReturnHome={() => navigate('/')}
               onSelectArticle={(slug) => navigate(`/journal/${slug}`)}
+            />
+          </Suspense>
+        ) : isHairAnalysisRoute ? (
+          <Suspense fallback={<SectionSkeleton />}>
+            <HairAnalysisPage
+              isModal={false}
+              onReturnHome={() => navigate('/')}
             />
           </Suspense>
         ) : isCategoryRoute ? (

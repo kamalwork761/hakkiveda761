@@ -141,6 +141,7 @@ export async function getDb() {
       media_items: INITIAL_MEDIA_ITEMS,
       orders: INITIAL_ORDERS,
       b2b_leads: [],
+      hair_analysis_leads: [],
       customer_accounts: INITIAL_CUSTOMER_ACCOUNTS,
       site_settings: INITIAL_SITE_SETTINGS,
       brand_identity: INITIAL_BRAND_IDENTITY,

@@ -24,6 +24,7 @@ import {
 import { useStore } from '../context/StoreContext';
 import { NavLink } from '../types/store';
 import { HakkivedaWordmark } from './HakkivedaWordmark';
+import { HvLogoAnimated } from './HvLogoAnimated';
 import { MobileBottomNav } from './MobileBottomNav';
 import { MobileNavDrawer } from './MobileNavDrawer';
 import { SoundToggle } from './SoundToggle';
@@ -109,26 +110,42 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
     currentPathname.startsWith('/categories/');
   const isSpecialBarPage = isPdpPage || isCategoryListingPage;
 
+  // Local storage cached logo to guarantee instant zero-flash rendering across reloads
+  const [cachedLogoUrl] = useState<string>(() => {
+    if (typeof window === 'undefined') return '';
+    try {
+      return (
+        localStorage.getItem('hakkiveda_custom_hv_logo') ||
+        localStorage.getItem('hakkiveda_header_logo') ||
+        ''
+      );
+    } catch {
+      return '';
+    }
+  });
+
   // Preferred uploaded HEADER HV LOGO from Admin Brand Manager / Site Settings
   const uploadedLogoUrl =
     brandIdentity?.headerHvLogo ||
     siteSettings?.headerHvLogo ||
     siteSettings?.logoImageUrl ||
     brandIdentity?.mainLogoLight ||
-    brandIdentity?.mainLogoDark ||
     brandIdentity?.transparentLogo ||
     brandIdentity?.svgLogo ||
-    brandIdentity?.mobileLogo ||
-    '';
+    cachedLogoUrl ||
+    '/images/hakkiveda_hv_logo.svg';
 
   const mobileUploadedLogoUrl =
     brandIdentity?.mobileLogo ||
-    brandIdentity?.headerHvLogo ||
-    siteSettings?.headerHvLogo ||
     uploadedLogoUrl;
 
   useEffect(() => {
     setLogoLoadError(false);
+    if (uploadedLogoUrl && typeof window !== 'undefined') {
+      try {
+        localStorage.setItem('hakkiveda_custom_hv_logo', uploadedLogoUrl);
+      } catch {}
+    }
   }, [uploadedLogoUrl]);
 
   useEffect(() => {
@@ -521,24 +538,12 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
             title="Return to Homepage"
             id="mobile-header-home-logo-link"
           >
-            {uploadedLogoUrl && !logoLoadError ? (
-              <div className="flex items-center justify-center shrink-0">
-                <img
-                  src={mobileUploadedLogoUrl || uploadedLogoUrl}
-                  alt={brandIdentity?.brandName || siteSettings?.companyName || 'HAKKIVEDA Logo'}
-                  className="h-7 xs:h-8 sm:h-8.5 max-h-9 w-auto object-contain transition-transform duration-300"
-                  onError={() => setLogoLoadError(true)}
-                  loading="eager"
-                  decoding="async"
-                />
-              </div>
-            ) : (
-              <div className="w-[26px] h-[26px] xs:w-[28px] xs:h-[28px] sm:w-[30px] sm:h-[30px] border border-[#C9A84E] bg-[#FAF7F2] flex items-center justify-center rotate-45 group-hover:bg-[#C9A84E]/10 transition-all duration-300 shadow-xs shrink-0">
-                <span className="-rotate-45 font-bold font-brand text-[#0F2E22] text-[10px] xs:text-[11px] sm:text-xs tracking-tight">
-                  {brandIdentity?.brandInitials || siteSettings?.logoInitials || 'HV'}
-                </span>
-              </div>
-            )}
+            <HvLogoAnimated
+              logoUrl={mobileUploadedLogoUrl || uploadedLogoUrl}
+              altText={brandIdentity?.brandName || siteSettings?.companyName || 'HAKKIVEDA Logo'}
+              size="mobile"
+              fallbackInitials={brandIdentity?.brandInitials || siteSettings?.logoInitials || 'HV'}
+            />
 
             <span
               className="font-bold text-[#0F2E22] text-[17px] xs:text-[18.5px] sm:text-[20px] tracking-[0.06em] xs:tracking-[0.1em] sm:tracking-[0.14em] uppercase whitespace-nowrap leading-none transition-colors group-hover:text-[#123F2A]"
@@ -681,25 +686,12 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
           title="Return to Homepage"
           id="header-home-logo-link"
         >
-          {uploadedLogoUrl && !logoLoadError ? (
-            <div className="flex items-center justify-center shrink-0">
-              <img
-                src={uploadedLogoUrl}
-                alt={brandIdentity?.brandName || siteSettings?.companyName || 'HAKKIVEDA Header Logo'}
-                className="h-[58px] max-h-[58px] max-w-[58px] w-auto object-contain transition-transform duration-300 group-hover:scale-105"
-                style={{ objectFit: 'contain' }}
-                onError={() => setLogoLoadError(true)}
-                loading="eager"
-                decoding="async"
-              />
-            </div>
-          ) : (
-            <div className="w-12 h-12 border-2 border-[var(--brand-gold,#D4AF37)] flex items-center justify-center rotate-45 group-hover:bg-[var(--brand-gold,#D4AF37)] transition-all duration-500 shadow-lg shrink-0">
-              <span className="-rotate-45 font-bold font-brand text-[var(--brand-gold,#D4AF37)] group-hover:text-[#123F2A] text-base tracking-tighter">
-                {brandIdentity?.brandInitials || siteSettings?.logoInitials || 'HV'}
-              </span>
-            </div>
-          )}
+          <HvLogoAnimated
+            logoUrl={uploadedLogoUrl}
+            altText={brandIdentity?.brandName || siteSettings?.companyName || 'HAKKIVEDA Header Logo'}
+            size="desktop"
+            fallbackInitials={brandIdentity?.brandInitials || siteSettings?.logoInitials || 'HV'}
+          />
 
           <div className="flex flex-col justify-center min-w-0">
             <HakkivedaWordmark size="md" theme="dark-header" />

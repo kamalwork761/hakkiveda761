@@ -112,6 +112,14 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
       if (field === 'headerHvLogo') {
         updateBrandIdentity({ headerHvLogo: url, headerHvLogoFilename: file.name });
         updateSiteSettings({ headerHvLogo: url, logoImageUrl: url });
+        try {
+          localStorage.setItem('hakkiveda_custom_hv_logo', url);
+          fetch('/api/brand/logo', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ logoUrl: url, filename: file.name }),
+          }).catch(() => {});
+        } catch (_) {}
       }
       showToast(`Uploaded ${String(field)} successfully to server`);
     } catch (err) {
@@ -132,6 +140,14 @@ export const AdminBrandManager: React.FC<AdminBrandManagerProps> = ({ showToast 
           if (field === 'headerHvLogo') {
             updateBrandIdentity({ headerHvLogo: dataUrl, headerHvLogoFilename: file.name });
             updateSiteSettings({ headerHvLogo: dataUrl, logoImageUrl: dataUrl });
+            try {
+              localStorage.setItem('hakkiveda_custom_hv_logo', dataUrl);
+              fetch('/api/brand/logo', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ logoUrl: dataUrl, filename: file.name }),
+              }).catch(() => {});
+            } catch (_) {}
           }
           showToast(`Uploaded ${String(field)}`);
         }

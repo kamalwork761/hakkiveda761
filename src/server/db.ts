@@ -174,9 +174,18 @@ export async function getDb() {
     // Ensure missing configs and partial records are safely merged with defaults in existing database
     let needsFlush = false;
     if (store.site_settings) {
+      // PRESERVE CUSTOM LOGO: never overwrite a custom logo with empty strings
+      const existingLogo =
+        store.site_settings.headerHvLogo ||
+        store.site_settings.logoImageUrl ||
+        store.brand_identity?.headerHvLogo ||
+        INITIAL_SITE_SETTINGS.headerHvLogo;
+
       store.site_settings = {
         ...INITIAL_SITE_SETTINGS,
         ...store.site_settings,
+        headerHvLogo: existingLogo,
+        logoImageUrl: store.site_settings.logoImageUrl || existingLogo,
         internationalCountryShippingRates: {
           ...(store.site_settings.internationalCountryShippingRates || {}),
         },
@@ -186,7 +195,17 @@ export async function getDb() {
       needsFlush = true;
     }
     if (store.brand_identity) {
-      store.brand_identity = { ...INITIAL_BRAND_IDENTITY, ...store.brand_identity };
+      const existingLogo =
+        store.brand_identity.headerHvLogo ||
+        store.site_settings?.headerHvLogo ||
+        INITIAL_BRAND_IDENTITY.headerHvLogo;
+
+      store.brand_identity = {
+        ...INITIAL_BRAND_IDENTITY,
+        ...store.brand_identity,
+        headerHvLogo: existingLogo,
+        mainLogoLight: store.brand_identity.mainLogoLight || existingLogo,
+      };
     } else {
       store.brand_identity = INITIAL_BRAND_IDENTITY;
       needsFlush = true;
@@ -293,6 +312,28 @@ export async function setStoreValue(key: string, value: any): Promise<boolean> {
   }
   const cleanKey = key.trim();
   const store = loadMemoryFromDisk();
+
+  // Protect custom logo persistence: never let partial/empty updates wipe a saved logo
+  if (cleanKey === 'site_settings' && value && typeof value === 'object') {
+    const existing = store.site_settings?.headerHvLogo || store.site_settings?.logoImageUrl || store.brand_identity?.headerHvLogo;
+    if (existing && (!value.headerHvLogo || value.headerHvLogo === '')) {
+      value.headerHvLogo = existing;
+    }
+    if (existing && (!value.logoImageUrl || value.logoImageUrl === '')) {
+      value.logoImageUrl = existing;
+    }
+  }
+
+  if (cleanKey === 'brand_identity' && value && typeof value === 'object') {
+    const existing = store.brand_identity?.headerHvLogo || store.site_settings?.headerHvLogo;
+    if (existing && (!value.headerHvLogo || value.headerHvLogo === '')) {
+      value.headerHvLogo = existing;
+    }
+    if (existing && (!value.mainLogoLight || value.mainLogoLight === '')) {
+      value.mainLogoLight = existing;
+    }
+  }
+
   store[cleanKey] = value;
   await flushToDisk();
   console.log(`[File DB] setStoreValue updated '${cleanKey}'`);

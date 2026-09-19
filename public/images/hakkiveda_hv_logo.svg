@@ -1,0 +1,120 @@
+<svg width="512" height="512" viewBox="0 0 512 512" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <!-- Metallic Gold Gradients -->
+    <linearGradient id="goldMetallic" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF5D1" />
+      <stop offset="25%" stop-color="#E8C766" />
+      <stop offset="50%" stop-color="#D4AF37" />
+      <stop offset="75%" stop-color="#AA820A" />
+      <stop offset="100%" stop-color="#6E5103" />
+    </linearGradient>
+
+    <linearGradient id="goldBevel" x1="0%" y1="100%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#8C6705" />
+      <stop offset="50%" stop-color="#D4AF37" />
+      <stop offset="100%" stop-color="#FFF8DC" />
+    </linearGradient>
+
+    <!-- Deep Forest Green Gradients -->
+    <radialGradient id="forestShield" cx="50%" cy="45%" r="60%">
+      <stop offset="0%" stop-color="#144A32" />
+      <stop offset="45%" stop-color="#0E3725" />
+      <stop offset="85%" stop-color="#082317" />
+      <stop offset="100%" stop-color="#04140D" />
+    </radialGradient>
+
+    <!-- Drop Shadow Filters -->
+    <filter id="goldGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="6" flood-color="#D4AF37" flood-opacity="0.35" />
+    </filter>
+
+    <filter id="deepShadow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="8" stdDeviation="12" flood-color="#000000" flood-opacity="0.5" />
+    </filter>
+  </defs>
+
+  <!-- Outer Drop Shadow Container -->
+  <g filter="url(#deepShadow)">
+    <!-- Main Crested Medallion: 8-Sided Rounded Sacred Geometry -->
+    <rect x="56" y="56" width="400" height="400" rx="90" fill="url(#forestShield)" stroke="url(#goldMetallic)" stroke-width="8" />
+    
+    <!-- Inner Concentric Filigree Ring -->
+    <rect x="74" y="74" width="364" height="364" rx="76" fill="none" stroke="url(#goldBevel)" stroke-width="2.5" stroke-dasharray="10 6" opacity="0.8" />
+    <rect x="88" y="88" width="336" height="336" rx="66" fill="none" stroke="url(#goldMetallic)" stroke-width="1.5" opacity="0.6" />
+
+    <!-- Botanical Herb Vines (Corner Accents: Sacred 42-Herb Hakki-Pikki Symbolism) -->
+    <!-- Top-Left Vine -->
+    <g transform="translate(100, 100)" stroke="url(#goldMetallic)" stroke-width="2" fill="none" stroke-linecap="round">
+      <path d="M0,40 Q15,15 40,0" />
+      <path d="M12,28 Q8,18 16,14 Q20,24 12,28 Z" fill="url(#goldMetallic)" opacity="0.9" />
+      <path d="M28,12 Q24,4 32,2 Q36,10 28,12 Z" fill="url(#goldMetallic)" opacity="0.9" />
+      <circle cx="0" cy="40" r="3" fill="url(#goldMetallic)" />
+    </g>
+
+    <!-- Top-Right Vine -->
+    <g transform="translate(412, 100) scale(-1, 1)" stroke="url(#goldMetallic)" stroke-width="2" fill="none" stroke-linecap="round">
+      <path d="M0,40 Q15,15 40,0" />
+      <path d="M12,28 Q8,18 16,14 Q20,24 12,28 Z" fill="url(#goldMetallic)" opacity="0.9" />
+      <path d="M28,12 Q24,4 32,2 Q36,10 28,12 Z" fill="url(#goldMetallic)" opacity="0.9" />
+      <circle cx="0" cy="40" r="3" fill="url(#goldMetallic)" />
+    </g>
+
+    <!-- Bottom-Left Vine -->
+    <g transform="translate(100, 412) scale(1, -1)" stroke="url(#goldMetallic)" stroke-width="2" fill="none" stroke-linecap="round">
+      <path d="M0,40 Q15,15 40,0" />
+      <path d="M12,28 Q8,18 16,14 Q20,24 12,28 Z" fill="url(#goldMetallic)" opacity="0.9" />
+      <path d="M28,12 Q24,4 32,2 Q36,10 28,12 Z" fill="url(#goldMetallic)" opacity="0.9" />
+      <circle cx="0" cy="40" r="3" fill="url(#goldMetallic)" />
+    </g>
+
+    <!-- Bottom-Right Vine -->
+    <g transform="translate(412, 412) scale(-1, -1)" stroke="url(#goldMetallic)" stroke-width="2" fill="none" stroke-linecap="round">
+      <path d="M0,40 Q15,15 40,0" />
+      <path d="M12,28 Q8,18 16,14 Q20,24 12,28 Z" fill="url(#goldMetallic)" opacity="0.9" />
+      <path d="M28,12 Q24,4 32,2 Q36,10 28,12 Z" fill="url(#goldMetallic)" opacity="0.9" />
+      <circle cx="0" cy="40" r="3" fill="url(#goldMetallic)" />
+    </g>
+
+    <!-- Top & Bottom Crown Accents -->
+    <path d="M240,78 L256,66 L272,78 L256,72 Z" fill="url(#goldMetallic)" />
+    <circle cx="256" cy="62" r="3.5" fill="url(#goldMetallic)" />
+
+    <path d="M240,434 L256,446 L272,434 L256,440 Z" fill="url(#goldMetallic)" />
+    <circle cx="256" cy="450" r="3.5" fill="url(#goldMetallic)" />
+
+    <!-- Centerpiece Monogram "HV" in Imperial Serif Typography with 3D Bevel -->
+    <g filter="url(#goldGlow)" text-anchor="middle" dominant-baseline="central">
+      <!-- Ambient Shadow Behind Lettering -->
+      <text x="256" y="262" 
+            font-family="'Cinzel', 'Playfair Display', 'Times New Roman', serif" 
+            font-weight="900" 
+            font-size="182" 
+            letter-spacing="-8" 
+            fill="#030C07" 
+            opacity="0.8">
+        HV
+      </text>
+
+      <!-- Main 24K Gold Metallic Letters -->
+      <text x="256" y="256" 
+            font-family="'Cinzel', 'Playfair Display', 'Times New Roman', serif" 
+            font-weight="900" 
+            font-size="182" 
+            letter-spacing="-8" 
+            fill="url(#goldMetallic)" 
+            stroke="url(#goldBevel)" 
+            stroke-width="3">
+        HV
+      </text>
+    </g>
+
+    <!-- Delicate Sub-text ribbon arc / botanical bar under monogram -->
+    <g transform="translate(256, 360)">
+      <line x1="-80" y1="0" x2="-20" y2="0" stroke="url(#goldMetallic)" stroke-width="1.5" stroke-linecap="round" />
+      <circle cx="0" cy="0" r="3.5" fill="url(#goldMetallic)" />
+      <circle cx="-10" cy="0" r="2" fill="url(#goldMetallic)" />
+      <circle cx="10" cy="0" r="2" fill="url(#goldMetallic)" />
+      <line x1="20" y1="0" x2="80" y2="0" stroke="url(#goldMetallic)" stroke-width="1.5" stroke-linecap="round" />
+    </g>
+  </g>
+</svg>

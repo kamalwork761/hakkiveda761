@@ -2862,6 +2862,37 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
     res.json({ success: true, message: 'Website settings saved successfully.' });
   });
 
+  // Dedicated Brand Logo Endpoints for bulletproof logo persistence
+  app.get('/api/brand/logo', async (_req, res) => {
+    const brandIdentity: any = (await getStoreValue('brand_identity')) || {};
+    const siteSettings: any = (await getStoreValue('site_settings')) || {};
+    const logoUrl =
+      brandIdentity.headerHvLogo ||
+      siteSettings.headerHvLogo ||
+      siteSettings.logoImageUrl ||
+      '/images/hakkiveda_hv_logo.svg';
+    res.json({ success: true, logoUrl });
+  });
+
+  app.post('/api/brand/logo', async (req, res) => {
+    const { logoUrl, filename } = req.body;
+    if (!logoUrl) {
+      return res.status(400).json({ success: false, error: 'logoUrl is required' });
+    }
+    const siteSettings: any = (await getStoreValue('site_settings')) || {};
+    const brandIdentity: any = (await getStoreValue('brand_identity')) || {};
+
+    siteSettings.headerHvLogo = logoUrl;
+    siteSettings.logoImageUrl = logoUrl;
+    brandIdentity.headerHvLogo = logoUrl;
+    if (filename) brandIdentity.headerHvLogoFilename = filename;
+    brandIdentity.mainLogoLight = logoUrl;
+
+    await setStoreValue('site_settings', siteSettings);
+    await setStoreValue('brand_identity', brandIdentity);
+    res.json({ success: true, message: 'Brand logo updated and persisted successfully', logoUrl });
+  });
+
   // Helper: Deep binary inspection (Magic-Byte / File Signature Validation)
   async function detectBinaryFileType(filePath: string): Promise<{ mime: string; ext: string } | null> {
     try {

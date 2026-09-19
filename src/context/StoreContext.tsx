@@ -467,6 +467,10 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setDbSyncStatus('saving');
     setServerSaveError(null);
 
+    try {
+      localStorage.setItem(`hakkiveda_${key}`, JSON.stringify(value));
+    } catch (_) {}
+
     return fetch(`/api/store/${key}`, {
       method: 'PUT',
       headers: { 'Content-Type': 'application/json' },
@@ -658,18 +662,38 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   // Site Settings & Branding
-  const [siteSettings, setSiteSettings] = useState<SiteSettings>(() => getStored('site_settings', INITIAL_SITE_SETTINGS));
+  const [siteSettings, setSiteSettings] = useState<SiteSettings>(() => {
+    const s = getStored('site_settings', INITIAL_SITE_SETTINGS);
+    const cachedLogo = typeof window !== 'undefined' ? (localStorage.getItem('hakkiveda_custom_hv_logo') || '') : '';
+    if (cachedLogo && (!s.headerHvLogo || s.headerHvLogo === '')) {
+      s.headerHvLogo = cachedLogo;
+      s.logoImageUrl = cachedLogo;
+    }
+    return s;
+  });
+
   const updateSiteSettings = (partial: Partial<SiteSettings>) => {
     setSiteSettings((prev) => {
       const next = { ...prev, ...partial };
       setStored('site_settings', next);
+      try {
+        localStorage.setItem('hakkiveda_site_settings', JSON.stringify(next));
+        if (next.headerHvLogo) {
+          localStorage.setItem('hakkiveda_custom_hv_logo', next.headerHvLogo);
+        }
+      } catch (_) {}
       return next;
     });
   };
 
-  const [brandIdentity, setBrandIdentity] = useState<BrandIdentityConfig>(() =>
-    getStored('brand_identity', INITIAL_BRAND_IDENTITY)
-  );
+  const [brandIdentity, setBrandIdentity] = useState<BrandIdentityConfig>(() => {
+    const b = getStored('brand_identity', INITIAL_BRAND_IDENTITY);
+    const cachedLogo = typeof window !== 'undefined' ? (localStorage.getItem('hakkiveda_custom_hv_logo') || '') : '';
+    if (cachedLogo && (!b.headerHvLogo || b.headerHvLogo === '')) {
+      b.headerHvLogo = cachedLogo;
+    }
+    return b;
+  });
 
   const [draftBrandIdentity, setDraftBrandIdentity] = useState<BrandIdentityConfig>(() =>
     getStored('brand_identity_draft', getStored('brand_identity', INITIAL_BRAND_IDENTITY))
@@ -1065,6 +1089,12 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       setDraftBrandIdentity(next);
       setStored('brand_identity_draft', next);
       applyBrandStyles(next);
+      try {
+        localStorage.setItem('hakkiveda_brand_identity', JSON.stringify(next));
+        if (next.headerHvLogo) {
+          localStorage.setItem('hakkiveda_custom_hv_logo', next.headerHvLogo);
+        }
+      } catch (_) {}
 
       // Keep siteSettings in sync automatically
       const siteUpdates: Partial<SiteSettings> = {};
@@ -1751,9 +1781,35 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           if (Array.isArray(d.orders)) setOrders(d.orders);
           if (Array.isArray(d.b2b_leads)) setB2BLeads(d.b2b_leads);
           if (Array.isArray(d.customer_accounts)) setCustomerAccounts(d.customer_accounts);
-          if (d.site_settings) setSiteSettings((prev) => ({ ...INITIAL_SITE_SETTINGS, ...prev, ...d.site_settings }));
+          if (d.site_settings) {
+            setSiteSettings((prev) => {
+              const cached = typeof window !== 'undefined' ? (localStorage.getItem('hakkiveda_custom_hv_logo') || '') : '';
+              const chosenLogo =
+                d.site_settings.headerHvLogo ||
+                prev.headerHvLogo ||
+                cached ||
+                INITIAL_SITE_SETTINGS.headerHvLogo;
+              return {
+                ...INITIAL_SITE_SETTINGS,
+                ...prev,
+                ...d.site_settings,
+                headerHvLogo: chosenLogo,
+                logoImageUrl: d.site_settings.logoImageUrl || chosenLogo,
+              };
+            });
+          }
           if (d.brand_identity) {
-            const mergedBrand = { ...INITIAL_BRAND_IDENTITY, ...d.brand_identity };
+            const cached = typeof window !== 'undefined' ? (localStorage.getItem('hakkiveda_custom_hv_logo') || '') : '';
+            const chosenLogo =
+              d.brand_identity.headerHvLogo ||
+              cached ||
+              INITIAL_BRAND_IDENTITY.headerHvLogo;
+            const mergedBrand = {
+              ...INITIAL_BRAND_IDENTITY,
+              ...d.brand_identity,
+              headerHvLogo: chosenLogo,
+              mainLogoLight: d.brand_identity.mainLogoLight || chosenLogo,
+            };
             setBrandIdentity(mergedBrand);
             applyBrandStyles(mergedBrand);
           }

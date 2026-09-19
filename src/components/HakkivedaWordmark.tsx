@@ -1,154 +1,221 @@
-import React from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 interface HakkivedaWordmarkProps {
   className?: string;
-  size?: 'sm' | 'md' | 'lg';
+  size?: 'mobile' | 'sm' | 'md' | 'lg';
   theme?: 'dark-header' | 'light-footer';
+  animate?: boolean;
 }
+
+const FULL_WORD = 'HAKKIVEDA';
+const HAKKI_LEN = 5; // 'HAKKI' (5 letters) + 'VEDA' (4 letters)
 
 export const HakkivedaWordmark: React.FC<HakkivedaWordmarkProps> = ({
   className = '',
   size = 'md',
   theme = 'dark-header',
+  animate = true,
 }) => {
-  const letters = ['H', 'A', 'K', 'K', 'I', 'V', 'E', 'D', 'A'];
+  // Check for prefers-reduced-motion
+  const [prefersReducedMotion, setPrefersReducedMotion] = useState(() => {
+    if (typeof window !== 'undefined' && window.matchMedia) {
+      return window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    }
+    return false;
+  });
 
-  // Dimensions based on size
-  const sizeClasses = {
-    sm: 'h-5 xs:h-5.5 sm:h-6 w-auto max-w-[130px] xs:max-w-[155px] sm:max-w-[180px]',
-    md: 'h-6 sm:h-8 w-36 sm:w-56',
-    lg: 'h-8 sm:h-10 w-48 sm:w-72',
-  }[size];
+  useEffect(() => {
+    if (typeof window === 'undefined' || !window.matchMedia) return;
+    const mql = window.matchMedia('(prefers-reduced-motion: reduce)');
+    const handler = (e: MediaQueryListEvent) => setPrefersReducedMotion(e.matches);
+    mql.addEventListener('change', handler);
+    return () => mql.removeEventListener('change', handler);
+  }, []);
 
-  // Colors derived from Forest Green palette (#0F2E22 primary / #0B2F20 deep shade)
-  const strokeColor = '#0F2E22';
+  const shouldAnimate = animate && !prefersReducedMotion;
+
+  // Character count during typewriter phase (1..9)
+  const [charCount, setCharCount] = useState<number>(shouldAnimate ? 1 : 9);
+  // Animation phase: 'typing' | 'spacing' | 'motion3d' | 'static'
+  const [phase, setPhase] = useState<'typing' | 'spacing' | 'motion3d' | 'static'>(
+    shouldAnimate ? 'typing' : 'static'
+  );
+
+  const timeoutsRef = useRef<NodeJS.Timeout[]>([]);
+  const intervalRef = useRef<NodeJS.Timeout | null>(null);
+
+  useEffect(() => {
+    if (!shouldAnimate) {
+      setCharCount(9);
+      setPhase('static');
+      return;
+    }
+
+    const clearAllTimers = () => {
+      timeoutsRef.current.forEach(clearTimeout);
+      timeoutsRef.current = [];
+    };
+
+    const runCycle = () => {
+      clearAllTimers();
+
+      // 1. TYPEWRITER: ~1.6s across 9 characters (200ms per step)
+      setPhase('typing');
+      setCharCount(1); // 'H'
+
+      for (let i = 2; i <= 9; i++) {
+        timeoutsRef.current.push(
+          setTimeout(() => {
+            setCharCount(i);
+          }, (i - 1) * 200)
+        );
+      }
+
+      // 2. LETTER SPACING EFFECT: ~1.0s (1800ms -> 2800ms)
+      // Gently increases letter spacing, then smoothly brings letters back together
+      timeoutsRef.current.push(
+        setTimeout(() => {
+          setPhase('spacing');
+        }, 1800)
+      );
+
+      // 3. SUBTLE 3D WORD MOVEMENT: ~1.0s (2800ms -> 3800ms)
+      // Slight rotation left, slight rotation right, return to normal
+      timeoutsRef.current.push(
+        setTimeout(() => {
+          setPhase('motion3d');
+        }, 2800)
+      );
+
+      // 4. REMAIN STATIC AFTERWARD: (3800ms -> 10000ms)
+      timeoutsRef.current.push(
+        setTimeout(() => {
+          setPhase('static');
+        }, 3800)
+      );
+    };
+
+    runCycle();
+    intervalRef.current = setInterval(runCycle, 10000);
+
+    return () => {
+      if (intervalRef.current) clearInterval(intervalRef.current);
+      clearAllTimers();
+    };
+  }, [shouldAnimate]);
+
+  // Derived typed string partition
+  const currentText = FULL_WORD.slice(0, charCount);
+  const hakkiPart = currentText.slice(0, HAKKI_LEN);
+  const vedaPart = currentText.slice(HAKKI_LEN);
+
+  // Responsive font sizes matching HAKKIVEDA design tokens
+  const sizeClasses: Record<string, string> = {
+    mobile: 'text-[17px] xs:text-[18.5px] sm:text-[20px]',
+    sm: 'text-[16px] sm:text-[18px]',
+    md: 'text-[22px] sm:text-[24px] lg:text-[25px]',
+    lg: 'text-[28px] sm:text-[32px]',
+  };
+
+  const currentSizeClass = sizeClasses[size] || sizeClasses.md;
+
+  // Active animation class
+  let phaseClass = '';
+  if (phase === 'spacing') {
+    phaseClass = 'hv-wordmark-spacing';
+  } else if (phase === 'motion3d') {
+    phaseClass = 'hv-wordmark-3d';
+  }
 
   return (
-    <div className={`relative inline-flex items-center select-none ${className}`}>
-      <svg
-        className={`w-auto ${sizeClasses}`}
-        viewBox="0 0 340 50"
-        fill="none"
-        xmlns="http://www.w3.org/2000/svg"
-        aria-label="HAKKIVEDA"
-        role="img"
+    <span
+      className={`hv-wordmark-container relative inline-flex items-center select-none font-bold uppercase ${currentSizeClass} ${className}`}
+      style={{
+        fontFamily: "'Cinzel', 'Cormorant Garamond', 'Playfair Display', Georgia, serif",
+        perspective: '700px',
+        lineHeight: 1,
+      }}
+      aria-label="HAKKIVEDA"
+      role="img"
+    >
+      {/* INVISIBLE SKELETON:
+          Guarantees 0px layout shift, 0px navigation movement, and 0px header height change
+          by permanently occupying the exact width and height of the full word 'HAKKIVEDA' */}
+      <span
+        aria-hidden="true"
+        className="invisible pointer-events-none select-none leading-none tracking-[0.08em]"
       >
-        <defs>
-          {/* Subtle Clean Forest Green Depth Filter */}
-          <filter id="forest-depth-soft" x="-20%" y="-20%" width="140%" height="140%">
-            <feGaussianBlur stdDeviation="1" result="blur" />
-            <feComponentTransfer in="blur" result="glow">
-              <feFuncA type="linear" slope="0.3" />
-            </feComponentTransfer>
-            <feMerge>
-              <feMergeNode in="glow" />
-              <feMergeNode in="SourceGraphic" />
-            </feMerge>
-          </filter>
+        HAKKIVEDA
+      </span>
 
-          {/* Premium Forest Green Fill Gradient */}
-          <linearGradient id="forest-green-luxury" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#0F2E22" />
-            <stop offset="60%" stopColor="#123F2A" />
-            <stop offset="100%" stopColor="#0B2F20" />
-          </linearGradient>
-        </defs>
+      {/* VISIBLE ANIMATED CONTENT:
+          Anchored inside the reserved bounds.
+          HAKKI = Forest Green (#0F2E22)
+          VEDA = Muted Gold (#C5A059) */}
+      <span
+        className={`hv-wordmark-inner absolute left-0 top-0 bottom-0 flex items-center font-bold uppercase whitespace-nowrap leading-none ${phaseClass}`}
+        style={{
+          fontFamily: "'Cinzel', 'Cormorant Garamond', 'Playfair Display', Georgia, serif",
+          letterSpacing: '0.08em',
+          transformStyle: 'preserve-3d',
+          willChange: 'transform, letter-spacing',
+        }}
+      >
+        <span className="text-[#0F2E22] drop-shadow-[0_1px_1px_rgba(0,0,0,0.06)] transition-colors">
+          {hakkiPart}
+        </span>
+        <span className="text-[#C5A059] drop-shadow-[0_1px_1px_rgba(197,160,89,0.15)] transition-colors">
+          {vedaPart}
+        </span>
+      </span>
 
-        <style>{`
-          @keyframes drawStroke {
-            0% {
-              stroke-dashoffset: 120;
-              fill-opacity: 0;
-            }
-            25% {
-              stroke-dashoffset: 0;
-              fill-opacity: 0;
-            }
-            35% {
-              stroke-dashoffset: 0;
-              fill-opacity: 1;
-            }
-            75% {
-              stroke-dashoffset: 0;
-              fill-opacity: 1;
-            }
-            88% {
-              stroke-dashoffset: 0;
-              fill-opacity: 0;
-            }
-            100% {
-              stroke-dashoffset: 120;
-              fill-opacity: 0;
-            }
+      <style>{`
+        /* LETTER SPACING EFFECT: ~1.0s */
+        @keyframes hvWordmarkSpacingKeyframes {
+          0% {
+            letter-spacing: 0.08em;
           }
-
-          @keyframes forestGlowPulse {
-            0%, 25% {
-              filter: drop-shadow(0 0 0px rgba(18, 63, 42, 0));
-            }
-            35% {
-              filter: drop-shadow(0 0 4px rgba(18, 63, 42, 0.35));
-            }
-            48% {
-              filter: drop-shadow(0 0 2px rgba(18, 63, 42, 0.15));
-            }
-            65% {
-              filter: drop-shadow(0 0 3px rgba(18, 63, 42, 0.25));
-            }
-            80% {
-              filter: drop-shadow(0 0 2px rgba(18, 63, 42, 0.15));
-            }
-            90%, 100% {
-              filter: drop-shadow(0 0 0px rgba(18, 63, 42, 0));
-            }
+          50% {
+            letter-spacing: 0.20em;
           }
-
-          .wordmark-group {
-            animation: forestGlowPulse 10s ease-in-out infinite;
+          100% {
+            letter-spacing: 0.08em;
           }
+        }
 
-          .letter-path {
-            font-family: 'Cinzel', 'Cormorant Garamond', 'Playfair Display', serif;
-            font-weight: 700;
-            font-size: 34px;
-            letter-spacing: 0.12em;
-            stroke: ${strokeColor};
-            stroke-width: 1.2px;
-            stroke-dasharray: 120;
-            stroke-dashoffset: 120;
-            fill: url(#forest-green-luxury);
-            fill-opacity: 0;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            animation: drawStroke 10s cubic-bezier(0.4, 0, 0.2, 1) infinite;
+        /* SUBTLE 3D WORD MOVEMENT: ~1.0s */
+        @keyframes hvWordmark3dKeyframes {
+          0% {
+            transform: perspective(700px) rotateY(0deg) rotateX(0deg);
           }
+          30% {
+            transform: perspective(700px) rotateY(-7.5deg) rotateX(2deg);
+          }
+          70% {
+            transform: perspective(700px) rotateY(7.5deg) rotateX(-2deg);
+          }
+          100% {
+            transform: perspective(700px) rotateY(0deg) rotateX(0deg);
+          }
+        }
 
-          /* Left-to-right staggered delays for each letter */
-          .letter-0 { animation-delay: 0.0s; }
-          .letter-1 { animation-delay: 0.25s; }
-          .letter-2 { animation-delay: 0.5s; }
-          .letter-3 { animation-delay: 0.75s; }
-          .letter-4 { animation-delay: 1.0s; }
-          .letter-5 { animation-delay: 1.25s; }
-          .letter-6 { animation-delay: 1.5s; }
-          .letter-7 { animation-delay: 1.75s; }
-          .letter-8 { animation-delay: 2.0s; }
-        `}</style>
+        .hv-wordmark-spacing {
+          animation: hvWordmarkSpacingKeyframes 1000ms cubic-bezier(0.4, 0, 0.2, 1) forwards;
+        }
 
-        <g className="wordmark-group" y="36">
-          {/* Render each letter individually for perfect left-to-right stroke animation */}
-          {/* Coordinates adjusted for 'Cinzel' serif typography alignment */}
-          <text x="5" y="36" className="letter-path letter-0">H</text>
-          <text x="42" y="36" className="letter-path letter-1">A</text>
-          <text x="78" y="36" className="letter-path letter-2">K</text>
-          <text x="114" y="36" className="letter-path letter-3">K</text>
-          <text x="150" y="36" className="letter-path letter-4">I</text>
-          <text x="172" y="36" className="letter-path letter-5">V</text>
-          <text x="210" y="36" className="letter-path letter-6">E</text>
-          <text x="244" y="36" className="letter-path letter-7">D</text>
-          <text x="282" y="36" className="letter-path letter-8">A</text>
-        </g>
-      </svg>
-    </div>
+        .hv-wordmark-3d {
+          animation: hvWordmark3dKeyframes 1000ms cubic-bezier(0.35, 0, 0.25, 1) forwards;
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+          .hv-wordmark-spacing,
+          .hv-wordmark-3d {
+            animation: none !important;
+            transform: none !important;
+            letter-spacing: 0.08em !important;
+          }
+        }
+      `}</style>
+    </span>
   );
 };

@@ -545,12 +545,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
               fallbackInitials={brandIdentity?.brandInitials || siteSettings?.logoInitials || 'HV'}
             />
 
-            <span
-              className="font-bold text-[#0F2E22] text-[17px] xs:text-[18.5px] sm:text-[20px] tracking-[0.06em] xs:tracking-[0.1em] sm:tracking-[0.14em] uppercase whitespace-nowrap leading-none transition-colors group-hover:text-[#123F2A]"
-              style={{ fontFamily: "'Cinzel', 'Cormorant Garamond', 'Playfair Display', Georgia, serif" }}
-            >
-              {brandIdentity?.brandName || siteSettings?.logoText || 'HAKKIVEDA'}
-            </span>
+            <HakkivedaWordmark size="mobile" theme="dark-header" animate={true} />
           </a>
         </div>
 
@@ -694,7 +689,7 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
           />
 
           <div className="flex flex-col justify-center min-w-0">
-            <HakkivedaWordmark size="md" theme="dark-header" />
+            <HakkivedaWordmark size="md" theme="dark-header" animate={true} />
             <span className="text-[9px] tracking-[0.28em] font-sans text-[#123F2A] font-semibold uppercase -mt-0.5 truncate drop-shadow-xs">
               {brandIdentity?.brandSubtitle || siteSettings?.logoSubtext || 'Hakki-Pikki Tribe & Ayurveda'}
             </span>

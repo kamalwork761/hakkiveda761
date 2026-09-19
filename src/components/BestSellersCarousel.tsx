@@ -136,7 +136,15 @@ export const BestSellersCarousel: React.FC = () => {
       id="bestsellers"
       className="py-8 sm:py-16 bg-white dark:bg-[var(--brand-primary-deep,#0A1810)] text-[#123F2A] dark:text-white relative overflow-hidden border-b border-[var(--color-border,#E7E1D5)] dark:border-white/10"
     >
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
+      {/* Intentional Branded Botanical Background Accents */}
+      <div className="absolute -top-12 -right-12 w-64 h-64 pointer-events-none select-none opacity-[0.07] dark:opacity-[0.04] rotate-45 transform" aria-hidden="true">
+        <img src="/images/botanical/bhringraj_sprig.webp" alt="" className="w-full h-full object-contain" />
+      </div>
+      <div className="absolute -bottom-16 -left-12 w-72 h-72 pointer-events-none select-none opacity-[0.06] dark:opacity-[0.03] -rotate-12 transform" aria-hidden="true">
+        <img src="/images/botanical/ayurvedic_herb_cluster.webp" alt="" className="w-full h-full object-contain" />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 relative z-[2]">
         {/* Header & Controls */}
         <div className="flex items-end justify-between mb-6 sm:mb-8 pb-3 sm:pb-4 border-b border-[var(--color-border,#E7E1D5)] dark:border-white/10">
           <div>

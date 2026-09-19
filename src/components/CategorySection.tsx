@@ -174,7 +174,16 @@ export const CategorySection: React.FC<CategorySectionProps> = ({ onSelectCatego
       className="py-8 sm:py-16 bg-[#FAF8F2] dark:bg-[var(--brand-primary-dark,#0B1D13)] border-t border-b border-[var(--color-border,#E7E1D5)] dark:border-white/10 relative overflow-hidden scroll-mt-12 text-[#123F2A] dark:text-white"
     >
       <div id="collections" className="absolute -top-12 left-0" />
-      <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12">
+
+      {/* Intentional Branded Botanical Background Accents */}
+      <div className="absolute -top-16 -left-12 w-64 h-64 pointer-events-none select-none opacity-[0.07] dark:opacity-[0.04] -rotate-45 transform" aria-hidden="true">
+        <img src="/images/botanical/neem_leaf.webp" alt="" className="w-full h-full object-contain" />
+      </div>
+      <div className="absolute -bottom-16 -right-12 w-72 h-72 pointer-events-none select-none opacity-[0.06] dark:opacity-[0.03] rotate-12 transform" aria-hidden="true">
+        <img src="/images/botanical/tulsi_leaf.webp" alt="" className="w-full h-full object-contain" />
+      </div>
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-8 lg:px-12 relative z-[2]">
         {/* Section Header */}
         <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 sm:mb-8 pb-3 sm:pb-4 border-b border-[var(--color-border,#E7E1D5)] dark:border-white/10 gap-3 sm:gap-4">
           <div>

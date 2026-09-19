@@ -11,6 +11,7 @@ import { WhatsAppButton } from './components/WhatsAppButton';
 import { ScrollToTopButton } from './components/ScrollToTopButton';
 import { SeoSchemaInjector } from './components/SeoSchemaInjector';
 import { CartToast } from './components/CartToast';
+import { BotanicalAmbientLayer } from './components/BotanicalAmbientLayer';
 
 // Dynamic / Lazy-loaded Below-the-fold sections
 const BeforeAfterSlider = lazy(() => import('./components/BeforeAfterSlider').then(m => ({ default: m.BeforeAfterSlider })));
@@ -264,7 +265,10 @@ export function AppContent() {
     : 'privacy-policy';
 
   return (
-    <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-text)] flex flex-col font-sans selection:bg-[var(--brand-gold)] selection:text-[var(--color-button-text)] transition-colors duration-300">
+    <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-text)] flex flex-col font-sans selection:bg-[var(--brand-gold)] selection:text-[var(--color-button-text)] transition-colors duration-300 relative">
+      {/* Global Botanical Floating Layer */}
+      <BotanicalAmbientLayer />
+
       {/* Schema.org Structured Data Injector */}
       <SeoSchemaInjector />
 

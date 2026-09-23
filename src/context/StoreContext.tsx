@@ -38,6 +38,8 @@ import {
   HomepageQuizBannerConfig,
   MobileNavConfig,
   HomepageEditorialConfig,
+  GlobalClientCountry,
+  GlobalClientStory,
 } from '../types/store';
 import {
   INITIAL_CURRENCIES,
@@ -72,6 +74,8 @@ import {
   INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG,
   INITIAL_MOBILE_NAV_CONFIG,
   INITIAL_HOMEPAGE_EDITORIAL_CONFIG,
+  INITIAL_GLOBAL_CLIENT_COUNTRIES,
+  INITIAL_GLOBAL_CLIENT_STORIES,
 } from '../data/initialData';
 import { idbGet, idbSet, idbClear } from '../utils/idbStorage';
 import { CountryItem, DEFAULT_COUNTRY } from '../data/countriesData';
@@ -353,6 +357,18 @@ interface StoreContextType {
   mobileNavConfig: MobileNavConfig;
   updateMobileNavConfig: (partial: Partial<MobileNavConfig>) => Promise<boolean>;
   resetMobileNavConfig: () => Promise<boolean>;
+
+  // Global Clients & International Stories
+  globalClientCountries: GlobalClientCountry[];
+  globalClientStories: GlobalClientStory[];
+  addGlobalClientCountry: (country: Omit<GlobalClientCountry, 'id' | 'createdAt' | 'updatedAt'>) => Promise<boolean>;
+  updateGlobalClientCountry: (id: string, partial: Partial<GlobalClientCountry>) => Promise<boolean>;
+  deleteGlobalClientCountry: (id: string) => Promise<boolean>;
+  reorderGlobalClientCountries: (newList: GlobalClientCountry[]) => Promise<boolean>;
+  addGlobalClientStory: (story: Omit<GlobalClientStory, 'id' | 'createdAt' | 'updatedAt'>) => Promise<boolean>;
+  updateGlobalClientStory: (id: string, partial: Partial<GlobalClientStory>) => Promise<boolean>;
+  deleteGlobalClientStory: (id: string) => Promise<boolean>;
+  reorderGlobalClientStories: (newList: GlobalClientStory[]) => Promise<boolean>;
 
   dbSyncStatus: 'loading' | 'synced' | 'saving' | 'error';
   serverSaveError: string | null;
@@ -851,6 +867,117 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       localStorage.setItem('hakkiveda_max_bestsellers_count', JSON.stringify(count));
     } catch (_) {}
     return await setStored('max_bestsellers_count', count);
+  };
+
+  // ==========================================
+  // GLOBAL CLIENTS & INTERNATIONAL STORIES
+  // ==========================================
+  const [globalClientCountries, setGlobalClientCountries] = useState<GlobalClientCountry[]>(() =>
+    getStored('global_client_countries', INITIAL_GLOBAL_CLIENT_COUNTRIES)
+  );
+
+  const [globalClientStories, setGlobalClientStories] = useState<GlobalClientStory[]>(() =>
+    getStored('global_client_stories', INITIAL_GLOBAL_CLIENT_STORIES)
+  );
+
+  const addGlobalClientCountry = async (
+    country: Omit<GlobalClientCountry, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<boolean> => {
+    const now = new Date().toISOString();
+    const newCountry: GlobalClientCountry = {
+      ...country,
+      id: `cntry-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      createdAt: now,
+      updatedAt: now,
+    };
+    const next = [...globalClientCountries, newCountry];
+    setGlobalClientCountries(next);
+    try {
+      localStorage.setItem('hakkiveda_global_client_countries', JSON.stringify(next));
+    } catch (_) {}
+    return await setStored('global_client_countries', next);
+  };
+
+  const updateGlobalClientCountry = async (
+    id: string,
+    partial: Partial<GlobalClientCountry>
+  ): Promise<boolean> => {
+    const next = globalClientCountries.map((c) =>
+      c.id === id ? { ...c, ...partial, updatedAt: new Date().toISOString() } : c
+    );
+    setGlobalClientCountries(next);
+    try {
+      localStorage.setItem('hakkiveda_global_client_countries', JSON.stringify(next));
+    } catch (_) {}
+    return await setStored('global_client_countries', next);
+  };
+
+  const deleteGlobalClientCountry = async (id: string): Promise<boolean> => {
+    const next = globalClientCountries.filter((c) => c.id !== id);
+    setGlobalClientCountries(next);
+    try {
+      localStorage.setItem('hakkiveda_global_client_countries', JSON.stringify(next));
+    } catch (_) {}
+    return await setStored('global_client_countries', next);
+  };
+
+  const reorderGlobalClientCountries = async (newList: GlobalClientCountry[]): Promise<boolean> => {
+    const updated = newList.map((c, idx) => ({ ...c, displayOrder: idx + 1 }));
+    setGlobalClientCountries(updated);
+    try {
+      localStorage.setItem('hakkiveda_global_client_countries', JSON.stringify(updated));
+    } catch (_) {}
+    return await setStored('global_client_countries', updated);
+  };
+
+  const addGlobalClientStory = async (
+    story: Omit<GlobalClientStory, 'id' | 'createdAt' | 'updatedAt'>
+  ): Promise<boolean> => {
+    const now = new Date().toISOString();
+    const newStory: GlobalClientStory = {
+      ...story,
+      id: `story-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      createdAt: now,
+      updatedAt: now,
+    };
+    const next = [...globalClientStories, newStory];
+    setGlobalClientStories(next);
+    try {
+      localStorage.setItem('hakkiveda_global_client_stories', JSON.stringify(next));
+    } catch (_) {}
+    return await setStored('global_client_stories', next);
+  };
+
+  const updateGlobalClientStory = async (
+    id: string,
+    partial: Partial<GlobalClientStory>
+  ): Promise<boolean> => {
+    const next = globalClientStories.map((s) =>
+      s.id === id ? { ...s, ...partial, updatedAt: new Date().toISOString() } : s
+    );
+    setGlobalClientStories(next);
+    try {
+      localStorage.setItem('hakkiveda_global_client_stories', JSON.stringify(next));
+    } catch (_) {}
+    return await setStored('global_client_stories', next);
+  };
+
+  const deleteGlobalClientStory = async (id: string): Promise<boolean> => {
+    const next = globalClientStories.filter((s) => s.id !== id);
+    setGlobalClientStories(next);
+    try {
+      localStorage.setItem('hakkiveda_global_client_stories', JSON.stringify(next));
+    } catch (_) {}
+    return await setStored('global_client_stories', next);
+  };
+
+  const reorderGlobalClientStories = async (newList: GlobalClientStory[]): Promise<boolean> => {
+    const updated = newList.map((s, idx) => ({ ...s, displayOrder: idx + 1 }));
+    setGlobalClientStories(updated);
+    try {
+      localStorage.setItem('hakkiveda_global_client_stories', JSON.stringify(updated));
+    } catch (_) {}
+    return await setStored('global_client_stories', updated);
   };
 
   const addShoppableReel = async (newReel: Omit<ShoppableReel, 'id'>): Promise<boolean> => {
@@ -1837,6 +1964,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
           if (Array.isArray(d.category_pages)) setCategoryPages(d.category_pages);
           if (typeof d.max_bestsellers_count === 'number') setMaxBestSellersCount(d.max_bestsellers_count);
           if (d.mobile_nav_config) setMobileNavConfig((prev) => ({ ...INITIAL_MOBILE_NAV_CONFIG, ...prev, ...d.mobile_nav_config }));
+          if (Array.isArray(d.global_client_countries)) setGlobalClientCountries(d.global_client_countries);
+          if (Array.isArray(d.global_client_stories)) setGlobalClientStories(d.global_client_stories);
 
           setDbSyncStatus('synced');
           console.log('[HAKKIVEDA STARTUP] Store data initialized (from server DB)');
@@ -3267,6 +3396,16 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         mobileNavConfig,
         updateMobileNavConfig,
         resetMobileNavConfig,
+        globalClientCountries,
+        globalClientStories,
+        addGlobalClientCountry,
+        updateGlobalClientCountry,
+        deleteGlobalClientCountry,
+        reorderGlobalClientCountries,
+        addGlobalClientStory,
+        updateGlobalClientStory,
+        deleteGlobalClientStory,
+        reorderGlobalClientStories,
         dbSyncStatus,
         serverSaveError,
         resetToDefaults,

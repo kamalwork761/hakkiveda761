@@ -1163,4 +1163,86 @@ export interface HomepageEditorialConfig {
   section3: HomepageEditorialSectionItem; // OUR JOURNEY -> THE HAKKIVEDA STORY -> /our-story
 }
 
+// ==========================================
+// GLOBAL CLIENTS & INTERNATIONAL STORIES
+// ==========================================
+
+export type GlobalClientType =
+  | 'Distributor'
+  | 'Retailer'
+  | 'Wholesale Buyer'
+  | 'Exhibition Client'
+  | 'Business Partner'
+  | 'Other';
+
+export type GlobalClientRelationshipType =
+  | 'Client visited HAKKIVEDA'
+  | 'HAKKIVEDA visited client'
+  | 'Exhibition meeting'
+  | 'Distributor meeting'
+  | 'Wholesale order'
+  | 'Retail partnership'
+  | 'Other';
+
+export interface GlobalClientStoryVideo {
+  id: string;
+  type: 'mp4' | 'youtube' | 'vimeo';
+  url: string;
+  title?: string;
+  thumbnailUrl?: string;
+}
+
+export interface GlobalClientTestimonial {
+  quote: string;
+  authorName?: string;
+  designation?: string;
+  avatarUrl?: string;
+}
+
+export interface GlobalClientCountry {
+  id: string;
+  countryName: string;
+  countryCode: string; // ISO Code e.g. NP, MU, SG, MY, AE, LK, ZM
+  flag: string; // Emoji e.g. 🇳🇵, 🇲🇺, 🇸🇬
+  slug: string; // e.g. nepal, mauritius, singapore
+  countryCoverImage: string;
+  shortDescription: string;
+  seoTitle?: string;
+  seoMetaDescription?: string;
+  published: boolean;
+  displayOrder: number;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
+export interface GlobalClientStory {
+  id: string;
+  countryId: string; // Matches GlobalClientCountry.id or country code/slug
+  title: string;
+  slug: string; // e.g. sanjeevani-naturals, wish-collection
+  clientName: string;
+  businessName: string;
+  city: string;
+  clientType: GlobalClientType;
+  relationshipType: GlobalClientRelationshipType;
+  meetingDate: string; // e.g. "October 2024"
+  shortDescription: string;
+  content: string; // Rich formatting with Markdown/headings/paragraphs/lists
+  productsPurchased: string; // Text description e.g. "108 Herbal Hair Oil 500ml"
+  linkedProductIds: string[]; // Linked catalog products for "Products Supplied"
+  coverImage: string;
+  galleryImages: string[]; // File URLs
+  videos: GlobalClientStoryVideo[];
+  testimonial?: GlobalClientTestimonial;
+  websiteUrl?: string;
+  socialUrl?: string;
+  featured: boolean; // Controls appearance under homepage "FEATURED GLOBAL STORIES"
+  published: boolean; // Controls draft/publish status
+  displayOrder: number;
+  seoTitle?: string;
+  seoMetaDescription?: string;
+  createdAt?: string;
+  updatedAt?: string;
+}
+
 

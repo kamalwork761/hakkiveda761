@@ -32,6 +32,8 @@ import {
   INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG,
   INITIAL_MOBILE_NAV_CONFIG,
   INITIAL_HOMEPAGE_EDITORIAL_CONFIG,
+  INITIAL_GLOBAL_CLIENT_COUNTRIES,
+  INITIAL_GLOBAL_CLIENT_STORIES,
 } from '../data/initialData';
 
 const DEFAULT_HERO_SLIDER_SETTINGS = {
@@ -163,6 +165,8 @@ export async function getDb() {
       homepage_quiz_banner_config: INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG,
       mobile_nav_config: INITIAL_MOBILE_NAV_CONFIG,
       homepage_editorial_config: INITIAL_HOMEPAGE_EDITORIAL_CONFIG,
+      global_client_countries: INITIAL_GLOBAL_CLIENT_COUNTRIES,
+      global_client_stories: INITIAL_GLOBAL_CLIENT_STORIES,
       max_bestsellers_count: 8,
       seeded: true,
     };
@@ -246,6 +250,14 @@ export async function getDb() {
     } else {
       store.homepage_editorial_config = { ...INITIAL_HOMEPAGE_EDITORIAL_CONFIG, ...store.homepage_editorial_config };
     }
+    if (!store.global_client_countries || !Array.isArray(store.global_client_countries)) {
+      store.global_client_countries = INITIAL_GLOBAL_CLIENT_COUNTRIES;
+      needsFlush = true;
+    }
+    if (!store.global_client_stories || !Array.isArray(store.global_client_stories)) {
+      store.global_client_stories = INITIAL_GLOBAL_CLIENT_STORIES;
+      needsFlush = true;
+    }
     if (needsFlush) {
       await flushToDisk();
     }
@@ -301,6 +313,8 @@ export async function getStoreValue<T = any>(key: string): Promise<T | null> {
     if (cleanKey === 'homepage_quiz_banner_config') return INITIAL_HOMEPAGE_QUIZ_BANNER_CONFIG as unknown as T;
     if (cleanKey === 'mobile_nav_config') return INITIAL_MOBILE_NAV_CONFIG as unknown as T;
     if (cleanKey === 'homepage_editorial_config') return INITIAL_HOMEPAGE_EDITORIAL_CONFIG as unknown as T;
+    if (cleanKey === 'global_client_countries') return INITIAL_GLOBAL_CLIENT_COUNTRIES as unknown as T;
+    if (cleanKey === 'global_client_stories') return INITIAL_GLOBAL_CLIENT_STORIES as unknown as T;
     return null;
   }
   return store[cleanKey] as T;
@@ -379,6 +393,8 @@ export const PUBLIC_STORE_ALLOWLIST: readonly string[] = [
   'homepage_quiz_banner_config',
   'mobile_nav_config',
   'homepage_editorial_config',
+  'global_client_countries',
+  'global_client_stories',
   'max_bestsellers_count',
   'cod_rules',
   'market_gateways',

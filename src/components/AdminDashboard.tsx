@@ -23,6 +23,7 @@ import { AdminProductManager } from './admin/AdminProductManager';
 import { AdminMobileNavManager } from './AdminMobileNavManager';
 import { AdminEditorialStoriesManager } from './AdminEditorialStoriesManager';
 import { AdminAnnouncementManager } from './AdminAnnouncementManager';
+import { AdminGlobalClientsManager } from './admin/AdminGlobalClientsManager';
 import {
   Lock,
   LayoutDashboard,
@@ -209,6 +210,7 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
     | 'orders'
     | 'b2b'
     | 'b2b_section'
+    | 'global_clients'
     | 'customers'
     | 'coupons'
     | 'reviews'
@@ -864,6 +866,15 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             >
               <Package className="w-4 h-4" />
               <span>📦 B2B Section Manager</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('global_clients')}
+              className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
+                activeTab === 'global_clients' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
+              }`}
+            >
+              <Globe className="w-4 h-4 text-emerald-300" />
+              <span>Global Clients & Stories</span>
             </button>
             <button
               onClick={() => setActiveTab('customers')}
@@ -1669,6 +1680,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
 
         {/* Tab 9b: B2B Section Manager (Homepage Content) */}
         {activeTab === 'b2b_section' && <AdminB2BSectionManager />}
+
+        {/* Tab: Global Clients & International Stories */}
+        {activeTab === 'global_clients' && <AdminGlobalClientsManager showToast={showToast} />}
 
         {/* Tab: Customer Accounts Management */}
         {activeTab === 'customers' && (

@@ -24,6 +24,10 @@ const CustomerReviews = lazy(() => import('./components/CustomerReviews').then(m
 const BlogSection = lazy(() => import('./components/BlogSection').then(m => ({ default: m.BlogSection })));
 const B2BSection = lazy(() => import('./components/B2BSection').then(m => ({ default: m.B2BSection })));
 const B2BEnquiryPage = lazy(() => import('./pages/B2BEnquiryPage').then(m => ({ default: m.B2BEnquiryPage })));
+const HomepageInternationalClientsSection = lazy(() => import('./components/HomepageInternationalClientsSection').then(m => ({ default: m.HomepageInternationalClientsSection })));
+const GlobalClientsPage = lazy(() => import('./pages/GlobalClientsPage').then(m => ({ default: m.GlobalClientsPage })));
+const GlobalClientCountryPage = lazy(() => import('./pages/GlobalClientCountryPage').then(m => ({ default: m.GlobalClientCountryPage })));
+const GlobalClientStoryDetailPage = lazy(() => import('./pages/GlobalClientStoryDetailPage').then(m => ({ default: m.GlobalClientStoryDetailPage })));
 
 // Dedicated Brand & Journal Pages
 const OurTribalRootsPage = lazy(() => import('./components/OurTribalRootsPage').then(m => ({ default: m.OurTribalRootsPage })));
@@ -238,6 +242,22 @@ export function AppContent() {
     normalizedPath === '/the-journal'
   );
 
+  // Global Clients & International Case Studies Routes
+  const globalClientStoryRouteMatch = normalizedPath.match(/^\/global-clients\/([^/]+)\/([^/]+)\/?$/i);
+  const isGlobalClientStoryRoute = Boolean(globalClientStoryRouteMatch);
+  const globalClientCountrySlug = globalClientStoryRouteMatch ? decodeURIComponent(globalClientStoryRouteMatch[1]) : '';
+  const globalClientStorySlug = globalClientStoryRouteMatch ? decodeURIComponent(globalClientStoryRouteMatch[2]) : '';
+
+  const globalClientCountryRouteMatch = !isGlobalClientStoryRoute && normalizedPath.match(/^\/global-clients\/([^/]+)\/?$/i);
+  const isGlobalClientCountryRoute = Boolean(globalClientCountryRouteMatch);
+  const globalClientCountryPageSlug = globalClientCountryRouteMatch ? decodeURIComponent(globalClientCountryRouteMatch[1]) : '';
+
+  const isGlobalClientsMainRoute = !isGlobalClientStoryRoute && !isGlobalClientCountryRoute && (
+    normalizedPath === '/global-clients' ||
+    normalizedPath === '/international-clients' ||
+    normalizedPath === '/clients-around-the-world'
+  );
+
   // Legal & Customer Care Policy Routes
   const isPrivacyRoute = normalizedPath === '/privacy-policy' || normalizedPath === '/privacy';
   const isTermsRoute = normalizedPath === '/terms-and-conditions' || normalizedPath === '/terms' || normalizedPath === '/terms-of-service';
@@ -419,6 +439,25 @@ export function AppContent() {
               onNavigatePolicy={(key) => navigate(`/${key}`)}
             />
           </Suspense>
+        ) : isGlobalClientStoryRoute ? (
+          <Suspense fallback={<SectionSkeleton />}>
+            <GlobalClientStoryDetailPage
+              countrySlug={globalClientCountrySlug}
+              clientSlug={globalClientStorySlug}
+              onNavigate={navigate}
+            />
+          </Suspense>
+        ) : isGlobalClientCountryRoute ? (
+          <Suspense fallback={<SectionSkeleton />}>
+            <GlobalClientCountryPage
+              countrySlug={globalClientCountryPageSlug}
+              onNavigate={navigate}
+            />
+          </Suspense>
+        ) : isGlobalClientsMainRoute ? (
+          <Suspense fallback={<SectionSkeleton />}>
+            <GlobalClientsPage onNavigate={navigate} />
+          </Suspense>
         ) : (
           <>
             {/* Hero Slider */}
@@ -460,6 +499,9 @@ export function AppContent() {
 
               {/* B2B Wholesale Export */}
               <B2BSection />
+
+              {/* Our International Clients & Global Stories Showcase */}
+              <HomepageInternationalClientsSection />
             </Suspense>
           </>
         )}

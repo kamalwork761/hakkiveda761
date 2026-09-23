@@ -29,6 +29,8 @@ import {
   HomepageQuizBannerConfig,
   MobileNavConfig,
   HomepageEditorialConfig,
+  GlobalClientCountry,
+  GlobalClientStory,
 } from '../types/store';
 import {
   WORLD_COUNTRIES,
@@ -2671,5 +2673,458 @@ export const INITIAL_HOMEPAGE_EDITORIAL_CONFIG: HomepageEditorialConfig = {
     ctaLink: '/our-story',
   },
 };
+
+// ==========================================
+// INITIAL GLOBAL CLIENTS DATA
+// ==========================================
+
+export const INITIAL_GLOBAL_CLIENT_COUNTRIES: GlobalClientCountry[] = [
+  {
+    id: 'cntry-np',
+    countryName: 'Nepal',
+    countryCode: 'NP',
+    flag: '🇳🇵',
+    slug: 'nepal',
+    countryCoverImage: '/images/hero_tribal_elders.jpg',
+    shortDescription: 'Himalayan retail networks, Ayurvedic clinic dispensaries, and organic wellness stores across Kathmandu and Pokhara.',
+    seoTitle: 'HAKKIVEDA Clients in Nepal | Authentic Ayurvedic Hair Care Retailers',
+    seoMetaDescription: 'Discover international retailers and Ayurvedic clinics in Nepal partnering with HAKKIVEDA for authentic Hakki-Pikki tribal hair oils and wellness formulas.',
+    published: true,
+    displayOrder: 1,
+    createdAt: '2024-01-15T00:00:00Z',
+    updatedAt: '2024-01-15T00:00:00Z',
+  },
+  {
+    id: 'cntry-mu',
+    countryName: 'Mauritius',
+    countryCode: 'MU',
+    flag: '🇲🇺',
+    slug: 'mauritius',
+    countryCoverImage: '/images/hakkiveda_oil_couple_herbs.jpg',
+    shortDescription: 'Island wellness boutiques, resort spas, and luxury Ayurvedic beauty collections serving Mauritius and the Indian Ocean.',
+    seoTitle: 'HAKKIVEDA Clients in Mauritius | Premium Island Stockists & Boutiques',
+    seoMetaDescription: 'Meet the luxury boutiques and holistic wellness stockists in Mauritius curating HAKKIVEDA cold-pressed tribal oils for discerning island clientele.',
+    published: true,
+    displayOrder: 2,
+    createdAt: '2024-02-10T00:00:00Z',
+    updatedAt: '2024-02-10T00:00:00Z',
+  },
+  {
+    id: 'cntry-sg',
+    countryName: 'Singapore',
+    countryCode: 'SG',
+    flag: '🇸🇬',
+    slug: 'singapore',
+    countryCoverImage: '/images/hakkiveda_108_herbs_infographic.jpg',
+    shortDescription: 'Specialty organic beauty pharmacies and heritage wellness studios in Little India, Orchard, and Serangoon.',
+    seoTitle: 'HAKKIVEDA Clients in Singapore | Urban Organic Wellness Stockists',
+    seoMetaDescription: 'Explore our retail and wholesale partners in Singapore delivering pure Hakki-Pikki tribal hair oils and natural lepa formulations.',
+    published: true,
+    displayOrder: 3,
+    createdAt: '2024-03-05T00:00:00Z',
+    updatedAt: '2024-03-05T00:00:00Z',
+  },
+  {
+    id: 'cntry-my',
+    countryName: 'Malaysia',
+    countryCode: 'MY',
+    flag: '🇲🇾',
+    slug: 'malaysia',
+    countryCoverImage: '/images/hero_tribal_elders.jpg',
+    shortDescription: 'Holistic lifestyle concept stores and traditional botanical dispensaries in Kuala Lumpur and Penang.',
+    seoTitle: 'HAKKIVEDA Clients in Malaysia | Botanical & Ayurvedic Partners',
+    seoMetaDescription: 'Explore our trusted retail distribution partners and wellness centers across Malaysia featuring HAKKIVEDA tribal hair care.',
+    published: true,
+    displayOrder: 4,
+    createdAt: '2024-04-12T00:00:00Z',
+    updatedAt: '2024-04-12T00:00:00Z',
+  },
+  {
+    id: 'cntry-ae',
+    countryName: 'UAE',
+    countryCode: 'AE',
+    flag: '🇦🇪',
+    slug: 'uae',
+    countryCoverImage: '/images/hakkiveda_oil_couple_herbs.jpg',
+    shortDescription: 'Premier organic grocers, luxury spa apothecaries, and wellness centers in Dubai and Abu Dhabi.',
+    seoTitle: 'HAKKIVEDA Clients in UAE | Dubai & Abu Dhabi Luxury Stockists',
+    seoMetaDescription: 'Discover our high-profile retail partners and Ayurvedic wellness studios in the United Arab Emirates offering HAKKIVEDA oils.',
+    published: true,
+    displayOrder: 5,
+    createdAt: '2024-05-20T00:00:00Z',
+    updatedAt: '2024-05-20T00:00:00Z',
+  },
+  {
+    id: 'cntry-lk',
+    countryName: 'Sri Lanka',
+    countryCode: 'LK',
+    flag: '🇱🇰',
+    slug: 'sri-lanka',
+    countryCoverImage: '/images/hakkiveda_108_herbs_infographic.jpg',
+    shortDescription: 'Indigenous botanical practitioners, eco-resort apothecaries, and Ayurvedic retail stores in Colombo and Kandy.',
+    seoTitle: 'HAKKIVEDA Clients in Sri Lanka | Traditional Herbal Dispensaries',
+    seoMetaDescription: 'Learn about our Ayurvedic retail relationships and wellness partnerships across Sri Lanka.',
+    published: true,
+    displayOrder: 6,
+    createdAt: '2024-06-18T00:00:00Z',
+    updatedAt: '2024-06-18T00:00:00Z',
+  },
+  {
+    id: 'cntry-zm',
+    countryName: 'Zambia',
+    countryCode: 'ZM',
+    flag: '🇿🇲',
+    slug: 'zambia',
+    countryCoverImage: '/images/hero_tribal_elders.jpg',
+    shortDescription: 'Holistic health pharmacies and natural hair care distributors in Lusaka and the Copperbelt.',
+    seoTitle: 'HAKKIVEDA Clients in Zambia | Lusaka Holistic Health Partners',
+    seoMetaDescription: 'Discover our wholesale and distribution partners in Zambia bringing pure Indian forest hair oil rituals to African markets.',
+    published: true,
+    displayOrder: 7,
+    createdAt: '2024-07-08T00:00:00Z',
+    updatedAt: '2024-07-08T00:00:00Z',
+  },
+];
+
+export const INITIAL_GLOBAL_CLIENT_STORIES: GlobalClientStory[] = [
+  {
+    id: 'story-np-1',
+    countryId: 'cntry-np',
+    title: 'HAKKIVEDA × Sanjeevani Naturals Nepal',
+    slug: 'sanjeevani-naturals',
+    clientName: 'Aarav Sharma',
+    businessName: 'Sanjeevani Naturals Nepal',
+    city: 'Kathmandu',
+    clientType: 'Distributor',
+    relationshipType: 'Distributor meeting',
+    meetingDate: 'October 2024',
+    shortDescription: 'How a prominent Kathmandu organic distributor introduced authentic Hakki-Pikki tribal hair rituals to 14 boutique wellness centers across the Himalayan valley.',
+    content: `## A Shared Reverence for Untamed Forest Botanicals
+
+Nestled in the heart of Kathmandu, **Sanjeevani Naturals** has long been the premier curator of pure, whole-plant Himalayan remedies. In autumn 2024, founders Aarav Sharma and his procurement team connected with HAKKIVEDA at an international Ayurvedic summit in New Delhi.
+
+> "Our customers in Nepal demand authenticity above all else. They understand traditional herbs intimately. When we inspected HAKKIVEDA's wood-fired copper cauldron process, we recognized an uncompromised level of craftsmanship that is exceedingly rare in commercial beauty today."
+> — *Aarav Sharma, Founder & Director*
+
+### The Initial Pilot Distribution
+
+The collaboration commenced with a dedicated pilot consignment of the signature **HAKKIVEDA 108 Herbs Tribal Hair Oil (500ml)** and **Natural Baldness Lepa Powder**. Distributed across flagship wellness centers in Thamel, Lazimpat, and Lakeside Pokhara, the results exceeded all expectations:
+
+- **100% Sell-Through** within the first 18 business days.
+- **Over 42 Repeat Consultations** logged at partner Ayurvedic clinics.
+- **Zero Adverse Sensitivities**, with widespread praise for the grounding herbal aroma and rapid scalp-cooling relief during high-stress winter months.
+
+### Deep Root Nourishment in High-Altitude Climates
+
+The crisp, arid mountain air of the Kathmandu Valley often strips delicate scalp barriers of essential sebum. By introducing regular warm oil massage (Shiro Abhyanga) using HAKKIVEDA's heavy cold-pressed sesame and coconut base, Sanjeevani's clinical patrons reported dramatic reductions in dry flaking, winter breakage, and receding hairline thinning.
+
+### Ongoing Growth & Wholesale Expansion
+
+Following the runaway success of the initial batch, Sanjeevani Naturals formalized an annual distribution agreement, incorporating HAKKIVEDA into their permanent catalog with quarterly temperature-monitored shipments direct from Mysuru.`,
+    productsPurchased: 'HAKKIVEDA 108 Herbs Hair Oil (500ml), Tribal Baldness Lepa Powder',
+    linkedProductIds: ['prod-1', 'prod-4'],
+    coverImage: '/images/hero_tribal_elders.jpg',
+    galleryImages: [
+      '/images/hakkiveda_oil_couple_herbs.jpg',
+      '/images/hakkiveda_108_herbs_infographic.jpg',
+      '/images/hakkiveda_baldness_powder.jpg',
+    ],
+    videos: [
+      {
+        id: 'vid-np-1',
+        type: 'youtube',
+        url: 'https://www.youtube.com/watch?v=dQw4w9WgXcQ',
+        title: 'HAKKIVEDA Forest Herb Sourcing & Traditional Preparation',
+      },
+    ],
+    testimonial: {
+      quote: 'The authentic tribal formulation from HAKKIVEDA has received overwhelming acclaim from wellness seekers in Kathmandu and Pokhara. Pure, unadulterated herbal efficacy that honors ancient forest roots.',
+      authorName: 'Aarav Sharma',
+      designation: 'Managing Director, Sanjeevani Naturals Nepal',
+    },
+    websiteUrl: 'https://sanjeevaninaturals.np.example',
+    socialUrl: 'https://instagram.com/sanjeevani_nepal',
+    featured: true,
+    published: true,
+    displayOrder: 1,
+    seoTitle: 'HAKKIVEDA × Sanjeevani Naturals Nepal | Client Case Study',
+    seoMetaDescription: 'Read how Sanjeevani Naturals Nepal partnered with HAKKIVEDA to distribute authentic Hakki-Pikki tribal hair oils across Kathmandu and Pokhara wellness centers.',
+    createdAt: '2024-10-18T00:00:00Z',
+    updatedAt: '2024-10-18T00:00:00Z',
+  },
+  {
+    id: 'story-mu-1',
+    countryId: 'cntry-mu',
+    title: 'HAKKIVEDA × Wish Collection Mauritius',
+    slug: 'wish-collection',
+    clientName: 'Devina Ramgoolam',
+    businessName: 'Wish Collection Mauritius',
+    city: 'Port Louis & Grand Baie',
+    clientType: 'Retailer',
+    relationshipType: 'Wholesale order',
+    meetingDate: 'December 2024',
+    shortDescription: 'How a luxury coastal boutique group in Mauritius made HAKKIVEDA their top-recommended scalp ritual for high-humidity coastal hair recovery.',
+    content: `## Coastal Luxury Meets Pure Forest Medicine
+
+Along the serene coastlines of Grand Baie and the heritage streets of Port Louis, **Wish Collection** represents the pinnacle of luxury botanical personal care. Founded by Devina Ramgoolam, the boutique chain specializes in clean, unrefined formulas from across the globe.
+
+> "Living in Mauritius means dealing with year-round ocean breezes, saline spray, and tropical sun exposure. Our patrons needed a heavy, deeply penetrative oil that could shield the hair shaft without chemical silicones. HAKKIVEDA delivered precisely that."
+> — *Devina Ramgoolam, Creative Founder*
+
+### Meeting the Artisan Roots
+
+After reviewing sample vials in late 2024, Devina placed an initial wholesale order comprising:
+- **108 Herbs Hair Oil (250ml & 500ml Glass Decanters)**
+- **Root Density Follicle Serum**
+- **Gentle Tribal Scalp Cleansing Bars**
+
+The packaging, sealed with natural parchment and adorned with the authentic Hakki-Pikki tribal motif, immediately resonated with luxury travelers and Mauritian locals alike.
+
+### Transformational Results on Sun-Stressed Strands
+
+Within four weeks of stocking, repeat client feedback highlighted:
+1. Marked reduction in frizz and split ends caused by ocean humidity.
+2. Noticeable retention of natural hair color and deep shine.
+3. Soothing of dry, itchy scalps triggered by chlorinated resort pools.`,
+    productsPurchased: '108 Herbs Hair Oil 250ml & 500ml, Root Density Scalp Serum',
+    linkedProductIds: ['prod-1', 'prod-2', 'prod-3'],
+    coverImage: '/images/hakkiveda_oil_couple_herbs.jpg',
+    galleryImages: [
+      '/images/hakkiveda_108_oil_gold.jpg',
+      '/images/hakkiveda_108_oil_back_label.jpg',
+    ],
+    videos: [],
+    testimonial: {
+      quote: 'Our boutique clients adore the earthy fragrance and immediate softening texture of HAKKIVEDA oils. It has become a permanent staple on our luxury Ayurvedic shelf.',
+      authorName: 'Devina Ramgoolam',
+      designation: 'Founder & Head Buyer, Wish Collection Mauritius',
+    },
+    websiteUrl: 'https://wishcollection.mu.example',
+    socialUrl: 'https://instagram.com/wishcollection_mu',
+    featured: true,
+    published: true,
+    displayOrder: 2,
+    seoTitle: 'HAKKIVEDA × Wish Collection Mauritius | Luxury Coastal Retail Story',
+    seoMetaDescription: 'Discover how luxury Mauritian boutique chain Wish Collection integrated HAKKIVEDA tribal forest oils for coastal hair rehabilitation.',
+    createdAt: '2024-12-05T00:00:00Z',
+    updatedAt: '2024-12-05T00:00:00Z',
+  },
+  {
+    id: 'story-sg-1',
+    countryId: 'cntry-sg',
+    title: 'HAKKIVEDA × Serangoon Ayurvedic Wellness',
+    slug: 'serangoon-ayurvedic-wellness',
+    clientName: 'Mei Ling Tan & Rajesh Nair',
+    businessName: 'Serangoon Ayurvedic Wellness',
+    city: 'Singapore',
+    clientType: 'Wholesale Buyer',
+    relationshipType: 'Client visited HAKKIVEDA',
+    meetingDate: 'January 2025',
+    shortDescription: 'From a personal visit to our Mysuru extraction workshops to stocking premium scalp treatments in downtown Singapore.',
+    content: `## A Hands-On Journey to the Forest Edge
+
+In January 2025, wellness entrepreneurs **Mei Ling Tan** and **Rajesh Nair** traveled from Singapore directly to Mysuru, India. As operators of Serangoon Ayurvedic Wellness, they had grown frustrated with commercial Ayurvedic products filled with mineral oil and synthetic fragrances.
+
+> "Watching the Hakki-Pikki tribal artisans slowly simmer fresh Bhringraj, Brahmi, and Amla in cold-pressed sesame oil over open wood fires convinced us completely. You cannot fake the vibrational purity of slow herbal infusion."
+> — *Rajesh Nair, Co-Founder*
+
+### Implementing the Urban Scalp Detox Ritual
+
+Back in Singapore, Serangoon Wellness introduced a tailored **"Tribal Scalp Awakening"** 60-minute head massage therapy using HAKKIVEDA 108 Oil, followed by home care prescriptions with the **Root Density Follicle Serum**.
+
+### Measurable Client Outcomes
+
+- Over 300 studio treatments administered within the first 60 days.
+- Over 92% client satisfaction reported on scalp comfort and reduced daily shedding.
+- A waiting list established for each new air-shipped consignment from Karnataka.`,
+    productsPurchased: 'Root Density Follicle Serum, 108 Hair Oil Master Packs',
+    linkedProductIds: ['prod-1', 'prod-3'],
+    coverImage: '/images/hakkiveda_108_herbs_infographic.jpg',
+    galleryImages: [
+      '/images/hero_tribal_elders.jpg',
+      '/images/hakkiveda_oil_couple_herbs.jpg',
+    ],
+    videos: [],
+    testimonial: {
+      quote: 'We visited the HAKKIVEDA facility and witnessed the slow wood-fired copper vessel extraction first-hand. Incomparable purity and integrity that our Singapore clients trust implicitly.',
+      authorName: 'Mei Ling Tan & Rajesh Nair',
+      designation: 'Co-Founders, Serangoon Ayurvedic Wellness Singapore',
+    },
+    websiteUrl: 'https://serangoonwellness.sg.example',
+    socialUrl: 'https://instagram.com/serangoonwellness_sg',
+    featured: true,
+    published: true,
+    displayOrder: 3,
+    seoTitle: 'HAKKIVEDA × Serangoon Ayurvedic Wellness Singapore | Case Study',
+    seoMetaDescription: 'Learn how Singapore wellness studio Serangoon Ayurvedic Wellness adopted HAKKIVEDA authentic tribal hair formulas following an in-person artisan visit.',
+    createdAt: '2025-01-20T00:00:00Z',
+    updatedAt: '2025-01-20T00:00:00Z',
+  },
+  {
+    id: 'story-my-1',
+    countryId: 'cntry-my',
+    title: 'HAKKIVEDA × Nusantara Botanical Emporium',
+    slug: 'nusantara-botanical-emporium',
+    clientName: 'Farhan bin Zulkifli',
+    businessName: 'Nusantara Botanical Emporium',
+    city: 'Kuala Lumpur',
+    clientType: 'Distributor',
+    relationshipType: 'Retail partnership',
+    meetingDate: 'February 2025',
+    shortDescription: 'Bringing authentic tribal Indian oils to Southeast Asia’s most discerning botanical lifestyle hub in Bangsar.',
+    content: `## Celebrating Indigenous Plant Knowledge Across Borders
+
+In the cosmopolitan quarter of Bangsar, Kuala Lumpur, **Nusantara Botanical Emporium** bridges Southeast Asian and South Asian herbal traditions. When curator Farhan bin Zulkifli sought an uncompromising cold-pressed hair treatment, HAKKIVEDA emerged as the ideal partner.
+
+### Curated Selection for Tropical Climates
+
+The Malaysian collection focuses on balancing scalp moisture without heaviness:
+- Weekly overnight scalp oiling with the **108 Herbs Formulation**
+- Mild sulfate-free cleansing with tribal herbal preparations
+- Scalp cooling for urbanites experiencing stress-induced hair loss
+
+The response from Kuala Lumpur's eco-conscious community has established HAKKIVEDA as an essential recommendation for holistic hair revival.`,
+    productsPurchased: 'HAKKIVEDA 108 Herbs Hair Oil, Herbal Shampoo Bar',
+    linkedProductIds: ['prod-1', 'prod-2'],
+    coverImage: '/images/hero_tribal_elders.jpg',
+    galleryImages: ['/images/hakkiveda_oil_couple_herbs.jpg'],
+    videos: [],
+    testimonial: {
+      quote: 'The synergy between traditional Indian tribal wisdom and our Southeast Asian clientele is remarkable. HAKKIVEDA brings a level of purity that speaks for itself.',
+      authorName: 'Farhan bin Zulkifli',
+      designation: 'Managing Partner, Nusantara Botanical Emporium',
+    },
+    websiteUrl: 'https://nusantarabotanical.my.example',
+    socialUrl: 'https://instagram.com/nusantarabotanical_my',
+    featured: false,
+    published: true,
+    displayOrder: 4,
+    seoTitle: 'HAKKIVEDA × Nusantara Botanical Emporium Malaysia | Story',
+    seoMetaDescription: 'Read about our partnership with Nusantara Botanical Emporium in Kuala Lumpur, distributing authentic Hakki-Pikki tribal hair oils.',
+    createdAt: '2025-02-15T00:00:00Z',
+    updatedAt: '2025-02-15T00:00:00Z',
+  },
+  {
+    id: 'story-ae-1',
+    countryId: 'cntry-ae',
+    title: 'HAKKIVEDA × Al Barsha Organic & Herbal Center',
+    slug: 'al-barsha-organic-herbal',
+    clientName: 'Tariq Al-Mansoor',
+    businessName: 'Al Barsha Organic & Herbal Center',
+    city: 'Dubai',
+    clientType: 'Distributor',
+    relationshipType: 'Exhibition meeting',
+    meetingDate: 'November 2024',
+    shortDescription: 'Combatting desalinated water effects and intense desert heat with deep tribal scalp saturation in the United Arab Emirates.',
+    content: `## Overcoming Desert Dryness with Rich Forest Elixirs
+
+Residents of Dubai face distinctive hair challenges: daily showers with desalinated water combined with high outdoor temperatures and dry indoor air conditioning can weaken the hair cortex and dehydrate the scalp.
+
+At the Dubai International Natural Products Expo in November 2024, **Al Barsha Organic & Herbal Center** partnered with HAKKIVEDA to supply an intensive moisture barrier remedy.
+
+> "Our customers in Dubai have tried every luxury European salon brand, but synthetic silicones only mask the damage temporarily. HAKKIVEDA delivers true lipid replenishment straight from the roots."
+> — *Tariq Al-Mansoor, Director of Procurement*
+
+### Premium Demand & Rapid Adoption
+
+Available in 500ml Master Decanters, HAKKIVEDA quickly became the center's top-selling Ayurvedic oil, favored by both Emirati families and expatriate professionals seeking clean botanical power.`,
+    productsPurchased: '108 Herbs Hair Oil Luxury 500ml Edition, Root Density Serum',
+    linkedProductIds: ['prod-1', 'prod-3'],
+    coverImage: '/images/hakkiveda_oil_couple_herbs.jpg',
+    galleryImages: [
+      '/images/hakkiveda_108_oil_gold.jpg',
+      '/images/hero_tribal_elders.jpg',
+    ],
+    videos: [],
+    testimonial: {
+      quote: 'In our desert environment, hair requires rich, unadulterated botanical nourishment. HAKKIVEDA has become the single most praised scalp formulation on our shelves.',
+      authorName: 'Tariq Al-Mansoor',
+      designation: 'Director of Procurement, Al Barsha Organic UAE',
+    },
+    websiteUrl: 'https://albarshaherbal.ae.example',
+    socialUrl: 'https://instagram.com/albarshaherbal_ae',
+    featured: true,
+    published: true,
+    displayOrder: 5,
+    seoTitle: 'HAKKIVEDA × Al Barsha Organic UAE | Dubai Client Case Study',
+    seoMetaDescription: 'Discover how Al Barsha Organic Center in Dubai addresses desert climate hair challenges with HAKKIVEDA authentic tribal formulations.',
+    createdAt: '2024-11-25T00:00:00Z',
+    updatedAt: '2024-11-25T00:00:00Z',
+  },
+  {
+    id: 'story-lk-1',
+    countryId: 'cntry-lk',
+    title: 'HAKKIVEDA × Ceylon Herbal Traditions',
+    slug: 'ceylon-herbal-traditions',
+    clientName: 'Kasun Jayasuriya',
+    businessName: 'Ceylon Herbal Traditions',
+    city: 'Colombo',
+    clientType: 'Wholesale Buyer',
+    relationshipType: 'Wholesale order',
+    meetingDate: 'August 2024',
+    shortDescription: 'Bridging South Indian Hakki-Pikki tribal botany with Sri Lankan Deshiya Chikitsa healing lineages in Colombo.',
+    content: `## A Harmonious Confluence of Southern Healing Heritage
+
+Sri Lanka possesses one of the world's most sophisticated indigenous medicine systems (Deshiya Chikitsa). When **Ceylon Herbal Traditions** examined HAKKIVEDA's hand-extracted 108 Herb oil, they found an exceptional companion to their native Ayurvedic offerings.
+
+The combination of wild forest herbs like Gunja, Bhringraj, and Devadaru provides targeted revitalization for thinning crown zones, making it an instant favorite among Colombo holistic wellness seekers.`,
+    productsPurchased: 'Tribal Scalp Lepa Powder, 108 Hair Oil',
+    linkedProductIds: ['prod-1', 'prod-4'],
+    coverImage: '/images/hakkiveda_108_herbs_infographic.jpg',
+    galleryImages: ['/images/hakkiveda_baldness_powder.jpg'],
+    videos: [],
+    testimonial: {
+      quote: 'The depth of herbal extraction is evident from the first drop. We are honored to carry HAKKIVEDA in Colombo.',
+      authorName: 'Kasun Jayasuriya',
+      designation: 'Managing Director, Ceylon Herbal Traditions',
+    },
+    websiteUrl: 'https://ceylonherbaltraditions.lk.example',
+    socialUrl: 'https://instagram.com/ceylonherbal_lk',
+    featured: false,
+    published: true,
+    displayOrder: 6,
+    seoTitle: 'HAKKIVEDA × Ceylon Herbal Traditions Sri Lanka | Partner Story',
+    seoMetaDescription: 'Learn about the partnership between HAKKIVEDA and Ceylon Herbal Traditions in Colombo, Sri Lanka.',
+    createdAt: '2024-08-14T00:00:00Z',
+    updatedAt: '2024-08-14T00:00:00Z',
+  },
+  {
+    id: 'story-zm-1',
+    countryId: 'cntry-zm',
+    title: 'HAKKIVEDA × Lusaka Holistic Pharmacy',
+    slug: 'lusaka-holistic-pharmacy',
+    clientName: 'Grace Mumba',
+    businessName: 'Lusaka Holistic Pharmacy',
+    city: 'Lusaka',
+    clientType: 'Business Partner',
+    relationshipType: 'Wholesale order',
+    meetingDate: 'September 2024',
+    shortDescription: 'Empowering African textured hair and protective style care with intense scalp hydration from the forests of Mysuru.',
+    content: `## Deep Moisture Retention for Textured & Protective Styles
+
+In Zambia, textured hair requires intensive lipid barrier support, especially when wearing braids, twists, and protective locks for extended periods. **Lusaka Holistic Pharmacy**, led by chief pharmacist Grace Mumba, introduced HAKKIVEDA to provide soothing scalp care that prevents traction tightness and follicular dryness.
+
+Clients reported immediate relief from itchy scalp conditions and enhanced strand retention during seasonal shifts.`,
+    productsPurchased: 'HAKKIVEDA 108 Herbs Hair Oil 500ml',
+    linkedProductIds: ['prod-1'],
+    coverImage: '/images/hero_tribal_elders.jpg',
+    galleryImages: ['/images/hakkiveda_oil_couple_herbs.jpg'],
+    videos: [],
+    testimonial: {
+      quote: 'HAKKIVEDA has proven extraordinarily effective for our clients with protective hairstyles. The moisture retention is unmatched by standard commercial products.',
+      authorName: 'Grace Mumba',
+      designation: 'Chief Pharmacist, Lusaka Holistic Pharmacy Zambia',
+    },
+    websiteUrl: 'https://lusakaholistic.zm.example',
+    socialUrl: 'https://instagram.com/lusakaholistic_zm',
+    featured: false,
+    published: true,
+    displayOrder: 7,
+    seoTitle: 'HAKKIVEDA × Lusaka Holistic Pharmacy Zambia | International Story',
+    seoMetaDescription: 'Read how Lusaka Holistic Pharmacy in Zambia utilizes HAKKIVEDA tribal forest oils for textured hair and scalp hydration.',
+    createdAt: '2024-09-02T00:00:00Z',
+    updatedAt: '2024-09-02T00:00:00Z',
+  },
+];
 
 

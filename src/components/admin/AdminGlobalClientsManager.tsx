@@ -41,6 +41,8 @@ import {
   ArrowUp,
   ArrowDown,
   RefreshCw,
+  Loader2,
+  AlertCircle,
 } from 'lucide-react';
 
 interface AdminGlobalClientsManagerProps {
@@ -152,6 +154,7 @@ export const AdminGlobalClientsManager: React.FC<AdminGlobalClientsManagerProps>
   const [isUploadingStoryCover, setIsUploadingStoryCover] = useState(false);
   const [isUploadingGallery, setIsUploadingGallery] = useState(false);
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const [uploadVideoStatus, setUploadVideoStatus] = useState<'idle' | 'uploading' | 'complete' | 'failed'>('idle');
   const [isUploadingVideoThumbnail, setIsUploadingVideoThumbnail] = useState(false);
 
   // External / New Video fields
@@ -289,6 +292,7 @@ export const AdminGlobalClientsManager: React.FC<AdminGlobalClientsManagerProps>
     setCoverImage('/images/hero_tribal_elders.jpg');
     setGalleryImages([]);
     setVideos([]);
+    setUploadVideoStatus('idle');
     setReplacingImageId(null);
     setNewVideoSource('YOUTUBE');
     setNewVideoUrl('');
@@ -370,6 +374,7 @@ export const AdminGlobalClientsManager: React.FC<AdminGlobalClientsManagerProps>
       .filter((v) => Boolean(v.url))
       .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
     setVideos(normalizedVideos);
+    setUploadVideoStatus('idle');
 
     setReplacingImageId(null);
     setNewVideoSource('YOUTUBE');
@@ -506,14 +511,82 @@ export const AdminGlobalClientsManager: React.FC<AdminGlobalClientsManagerProps>
   const handleVideoFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
-    if (file.size > 100 * 1024 * 1024) {
-      showToast('Video file exceeds maximum permitted upload limit (100 MB).', 'error');
+
+    // Check supported video formats (MP4, WebM, QuickTime)
+    const fileName = file.name.toLowerCase();
+    const isValidFormat =
+      fileName.endsWith('.mp4') ||
+      fileName.endsWith('.webm') ||
+      fileName.endsWith('.mov') ||
+      file.type === 'video/mp4' ||
+      file.type === 'video/webm' ||
+      file.type === 'video/quicktime';
+
+    if (!isValidFormat) {
+      showToast('Please upload an MP4 video.', 'error');
+      setUploadVideoStatus('failed');
       e.target.value = '';
       return;
     }
+
+    if (file.size > 100 * 1024 * 1024) {
+      showToast('Video must be 100MB or smaller.', 'error');
+      setUploadVideoStatus('failed');
+      e.target.value = '';
+      return;
+    }
+
     try {
       setIsUploadingVideo(true);
-      const url = await uploadFileToServer(file);
+      setUploadVideoStatus('uploading');
+
+      // Use FormData with consistent field name 'video'
+      // Do NOT manually set multipart Content-Type. Let browser set boundary.
+      const formData = new FormData();
+      formData.append('video', file);
+
+      let response: Response;
+      try {
+        response = await fetch('/api/uploads/client-video', {
+          method: 'POST',
+          credentials: 'include',
+          body: formData,
+        });
+      } catch (netErr: any) {
+        console.error('[Global Client Video Upload Error]', {
+          filename: file.name,
+          mimetype: file.type,
+          size: file.size,
+          error: netErr?.message || 'Network failure during video upload',
+        });
+        showToast('Could not connect to the video upload service.', 'error');
+        setUploadVideoStatus('failed');
+        return;
+      }
+
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok || !data || !data.success || !data.url) {
+        const errorMsg = data?.message || data?.error;
+        console.error('[Global Client Video Upload Error]', {
+          filename: file.name,
+          mimetype: file.type,
+          size: file.size,
+          error: errorMsg || `HTTP ${response.status}`,
+        });
+
+        if (data?.code === 'VIDEO_TOO_LARGE' || response.status === 413) {
+          showToast('Video must be 100MB or smaller.', 'error');
+        } else if (data?.code === 'UNSUPPORTED_FORMAT') {
+          showToast('Please upload an MP4 video.', 'error');
+        } else {
+          showToast(errorMsg || 'Video upload failed. Please try again.', 'error');
+        }
+        setUploadVideoStatus('failed');
+        return;
+      }
+
+      const url = data.url;
       const currentMaxOrder = videos.reduce((max, v) => Math.max(max, v.displayOrder || 0), 0);
       const newVid: GlobalClientStoryVideo = {
         id: `vid-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
@@ -525,10 +598,22 @@ export const AdminGlobalClientsManager: React.FC<AdminGlobalClientsManagerProps>
         thumbnailUrl: '',
         displayOrder: currentMaxOrder + 1,
       };
+
       setVideos((prev) => [...prev, newVid]);
-      showToast('MP4 video uploaded and added to story gallery!', 'success');
+      setUploadVideoStatus('complete');
+      showToast('Upload complete: MP4 video added to story gallery!', 'success');
+      setTimeout(() => {
+        setUploadVideoStatus('idle');
+      }, 3500);
     } catch (err: any) {
-      showToast(err.message || 'Failed to upload video file', 'error');
+      console.error('[Global Client Video Upload Error]', {
+        filename: file?.name,
+        mimetype: file?.type,
+        size: file?.size,
+        error: err?.message || 'Video upload failed',
+      });
+      showToast('Video upload failed. Please try again.', 'error');
+      setUploadVideoStatus('failed');
     } finally {
       setIsUploadingVideo(false);
       e.target.value = '';
@@ -1820,12 +1905,38 @@ export const AdminGlobalClientsManager: React.FC<AdminGlobalClientsManagerProps>
                     </div>
 
                     {/* MP4 Direct Upload Button */}
-                    <label className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)] text-[var(--brand-gold)] hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] text-xs font-bold transition-all shadow-sm cursor-pointer shrink-0 self-start sm:self-auto">
-                      <Upload className="w-3.5 h-3.5" />
-                      <span>{isUploadingVideo ? 'Uploading MP4...' : 'UPLOAD MP4 VIDEO'}</span>
+                    <label
+                      className={`inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl text-xs font-bold transition-all shadow-sm shrink-0 self-start sm:self-auto ${
+                        isUploadingVideo
+                          ? 'bg-[var(--brand-primary-dark)]/60 text-[var(--brand-gold)]/60 border border-[var(--brand-gold)]/30 cursor-not-allowed pointer-events-none opacity-60'
+                          : uploadVideoStatus === 'complete'
+                          ? 'bg-emerald-700 border border-emerald-500 text-white cursor-pointer'
+                          : uploadVideoStatus === 'failed'
+                          ? 'bg-red-700 border border-red-500 text-white cursor-pointer'
+                          : 'bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)] text-[var(--brand-gold)] hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] cursor-pointer'
+                      }`}
+                    >
+                      {isUploadingVideo ? (
+                        <Loader2 className="w-3.5 h-3.5 animate-spin" />
+                      ) : uploadVideoStatus === 'complete' ? (
+                        <CheckCircle2 className="w-3.5 h-3.5 text-white" />
+                      ) : uploadVideoStatus === 'failed' ? (
+                        <AlertCircle className="w-3.5 h-3.5 text-white" />
+                      ) : (
+                        <Upload className="w-3.5 h-3.5" />
+                      )}
+                      <span>
+                        {isUploadingVideo
+                          ? 'Uploading…'
+                          : uploadVideoStatus === 'complete'
+                          ? 'Upload complete'
+                          : uploadVideoStatus === 'failed'
+                          ? 'Upload failed'
+                          : 'UPLOAD MP4 VIDEO'}
+                      </span>
                       <input
                         type="file"
-                        accept="video/mp4,video/webm"
+                        accept="video/mp4,video/webm,video/quicktime,.mp4,.webm,.mov"
                         onChange={handleVideoFileUpload}
                         disabled={isUploadingVideo}
                         className="hidden"

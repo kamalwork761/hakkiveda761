@@ -3058,6 +3058,148 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
     });
   });
 
+  // Dedicated Persistent Global Clients Video Upload Endpoint (100MB max, MP4/WebM/QuickTime)
+  const globalClientVideosDir = path.join(uploadDir, 'global-clients', 'videos');
+  if (!fs.existsSync(globalClientVideosDir)) {
+    fs.mkdirSync(globalClientVideosDir, { recursive: true });
+  }
+
+  const clientVideoStorage = multer.diskStorage({
+    destination: (_req, _file, cb) => {
+      if (!fs.existsSync(globalClientVideosDir)) {
+        fs.mkdirSync(globalClientVideosDir, { recursive: true });
+      }
+      cb(null, globalClientVideosDir);
+    },
+    filename: (_req, file, cb) => {
+      const safeUUID = crypto.randomUUID();
+      const rawExt = path.extname(file.originalname).toLowerCase();
+      const safeExt = ['.mp4', '.webm', '.mov'].includes(rawExt) ? rawExt : '.mp4';
+      cb(null, `client-video-${safeUUID}${safeExt}`);
+    },
+  });
+
+  const uploadClientVideo = multer({
+    storage: clientVideoStorage,
+    limits: {
+      fileSize: 100 * 1024 * 1024, // 100MB limit
+      files: 1,
+    },
+    fileFilter: (_req, file, cb) => {
+      const rawExt = path.extname(file.originalname).toLowerCase();
+      const allowedExts = ['.mp4', '.mov', '.webm'];
+      const allowedMimes = ['video/mp4', 'video/quicktime', 'video/webm'];
+
+      if (
+        file.originalname.includes('\0') ||
+        file.originalname.includes('..') ||
+        file.originalname.includes('/') ||
+        file.originalname.includes('\\')
+      ) {
+        return cb(new Error('Invalid characters in filename.'));
+      }
+
+      if (!allowedExts.includes(rawExt) && !allowedMimes.includes(file.mimetype)) {
+        return cb(new Error('Please upload an MP4 video.'));
+      }
+
+      cb(null, true);
+    },
+  });
+
+  const handleClientVideoUpload = (req: express.Request, res: express.Response) => {
+    uploadClientVideo.single('video')(req, res, async (err: any) => {
+      if (err instanceof multer.MulterError) {
+        if (err.code === 'LIMIT_FILE_SIZE') {
+          console.error('[Global Client Video Upload Error]', {
+            filename: req.file?.originalname,
+            size: req.headers['content-length'],
+            received: false,
+            error: 'Video exceeds 100MB limit',
+          });
+          return res.status(400).json({
+            success: false,
+            code: 'VIDEO_TOO_LARGE',
+            message: 'Video must be 100MB or smaller.',
+          });
+        }
+        console.error('[Global Client Video Upload Error]', {
+          filename: req.file?.originalname,
+          size: req.headers['content-length'],
+          received: false,
+          error: err.message || 'Multer upload error',
+        });
+        return res.status(400).json({
+          success: false,
+          code: 'UPLOAD_FAILED',
+          message: 'Video upload failed. Please try again.',
+        });
+      } else if (err) {
+        console.error('[Global Client Video Upload Error]', {
+          filename: req.file?.originalname,
+          size: req.headers['content-length'],
+          received: false,
+          error: err.message || 'Unsupported format',
+        });
+        return res.status(400).json({
+          success: false,
+          code: 'UNSUPPORTED_FORMAT',
+          message: 'Please upload an MP4 video.',
+        });
+      }
+
+      if (!req.file) {
+        console.error('[Global Client Video Upload Error]', {
+          received: false,
+          error: 'No video file received in request.',
+        });
+        return res.status(400).json({
+          success: false,
+          code: 'NO_FILE',
+          message: 'Please upload an MP4 video.',
+        });
+      }
+
+      const filePath = path.resolve(globalClientVideosDir, req.file.filename);
+      const resolvedRoot = path.resolve(globalClientVideosDir);
+
+      if (!filePath.startsWith(resolvedRoot)) {
+        try {
+          if (fs.existsSync(filePath)) fs.unlinkSync(filePath);
+        } catch {}
+        console.error('[Global Client Video Upload Error]', {
+          filename: req.file.filename,
+          received: true,
+          error: 'Path traversal prevented',
+        });
+        return res.status(403).json({
+          success: false,
+          code: 'SECURITY_ERROR',
+          message: 'Security violation: Path traversal prevented.',
+        });
+      }
+
+      const fileUrl = `/uploads/global-clients/videos/${req.file.filename}`;
+
+      console.log('[Global Client Video Upload]', {
+        filename: req.file.originalname,
+        mimetype: req.file.mimetype,
+        size: req.file.size,
+        received: true,
+        savedPath: filePath,
+        savedUrl: fileUrl,
+      });
+
+      return res.json({
+        success: true,
+        url: fileUrl,
+      });
+    });
+  };
+
+  app.post('/api/uploads/client-video', handleClientVideoUpload);
+  app.post('/api/upload/client-video', handleClientVideoUpload);
+
   // Secure Media Deletion Helper
   const handleMediaFileDelete = (req: express.Request, res: express.Response) => {
     try {
@@ -3077,7 +3219,13 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
       }
 
       const resolvedUploadRoot = path.resolve(uploadDir);
-      const targetPath = path.resolve(uploadDir, baseName);
+      let targetPath = path.resolve(uploadDir, baseName);
+      if (!fs.existsSync(targetPath)) {
+        const clientVideoPath = path.resolve(globalClientVideosDir, baseName);
+        if (fs.existsSync(clientVideoPath)) {
+          targetPath = clientVideoPath;
+        }
+      }
 
       if (!targetPath.startsWith(resolvedUploadRoot)) {
         return res.status(403).json({ success: false, error: 'Access denied: Directory traversal prevented.' });

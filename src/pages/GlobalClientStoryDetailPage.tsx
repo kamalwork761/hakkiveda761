@@ -1,8 +1,9 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo } from 'react';
 import { Link } from '../components/common/ClientLink';
 import { useStore } from '../context/StoreContext';
 import { RichStoryRenderer } from '../components/common/RichStoryRenderer';
 import { GlobalClientVideoPlayer } from '../components/common/GlobalClientVideoPlayer';
+import { GlobalClientGalleryImage, GlobalClientStoryVideo } from '../types/store';
 import {
   Globe,
   ArrowRight,
@@ -25,6 +26,7 @@ import {
   Video as VideoIcon,
   X,
   User,
+  Eye,
 } from 'lucide-react';
 
 interface GlobalClientStoryDetailPageProps {
@@ -47,7 +49,7 @@ export const GlobalClientStoryDetailPage: React.FC<GlobalClientStoryDetailPagePr
   const clientSlug = propClientSlug || pathParts[1] || '';
   const { globalClientCountries, globalClientStories, products, addToCart } = useStore();
 
-  const [lightboxImage, setLightboxImage] = useState<string | null>(null);
+  const [lightboxImage, setLightboxImage] = useState<GlobalClientGalleryImage | null>(null);
   const [copiedLink, setCopiedLink] = useState(false);
 
   const country = (globalClientCountries || []).find(
@@ -105,6 +107,53 @@ export const GlobalClientStoryDetailPage: React.FC<GlobalClientStoryDetailPagePr
     }
   };
 
+  // Normalize gallery images and videos (safely handles legacy string arrays and modern objects)
+  const normalizedGalleryImages: GlobalClientGalleryImage[] = useMemo(() => {
+    if (!story?.galleryImages || !Array.isArray(story.galleryImages)) return [];
+    return story.galleryImages
+      .map((item: any, idx: number) => {
+        if (typeof item === 'string') {
+          return {
+            id: `img-${idx}`,
+            url: item,
+            caption: '',
+            altText: `Partnership documented moment ${idx + 1}`,
+            displayOrder: idx + 1,
+          };
+        }
+        return {
+          id: item.id || `img-${idx}`,
+          url: item.url || '',
+          caption: item.caption || '',
+          altText: item.altText || item.caption || `Partnership documented moment ${idx + 1}`,
+          displayOrder: typeof item.displayOrder === 'number' ? item.displayOrder : idx + 1,
+        };
+      })
+      .filter((img) => Boolean(img.url))
+      .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+  }, [story?.galleryImages]);
+
+  const normalizedVideos: GlobalClientStoryVideo[] = useMemo(() => {
+    if (!story?.videos || !Array.isArray(story.videos)) return [];
+    return story.videos
+      .map((vid: any, idx: number) => {
+        const rawType = (vid.type || 'UPLOAD').toUpperCase();
+        const type = rawType.includes('YOUTUBE') ? 'YOUTUBE' : rawType.includes('VIMEO') ? 'VIMEO' : 'UPLOAD';
+        return {
+          id: vid.id || `vid-${idx}`,
+          type: type as any,
+          url: vid.url || '',
+          title: vid.title || '',
+          caption: vid.caption || '',
+          thumbnail: vid.thumbnail || vid.thumbnailUrl || '',
+          thumbnailUrl: vid.thumbnail || vid.thumbnailUrl || '',
+          displayOrder: typeof vid.displayOrder === 'number' ? vid.displayOrder : idx + 1,
+        };
+      })
+      .filter((v) => Boolean(v.url))
+      .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+  }, [story?.videos]);
+
   if (!story || !country) {
     return (
       <div className="min-h-screen bg-[var(--color-bg)] py-20 px-4 text-center">
@@ -133,22 +182,36 @@ export const GlobalClientStoryDetailPage: React.FC<GlobalClientStoryDetailPagePr
       {/* Lightbox Modal for Gallery Images */}
       {lightboxImage && (
         <div
-          className="fixed inset-0 z-50 bg-black/90 backdrop-blur-md flex items-center justify-center p-4"
+          className="fixed inset-0 z-50 bg-black/95 backdrop-blur-md flex flex-col items-center justify-center p-4 sm:p-6"
           onClick={() => setLightboxImage(null)}
         >
           <button
             onClick={() => setLightboxImage(null)}
-            className="absolute top-5 right-5 p-2 rounded-full bg-white/20 text-white hover:bg-white/30 transition-colors"
+            className="absolute top-5 right-5 p-2.5 rounded-full bg-white/20 hover:bg-white/30 text-white transition-colors cursor-pointer z-10"
             aria-label="Close image preview"
           >
             <X className="w-6 h-6" />
           </button>
-          <img
-            src={lightboxImage}
-            alt="Enlarged gallery photo"
-            className="max-w-full max-h-[90vh] object-contain rounded-xl shadow-2xl"
+          <div
+            className="relative max-w-4xl max-h-[85vh] flex flex-col items-center justify-center"
             onClick={(e) => e.stopPropagation()}
-          />
+          >
+            <img
+              src={lightboxImage.url}
+              alt={lightboxImage.altText || lightboxImage.caption || 'Enlarged gallery photo'}
+              className="max-w-full max-h-[75vh] object-contain rounded-2xl shadow-2xl border border-white/10"
+            />
+            {(lightboxImage.caption || lightboxImage.altText) && (
+              <div className="mt-3 px-4 py-2 bg-stone-900/90 border border-stone-800 rounded-xl text-center max-w-xl">
+                {lightboxImage.caption && (
+                  <p className="text-sm font-medium text-white">{lightboxImage.caption}</p>
+                )}
+                {lightboxImage.altText && !lightboxImage.caption && (
+                  <p className="text-xs text-stone-300">{lightboxImage.altText}</p>
+                )}
+              </div>
+            )}
+          </div>
         </div>
       )}
 
@@ -352,48 +415,67 @@ export const GlobalClientStoryDetailPage: React.FC<GlobalClientStoryDetailPagePr
             )}
 
             {/* Photo Gallery Grid */}
-            {story.galleryImages && story.galleryImages.length > 0 && (
-              <div className="space-y-4 pt-4 border-t border-[var(--color-border)]">
+            {normalizedGalleryImages.length > 0 && (
+              <div className="space-y-4 pt-6 border-t border-[var(--color-border)]">
                 <div className="flex items-center gap-2 text-xs font-bold tracking-widest text-[var(--brand-gold)] uppercase">
                   <ImageIcon className="w-4 h-4" />
                   <span>PARTNERSHIP PHOTO GALLERY</span>
                 </div>
-                <h3 className="font-serif text-xl sm:text-2xl font-bold text-[var(--color-heading)]">
-                  Moments & Documented Batches
-                </h3>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                  {story.galleryImages.map((imgUrl, gIdx) => (
-                    <div
-                      key={gIdx}
-                      onClick={() => setLightboxImage(imgUrl)}
-                      className="group relative aspect-[4/3] rounded-2xl overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface)] cursor-pointer shadow-sm hover:shadow-md"
+                <div>
+                  <h3 className="font-serif text-xl sm:text-2xl font-bold text-[var(--color-heading)]">
+                    Moments & Documented Batches
+                  </h3>
+                  <p className="text-xs text-[var(--color-text-secondary)] mt-1">
+                    Visual archive of client meetings, formulation handoffs, batch deliveries, and packaging inspections.
+                  </p>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                  {normalizedGalleryImages.map((img) => (
+                    <figure
+                      key={img.id}
+                      onClick={() => setLightboxImage(img)}
+                      className="group flex flex-col rounded-2xl overflow-hidden border border-[var(--color-border)] bg-[var(--color-surface)] cursor-pointer shadow-sm hover:shadow-md transition-all hover:border-[var(--brand-gold)]/60"
                     >
-                      <img
-                        src={imgUrl}
-                        alt={`Gallery photo ${gIdx + 1}`}
-                        className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
-                      />
-                      <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold">
-                        <span>Click to Enlarge</span>
+                      <div className="relative aspect-[4/3] w-full overflow-hidden bg-black/10">
+                        <img
+                          src={img.url}
+                          alt={img.altText || img.caption || 'Client documented moment'}
+                          className="w-full h-full object-cover transition-transform duration-300 group-hover:scale-105"
+                          loading="lazy"
+                        />
+                        <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center text-white text-xs font-semibold gap-1.5">
+                          <Eye className="w-4 h-4" />
+                          <span>Click to Enlarge</span>
+                        </div>
                       </div>
-                    </div>
+                      {img.caption && (
+                        <figcaption className="p-3 text-xs text-[var(--color-text)] bg-[var(--color-surface)] border-t border-[var(--color-border)] leading-relaxed">
+                          {img.caption}
+                        </figcaption>
+                      )}
+                    </figure>
                   ))}
                 </div>
               </div>
             )}
 
             {/* Video Gallery */}
-            {story.videos && story.videos.length > 0 && (
-              <div className="space-y-4 pt-4 border-t border-[var(--color-border)]">
+            {normalizedVideos.length > 0 && (
+              <div className="space-y-4 pt-6 border-t border-[var(--color-border)]">
                 <div className="flex items-center gap-2 text-xs font-bold tracking-widest text-[var(--brand-gold)] uppercase">
                   <VideoIcon className="w-4 h-4" />
                   <span>VIDEO ARCHIVE</span>
                 </div>
-                <h3 className="font-serif text-xl sm:text-2xl font-bold text-[var(--color-heading)]">
-                  Video Documentaries & Footage
-                </h3>
+                <div>
+                  <h3 className="font-serif text-xl sm:text-2xl font-bold text-[var(--color-heading)]">
+                    Video Documentaries & Footage
+                  </h3>
+                  <p className="text-xs text-[var(--color-text-secondary)] mt-1">
+                    Watch recorded dispatch logs, client dialogues, and international partner spotlights.
+                  </p>
+                </div>
                 <div className="space-y-6">
-                  {story.videos.map((vid) => (
+                  {normalizedVideos.map((vid) => (
                     <GlobalClientVideoPlayer key={vid.id} video={vid} />
                   ))}
                 </div>

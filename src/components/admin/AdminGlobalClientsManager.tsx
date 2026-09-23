@@ -6,6 +6,7 @@ import {
   GlobalClientType,
   GlobalClientRelationshipType,
   GlobalClientStoryVideo,
+  GlobalClientGalleryImage,
 } from '../../types/store';
 import { WORLD_COUNTRIES } from '../../data/countriesData';
 import { uploadFileToServer } from '../../utils/upload';
@@ -39,6 +40,7 @@ import {
   Layers,
   ArrowUp,
   ArrowDown,
+  RefreshCw,
 } from 'lucide-react';
 
 interface AdminGlobalClientsManagerProps {
@@ -130,8 +132,11 @@ export const AdminGlobalClientsManager: React.FC<AdminGlobalClientsManagerProps>
   const [productsPurchased, setProductsPurchased] = useState('');
   const [linkedProductIds, setLinkedProductIds] = useState<string[]>([]);
   const [coverImage, setCoverImage] = useState('');
-  const [galleryImages, setGalleryImages] = useState<string[]>([]);
+  const [galleryImages, setGalleryImages] = useState<GlobalClientGalleryImage[]>([]);
   const [videos, setVideos] = useState<GlobalClientStoryVideo[]>([]);
+  const [replacingImageId, setReplacingImageId] = useState<string | null>(null);
+  const replaceImageInputRef = useRef<HTMLInputElement>(null);
+
   const [testimonialQuote, setTestimonialQuote] = useState('');
   const [testimonialAuthor, setTestimonialAuthor] = useState('');
   const [testimonialDesignation, setTestimonialDesignation] = useState('');
@@ -143,13 +148,19 @@ export const AdminGlobalClientsManager: React.FC<AdminGlobalClientsManagerProps>
   const [storySeoTitle, setStorySeoTitle] = useState('');
   const [storySeoMetaDescription, setStorySeoMetaDescription] = useState('');
 
-  // Media upload states
+  // Media upload & management states
   const [isUploadingStoryCover, setIsUploadingStoryCover] = useState(false);
   const [isUploadingGallery, setIsUploadingGallery] = useState(false);
   const [isUploadingVideo, setIsUploadingVideo] = useState(false);
+  const [isUploadingVideoThumbnail, setIsUploadingVideoThumbnail] = useState(false);
+
+  // External / New Video fields
+  const [newVideoSource, setNewVideoSource] = useState<'UPLOAD' | 'YOUTUBE' | 'VIMEO'>('YOUTUBE');
   const [newVideoUrl, setNewVideoUrl] = useState('');
   const [newVideoTitle, setNewVideoTitle] = useState('');
-  const [newVideoType, setNewVideoType] = useState<'youtube' | 'vimeo' | 'mp4'>('youtube');
+  const [newVideoCaption, setNewVideoCaption] = useState('');
+  const [newVideoThumbnail, setNewVideoThumbnail] = useState('');
+  const [newVideoDisplayOrder, setNewVideoDisplayOrder] = useState<number>(1);
 
   const contentTextareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -278,6 +289,13 @@ export const AdminGlobalClientsManager: React.FC<AdminGlobalClientsManagerProps>
     setCoverImage('/images/hero_tribal_elders.jpg');
     setGalleryImages([]);
     setVideos([]);
+    setReplacingImageId(null);
+    setNewVideoSource('YOUTUBE');
+    setNewVideoUrl('');
+    setNewVideoTitle('');
+    setNewVideoCaption('');
+    setNewVideoThumbnail('');
+    setNewVideoDisplayOrder(1);
     setTestimonialQuote('');
     setTestimonialAuthor('');
     setTestimonialDesignation('');
@@ -308,8 +326,59 @@ export const AdminGlobalClientsManager: React.FC<AdminGlobalClientsManagerProps>
     setProductsPurchased(story.productsPurchased || '');
     setLinkedProductIds(story.linkedProductIds || []);
     setCoverImage(story.coverImage || '');
-    setGalleryImages(story.galleryImages || []);
-    setVideos(story.videos || []);
+
+    // Safely migrate/read legacy string[] or modern GlobalClientGalleryImage[]
+    const normalizedGallery: GlobalClientGalleryImage[] = (story.galleryImages || [])
+      .map((item: any, idx: number) => {
+        if (typeof item === 'string') {
+          return {
+            id: `img-${idx}-${Date.now()}`,
+            url: item,
+            caption: '',
+            altText: '',
+            displayOrder: idx + 1,
+          };
+        }
+        return {
+          id: item.id || `img-${idx}-${Date.now()}`,
+          url: item.url || '',
+          caption: item.caption || '',
+          altText: item.altText || '',
+          displayOrder: typeof item.displayOrder === 'number' ? item.displayOrder : idx + 1,
+        };
+      })
+      .filter((img) => Boolean(img.url))
+      .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+    setGalleryImages(normalizedGallery);
+
+    // Safely migrate/read videos
+    const normalizedVideos: GlobalClientStoryVideo[] = (story.videos || [])
+      .map((vid: any, idx: number) => {
+        const rawType = (vid.type || 'UPLOAD').toUpperCase();
+        const vType = rawType.includes('YOUTUBE') ? 'YOUTUBE' : rawType.includes('VIMEO') ? 'VIMEO' : 'UPLOAD';
+        return {
+          id: vid.id || `vid-${idx}-${Date.now()}`,
+          type: vType as any,
+          url: vid.url || '',
+          title: vid.title || '',
+          caption: vid.caption || '',
+          thumbnail: vid.thumbnail || vid.thumbnailUrl || '',
+          thumbnailUrl: vid.thumbnail || vid.thumbnailUrl || '',
+          displayOrder: typeof vid.displayOrder === 'number' ? vid.displayOrder : idx + 1,
+        };
+      })
+      .filter((v) => Boolean(v.url))
+      .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+    setVideos(normalizedVideos);
+
+    setReplacingImageId(null);
+    setNewVideoSource('YOUTUBE');
+    setNewVideoUrl('');
+    setNewVideoTitle('');
+    setNewVideoCaption('');
+    setNewVideoThumbnail('');
+    setNewVideoDisplayOrder((normalizedVideos.length || 0) + 1);
+
     setTestimonialQuote(story.testimonial?.quote || '');
     setTestimonialAuthor(story.testimonial?.authorName || '');
     setTestimonialDesignation(story.testimonial?.designation || '');
@@ -343,69 +412,196 @@ export const AdminGlobalClientsManager: React.FC<AdminGlobalClientsManagerProps>
       showToast(err.message || 'Failed to upload cover image', 'error');
     } finally {
       setIsUploadingStoryCover(false);
+      e.target.value = '';
     }
   };
 
+  // MULTIPLE PHOTO GALLERY UPLOAD (JPG, PNG, WebP)
   const handleGalleryUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const files = e.target.files;
     if (!files || files.length === 0) return;
     try {
       setIsUploadingGallery(true);
-      const uploadedUrls: string[] = [];
+      const newItems: GlobalClientGalleryImage[] = [];
+      const currentMaxOrder = galleryImages.reduce((max, img) => Math.max(max, img.displayOrder || 0), 0);
+
       for (let i = 0; i < files.length; i++) {
-        const url = await uploadFileToServer(files[i]);
-        uploadedUrls.push(url);
+        const file = files[i];
+        if (file.size > 15 * 1024 * 1024) {
+          showToast(`Skipped ${file.name}: exceeds 15MB size limit`, 'warning');
+          continue;
+        }
+        const url = await uploadFileToServer(file);
+        newItems.push({
+          id: `img-${Date.now()}-${i}-${Math.random().toString(36).substring(2, 7)}`,
+          url,
+          caption: '',
+          altText: file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
+          displayOrder: currentMaxOrder + i + 1,
+        });
       }
-      setGalleryImages((prev) => [...prev, ...uploadedUrls]);
-      showToast(`Uploaded ${uploadedUrls.length} gallery photo(s)`, 'success');
+
+      if (newItems.length > 0) {
+        setGalleryImages((prev) => [...prev, ...newItems]);
+        showToast(`Uploaded ${newItems.length} photo(s) to gallery!`, 'success');
+      }
     } catch (err: any) {
-      showToast(err.message || 'Failed to upload gallery images', 'error');
+      showToast(err.message || 'Failed to upload gallery photos', 'error');
     } finally {
       setIsUploadingGallery(false);
+      e.target.value = '';
     }
   };
 
-  const handleRemoveGalleryImage = (idxToRemove: number) => {
-    setGalleryImages((prev) => prev.filter((_, idx) => idx !== idxToRemove));
+  const handleTriggerReplaceImage = (id: string) => {
+    setReplacingImageId(id);
+    replaceImageInputRef.current?.click();
   };
 
+  const handleReplaceImageFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !replacingImageId) return;
+    try {
+      const url = await uploadFileToServer(file);
+      setGalleryImages((prev) =>
+        prev.map((img) => (img.id === replacingImageId ? { ...img, url } : img))
+      );
+      showToast('Photo replaced successfully!', 'success');
+    } catch (err: any) {
+      showToast(err.message || 'Failed to replace photo', 'error');
+    } finally {
+      setReplacingImageId(null);
+      e.target.value = '';
+    }
+  };
+
+  const handleRemoveGalleryImage = (id: string) => {
+    setGalleryImages((prev) => {
+      const remaining = prev.filter((img) => img.id !== id);
+      return remaining.map((img, idx) => ({ ...img, displayOrder: idx + 1 }));
+    });
+  };
+
+  const moveGalleryImage = (index: number, direction: 'UP' | 'DOWN') => {
+    const newIndex = direction === 'UP' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= galleryImages.length) return;
+    const reordered = [...galleryImages];
+    const [removed] = reordered.splice(index, 1);
+    reordered.splice(newIndex, 0, removed);
+    const updated = reordered.map((img, idx) => ({ ...img, displayOrder: idx + 1 }));
+    setGalleryImages(updated);
+  };
+
+  const updateGalleryImageField = (
+    id: string,
+    field: 'caption' | 'altText' | 'displayOrder',
+    value: any
+  ) => {
+    setGalleryImages((prev) =>
+      prev.map((img) => (img.id === id ? { ...img, [field]: value } : img))
+    );
+  };
+
+  // MP4 VIDEO UPLOAD (Sensible limit: 100MB)
   const handleVideoFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
+    if (file.size > 100 * 1024 * 1024) {
+      showToast('Video file exceeds maximum permitted upload limit (100 MB).', 'error');
+      e.target.value = '';
+      return;
+    }
     try {
       setIsUploadingVideo(true);
       const url = await uploadFileToServer(file);
+      const currentMaxOrder = videos.reduce((max, v) => Math.max(max, v.displayOrder || 0), 0);
       const newVid: GlobalClientStoryVideo = {
-        id: `vid-${Date.now()}`,
-        type: 'mp4',
+        id: `vid-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+        type: 'UPLOAD',
         url,
-        title: file.name.replace(/\.[^/.]+$/, ''),
+        title: file.name.replace(/\.[^/.]+$/, '').replace(/[-_]/g, ' '),
+        caption: '',
+        thumbnail: '',
+        thumbnailUrl: '',
+        displayOrder: currentMaxOrder + 1,
       };
       setVideos((prev) => [...prev, newVid]);
-      showToast('MP4 video uploaded and added to story!', 'success');
+      showToast('MP4 video uploaded and added to story gallery!', 'success');
     } catch (err: any) {
       showToast(err.message || 'Failed to upload video file', 'error');
     } finally {
       setIsUploadingVideo(false);
+      e.target.value = '';
+    }
+  };
+
+  const handleVideoThumbnailUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    try {
+      setIsUploadingVideoThumbnail(true);
+      const url = await uploadFileToServer(file);
+      setNewVideoThumbnail(url);
+      showToast('Video poster thumbnail uploaded!', 'success');
+    } catch (err: any) {
+      showToast(err.message || 'Failed to upload video thumbnail', 'error');
+    } finally {
+      setIsUploadingVideoThumbnail(false);
+      e.target.value = '';
     }
   };
 
   const handleAddExternalVideo = () => {
-    if (!newVideoUrl.trim()) return;
+    if (!newVideoUrl.trim()) {
+      showToast('Please enter a valid video URL', 'error');
+      return;
+    }
+    const currentMaxOrder = videos.reduce((max, v) => Math.max(max, v.displayOrder || 0), 0);
     const newVid: GlobalClientStoryVideo = {
-      id: `vid-${Date.now()}`,
-      type: newVideoType,
+      id: `vid-${Date.now()}-${Math.random().toString(36).substring(2, 6)}`,
+      type: newVideoSource,
       url: newVideoUrl.trim(),
       title: newVideoTitle.trim() || undefined,
+      caption: newVideoCaption.trim() || undefined,
+      thumbnail: newVideoThumbnail.trim() || undefined,
+      thumbnailUrl: newVideoThumbnail.trim() || undefined,
+      displayOrder: Number(newVideoDisplayOrder) || currentMaxOrder + 1,
     };
-    setVideos((prev) => [...prev, newVid]);
+    const nextVideos = [...videos, newVid].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+    setVideos(nextVideos);
     setNewVideoUrl('');
     setNewVideoTitle('');
-    showToast('Video added to gallery!', 'success');
+    setNewVideoCaption('');
+    setNewVideoThumbnail('');
+    setNewVideoDisplayOrder(nextVideos.length + 1);
+    showToast('Video added to story gallery!', 'success');
   };
 
   const handleRemoveVideo = (id: string) => {
-    setVideos((prev) => prev.filter((v) => v.id !== id));
+    setVideos((prev) => {
+      const remaining = prev.filter((v) => v.id !== id);
+      return remaining.map((v, idx) => ({ ...v, displayOrder: idx + 1 }));
+    });
+  };
+
+  const moveVideo = (index: number, direction: 'UP' | 'DOWN') => {
+    const newIndex = direction === 'UP' ? index - 1 : index + 1;
+    if (newIndex < 0 || newIndex >= videos.length) return;
+    const reordered = [...videos];
+    const [removed] = reordered.splice(index, 1);
+    reordered.splice(newIndex, 0, removed);
+    const updated = reordered.map((v, idx) => ({ ...v, displayOrder: idx + 1 }));
+    setVideos(updated);
+  };
+
+  const updateVideoField = (
+    id: string,
+    field: keyof GlobalClientStoryVideo,
+    value: any
+  ) => {
+    setVideos((prev) =>
+      prev.map((v) => (v.id === id ? { ...v, [field]: value } : v))
+    );
   };
 
   // Helper to insert markdown formatting in story editor
@@ -443,6 +639,30 @@ export const AdminGlobalClientsManager: React.FC<AdminGlobalClientsManagerProps>
 
     const slug = storySlug.trim() || slugify(storyTitle);
 
+    // Ensure sorted order and clean structured objects
+    const cleanedGalleryImages: GlobalClientGalleryImage[] = [...galleryImages]
+      .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+      .map((img, idx) => ({
+        id: img.id || `img-${idx}-${Date.now()}`,
+        url: img.url.trim(),
+        caption: (img.caption || '').trim() || undefined,
+        altText: (img.altText || '').trim() || undefined,
+        displayOrder: typeof img.displayOrder === 'number' ? img.displayOrder : idx + 1,
+      }));
+
+    const cleanedVideos: GlobalClientStoryVideo[] = [...videos]
+      .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+      .map((v, idx) => ({
+        id: v.id || `vid-${idx}-${Date.now()}`,
+        type: v.type,
+        url: v.url.trim(),
+        title: (v.title || '').trim() || undefined,
+        caption: (v.caption || '').trim() || undefined,
+        thumbnail: (v.thumbnail || v.thumbnailUrl || '').trim() || undefined,
+        thumbnailUrl: (v.thumbnail || v.thumbnailUrl || '').trim() || undefined,
+        displayOrder: typeof v.displayOrder === 'number' ? v.displayOrder : idx + 1,
+      }));
+
     const storyPayload = {
       title: storyTitle.trim(),
       slug,
@@ -458,8 +678,8 @@ export const AdminGlobalClientsManager: React.FC<AdminGlobalClientsManagerProps>
       productsPurchased: productsPurchased.trim(),
       linkedProductIds,
       coverImage: coverImage.trim() || '/images/hero_tribal_elders.jpg',
-      galleryImages,
-      videos,
+      galleryImages: cleanedGalleryImages,
+      videos: cleanedVideos,
       testimonial: testimonialQuote.trim()
         ? {
             quote: testimonialQuote.trim(),
@@ -1369,159 +1589,476 @@ export const AdminGlobalClientsManager: React.FC<AdminGlobalClientsManagerProps>
                 </div>
               </div>
 
-              {/* Cover Image Upload */}
-              <div className="space-y-2">
-                <label className="text-xs font-semibold text-[var(--color-heading)]">Story Cover Image *</label>
-                <div className="flex items-center gap-3">
-                  <input
-                    type="text"
-                    required
-                    value={coverImage}
-                    onChange={(e) => setCoverImage(e.target.value)}
-                    placeholder="Cover Image URL or upload file"
-                    className="flex-1 px-3 py-2 rounded-xl bg-[var(--color-bg)] border border-[var(--color-border)] text-xs text-[var(--color-heading)] focus:outline-none focus:border-[var(--brand-gold)]"
-                  />
-                  <label className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[var(--color-bg)] border border-[var(--color-border)] hover:border-[var(--brand-gold)] text-xs font-bold text-[var(--color-heading)] cursor-pointer">
-                    <Upload className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
-                    <span>{isUploadingStoryCover ? 'Uploading...' : 'Upload Cover'}</span>
-                    <input
-                      type="file"
-                      accept="image/*"
-                      onChange={handleStoryCoverUpload}
-                      disabled={isUploadingStoryCover}
-                      className="hidden"
-                    />
-                  </label>
-                </div>
-                {coverImage && (
-                  <div className="w-40 h-24 rounded-xl overflow-hidden border border-[var(--color-border)]">
-                    <img src={coverImage} alt="Story cover preview" className="w-full h-full object-cover" />
+              {/* Hidden file input for single image replacement */}
+              <input
+                type="file"
+                ref={replaceImageInputRef}
+                accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                onChange={handleReplaceImageFile}
+                className="hidden"
+              />
+
+              {/* ======================================================== */}
+              {/* CLIENT MEDIA GALLERY SECTION                             */}
+              {/* ======================================================== */}
+              <div className="space-y-6 p-5 sm:p-6 rounded-3xl bg-[var(--color-bg)] border-2 border-[var(--brand-gold)]/40 shadow-sm">
+                <div className="border-b border-[var(--color-border)] pb-3">
+                  <div className="flex items-center gap-2">
+                    <Sparkles className="w-5 h-5 text-[var(--brand-gold)]" />
+                    <h3 className="text-base font-bold font-serif-luxury text-[var(--brand-gold)] tracking-wide uppercase">
+                      CLIENT MEDIA GALLERY
+                    </h3>
                   </div>
-                )}
-              </div>
-
-              {/* Gallery Photos Upload */}
-              <div className="space-y-3 p-4 rounded-2xl bg-[var(--color-bg)] border border-[var(--color-border)]">
-                <div className="flex items-center justify-between">
-                  <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--brand-gold)]">
-                    Photo Gallery ({galleryImages.length})
-                  </span>
-                  <label className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--brand-gold)] text-xs font-bold text-[var(--color-heading)] cursor-pointer">
-                    <Upload className="w-3 h-3 text-[var(--brand-gold)]" />
-                    <span>{isUploadingGallery ? 'Uploading...' : 'Upload Photos'}</span>
-                    <input
-                      type="file"
-                      multiple
-                      accept="image/*"
-                      onChange={handleGalleryUpload}
-                      disabled={isUploadingGallery}
-                      className="hidden"
-                    />
-                  </label>
+                  <p className="text-xs text-[var(--color-text-secondary)] mt-1">
+                    Manage all visual assets for this client story: story cover image, photo gallery moments, and video documentaries.
+                  </p>
                 </div>
 
-                {galleryImages.length > 0 && (
-                  <div className="grid grid-cols-4 sm:grid-cols-6 gap-2">
-                    {galleryImages.map((img, idx) => (
-                      <div
-                        key={idx}
-                        className="group relative aspect-square rounded-xl overflow-hidden border border-[var(--color-border)]"
-                      >
-                        <img src={img} alt={`Gallery ${idx}`} className="w-full h-full object-cover" />
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveGalleryImage(idx)}
-                          className="absolute top-1 right-1 p-1 rounded-full bg-red-600 text-white opacity-0 group-hover:opacity-100 transition-opacity"
-                        >
-                          <X className="w-3 h-3" />
-                        </button>
+                {/* ---------------------------------------------------- */}
+                {/* SUBSECTION A: COVER IMAGE                           */}
+                {/* ---------------------------------------------------- */}
+                <div className="space-y-3 p-4 sm:p-5 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)]">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                    <div>
+                      <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--brand-gold)]">
+                        A. Story Cover Image *
+                      </h4>
+                      <p className="text-[11px] text-[var(--color-text-secondary)] mt-0.5">
+                        This is used for story listing cards, story hero banner, and social sharing. (Separate from Country Cover Image and separate from Photo Gallery).
+                      </p>
+                    </div>
+                  </div>
+
+                  <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2 sm:gap-3">
+                    <input
+                      type="text"
+                      required
+                      value={coverImage}
+                      onChange={(e) => setCoverImage(e.target.value)}
+                      placeholder="Story cover image URL or upload below..."
+                      className="flex-1 px-3.5 py-2.5 rounded-xl bg-[var(--color-bg)] border border-[var(--color-border)] text-xs text-[var(--color-heading)] focus:outline-none focus:border-[var(--brand-gold)]"
+                    />
+                    <label className="inline-flex items-center justify-center gap-2 px-4 py-2.5 rounded-xl bg-[var(--color-bg)] border border-[var(--color-border)] hover:border-[var(--brand-gold)] text-xs font-bold text-[var(--color-heading)] cursor-pointer shrink-0 transition-colors">
+                      <Upload className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
+                      <span>{isUploadingStoryCover ? 'Uploading...' : 'Upload Cover'}</span>
+                      <input
+                        type="file"
+                        accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                        onChange={handleStoryCoverUpload}
+                        disabled={isUploadingStoryCover}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  {coverImage && (
+                    <div className="flex items-center gap-4 pt-1">
+                      <div className="w-36 h-24 rounded-xl overflow-hidden border border-[var(--color-border)] bg-black/10 shrink-0 shadow-sm">
+                        <img src={coverImage} alt="Story cover preview" className="w-full h-full object-cover" />
                       </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-
-              {/* Videos Section */}
-              <div className="space-y-3 p-4 rounded-2xl bg-[var(--color-bg)] border border-[var(--color-border)]">
-                <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--brand-gold)]">
-                  Video Archive (MP4 File Upload, YouTube, Vimeo)
-                </span>
-
-                {/* Add External Video Form */}
-                <div className="flex flex-wrap items-center gap-2">
-                  <select
-                    value={newVideoType}
-                    onChange={(e) => setNewVideoType(e.target.value as any)}
-                    className="px-3 py-2 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-heading)]"
-                  >
-                    <option value="youtube">YouTube</option>
-                    <option value="vimeo">Vimeo</option>
-                    <option value="mp4">MP4 URL</option>
-                  </select>
-
-                  <input
-                    type="text"
-                    value={newVideoUrl}
-                    onChange={(e) => setNewVideoUrl(e.target.value)}
-                    placeholder="https://www.youtube.com/watch?v=..."
-                    className="flex-1 min-w-[200px] px-3 py-2 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-heading)]"
-                  />
-
-                  <input
-                    type="text"
-                    value={newVideoTitle}
-                    onChange={(e) => setNewVideoTitle(e.target.value)}
-                    placeholder="Video Title (Optional)"
-                    className="w-44 px-3 py-2 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-heading)]"
-                  />
-
-                  <button
-                    type="button"
-                    onClick={handleAddExternalVideo}
-                    className="px-3 py-2 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--brand-gold)] text-xs font-bold text-[var(--color-heading)]"
-                  >
-                    Add URL
-                  </button>
-
-                  <label className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--brand-gold)] text-xs font-bold text-[var(--color-heading)] cursor-pointer">
-                    <Upload className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
-                    <span>{isUploadingVideo ? 'Uploading MP4...' : 'Upload MP4 File'}</span>
-                    <input
-                      type="file"
-                      accept="video/mp4,video/webm"
-                      onChange={handleVideoFileUpload}
-                      disabled={isUploadingVideo}
-                      className="hidden"
-                    />
-                  </label>
+                      <div className="text-[11px] text-[var(--color-text-secondary)] space-y-1">
+                        <span className="inline-block px-2 py-0.5 rounded text-[10px] font-bold bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] border border-[var(--brand-gold)]/20">
+                          Active Story Cover
+                        </span>
+                        <p className="line-clamp-2 max-w-sm font-mono text-[10px] text-[var(--color-heading)]">
+                          {coverImage}
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
 
-                {/* Videos list */}
-                {videos.length > 0 && (
-                  <div className="space-y-2 pt-2">
-                    {videos.map((vid) => (
-                      <div
-                        key={vid.id}
-                        className="flex items-center justify-between p-2.5 rounded-xl bg-[var(--color-surface)] border border-[var(--color-border)] text-xs"
-                      >
-                        <div className="flex items-center gap-2 truncate">
-                          <Video className="w-3.5 h-3.5 text-[var(--brand-gold)] shrink-0" />
-                          <span className="font-semibold uppercase text-[10px] px-1.5 py-0.5 rounded bg-[var(--color-bg)]">
-                            {vid.type}
-                          </span>
-                          <span className="font-medium truncate">{vid.title || vid.url}</span>
+                {/* ---------------------------------------------------- */}
+                {/* SUBSECTION B: PHOTO GALLERY                         */}
+                {/* ---------------------------------------------------- */}
+                <div className="space-y-4 p-4 sm:p-5 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)]">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--color-border)] pb-3">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <ImageIcon className="w-4 h-4 text-[var(--brand-gold)]" />
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--brand-gold)]">
+                          B. Photo Gallery ({galleryImages.length})
+                        </h4>
+                      </div>
+                      <p className="text-[11px] text-[var(--color-text-secondary)] mt-0.5">
+                        Multiple client photos, meeting handoffs, showroom visits, and packaging moments. JPG, PNG, and WebP supported.
+                      </p>
+                    </div>
+
+                    <label className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] text-xs font-bold hover:brightness-105 transition-all shadow-sm cursor-pointer shrink-0 self-start sm:self-auto">
+                      <Plus className="w-4 h-4 stroke-[2.5]" />
+                      <span>{isUploadingGallery ? 'Uploading Photos...' : '+ UPLOAD PHOTOS'}</span>
+                      <input
+                        type="file"
+                        multiple
+                        accept=".jpg,.jpeg,.png,.webp,image/jpeg,image/png,image/webp"
+                        onChange={handleGalleryUpload}
+                        disabled={isUploadingGallery}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+
+                  {galleryImages.length === 0 ? (
+                    <div className="p-6 text-center rounded-xl bg-[var(--color-bg)] border border-dashed border-[var(--color-border)]">
+                      <ImageIcon className="w-8 h-8 text-[var(--brand-gold)] mx-auto opacity-50 mb-2" />
+                      <p className="text-xs font-semibold text-[var(--color-heading)]">No gallery photos added yet</p>
+                      <p className="text-[11px] text-[var(--color-text-secondary)] mt-1">
+                        Click "+ UPLOAD PHOTOS" above to select and upload multiple images.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-3">
+                      {galleryImages.map((img, idx) => (
+                        <div
+                          key={img.id}
+                          className="flex flex-col md:flex-row gap-4 p-3.5 rounded-xl bg-[var(--color-bg)] border border-[var(--color-border)] items-start md:items-center justify-between shadow-xs hover:border-[var(--brand-gold)]/40 transition-colors"
+                        >
+                          {/* Left: Thumbnail Preview */}
+                          <div className="relative w-28 h-20 rounded-lg overflow-hidden border border-[var(--color-border)] bg-black/20 shrink-0">
+                            <img
+                              src={img.url}
+                              alt={img.altText || 'Gallery photo'}
+                              className="w-full h-full object-cover"
+                            />
+                            <span className="absolute bottom-1 left-1 px-1.5 py-0.5 rounded text-[10px] font-bold bg-black/75 text-white backdrop-blur-xs">
+                              #{img.displayOrder || idx + 1}
+                            </span>
+                          </div>
+
+                          {/* Middle: Caption & Alt Text Inputs */}
+                          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2.5 w-full">
+                            <div>
+                              <label className="text-[10px] font-bold text-[var(--color-text-secondary)] uppercase">
+                                Caption (Visible to Visitors)
+                              </label>
+                              <input
+                                type="text"
+                                value={img.caption || ''}
+                                onChange={(e) => updateGalleryImageField(img.id, 'caption', e.target.value)}
+                                placeholder="e.g. Inspecting 108 Herb batches at Kathmandu showroom"
+                                className="w-full mt-1 px-3 py-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-heading)] focus:outline-none focus:border-[var(--brand-gold)]"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-[10px] font-bold text-[var(--color-text-secondary)] uppercase">
+                                Alt Text (SEO & Accessibility)
+                              </label>
+                              <input
+                                type="text"
+                                value={img.altText || ''}
+                                onChange={(e) => updateGalleryImageField(img.id, 'altText', e.target.value)}
+                                placeholder="e.g. Traditional Ayurvedic oil preparation bottles"
+                                className="w-full mt-1 px-3 py-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-heading)] focus:outline-none focus:border-[var(--brand-gold)]"
+                              />
+                            </div>
+                          </div>
+
+                          {/* Right: Actions (Order, Reorder, Replace, Delete) */}
+                          <div className="flex items-center gap-2 shrink-0 self-end md:self-center">
+                            <div className="flex items-center gap-1">
+                              <button
+                                type="button"
+                                title="Move Up"
+                                disabled={idx === 0}
+                                onClick={() => moveGalleryImage(idx, 'UP')}
+                                className="p-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--brand-gold)] text-[var(--color-heading)] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                              >
+                                <ArrowUp className="w-3.5 h-3.5" />
+                              </button>
+                              <button
+                                type="button"
+                                title="Move Down"
+                                disabled={idx === galleryImages.length - 1}
+                                onClick={() => moveGalleryImage(idx, 'DOWN')}
+                                className="p-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--brand-gold)] text-[var(--color-heading)] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                              >
+                                <ArrowDown className="w-3.5 h-3.5" />
+                              </button>
+                            </div>
+
+                            <button
+                              type="button"
+                              onClick={() => handleTriggerReplaceImage(img.id)}
+                              className="px-2.5 py-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--brand-gold)] text-xs font-semibold text-[var(--color-heading)] flex items-center gap-1 cursor-pointer transition-colors"
+                              title="Replace photo file"
+                            >
+                              <RefreshCw className="w-3 h-3 text-[var(--brand-gold)]" />
+                              <span>Replace</span>
+                            </button>
+
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveGalleryImage(img.id)}
+                              className="p-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 cursor-pointer transition-colors"
+                              title="Remove photo"
+                            >
+                              <Trash2 className="w-3.5 h-3.5" />
+                            </button>
+                          </div>
                         </div>
-                        <button
-                          type="button"
-                          onClick={() => handleRemoveVideo(vid.id)}
-                          className="p-1 rounded text-red-500 hover:bg-red-50"
-                        >
-                          <X className="w-3.5 h-3.5" />
-                        </button>
+                      ))}
+                    </div>
+                  )}
+                </div>
+
+                {/* ---------------------------------------------------- */}
+                {/* SUBSECTION C: VIDEO GALLERY                         */}
+                {/* ---------------------------------------------------- */}
+                <div className="space-y-4 p-4 sm:p-5 rounded-2xl bg-[var(--color-surface)] border border-[var(--color-border)]">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-[var(--color-border)] pb-3">
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <Video className="w-4 h-4 text-[var(--brand-gold)]" />
+                        <h4 className="text-xs font-bold uppercase tracking-wider text-[var(--brand-gold)]">
+                          C. Video Gallery ({videos.length})
+                        </h4>
                       </div>
-                    ))}
+                      <p className="text-[11px] text-[var(--color-text-secondary)] mt-0.5">
+                        Add client interview footage, dispatch logs, or documentaries. Supports MP4 uploads, YouTube, and Vimeo.
+                      </p>
+                    </div>
+
+                    {/* MP4 Direct Upload Button */}
+                    <label className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)] text-[var(--brand-gold)] hover:bg-[var(--brand-gold)] hover:text-[var(--brand-primary-dark)] text-xs font-bold transition-all shadow-sm cursor-pointer shrink-0 self-start sm:self-auto">
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>{isUploadingVideo ? 'Uploading MP4...' : 'UPLOAD MP4 VIDEO'}</span>
+                      <input
+                        type="file"
+                        accept="video/mp4,video/webm"
+                        onChange={handleVideoFileUpload}
+                        disabled={isUploadingVideo}
+                        className="hidden"
+                      />
+                    </label>
                   </div>
-                )}
+
+                  {/* Add Video Link Form (YouTube, Vimeo, or external MP4 URL) */}
+                  <div className="p-4 rounded-xl bg-[var(--color-bg)] border border-[var(--color-border)] space-y-3">
+                    <span className="text-[11px] font-bold uppercase tracking-wider text-[var(--color-heading)] flex items-center gap-1.5">
+                      <ExternalLink className="w-3 h-3 text-[var(--brand-gold)]" />
+                      <span>Add Video via URL (YouTube, Vimeo, or MP4 Link)</span>
+                    </span>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="text-[10px] font-bold text-[var(--color-text-secondary)] uppercase">
+                          Video Source *
+                        </label>
+                        <select
+                          value={newVideoSource}
+                          onChange={(e) => setNewVideoSource(e.target.value as any)}
+                          className="w-full mt-1 px-3 py-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-heading)] focus:outline-none focus:border-[var(--brand-gold)]"
+                        >
+                          <option value="YOUTUBE">YouTube</option>
+                          <option value="VIMEO">Vimeo</option>
+                          <option value="UPLOAD">MP4 Video URL</option>
+                        </select>
+                      </div>
+
+                      <div className="sm:col-span-2">
+                        <label className="text-[10px] font-bold text-[var(--color-text-secondary)] uppercase">
+                          Video URL *
+                        </label>
+                        <input
+                          type="text"
+                          value={newVideoUrl}
+                          onChange={(e) => setNewVideoUrl(e.target.value)}
+                          placeholder="https://www.youtube.com/watch?v=... or https://vimeo.com/..."
+                          className="w-full mt-1 px-3 py-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-heading)] focus:outline-none focus:border-[var(--brand-gold)]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                      <div>
+                        <label className="text-[10px] font-bold text-[var(--color-text-secondary)] uppercase">
+                          Video Title
+                        </label>
+                        <input
+                          type="text"
+                          value={newVideoTitle}
+                          onChange={(e) => setNewVideoTitle(e.target.value)}
+                          placeholder="e.g. Kathmandu Exhibition Documentary"
+                          className="w-full mt-1 px-3 py-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-heading)] focus:outline-none focus:border-[var(--brand-gold)]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] font-bold text-[var(--color-text-secondary)] uppercase">
+                          Video Caption
+                        </label>
+                        <input
+                          type="text"
+                          value={newVideoCaption}
+                          onChange={(e) => setNewVideoCaption(e.target.value)}
+                          placeholder="e.g. Partner overview with clinic directors"
+                          className="w-full mt-1 px-3 py-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-heading)] focus:outline-none focus:border-[var(--brand-gold)]"
+                        />
+                      </div>
+
+                      <div>
+                        <label className="text-[10px] font-bold text-[var(--color-text-secondary)] uppercase">
+                          Display Order
+                        </label>
+                        <input
+                          type="number"
+                          value={newVideoDisplayOrder}
+                          onChange={(e) => setNewVideoDisplayOrder(parseInt(e.target.value, 10) || 1)}
+                          className="w-full mt-1 px-3 py-2 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-heading)] focus:outline-none focus:border-[var(--brand-gold)]"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-1">
+                      <div className="flex-1 max-w-md">
+                        <label className="text-[10px] font-bold text-[var(--color-text-secondary)] uppercase">
+                          Optional Poster Thumbnail URL
+                        </label>
+                        <div className="flex items-center gap-2 mt-1">
+                          <input
+                            type="text"
+                            value={newVideoThumbnail}
+                            onChange={(e) => setNewVideoThumbnail(e.target.value)}
+                            placeholder="Poster image URL or upload file"
+                            className="flex-1 px-3 py-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-heading)] focus:outline-none focus:border-[var(--brand-gold)]"
+                          />
+                          <label className="px-2.5 py-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--brand-gold)] text-xs font-semibold cursor-pointer shrink-0 transition-colors">
+                            <Upload className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
+                            <input
+                              type="file"
+                              accept=".jpg,.jpeg,.png,.webp,image/*"
+                              onChange={handleVideoThumbnailUpload}
+                              disabled={isUploadingVideoThumbnail}
+                              className="hidden"
+                            />
+                          </label>
+                        </div>
+                      </div>
+
+                      <button
+                        type="button"
+                        onClick={handleAddExternalVideo}
+                        className="px-5 py-2.5 rounded-xl bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] text-xs font-bold hover:brightness-105 transition-all shadow-sm cursor-pointer self-start sm:self-end"
+                      >
+                        + Add Video to Gallery
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Video Preview Cards List */}
+                  {videos.length === 0 ? (
+                    <div className="p-6 text-center rounded-xl bg-[var(--color-bg)] border border-dashed border-[var(--color-border)]">
+                      <Video className="w-8 h-8 text-[var(--brand-gold)] mx-auto opacity-50 mb-2" />
+                      <p className="text-xs font-semibold text-[var(--color-heading)]">No videos added yet</p>
+                      <p className="text-[11px] text-[var(--color-text-secondary)] mt-1">
+                        Upload an MP4 file or paste a YouTube / Vimeo link above to build the video gallery.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-4 pt-1">
+                      {videos.map((vid, idx) => (
+                        <div
+                          key={vid.id}
+                          className="p-4 rounded-xl bg-[var(--color-bg)] border border-[var(--color-border)] space-y-3 shadow-xs hover:border-[var(--brand-gold)]/40 transition-colors"
+                        >
+                          <div className="flex flex-col lg:flex-row gap-4 items-start">
+                            {/* Playable Video Preview */}
+                            <div className="w-full lg:w-64 aspect-video rounded-xl overflow-hidden border border-[var(--color-border)] bg-black/40 shrink-0">
+                              <GlobalClientVideoPlayer
+                                video={vid}
+                                className="w-full h-full shadow-none border-0 rounded-none"
+                              />
+                            </div>
+
+                            {/* Editable Video Metadata */}
+                            <div className="flex-1 w-full space-y-3">
+                              <div className="flex items-center justify-between gap-2 border-b border-[var(--color-border)] pb-2">
+                                <div className="flex items-center gap-2">
+                                  <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[var(--brand-primary-dark)] text-[var(--brand-gold)] border border-[var(--brand-gold)]/30 uppercase">
+                                    {vid.type}
+                                  </span>
+                                  <span className="text-xs font-bold text-[var(--color-heading)]">
+                                    #{vid.displayOrder || idx + 1} - {vid.title || 'Untitled Video'}
+                                  </span>
+                                </div>
+
+                                <div className="flex items-center gap-1.5">
+                                  <button
+                                    type="button"
+                                    title="Move Up"
+                                    disabled={idx === 0}
+                                    onClick={() => moveVideo(idx, 'UP')}
+                                    className="p-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--brand-gold)] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                                  >
+                                    <ArrowUp className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    title="Move Down"
+                                    disabled={idx === videos.length - 1}
+                                    onClick={() => moveVideo(idx, 'DOWN')}
+                                    className="p-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] hover:border-[var(--brand-gold)] disabled:opacity-30 disabled:cursor-not-allowed cursor-pointer transition-colors"
+                                  >
+                                    <ArrowDown className="w-3.5 h-3.5" />
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleRemoveVideo(vid.id)}
+                                    className="p-1.5 rounded-lg bg-red-500/10 text-red-500 hover:bg-red-500/20 cursor-pointer transition-colors"
+                                    title="Delete Video"
+                                  >
+                                    <Trash2 className="w-3.5 h-3.5" />
+                                  </button>
+                                </div>
+                              </div>
+
+                              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                                <div>
+                                  <label className="text-[10px] font-bold text-[var(--color-text-secondary)] uppercase">
+                                    Title
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={vid.title || ''}
+                                    onChange={(e) => updateVideoField(vid.id, 'title', e.target.value)}
+                                    placeholder="Video Title"
+                                    className="w-full mt-1 px-3 py-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-heading)] focus:outline-none focus:border-[var(--brand-gold)]"
+                                  />
+                                </div>
+                                <div>
+                                  <label className="text-[10px] font-bold text-[var(--color-text-secondary)] uppercase">
+                                    Caption / Context
+                                  </label>
+                                  <input
+                                    type="text"
+                                    value={vid.caption || ''}
+                                    onChange={(e) => updateVideoField(vid.id, 'caption', e.target.value)}
+                                    placeholder="Short caption describing footage"
+                                    className="w-full mt-1 px-3 py-1.5 rounded-lg bg-[var(--color-surface)] border border-[var(--color-border)] text-xs text-[var(--color-heading)] focus:outline-none focus:border-[var(--brand-gold)]"
+                                  />
+                                </div>
+                              </div>
+
+                              <div className="flex flex-wrap items-center gap-x-4 gap-y-1 text-[11px] text-[var(--color-text-secondary)] pt-1">
+                                <div className="truncate max-w-md font-mono text-[10px]">
+                                  <span className="font-sans font-semibold text-[var(--color-heading)] mr-1">URL:</span>
+                                  {vid.url}
+                                </div>
+                                {vid.thumbnail && (
+                                  <div className="truncate max-w-xs font-mono text-[10px]">
+                                    <span className="font-sans font-semibold text-[var(--color-heading)] mr-1">Poster:</span>
+                                    {vid.thumbnail}
+                                  </div>
+                                )}
+                              </div>
+                            </div>
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Client Testimonial */}

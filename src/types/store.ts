@@ -1184,12 +1184,25 @@ export type GlobalClientRelationshipType =
   | 'Retail partnership'
   | 'Other';
 
+export interface GlobalClientGalleryImage {
+  id: string;
+  url: string;
+  caption?: string;
+  altText?: string;
+  displayOrder?: number;
+}
+
+export type GlobalClientVideoType = 'UPLOAD' | 'YOUTUBE' | 'VIMEO' | 'mp4' | 'youtube' | 'vimeo';
+
 export interface GlobalClientStoryVideo {
   id: string;
-  type: 'mp4' | 'youtube' | 'vimeo';
+  type: GlobalClientVideoType;
   url: string;
   title?: string;
+  caption?: string;
+  thumbnail?: string;
   thumbnailUrl?: string;
+  displayOrder?: number;
 }
 
 export interface GlobalClientTestimonial {
@@ -1230,8 +1243,8 @@ export interface GlobalClientStory {
   content: string; // Rich formatting with Markdown/headings/paragraphs/lists
   productsPurchased: string; // Text description e.g. "108 Herbal Hair Oil 500ml"
   linkedProductIds: string[]; // Linked catalog products for "Products Supplied"
-  coverImage: string;
-  galleryImages: string[]; // File URLs
+  coverImage: string; // Story Cover Image (cards, hero, social)
+  galleryImages: (string | GlobalClientGalleryImage)[]; // Supports structured objects and legacy strings
   videos: GlobalClientStoryVideo[];
   testimonial?: GlobalClientTestimonial;
   websiteUrl?: string;

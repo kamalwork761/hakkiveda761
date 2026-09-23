@@ -38,13 +38,13 @@ export function getVimeoEmbedUrl(url: string): string | null {
 export const GlobalClientVideoPlayer: React.FC<GlobalClientVideoPlayerProps> = ({ video, className = '' }) => {
   if (!video || !video.url) return null;
 
-  const ytEmbed = video.type === 'youtube' || video.url.includes('youtube.com') || video.url.includes('youtu.be')
-    ? getYouTubeEmbedUrl(video.url)
-    : null;
+  const rawType = (video.type || '').toLowerCase();
+  const isYouTube = rawType === 'youtube' || video.url.includes('youtube.com') || video.url.includes('youtu.be');
+  const isVimeo = rawType === 'vimeo' || video.url.includes('vimeo.com');
 
-  const vimeoEmbed = video.type === 'vimeo' || video.url.includes('vimeo.com')
-    ? getVimeoEmbedUrl(video.url)
-    : null;
+  const ytEmbed = isYouTube ? getYouTubeEmbedUrl(video.url) : null;
+  const vimeoEmbed = isVimeo ? getVimeoEmbedUrl(video.url) : null;
+  const posterUrl = video.thumbnail || video.thumbnailUrl;
 
   return (
     <div className={`overflow-hidden rounded-2xl border border-[var(--color-border)] bg-[var(--brand-primary-dark)] shadow-lg ${className}`}>
@@ -78,13 +78,19 @@ export const GlobalClientVideoPlayer: React.FC<GlobalClientVideoPlayerProps> = (
             controls
             playsInline
             preload="metadata"
-            poster={video.thumbnailUrl}
+            poster={posterUrl}
             className="w-full h-full object-contain"
           >
             Your browser does not support the video tag.
           </video>
         )}
       </div>
+
+      {video.caption && (
+        <div className="px-4 py-2.5 bg-[var(--color-surface)] border-t border-[var(--color-border)] text-xs text-[var(--color-text-secondary)] italic">
+          {video.caption}
+        </div>
+      )}
     </div>
   );
 };

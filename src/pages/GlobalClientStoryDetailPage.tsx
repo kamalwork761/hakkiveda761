@@ -386,26 +386,30 @@ export const GlobalClientStoryDetailPage: React.FC<GlobalClientStoryDetailPagePr
 
             {/* Testimonial Block */}
             {story.testimonial && story.testimonial.quote && (
-              <div className="my-10 p-6 sm:p-8 rounded-3xl bg-[var(--brand-primary-dark)] text-white border border-[var(--brand-gold)]/40 relative shadow-xl">
-                <Quote className="w-10 h-10 text-[var(--brand-gold)]/30 absolute top-6 right-6 pointer-events-none" />
+              <div className="my-10 p-6 sm:p-8 rounded-3xl bg-[var(--brand-primary-dark)] border border-[#C7A84A]/30 relative shadow-lg">
+                <Quote className="w-10 h-10 text-[#C7A84A] opacity-75 absolute top-6 right-6 pointer-events-none" />
                 <div className="relative space-y-4">
-                  <span className="text-xs font-bold tracking-widest text-[var(--brand-gold)] uppercase">
+                  <span className="text-xs font-bold tracking-widest text-[#C7A84A] uppercase">
                     CLIENT TESTIMONIAL
                   </span>
-                  <p className="font-serif text-lg sm:text-xl text-stone-100 italic leading-relaxed">
+                  <p className="font-serif text-lg sm:text-xl text-[#173D2D] opacity-95 italic leading-relaxed">
                     "{story.testimonial.quote}"
                   </p>
                   {(story.testimonial.authorName || story.testimonial.designation) && (
-                    <div className="pt-2 border-t border-white/10 flex items-center gap-3">
-                      <div className="w-9 h-9 rounded-full bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold flex items-center justify-center font-serif text-sm">
+                    <div className="pt-3 border-t border-[#C7A84A]/20 flex items-center gap-3">
+                      <div className="w-9 h-9 rounded-full bg-[#C7A84A] text-[#173D2D] font-bold flex items-center justify-center font-serif text-sm shadow-xs">
                         {(story.testimonial.authorName || 'C')[0]}
                       </div>
                       <div>
                         {story.testimonial.authorName && (
-                          <p className="text-sm font-bold text-white">{story.testimonial.authorName}</p>
+                          <p className="text-sm font-semibold text-[#173D2D] leading-snug">
+                            {story.testimonial.authorName}
+                          </p>
                         )}
                         {story.testimonial.designation && (
-                          <p className="text-xs text-stone-300">{story.testimonial.designation}</p>
+                          <p className="text-xs text-[#6B746E] font-medium leading-snug">
+                            {story.testimonial.designation}
+                          </p>
                         )}
                       </div>
                     </div>

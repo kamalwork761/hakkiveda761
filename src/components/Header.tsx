@@ -25,7 +25,6 @@ import { useStore } from '../context/StoreContext';
 import { NavLink } from '../types/store';
 import { HakkivedaWordmark } from './HakkivedaWordmark';
 import { HvLogoAnimated } from './HvLogoAnimated';
-import { MobileBottomNav } from './MobileBottomNav';
 import { MobileNavDrawer } from './MobileNavDrawer';
 import { SoundToggle } from './SoundToggle';
 import { AnnouncementBar } from './AnnouncementBar';
@@ -964,14 +963,6 @@ export const Header: React.FC<HeaderProps> = ({ selectedCategory, onSelectCatego
         selectedCategory={selectedCategory}
         onSelectCategory={onSelectCategory}
       />
-
-      {/* Floating Mobile Bottom Navigation Bar (Homepage / General views only - When Enabled in Admin) */}
-      {!isSpecialBarPage && isBottomNavEnabled && (
-        <MobileBottomNav
-          onToggleMobileMenu={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-          isMobileMenuOpen={isMobileMenuOpen}
-        />
-      )}
     </header>
   );
 };

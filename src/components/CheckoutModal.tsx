@@ -978,7 +978,12 @@ export const CheckoutModal: React.FC = () => {
         console.error('[COD Checkout Error]:', err);
         setStep('payment');
         setProcessingPhase('idle');
-        setAddressFormError('Network connection error while placing Cash on Delivery order.');
+        const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
+        setAddressFormError(
+          isOffline
+            ? 'You are currently offline. Please reconnect to the internet to complete your order.'
+            : 'Network connection error while placing Cash on Delivery order.'
+        );
       } finally {
         setIsProcessingPayment(false);
       }
@@ -1109,7 +1114,12 @@ export const CheckoutModal: React.FC = () => {
             console.error('[Razorpay Verify Error]:', vErr);
             setStep('payment');
             setProcessingPhase('idle');
-            setAddressFormError('Network issue verifying payment. Please contact support with payment ID: ' + response.razorpay_payment_id);
+            const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
+            setAddressFormError(
+              isOffline
+                ? 'Network connection lost during verification. Please reconnect to internet. Payment ID: ' + response.razorpay_payment_id
+                : 'Network issue verifying payment. Please contact support with payment ID: ' + response.razorpay_payment_id
+            );
           } finally {
             setIsProcessingPayment(false);
           }

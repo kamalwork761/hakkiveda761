@@ -5,6 +5,20 @@ import './index.css';
 
 console.log('[HAKKIVEDA STARTUP] main loaded');
 
+// Progressive Web App Service Worker Registration
+if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker
+      .register('/sw.js', { scope: '/' })
+      .then((registration) => {
+        console.log('[HAKKIVEDA PWA] Service Worker registered with scope:', registration.scope);
+      })
+      .catch((error) => {
+        console.warn('[HAKKIVEDA PWA] Service Worker registration failed:', error);
+      });
+  });
+}
+
 // Global Error Diagnostics
 window.onerror = function (message, source, lineno, colno, error) {
   console.error('[HAKKIVEDA GLOBAL ERROR]', {

@@ -24,8 +24,10 @@ import {
   Shield,
   Leaf,
   Link as LinkIcon,
+  Download,
 } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
+import { usePWAInstall } from '../hooks/usePWAInstall';
 import { Category, MobileNavBadgeType } from '../types/store';
 import { HakkivedaWordmark } from './HakkivedaWordmark';
 import { INITIAL_MOBILE_NAV_CONFIG } from '../data/initialData';
@@ -82,6 +84,7 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
   } = useStore();
 
   const mobileNavConfig = storeMobileNavConfig || INITIAL_MOBILE_NAV_CONFIG;
+  const { isInstallable, isInstalled, install } = usePWAInstall();
 
   const [openCategoryId, setOpenCategoryId] = useState<string | null>(null);
   const [openAccordions, setOpenAccordions] = useState<{ [key: string]: boolean }>({});
@@ -636,6 +639,22 @@ export const MobileNavDrawer: React.FC<MobileNavDrawerProps> = ({
         {/* 4. BOTTOM AREA: FOLLOW US ON & COPYRIGHT */}
         {/* ========================================================= */}
         <div className="p-5 border-t border-[#E5DEC9] bg-[#F3EFE6] shrink-0 space-y-3">
+          {!isInstalled && isInstallable && (
+            <div>
+              <button
+                type="button"
+                onClick={async () => {
+                  onClose();
+                  await install();
+                }}
+                className="w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl bg-[#0E3B2E] text-[#D4AF37] border border-[#D4AF37]/50 text-xs font-bold tracking-wider uppercase shadow-md active:scale-95 hover:bg-[#0A2E1F] transition-all cursor-pointer"
+              >
+                <Download className="w-4 h-4 text-[#D4AF37]" />
+                <span>Install HAKKIVEDA App</span>
+              </button>
+            </div>
+          )}
+
           {socialLinks.length > 0 && (
             <div>
               <span className="text-[10px] uppercase font-bold tracking-[0.2em] text-[#123F2A]/70 block mb-2 font-sans">

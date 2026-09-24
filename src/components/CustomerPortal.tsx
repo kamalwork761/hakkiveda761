@@ -121,6 +121,18 @@ export const CustomerPortal: React.FC = () => {
     }
   }, [isAuthModalOpen, authInitialTab]);
 
+  // Support direct opening of Customer Portal tabs (e.g. from Mobile Bottom Nav 'Orders' or 'Account')
+  useEffect(() => {
+    const handleOpenPortal = (e: any) => {
+      if (e.detail?.tab) {
+        setActiveTab(e.detail.tab);
+      }
+      setIsAuthModalOpen(true);
+    };
+    window.addEventListener('open:customer-portal', handleOpenPortal);
+    return () => window.removeEventListener('open:customer-portal', handleOpenPortal);
+  }, [setIsAuthModalOpen]);
+
   // Policy Modal state
   const [policyModal, setPolicyModal] = useState<'PRIVACY' | 'TERMS' | null>(null);
 

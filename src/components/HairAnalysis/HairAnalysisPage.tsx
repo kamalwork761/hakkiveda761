@@ -280,7 +280,12 @@ export const HairAnalysisPage: React.FC<HairAnalysisPageProps> = ({
           body: formData,
         });
       } catch (netErr: any) {
-        setPhotoUploadError('Could not connect to the photo analysis service.');
+        const isOffline = typeof navigator !== 'undefined' && !navigator.onLine;
+        setPhotoUploadError(
+          isOffline
+            ? 'You are currently offline. Please reconnect to the internet to analyze your scalp photo.'
+            : 'Could not connect to the photo analysis service.'
+        );
         playSound('nav_click');
         return;
       }

@@ -5253,6 +5253,23 @@ COMPLIANCE & COMMUNICATION RULES:
     });
   });
 
+  // Progressive Web App (PWA) Service Worker & Manifest endpoints
+  app.get('/sw.js', (_req, res) => {
+    const swPath = path.join(process.cwd(), process.env.NODE_ENV === 'production' ? 'dist/sw.js' : 'public/sw.js');
+    const targetPath = fs.existsSync(swPath) ? swPath : path.join(process.cwd(), 'public/sw.js');
+    res.setHeader('Content-Type', 'application/javascript');
+    res.setHeader('Service-Worker-Allowed', '/');
+    res.setHeader('Cache-Control', 'no-cache, no-store, must-revalidate');
+    res.sendFile(targetPath);
+  });
+
+  app.get(['/manifest.webmanifest', '/manifest.json'], (req, res) => {
+    const manifestPath = path.join(process.cwd(), 'public', req.path.endsWith('.json') ? 'manifest.json' : 'manifest.webmanifest');
+    res.setHeader('Content-Type', 'application/manifest+json');
+    res.setHeader('Cache-Control', 'public, max-age=3600');
+    res.sendFile(manifestPath);
+  });
+
   // Vite middleware for development vs static serve for production
   if (process.env.NODE_ENV !== 'production') {
     const vite = await createViteServer({

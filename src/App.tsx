@@ -12,6 +12,9 @@ import { ScrollToTopButton } from './components/ScrollToTopButton';
 import { SeoSchemaInjector } from './components/SeoSchemaInjector';
 import { CartToast } from './components/CartToast';
 import { BotanicalAmbientLayer } from './components/BotanicalAmbientLayer';
+import { MobileBottomNav } from './components/MobileBottomNav';
+import { PWAInstallBanner } from './components/PWAInstallBanner';
+import { OfflineIndicator } from './components/OfflineIndicator';
 
 // Dynamic / Lazy-loaded Below-the-fold sections
 const BeforeAfterSlider = lazy(() => import('./components/BeforeAfterSlider').then(m => ({ default: m.BeforeAfterSlider })));
@@ -286,6 +289,9 @@ export function AppContent() {
 
   return (
     <div className="min-h-screen bg-[var(--color-background)] text-[var(--color-text)] flex flex-col font-sans selection:bg-[var(--brand-gold)] selection:text-[var(--color-button-text)] transition-colors duration-300 relative">
+      {/* Global Offline Network Status Indicator */}
+      <OfflineIndicator />
+
       {/* Global Botanical Floating Layer */}
       <BotanicalAmbientLayer />
 
@@ -297,7 +303,7 @@ export function AppContent() {
         <Header selectedCategory={selectedCategory} onSelectCategory={handleSelectCategory} />
       </div>
 
-      <main className="flex-1 w-full max-w-full overflow-x-clip">
+      <main className="flex-1 w-full max-w-full overflow-x-clip pb-[calc(70px+env(safe-area-inset-bottom,0px))] md:pb-0">
         {isProductReviewsRoute ? (
           <ReviewsErrorBoundary
             onReturn={() => {
@@ -526,6 +532,12 @@ export function AppContent() {
         <CustomerPortal />
         <CountrySelectorModal isOpen={isCountryModalOpen} onClose={() => setIsCountryModalOpen(false)} />
       </Suspense>
+
+      {/* PWA In-App Install Prompt Banner */}
+      <PWAInstallBanner />
+
+      {/* Mobile App Bottom Navigation (Home, Shop, Hair Analysis, Orders, Account) */}
+      <MobileBottomNav currentPath={currentPath} onNavigate={navigate} />
     </div>
   );
 }

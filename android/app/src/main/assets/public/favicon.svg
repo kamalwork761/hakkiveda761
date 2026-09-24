@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="512" height="512">
+  <rect width="512" height="512" rx="128" fill="#0E3B2E"/>
+  <g transform="translate(256 256) rotate(45)">
+    <rect x="-140" y="-140" width="280" height="280" fill="#0E3B2E" stroke="#D4AF37" stroke-width="22" rx="16"/>
+    <text transform="rotate(-45)" x="0" y="22" font-family="'Cinzel', 'Times New Roman', serif" font-weight="900" font-size="140" fill="#D4AF37" text-anchor="middle" dominant-baseline="central" letter-spacing="-2">HV</text>
+  </g>
+</svg>

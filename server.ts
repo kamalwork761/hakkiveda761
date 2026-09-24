@@ -124,7 +124,7 @@ const upload = multer({
 
 async function startServer() {
   const app = express();
-  const PORT = 3000;
+  const PORT = process.env.PORT || 3000;
 
   // Trust proxy for secure cookies behind reverse proxies (Cloud Run / Nginx)
   app.set('trust proxy', 1);

@@ -1,0 +1,159 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 600 1000" width="100%" height="100%" fill="none">
+  <defs>
+    <!-- Skin Gradients -->
+    <linearGradient id="skinBase" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#F2C59F"/>
+      <stop offset="35%" stop-color="#DE9E74"/>
+      <stop offset="75%" stop-color="#C27D50"/>
+      <stop offset="100%" stop-color="#8F5028"/>
+    </linearGradient>
+    <linearGradient id="skinShadow" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#9C522B" stop-opacity="0.8"/>
+      <stop offset="60%" stop-color="#C27D50" stop-opacity="0.2"/>
+      <stop offset="100%" stop-color="#FFE0C2" stop-opacity="0.9"/>
+    </linearGradient>
+    
+    <!-- Hair Gradients -->
+    <linearGradient id="hairDark" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#0E0906"/>
+      <stop offset="25%" stop-color="#1A110A"/>
+      <stop offset="50%" stop-color="#080503"/>
+      <stop offset="85%" stop-color="#140C07"/>
+      <stop offset="100%" stop-color="#050302"/>
+    </linearGradient>
+    <linearGradient id="hairShineGold" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1A110A" stop-opacity="0"/>
+      <stop offset="30%" stop-color="#C59B4B" stop-opacity="0.35"/>
+      <stop offset="50%" stop-color="#F3E5AB" stop-opacity="0.55"/>
+      <stop offset="70%" stop-color="#B8860B" stop-opacity="0.3"/>
+      <stop offset="100%" stop-color="#0E0906" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="hairShineWarm" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#4A2A18" stop-opacity="0.6"/>
+      <stop offset="40%" stop-color="#8B5A2B" stop-opacity="0.4"/>
+      <stop offset="70%" stop-color="#2D180C" stop-opacity="0.8"/>
+      <stop offset="100%" stop-color="#0D0704" stop-opacity="0.95"/>
+    </linearGradient>
+    <linearGradient id="goldJewelry" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#FFF3B0"/>
+      <stop offset="40%" stop-color="#E5B94C"/>
+      <stop offset="75%" stop-color="#9E761E"/>
+      <stop offset="100%" stop-color="#6E5010"/>
+    </linearGradient>
+    <radialGradient id="auraGlow" cx="50%" cy="40%" r="60%">
+      <stop offset="0%" stop-color="#D4AF37" stop-opacity="0.18"/>
+      <stop offset="50%" stop-color="#8A5A2B" stop-opacity="0.06"/>
+      <stop offset="100%" stop-color="#000000" stop-opacity="0"/>
+    </radialGradient>
+    
+    <!-- Filter for soft drop shadow -->
+    <filter id="luxuryShadow" x="-15%" y="-15%" width="130%" height="130%">
+      <feDropShadow dx="8" dy="16" stdDeviation="14" flood-color="#000000" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <g filter="url(#luxuryShadow)">
+    <!-- Back Hair Volume (Deep base) -->
+    <path d="M190 280 Q100 450 130 650 Q150 820 220 980 Q250 995 280 970 Q380 920 450 780 Q490 620 460 420 Q440 290 380 250 Z" fill="url(#hairDark)" opacity="0.95"/>
+
+    <!-- Subtle Golden Ayurvedic Aura behind head -->
+    <circle cx="310" cy="280" r="220" fill="url(#auraGlow)"/>
+
+    <!-- Shoulders & Upper Torso -->
+    <path d="M180 500 C150 560 140 680 160 760 C230 790 370 790 440 760 C460 670 450 560 420 500 C370 540 230 540 180 500 Z" fill="url(#skinBase)"/>
+    <path d="M180 500 C220 535 380 535 420 500 C435 560 410 700 390 750 C330 770 270 770 210 750 C190 690 165 570 180 500 Z" fill="url(#skinShadow)"/>
+
+    <!-- Silk Robe / Traditional Saree Drape around shoulders -->
+    <path d="M150 630 Q130 750 160 850 Q230 890 300 870 Q370 890 440 850 Q470 750 450 630 Q410 690 300 700 Q190 690 150 630 Z" fill="#0C2417" opacity="0.9"/>
+    <!-- Gold Border on Saree -->
+    <path d="M148 640 Q200 705 300 705 Q400 705 452 640" stroke="url(#goldJewelry)" stroke-width="6" stroke-linecap="round" fill="none"/>
+    <path d="M150 650 Q200 715 300 715 Q400 715 450 650" stroke="url(#goldJewelry)" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.7"/>
+
+    <!-- Neck & Collarbone -->
+    <path d="M260 380 C250 440 240 480 230 510 C270 525 330 525 370 510 C360 480 350 440 340 380 Z" fill="url(#skinBase)"/>
+    <path d="M245 460 Q300 495 355 460" stroke="#9C522B" stroke-width="3" stroke-linecap="round" fill="none" opacity="0.4"/>
+    
+    <!-- Royal Gold Ayurvedic Necklace -->
+    <path d="M245 440 Q300 485 355 440" stroke="url(#goldJewelry)" stroke-width="5" stroke-linecap="round" fill="none"/>
+    <path d="M235 465 Q300 515 365 465" stroke="url(#goldJewelry)" stroke-width="3" stroke-linecap="round" fill="none"/>
+    <circle cx="300" cy="515" r="7" fill="url(#goldJewelry)"/>
+    <circle cx="300" cy="515" r="3" fill="#8B1E1E"/>
+
+    <!-- Face Silhouette / Chin / Cheeks -->
+    <path d="M240 260 C235 340 265 415 300 425 C335 415 365 340 360 260 C355 200 245 200 240 260 Z" fill="url(#skinBase)"/>
+    <!-- Soft Facial Shading & Contours -->
+    <path d="M245 270 C245 340 270 405 300 415 C330 405 355 340 355 270 Z" fill="url(#skinShadow)" opacity="0.5"/>
+
+    <!-- Elegant Lips (Subtle Rose Gold) -->
+    <path d="M285 375 Q300 370 315 375 Q300 388 285 375 Z" fill="#9C3A3A"/>
+    <path d="M288 375 Q300 382 312 375" stroke="#FFE4E1" stroke-width="1" fill="none" opacity="0.6"/>
+
+    <!-- Serene Eyes & Brows (Side-profile elegant Indian aesthetic) -->
+    <path d="M260 305 Q275 295 290 302" stroke="#120B06" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+    <path d="M310 302 Q325 295 340 305" stroke="#120B06" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+    <!-- Closed / Meditative Lashes -->
+    <path d="M265 318 Q278 328 290 318" stroke="#1A110B" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+    <path d="M310 318 Q322 328 335 318" stroke="#1A110B" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+
+    <!-- Traditional Bindi (Ayurvedic Kumkum / Gold) -->
+    <circle cx="300" cy="285" r="3.5" fill="#8B1E1E"/>
+    <circle cx="300" cy="285" r="1.5" fill="url(#goldJewelry)"/>
+
+    <!-- Royal Maang Tikka Jewelry on Forehead -->
+    <line x1="300" y1="160" x2="300" y2="250" stroke="url(#goldJewelry)" stroke-width="2"/>
+    <polygon points="300,250 293,262 300,272 307,262" fill="url(#goldJewelry)"/>
+    <circle cx="300" cy="262" r="3" fill="#8B1E1E"/>
+
+    <!-- Gold Jhumka Earrings -->
+    <!-- Left Earring -->
+    <g transform="translate(225, 335)">
+      <circle cx="0" cy="0" r="4" fill="url(#goldJewelry)"/>
+      <path d="M-8 12 Q0 4 8 12 L6 18 Q0 22 -6 18 Z" fill="url(#goldJewelry)"/>
+      <circle cx="0" cy="24" r="2.5" fill="url(#goldJewelry)"/>
+    </g>
+    <!-- Right Earring -->
+    <g transform="translate(375, 335)">
+      <circle cx="0" cy="0" r="4" fill="url(#goldJewelry)"/>
+      <path d="M-8 12 Q0 4 8 12 L6 18 Q0 22 -6 18 Z" fill="url(#goldJewelry)"/>
+      <circle cx="0" cy="24" r="2.5" fill="url(#goldJewelry)"/>
+    </g>
+
+    <!-- Main Front Hair Waves & Crown Volume -->
+    <!-- Crown -->
+    <path d="M220 230 C200 160 250 110 300 110 C350 110 400 160 380 230 C355 180 330 160 300 160 C270 160 245 180 220 230 Z" fill="url(#hairDark)"/>
+    
+    <!-- Left Cascading Long Hair Waves (Flowing all the way down) -->
+    <path d="M230 220 C180 260 160 340 170 440 C180 540 140 640 150 750 C160 840 190 920 240 990 C220 960 190 890 180 810 C170 720 210 630 200 520 C190 430 210 330 250 250 Z" fill="url(#hairDark)"/>
+    
+    <!-- Right Cascading Long Hair (Massive, Glossy Waves reaching to bottom overflow!) -->
+    <path d="M370 220 C420 270 450 360 440 470 C430 570 470 680 460 790 C450 880 410 950 350 1000 C390 950 430 870 430 780 C430 670 390 570 400 460 C410 370 390 290 350 240 Z" fill="url(#hairDark)"/>
+
+    <!-- Center Long Hair Stream -->
+    <path d="M270 540 C250 630 280 730 270 830 C260 910 290 960 320 995 C300 950 285 890 295 810 C305 720 275 620 290 540 Z" fill="url(#hairDark)" opacity="0.9"/>
+
+    <!-- Glistening Hair Strand Highlights & Golden Ayurvedic Sheen Layers -->
+    <path d="M235 240 Q180 350 195 460 Q210 570 170 680 Q145 770 185 860 Q215 930 250 985" stroke="url(#hairShineGold)" stroke-width="12" stroke-linecap="round" fill="none"/>
+    <path d="M365 240 Q425 350 415 470 Q405 590 445 710 Q465 800 415 900 Q385 960 345 995" stroke="url(#hairShineGold)" stroke-width="14" stroke-linecap="round" fill="none"/>
+    
+    <!-- Fine Gloss Strands (Individual hair fiber highlights) -->
+    <path d="M245 230 Q195 340 205 450 Q215 560 180 670 Q160 760 190 850 Q220 920 245 975" stroke="#F3E5AB" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.6"/>
+    <path d="M255 240 Q210 350 218 460 Q225 570 195 680 Q175 770 205 860 Q235 930 260 985" stroke="#C59B4B" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.5"/>
+    <path d="M355 230 Q410 340 400 450 Q390 560 430 670 Q450 760 410 860 Q380 930 340 980" stroke="#F3E5AB" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.6"/>
+    <path d="M345 240 Q395 350 385 460 Q375 570 415 680 Q435 770 395 870 Q365 940 330 990" stroke="#C59B4B" stroke-width="2" stroke-linecap="round" fill="none" opacity="0.5"/>
+
+    <!-- Cascading Bottom Hair Tips (Extending into space with natural organic taper) -->
+    <path d="M220 930 Q240 980 260 1000" stroke="url(#hairDark)" stroke-width="18" stroke-linecap="round" fill="none"/>
+    <path d="M260 920 Q290 970 310 995" stroke="url(#hairDark)" stroke-width="22" stroke-linecap="round" fill="none"/>
+    <path d="M310 930 Q340 975 365 1000" stroke="url(#hairDark)" stroke-width="20" stroke-linecap="round" fill="none"/>
+    <path d="M360 910 Q390 960 410 990" stroke="url(#hairDark)" stroke-width="16" stroke-linecap="round" fill="none"/>
+    
+    <!-- Golden Infusion Sparkles on Hair Strands -->
+    <circle cx="205" cy="460" r="2.5" fill="#FFE599" opacity="0.8"/>
+    <circle cx="185" cy="670" r="3" fill="#FFE599" opacity="0.85"/>
+    <circle cx="215" cy="850" r="2" fill="#FFE599" opacity="0.7"/>
+    <circle cx="410" cy="480" r="3" fill="#FFE599" opacity="0.85"/>
+    <circle cx="440" cy="700" r="2.5" fill="#FFE599" opacity="0.8"/>
+    <circle cx="405" cy="870" r="3" fill="#FFE599" opacity="0.75"/>
+    <circle cx="330" cy="960" r="2.5" fill="#FFE599" opacity="0.9"/>
+  </g>
+</svg>

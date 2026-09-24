@@ -1845,43 +1845,70 @@ export const HairAnalysisPage: React.FC<HairAnalysisPageProps> = ({
                     </div>
                   ) : null}
 
-                  {/* Replace Photo Button */}
-                  <label className="cursor-pointer inline-flex items-center gap-2 bg-[#EAE2CE] hover:bg-[#DDD3BD] text-[#0B2F20] px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-colors shadow-xs">
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp,image/*"
-                      capture="environment"
-                      onChange={handleTopCrownPhotoUpload}
-                      disabled={isUploadingPhoto}
-                      className="hidden"
-                    />
-                    <RotateCcw className="w-3.5 h-3.5" />
-                    <span>Replace Photo</span>
-                  </label>
+                  {/* Replace Photo Buttons */}
+                  <div className="flex flex-wrap items-center justify-center gap-3">
+                    <label className="cursor-pointer inline-flex items-center gap-2 bg-[#EAE2CE] hover:bg-[#DDD3BD] text-[#0B2F20] px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider transition-colors shadow-xs">
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/*"
+                        capture="environment"
+                        onChange={handleTopCrownPhotoUpload}
+                        disabled={isUploadingPhoto}
+                        className="hidden"
+                      />
+                      <Camera className="w-3.5 h-3.5" />
+                      <span>Take Photo</span>
+                    </label>
+                    <label className="cursor-pointer inline-flex items-center gap-2 bg-[#FAF8F2] hover:bg-white text-[#0B2F20] border border-[#D5CEBF] px-4 py-2 rounded-xl font-bold text-xs uppercase tracking-wider transition-colors shadow-xs">
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/*"
+                        onChange={handleTopCrownPhotoUpload}
+                        disabled={isUploadingPhoto}
+                        className="hidden"
+                      />
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>Choose Gallery</span>
+                    </label>
+                  </div>
                 </div>
               ) : (
-                <label className="w-full flex flex-col items-center justify-center cursor-pointer py-6 group">
-                  <input
-                    type="file"
-                    accept="image/jpeg,image/png,image/webp,image/*"
-                    capture="environment"
-                    onChange={handleTopCrownPhotoUpload}
-                    disabled={isUploadingPhoto}
-                    className="hidden"
-                  />
-                  <div className="w-16 h-16 rounded-full bg-[#EAE2CE] group-hover:bg-[#0B2F20] group-hover:text-[#C9A84E] text-[#0B2F20] transition-colors flex items-center justify-center mb-3 shadow-xs">
+                <div className="w-full flex flex-col items-center justify-center py-6">
+                  <div className="w-16 h-16 rounded-full bg-[#EAE2CE] text-[#0B2F20] flex items-center justify-center mb-3 shadow-xs">
                     <Camera className="w-7 h-7" />
                   </div>
-                  <span className="text-base font-bold text-[#0B2F20] group-hover:text-[#174B32] transition-colors">
+                  <span className="text-base font-bold text-[#0B2F20]">
                     Take or Upload Top / Crown Photo
                   </span>
-                  <p className="text-xs text-[#63796A] mt-1 max-w-xs">
+                  <p className="text-xs text-[#63796A] mt-1 max-w-xs text-center">
                     JPG, PNG, or WebP up to 15MB. Please ensure natural overhead lighting.
                   </p>
-                  <span className="mt-4 text-xs font-bold text-[#FAF8F2] bg-[#0B2F20] group-hover:bg-[#164E34] px-6 py-2.5 rounded-xl uppercase tracking-wider transition-colors shadow-md">
-                    TAKE OR UPLOAD PHOTO
-                  </span>
-                </label>
+                  <div className="mt-5 flex flex-wrap items-center justify-center gap-3">
+                    <label className="cursor-pointer inline-flex items-center gap-2 bg-[#0B2F20] hover:bg-[#164E34] text-[#FAF8F2] px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-colors shadow-md">
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/*"
+                        capture="environment"
+                        onChange={handleTopCrownPhotoUpload}
+                        disabled={isUploadingPhoto}
+                        className="hidden"
+                      />
+                      <Camera className="w-4 h-4 text-[#D4AF37]" />
+                      <span>Open Camera</span>
+                    </label>
+                    <label className="cursor-pointer inline-flex items-center gap-2 bg-[#EAE2CE] hover:bg-[#DDD3BD] text-[#0B2F20] px-5 py-2.5 rounded-xl font-bold text-xs uppercase tracking-wider transition-colors shadow-xs">
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/*"
+                        onChange={handleTopCrownPhotoUpload}
+                        disabled={isUploadingPhoto}
+                        className="hidden"
+                      />
+                      <Upload className="w-4 h-4 text-[#0B2F20]" />
+                      <span>Select From Gallery</span>
+                    </label>
+                  </div>
+                </div>
               )}
             </div>
 

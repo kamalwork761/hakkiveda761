@@ -11,6 +11,11 @@
     "lint": "tsc --noEmit"
   },
   "dependencies": {
+    "@capacitor/app": "^8.1.1",
+    "@capacitor/browser": "^8.0.4",
+    "@capacitor/core": "^8.5.2",
+    "@capacitor/splash-screen": "^8.0.2",
+    "@capacitor/status-bar": "^8.0.3",
     "@google/genai": "^2.4.0",
     "@tailwindcss/vite": "^4.1.14",
     "@types/dompurify": "^3.2.0",
@@ -37,6 +42,8 @@
     "vite": "^6.2.3"
   },
   "devDependencies": {
+    "@capacitor/android": "^8.5.2",
+    "@capacitor/cli": "^8.5.2",
     "@types/bcryptjs": "^3.0.0",
     "@types/compression": "^1.8.1",
     "@types/cookie-parser": "^1.4.10",

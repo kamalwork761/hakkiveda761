@@ -142,3 +142,64 @@ You can test your deployment at any time by accessing:
 
 Uploaded product media, banner images, and customer PDFs are stored safely in `/var/www/hakkiveda/uploads` (or Docker volume `uploads_data`).
 If you ever want to migrate from local disk to **AWS S3 / MinIO**, simply configure the `STORAGE_PROVIDER=s3` and S3 credentials in `.env` without changing frontend component code!
+
+---
+
+## Android App & Google Play Store Release Guide
+
+The repository includes a complete **Capacitor native Android project** (`/android`) configured specifically for HAKKIVEDA with:
+- **Package ID**: `com.hakkiveda.app`
+- **Branded App Icons**: Royal gold "HV" crest on forest green across all densities (`mdpi`, `hdpi`, `xhdpi`, `xxhdpi`, `xxxhdpi`, adaptive + round).
+- **Splash Screen**: Branded forest green launch screen with gold typography and auto-dismissal.
+- **Native Android Hardware Back Button**: Closes modals, sheets, and drawers sequentially before exiting.
+- **External Intent Interception**: WhatsApp, Phone (`tel:`), Email (`mailto:`), and Razorpay checkout handled natively.
+- **Hair Root Analysis**: Camera and gallery upload with zero permission friction.
+
+### 1. Build and Sync Web Assets
+```bash
+# Build the production React web bundle
+npm run build
+
+# Sync the assets and plugins into the Android native project
+npx cap sync android
+```
+
+### 2. Generate Release APK or Android App Bundle (AAB)
+To generate an **Android App Bundle (.aab)** for Google Play Console submission:
+
+```bash
+cd android
+
+# Generate release bundle using Gradle
+./gradlew bundleRelease
+
+# Or generate a standalone signed/unsigned APK for testing on physical devices:
+./gradlew assembleRelease
+```
+The output `.aab` file will be generated at:
+`android/app/build/outputs/bundle/release/app-release.aab`
+
+The output `.apk` file will be generated at:
+`android/app/build/outputs/apk/release/app-release-unsigned.apk`
+
+### 3. Signing the Release AAB / APK for Google Play Store
+Create or use your production upload keystore:
+```bash
+keytool -genkey -v -keystore hakkiveda-release-key.jks -keyalg RSA -keysize 2048 -validity 10000 -alias hakkiveda
+```
+
+You can pass signing credentials via environment variables during CI/CD or local build:
+```bash
+export KEYSTORE_PATH="/path/to/hakkiveda-release-key.jks"
+export KEYSTORE_PASSWORD="your-keystore-password"
+export KEY_ALIAS="hakkiveda"
+export KEY_PASSWORD="your-key-password"
+
+./gradlew bundleRelease
+```
+
+### 4. Upload to Google Play Console
+1. Log in to [Google Play Console](https://play.google.com/console).
+2. Create app -> **HAKKIVEDA** (Default language: English (India), App, Free).
+3. Under **Production** -> **Create new release**, upload `app-release.aab`.
+4. Fill in Store Presence, Privacy Policy (`https://hakkiveda.com/legal/privacy-policy`), Data Safety (Camera used for Hair Root Analysis photo upload), and submit for review.

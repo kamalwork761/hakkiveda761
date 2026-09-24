@@ -76,11 +76,116 @@ const SectionSkeleton: React.FC = () => (
 );
 
 export function AppContent() {
-  const { adminAuthenticated, logoutAdmin, isCountryModalOpen, setIsCountryModalOpen, playSound, openQuickView, products, categories } = useStore();
+  const {
+    adminAuthenticated,
+    logoutAdmin,
+    isCountryModalOpen,
+    setIsCountryModalOpen,
+    playSound,
+    openQuickView,
+    closeQuickView,
+    products,
+    categories,
+    isCartOpen,
+    setIsCartOpen,
+    isCheckoutOpen,
+    setIsCheckoutOpen,
+    isQuickViewOpen,
+    isWishlistOpen,
+    setIsWishlistOpen,
+    isAuthModalOpen,
+    setIsAuthModalOpen,
+    isQuizOpen,
+    setIsQuizOpen,
+    isB2BModalOpen,
+    setIsB2BModalOpen,
+  } = useStore();
   
   useEffect(() => {
     console.log('[HAKKIVEDA STARTUP] Router initialized');
   }, []);
+
+  // Android Native Back Button Handler
+  useEffect(() => {
+    const handleAndroidBack = (e: Event) => {
+      // 1. Close open modals in reverse order of priority
+      if (isCheckoutOpen) {
+        e.preventDefault();
+        setIsCheckoutOpen(false);
+        return;
+      }
+      if (isCartOpen) {
+        e.preventDefault();
+        setIsCartOpen(false);
+        return;
+      }
+      if (isAuthModalOpen) {
+        e.preventDefault();
+        setIsAuthModalOpen(false);
+        return;
+      }
+      if (isQuickViewOpen) {
+        e.preventDefault();
+        closeQuickView();
+        return;
+      }
+      if (isQuizOpen) {
+        e.preventDefault();
+        setIsQuizOpen(false);
+        return;
+      }
+      if (isCountryModalOpen) {
+        e.preventDefault();
+        setIsCountryModalOpen(false);
+        return;
+      }
+      if (isWishlistOpen) {
+        e.preventDefault();
+        setIsWishlistOpen(false);
+        return;
+      }
+      if (isB2BModalOpen) {
+        e.preventDefault();
+        setIsB2BModalOpen(false);
+        return;
+      }
+
+      // Check if any open dialog or video modal exists
+      const closeButtons = document.querySelectorAll<HTMLButtonElement>(
+        '[data-dismiss="modal"], .modal-close-btn, button[aria-label="Close"]'
+      );
+      if (closeButtons.length > 0) {
+        const topClose = closeButtons[closeButtons.length - 1];
+        if (topClose) {
+          e.preventDefault();
+          topClose.click();
+          return;
+        }
+      }
+    };
+
+    window.addEventListener('hakkiveda:android-back', handleAndroidBack);
+    return () => {
+      window.removeEventListener('hakkiveda:android-back', handleAndroidBack);
+    };
+  }, [
+    isCheckoutOpen,
+    isCartOpen,
+    isAuthModalOpen,
+    isQuickViewOpen,
+    isQuizOpen,
+    isCountryModalOpen,
+    isWishlistOpen,
+    isB2BModalOpen,
+    closeQuickView,
+    setIsCartOpen,
+    setIsCheckoutOpen,
+    setIsAuthModalOpen,
+    setIsQuizOpen,
+    setIsCountryModalOpen,
+    setIsWishlistOpen,
+    setIsB2BModalOpen,
+  ]);
   const [selectedCategory, setSelectedCategory] = useState<string>(() => {
     const params = new URLSearchParams(window.location.search);
     const cat = params.get('category');

@@ -26,25 +26,38 @@ export function setupCapacitorApiProxy(): void {
   window.fetch = function (input: RequestInfo | URL, init?: RequestInit): Promise<Response> {
     try {
       if (typeof input === 'string') {
-        if (input.startsWith('/api/') || input.startsWith('/uploads/')) {
-          input = `${LIVE_BASE_URL}${input}`;
+        const clean = input.trim();
+        if (clean.startsWith('/api') || clean.startsWith('/uploads')) {
+          input = `${LIVE_BASE_URL}${clean}`;
+        } else if (clean.startsWith('api/') || clean.startsWith('uploads/')) {
+          input = `${LIVE_BASE_URL}/${clean}`;
+        } else if (
+          clean.includes('localhost') ||
+          clean.includes('127.0.0.1') ||
+          clean.startsWith('capacitor://')
+        ) {
+          try {
+            const parsed = new URL(clean, LIVE_BASE_URL);
+            if (parsed.pathname.startsWith('/api') || parsed.pathname.startsWith('/uploads')) {
+              input = `${LIVE_BASE_URL}${parsed.pathname}${parsed.search}`;
+            }
+          } catch {}
         }
       } else if (input instanceof URL) {
-        if (
-          (input.pathname.startsWith('/api/') || input.pathname.startsWith('/uploads/')) &&
-          (input.hostname === 'localhost' || input.hostname === '127.0.0.1' || input.origin === window.location.origin)
-        ) {
+        if (input.pathname.startsWith('/api') || input.pathname.startsWith('/uploads')) {
           input = new URL(input.pathname + input.search, LIVE_BASE_URL);
         }
       } else if (input instanceof Request) {
-        const url = new URL(input.url);
-        if (
-          (url.pathname.startsWith('/api/') || url.pathname.startsWith('/uploads/')) &&
-          (url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.origin === window.location.origin)
-        ) {
-          const targetUrl = `${LIVE_BASE_URL}${url.pathname}${url.search}`;
-          input = new Request(targetUrl, input);
-        }
+        try {
+          const url = new URL(input.url);
+          if (
+            (url.pathname.startsWith('/api') || url.pathname.startsWith('/uploads')) &&
+            (url.hostname === 'localhost' || url.hostname === '127.0.0.1' || url.origin === window.location.origin)
+          ) {
+            const targetUrl = `${LIVE_BASE_URL}${url.pathname}${url.search}`;
+            input = new Request(targetUrl, input);
+          }
+        } catch {}
       }
     } catch (e) {
       console.warn('[HAKKIVEDA Capacitor] URL rewriting error:', e);

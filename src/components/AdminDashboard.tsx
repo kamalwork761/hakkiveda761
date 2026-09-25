@@ -24,6 +24,7 @@ import { AdminMobileNavManager } from './AdminMobileNavManager';
 import { AdminEditorialStoriesManager } from './AdminEditorialStoriesManager';
 import { AdminAnnouncementManager } from './AdminAnnouncementManager';
 import { AdminGlobalClientsManager } from './admin/AdminGlobalClientsManager';
+import { AdminMobileAppManager } from './admin/AdminMobileAppManager';
 import {
   Lock,
   LayoutDashboard,
@@ -213,6 +214,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
     | 'global_clients'
     | 'customers'
     | 'coupons'
+    | 'mobile_nav'
+    | 'mobile_app'
     | 'reviews'
     | 'before_after'
     | 'videos'
@@ -736,6 +739,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             >
               <Smartphone className="w-4 h-4" />
               <span>Mobile Navigation</span>
+            </button>
+            <button
+              onClick={() => setActiveTab('mobile_app')}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
+                activeTab === 'mobile_app' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <Smartphone className="w-4 h-4 text-emerald-400" />
+                <span>Mobile App Manager</span>
+              </div>
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                APP
+              </span>
             </button>
             <button
               onClick={() => setActiveTab('reviews')}
@@ -1423,6 +1440,9 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
 
         {/* Tab 7.5: Mobile Navigation Manager (Phase 3) */}
         {activeTab === 'mobile_nav' && <AdminMobileNavManager showToast={showToast} />}
+
+        {/* Tab: Dedicated Mobile App Manager (Phase 1) */}
+        {activeTab === 'mobile_app' && <AdminMobileAppManager />}
 
         {/* Reviews & Ratings Module */}
         {activeTab === 'reviews' && <AdminReviewsManager showToast={showToast} />}

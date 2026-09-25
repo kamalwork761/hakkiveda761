@@ -3200,6 +3200,68 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
   app.post('/api/uploads/client-video', handleClientVideoUpload);
   app.post('/api/upload/client-video', handleClientVideoUpload);
 
+  // Dedicated Persistent Mobile App Upload Endpoint (/uploads/mobile-app/)
+  const mobileAppUploadsDir = path.join(uploadDir, 'mobile-app');
+  if (!fs.existsSync(mobileAppUploadsDir)) {
+    fs.mkdirSync(mobileAppUploadsDir, { recursive: true });
+  }
+
+  const mobileAppStorage = multer.diskStorage({
+    destination: (_req, _file, cb) => {
+      if (!fs.existsSync(mobileAppUploadsDir)) {
+        fs.mkdirSync(mobileAppUploadsDir, { recursive: true });
+      }
+      cb(null, mobileAppUploadsDir);
+    },
+    filename: (_req, file, cb) => {
+      const safeUUID = crypto.randomUUID();
+      const rawExt = path.extname(file.originalname).toLowerCase();
+      const validExts = ALLOWED_MIMES[file.mimetype] || [];
+      const safeExt = validExts.includes(rawExt) ? rawExt : (validExts[0] || '.jpg');
+      cb(null, `app-${safeUUID}${safeExt}`);
+    },
+  });
+
+  const mobileAppUpload = multer({
+    storage: mobileAppStorage,
+    limits: { fileSize: 25 * 1024 * 1024, files: 1 },
+    fileFilter: (_req, file, cb) => {
+      const rawExt = path.extname(file.originalname).toLowerCase();
+      if (file.originalname.includes('\0') || file.originalname.includes('..') || file.originalname.includes('/') || file.originalname.includes('\\')) {
+        return cb(new Error('Invalid characters in filename.'));
+      }
+      if (DANGEROUS_EXT_REGEX.test(file.originalname) || DANGEROUS_EXT_REGEX.test(rawExt)) {
+        return cb(new Error('Dangerous or unsupported file extension detected.'));
+      }
+      const validExts = ALLOWED_MIMES[file.mimetype];
+      if (!validExts || !validExts.includes(rawExt)) {
+        return cb(new Error('Unsupported file format. Allowed formats: JPG, PNG, WEBP, GIF, MP4, WEBM.'));
+      }
+      cb(null, true);
+    },
+  });
+
+  const handleMobileAppUpload = (req: express.Request, res: express.Response) => {
+    mobileAppUpload.single('file')(req, res, async (err: any) => {
+      if (err) {
+        return res.status(400).json({ success: false, error: err.message || 'Mobile app upload failed.' });
+      }
+      if (!req.file) {
+        return res.status(400).json({ success: false, error: 'No file uploaded.' });
+      }
+      const fileUrl = `/uploads/mobile-app/${req.file.filename}`;
+      return res.json({
+        success: true,
+        url: fileUrl,
+        filename: req.file.filename,
+        size: req.file.size,
+      });
+    });
+  };
+
+  app.post('/api/upload/mobile-app', requireAdmin, handleMobileAppUpload);
+  app.post('/api/uploads/mobile-app', requireAdmin, handleMobileAppUpload);
+
   // Secure Media Deletion Helper
   const handleMediaFileDelete = (req: express.Request, res: express.Response) => {
     try {

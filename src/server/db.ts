@@ -34,6 +34,12 @@ import {
   INITIAL_HOMEPAGE_EDITORIAL_CONFIG,
   INITIAL_GLOBAL_CLIENT_COUNTRIES,
   INITIAL_GLOBAL_CLIENT_STORIES,
+  INITIAL_MOBILE_APP_SETTINGS,
+  INITIAL_MOBILE_APP_HERO_SLIDES,
+  INITIAL_MOBILE_APP_BANNERS,
+  INITIAL_MOBILE_APP_SECTIONS,
+  INITIAL_MOBILE_APP_FEATURED_CATEGORIES,
+  INITIAL_MOBILE_APP_FEATURED_PRODUCTS,
 } from '../data/initialData';
 
 const DEFAULT_HERO_SLIDER_SETTINGS = {
@@ -167,6 +173,12 @@ export async function getDb() {
       homepage_editorial_config: INITIAL_HOMEPAGE_EDITORIAL_CONFIG,
       global_client_countries: INITIAL_GLOBAL_CLIENT_COUNTRIES,
       global_client_stories: INITIAL_GLOBAL_CLIENT_STORIES,
+      mobile_app_settings: INITIAL_MOBILE_APP_SETTINGS,
+      mobile_app_hero_slides: INITIAL_MOBILE_APP_HERO_SLIDES,
+      mobile_app_banners: INITIAL_MOBILE_APP_BANNERS,
+      mobile_app_sections: INITIAL_MOBILE_APP_SECTIONS,
+      mobile_app_featured_categories: INITIAL_MOBILE_APP_FEATURED_CATEGORIES,
+      mobile_app_featured_products: INITIAL_MOBILE_APP_FEATURED_PRODUCTS,
       max_bestsellers_count: 8,
       seeded: true,
     };
@@ -258,6 +270,30 @@ export async function getDb() {
       store.global_client_stories = INITIAL_GLOBAL_CLIENT_STORIES;
       needsFlush = true;
     }
+    if (!store.mobile_app_settings) {
+      store.mobile_app_settings = INITIAL_MOBILE_APP_SETTINGS;
+      needsFlush = true;
+    }
+    if (!store.mobile_app_hero_slides || !Array.isArray(store.mobile_app_hero_slides)) {
+      store.mobile_app_hero_slides = INITIAL_MOBILE_APP_HERO_SLIDES;
+      needsFlush = true;
+    }
+    if (!store.mobile_app_banners || !Array.isArray(store.mobile_app_banners)) {
+      store.mobile_app_banners = INITIAL_MOBILE_APP_BANNERS;
+      needsFlush = true;
+    }
+    if (!store.mobile_app_sections || !Array.isArray(store.mobile_app_sections)) {
+      store.mobile_app_sections = INITIAL_MOBILE_APP_SECTIONS;
+      needsFlush = true;
+    }
+    if (!store.mobile_app_featured_categories || !Array.isArray(store.mobile_app_featured_categories)) {
+      store.mobile_app_featured_categories = INITIAL_MOBILE_APP_FEATURED_CATEGORIES;
+      needsFlush = true;
+    }
+    if (!store.mobile_app_featured_products) {
+      store.mobile_app_featured_products = INITIAL_MOBILE_APP_FEATURED_PRODUCTS;
+      needsFlush = true;
+    }
     if (needsFlush) {
       await flushToDisk();
     }
@@ -315,6 +351,12 @@ export async function getStoreValue<T = any>(key: string): Promise<T | null> {
     if (cleanKey === 'homepage_editorial_config') return INITIAL_HOMEPAGE_EDITORIAL_CONFIG as unknown as T;
     if (cleanKey === 'global_client_countries') return INITIAL_GLOBAL_CLIENT_COUNTRIES as unknown as T;
     if (cleanKey === 'global_client_stories') return INITIAL_GLOBAL_CLIENT_STORIES as unknown as T;
+    if (cleanKey === 'mobile_app_settings') return INITIAL_MOBILE_APP_SETTINGS as unknown as T;
+    if (cleanKey === 'mobile_app_hero_slides') return INITIAL_MOBILE_APP_HERO_SLIDES as unknown as T;
+    if (cleanKey === 'mobile_app_banners') return INITIAL_MOBILE_APP_BANNERS as unknown as T;
+    if (cleanKey === 'mobile_app_sections') return INITIAL_MOBILE_APP_SECTIONS as unknown as T;
+    if (cleanKey === 'mobile_app_featured_categories') return INITIAL_MOBILE_APP_FEATURED_CATEGORIES as unknown as T;
+    if (cleanKey === 'mobile_app_featured_products') return INITIAL_MOBILE_APP_FEATURED_PRODUCTS as unknown as T;
     return null;
   }
   return store[cleanKey] as T;
@@ -398,6 +440,12 @@ export const PUBLIC_STORE_ALLOWLIST: readonly string[] = [
   'max_bestsellers_count',
   'cod_rules',
   'market_gateways',
+  'mobile_app_settings',
+  'mobile_app_hero_slides',
+  'mobile_app_banners',
+  'mobile_app_sections',
+  'mobile_app_featured_categories',
+  'mobile_app_featured_products',
 ];
 
 export async function getPublicStoreData(): Promise<Record<string, any>> {

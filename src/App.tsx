@@ -57,6 +57,12 @@ import { ReviewsErrorBoundary } from './components/ReviewsErrorBoundary';
 import { AppErrorBoundary } from './components/AppErrorBoundary';
 import { getProductUrl, getProductReviewsUrl } from './utils/productUtils';
 import { recordNavigationSource, getCategoryRouteFromId } from './utils/navigationState';
+import { isNativeAndroid, isNativeApp } from './utils/capacitorBridge';
+
+// Dedicated Native Android App UI (Capacitor Exclusive)
+const HakkivedaAndroidApp = lazy(() =>
+  import('./app/HakkivedaAndroidApp').then((m) => ({ default: m.HakkivedaAndroidApp }))
+);
 
 // Product Detail Page & Dedicated Reviews Routes
 const ProductDetailPage = lazy(() => import('./pages/ProductDetailPage').then(m => ({ default: m.ProductDetailPage })));
@@ -647,12 +653,58 @@ export function AppContent() {
   );
 }
 
+function RootRouter() {
+  const [isAdminPath, setIsAdminPath] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    return window.location.pathname.startsWith('/admin');
+  });
+
+  const [isNative, setIsNative] = useState(() => {
+    if (typeof window === 'undefined') return false;
+    const urlParams = new URLSearchParams(window.location.search);
+    const isPreview = urlParams.get('view') === 'app' || urlParams.get('app') === 'android';
+    return isNativeAndroid() || isNativeApp() || isPreview;
+  });
+
+  useEffect(() => {
+    const handlePopState = () => {
+      setIsAdminPath(window.location.pathname.startsWith('/admin'));
+    };
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
+
+  // Admin route always renders admin panel
+  if (isAdminPath) {
+    return <AppContent />;
+  }
+
+  // If running inside native Android Capacitor (or preview mode): render dedicated Android App UI
+  if (isNative) {
+    return (
+      <Suspense
+        fallback={
+          <div className="min-h-screen bg-[#FAF7F2] flex flex-col items-center justify-center text-[#0E382C] font-serif">
+            <div className="w-12 h-12 rounded-full border-2 border-[#C5A059] border-t-transparent animate-spin mb-3" />
+            <span className="text-sm font-bold tracking-widest uppercase">HAKKIVEDA</span>
+          </div>
+        }
+      >
+        <HakkivedaAndroidApp />
+      </Suspense>
+    );
+  }
+
+  // Otherwise: continue rendering the existing website exactly as it currently does
+  return <AppContent />;
+}
+
 export default function App() {
   console.log('[HAKKIVEDA STARTUP] App started');
   return (
     <AppErrorBoundary>
       <StoreProvider>
-        <AppContent />
+        <RootRouter />
       </StoreProvider>
     </AppErrorBoundary>
   );

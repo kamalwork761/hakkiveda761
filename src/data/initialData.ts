@@ -3127,4 +3127,129 @@ Clients reported immediate relief from itchy scalp conditions and enhanced stran
   },
 ];
 
+// ============================================================================
+// MOBILE APP INITIAL CONFIGURATION & ASSETS (Capacitor Android Exclusive)
+// ============================================================================
+
+export const INITIAL_MOBILE_APP_SETTINGS = {
+  appName: 'HAKKIVEDA',
+  headerTitle: 'HAKKIVEDA',
+  headerSubtitle: 'Authentic Hakki-Pikki Tribal Ayurveda',
+  contactPhone: '+91 99001 10800',
+  whatsappNumber: '919900110800',
+  enableNotifications: true,
+  freeDeliveryThreshold: 499,
+  brandAccentColor: '#C5A059',
+  brandDeepGreen: '#0E382C',
+};
+
+export const INITIAL_MOBILE_APP_HERO_SLIDES = [
+  {
+    id: 'app-hero-1',
+    title: '108 Sacred Forest Herbs',
+    subtitle: 'Handmade by Hakki-Pikki tribal elders in Pakshirajapura forest',
+    imageUrl: '/images/hero_tribal_elders.jpg',
+    ctaText: 'Shop Flagship Oil',
+    ctaDestination: 'product:prod-1',
+    displayOrder: 1,
+    published: true,
+  },
+  {
+    id: 'app-hero-2',
+    title: 'Free AI Hair Root Analysis',
+    subtitle: 'Identify scalp root cause & get a customized tribal herbal regimen',
+    imageUrl: '/images/hakkiveda_oil_couple_herbs.jpg',
+    ctaText: 'Start Analysis',
+    ctaDestination: 'analysis',
+    displayOrder: 2,
+    published: true,
+  },
+  {
+    id: 'app-hero-3',
+    title: 'Proven Baldness & Thinning Care',
+    subtitle: 'Pure wild botanical extracts cold-steeped over wood-fire furnaces',
+    imageUrl: '/images/hakkiveda_108_herbs_infographic.jpg',
+    ctaText: 'Explore Collection',
+    ctaDestination: 'shop',
+    displayOrder: 3,
+    published: true,
+  },
+];
+
+export const INITIAL_MOBILE_APP_BANNERS = [
+  {
+    id: 'app-banner-1',
+    title: 'Flat ₹200 OFF on Complete Hair Revival Kit',
+    subtitle: 'Use code TRIBAL200 at checkout • Free Express Delivery across India',
+    imageUrl: '/images/hakkiveda_baldness_powder.jpg',
+    linkAction: 'product:prod-6',
+    displayOrder: 1,
+    published: true,
+  },
+];
+
+export const INITIAL_MOBILE_APP_SECTIONS = [
+  { id: 'hero', name: 'App Hero Carousel', enabled: true, displayOrder: 1 },
+  { id: 'categories', name: 'Quick Categories Scroll', enabled: true, displayOrder: 2 },
+  { id: 'shop_by_concern', name: 'Shop by Concern', enabled: true, displayOrder: 3 },
+  { id: 'best_sellers', name: 'Best Sellers Carousel', enabled: true, displayOrder: 4 },
+  { id: 'promo_banner', name: 'Promotional Banner', enabled: true, displayOrder: 5 },
+  { id: 'flagship_product', name: '108 Forest Herbs Flagship Feature', enabled: true, displayOrder: 6 },
+  { id: 'recommended', name: 'Recommended Products', enabled: true, displayOrder: 7 },
+  { id: 'hair_analysis', name: 'Hair Root Analysis Card', enabled: true, displayOrder: 8 },
+  { id: 'brand_story', name: 'Authenticity & Tribal Wisdom Story', enabled: true, displayOrder: 9 },
+  { id: 'global_clients', name: 'Global Clients Compact Feature', enabled: true, displayOrder: 10 },
+];
+
+export const INITIAL_MOBILE_APP_FEATURED_CATEGORIES = [
+  {
+    id: 'app-cat-all',
+    categoryId: 'ALL',
+    customTitle: 'All Remedies',
+    icon: 'Sparkles',
+    displayOrder: 1,
+    enabled: true,
+  },
+  {
+    id: 'app-cat-1',
+    categoryId: 'cat-1',
+    customTitle: 'Hair Oils',
+    icon: 'Droplet',
+    imageUrl: '/images/hero_tribal_elders.jpg',
+    displayOrder: 2,
+    enabled: true,
+  },
+  {
+    id: 'app-cat-2',
+    categoryId: 'cat-2',
+    customTitle: 'Herbal Lepa',
+    icon: 'Leaf',
+    imageUrl: '/images/hakkiveda_baldness_powder.jpg',
+    displayOrder: 3,
+    enabled: true,
+  },
+  {
+    id: 'app-cat-3',
+    categoryId: 'cat-3',
+    customTitle: 'Shampoos',
+    icon: 'Wind',
+    displayOrder: 4,
+    enabled: true,
+  },
+  {
+    id: 'app-cat-4',
+    categoryId: 'cat-4',
+    customTitle: 'Value Combos',
+    icon: 'Package',
+    displayOrder: 5,
+    enabled: true,
+  },
+];
+
+export const INITIAL_MOBILE_APP_FEATURED_PRODUCTS = {
+  bestSellerProductIds: ['prod-1', 'prod-2', 'prod-6'],
+  recommendedProductIds: ['prod-1', 'prod-4', 'prod-5', 'prod-3'],
+  featuredProductIds: ['prod-1', 'prod-6'],
+};
+
 

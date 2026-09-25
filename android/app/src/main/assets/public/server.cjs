@@ -3893,6 +3893,121 @@ Clients reported immediate relief from itchy scalp conditions and enhanced stran
     updatedAt: "2024-09-02T00:00:00Z"
   }
 ];
+var INITIAL_MOBILE_APP_SETTINGS = {
+  appName: "HAKKIVEDA",
+  headerTitle: "HAKKIVEDA",
+  headerSubtitle: "Authentic Hakki-Pikki Tribal Ayurveda",
+  contactPhone: "+91 99001 10800",
+  whatsappNumber: "919900110800",
+  enableNotifications: true,
+  freeDeliveryThreshold: 499,
+  brandAccentColor: "#C5A059",
+  brandDeepGreen: "#0E382C"
+};
+var INITIAL_MOBILE_APP_HERO_SLIDES = [
+  {
+    id: "app-hero-1",
+    title: "108 Sacred Forest Herbs",
+    subtitle: "Handmade by Hakki-Pikki tribal elders in Pakshirajapura forest",
+    imageUrl: "/images/hero_tribal_elders.jpg",
+    ctaText: "Shop Flagship Oil",
+    ctaDestination: "product:prod-1",
+    displayOrder: 1,
+    published: true
+  },
+  {
+    id: "app-hero-2",
+    title: "Free AI Hair Root Analysis",
+    subtitle: "Identify scalp root cause & get a customized tribal herbal regimen",
+    imageUrl: "/images/hakkiveda_oil_couple_herbs.jpg",
+    ctaText: "Start Analysis",
+    ctaDestination: "analysis",
+    displayOrder: 2,
+    published: true
+  },
+  {
+    id: "app-hero-3",
+    title: "Proven Baldness & Thinning Care",
+    subtitle: "Pure wild botanical extracts cold-steeped over wood-fire furnaces",
+    imageUrl: "/images/hakkiveda_108_herbs_infographic.jpg",
+    ctaText: "Explore Collection",
+    ctaDestination: "shop",
+    displayOrder: 3,
+    published: true
+  }
+];
+var INITIAL_MOBILE_APP_BANNERS = [
+  {
+    id: "app-banner-1",
+    title: "Flat \u20B9200 OFF on Complete Hair Revival Kit",
+    subtitle: "Use code TRIBAL200 at checkout \u2022 Free Express Delivery across India",
+    imageUrl: "/images/hakkiveda_baldness_powder.jpg",
+    linkAction: "product:prod-6",
+    displayOrder: 1,
+    published: true
+  }
+];
+var INITIAL_MOBILE_APP_SECTIONS = [
+  { id: "hero", name: "App Hero Carousel", enabled: true, displayOrder: 1 },
+  { id: "categories", name: "Quick Categories Scroll", enabled: true, displayOrder: 2 },
+  { id: "shop_by_concern", name: "Shop by Concern", enabled: true, displayOrder: 3 },
+  { id: "best_sellers", name: "Best Sellers Carousel", enabled: true, displayOrder: 4 },
+  { id: "promo_banner", name: "Promotional Banner", enabled: true, displayOrder: 5 },
+  { id: "flagship_product", name: "108 Forest Herbs Flagship Feature", enabled: true, displayOrder: 6 },
+  { id: "recommended", name: "Recommended Products", enabled: true, displayOrder: 7 },
+  { id: "hair_analysis", name: "Hair Root Analysis Card", enabled: true, displayOrder: 8 },
+  { id: "brand_story", name: "Authenticity & Tribal Wisdom Story", enabled: true, displayOrder: 9 },
+  { id: "global_clients", name: "Global Clients Compact Feature", enabled: true, displayOrder: 10 }
+];
+var INITIAL_MOBILE_APP_FEATURED_CATEGORIES = [
+  {
+    id: "app-cat-all",
+    categoryId: "ALL",
+    customTitle: "All Remedies",
+    icon: "Sparkles",
+    displayOrder: 1,
+    enabled: true
+  },
+  {
+    id: "app-cat-1",
+    categoryId: "cat-1",
+    customTitle: "Hair Oils",
+    icon: "Droplet",
+    imageUrl: "/images/hero_tribal_elders.jpg",
+    displayOrder: 2,
+    enabled: true
+  },
+  {
+    id: "app-cat-2",
+    categoryId: "cat-2",
+    customTitle: "Herbal Lepa",
+    icon: "Leaf",
+    imageUrl: "/images/hakkiveda_baldness_powder.jpg",
+    displayOrder: 3,
+    enabled: true
+  },
+  {
+    id: "app-cat-3",
+    categoryId: "cat-3",
+    customTitle: "Shampoos",
+    icon: "Wind",
+    displayOrder: 4,
+    enabled: true
+  },
+  {
+    id: "app-cat-4",
+    categoryId: "cat-4",
+    customTitle: "Value Combos",
+    icon: "Package",
+    displayOrder: 5,
+    enabled: true
+  }
+];
+var INITIAL_MOBILE_APP_FEATURED_PRODUCTS = {
+  bestSellerProductIds: ["prod-1", "prod-2", "prod-6"],
+  recommendedProductIds: ["prod-1", "prod-4", "prod-5", "prod-3"],
+  featuredProductIds: ["prod-1", "prod-6"]
+};
 
 // src/server/db.ts
 var DEFAULT_HERO_SLIDER_SETTINGS = {
@@ -3999,6 +4114,12 @@ async function getDb() {
       homepage_editorial_config: INITIAL_HOMEPAGE_EDITORIAL_CONFIG,
       global_client_countries: INITIAL_GLOBAL_CLIENT_COUNTRIES,
       global_client_stories: INITIAL_GLOBAL_CLIENT_STORIES,
+      mobile_app_settings: INITIAL_MOBILE_APP_SETTINGS,
+      mobile_app_hero_slides: INITIAL_MOBILE_APP_HERO_SLIDES,
+      mobile_app_banners: INITIAL_MOBILE_APP_BANNERS,
+      mobile_app_sections: INITIAL_MOBILE_APP_SECTIONS,
+      mobile_app_featured_categories: INITIAL_MOBILE_APP_FEATURED_CATEGORIES,
+      mobile_app_featured_products: INITIAL_MOBILE_APP_FEATURED_PRODUCTS,
       max_bestsellers_count: 8,
       seeded: true
     };
@@ -4078,6 +4199,30 @@ async function getDb() {
       store.global_client_stories = INITIAL_GLOBAL_CLIENT_STORIES;
       needsFlush2 = true;
     }
+    if (!store.mobile_app_settings) {
+      store.mobile_app_settings = INITIAL_MOBILE_APP_SETTINGS;
+      needsFlush2 = true;
+    }
+    if (!store.mobile_app_hero_slides || !Array.isArray(store.mobile_app_hero_slides)) {
+      store.mobile_app_hero_slides = INITIAL_MOBILE_APP_HERO_SLIDES;
+      needsFlush2 = true;
+    }
+    if (!store.mobile_app_banners || !Array.isArray(store.mobile_app_banners)) {
+      store.mobile_app_banners = INITIAL_MOBILE_APP_BANNERS;
+      needsFlush2 = true;
+    }
+    if (!store.mobile_app_sections || !Array.isArray(store.mobile_app_sections)) {
+      store.mobile_app_sections = INITIAL_MOBILE_APP_SECTIONS;
+      needsFlush2 = true;
+    }
+    if (!store.mobile_app_featured_categories || !Array.isArray(store.mobile_app_featured_categories)) {
+      store.mobile_app_featured_categories = INITIAL_MOBILE_APP_FEATURED_CATEGORIES;
+      needsFlush2 = true;
+    }
+    if (!store.mobile_app_featured_products) {
+      store.mobile_app_featured_products = INITIAL_MOBILE_APP_FEATURED_PRODUCTS;
+      needsFlush2 = true;
+    }
     if (needsFlush2) {
       await flushToDisk();
     }
@@ -4129,6 +4274,12 @@ async function getStoreValue(key) {
     if (cleanKey === "homepage_editorial_config") return INITIAL_HOMEPAGE_EDITORIAL_CONFIG;
     if (cleanKey === "global_client_countries") return INITIAL_GLOBAL_CLIENT_COUNTRIES;
     if (cleanKey === "global_client_stories") return INITIAL_GLOBAL_CLIENT_STORIES;
+    if (cleanKey === "mobile_app_settings") return INITIAL_MOBILE_APP_SETTINGS;
+    if (cleanKey === "mobile_app_hero_slides") return INITIAL_MOBILE_APP_HERO_SLIDES;
+    if (cleanKey === "mobile_app_banners") return INITIAL_MOBILE_APP_BANNERS;
+    if (cleanKey === "mobile_app_sections") return INITIAL_MOBILE_APP_SECTIONS;
+    if (cleanKey === "mobile_app_featured_categories") return INITIAL_MOBILE_APP_FEATURED_CATEGORIES;
+    if (cleanKey === "mobile_app_featured_products") return INITIAL_MOBILE_APP_FEATURED_PRODUCTS;
     return null;
   }
   return store[cleanKey];
@@ -4204,7 +4355,13 @@ var PUBLIC_STORE_ALLOWLIST = [
   "global_client_stories",
   "max_bestsellers_count",
   "cod_rules",
-  "market_gateways"
+  "market_gateways",
+  "mobile_app_settings",
+  "mobile_app_hero_slides",
+  "mobile_app_banners",
+  "mobile_app_sections",
+  "mobile_app_featured_categories",
+  "mobile_app_featured_products"
 ];
 async function getPublicStoreData() {
   const store = loadMemoryFromDisk();
@@ -5287,7 +5444,7 @@ var upload = (0, import_multer.default)({
 });
 async function startServer() {
   const app = (0, import_express.default)();
-  const PORT = 3e3;
+  const PORT = process.env.PORT || 3e3;
   app.set("trust proxy", 1);
   await getDb();
   app.use((0, import_compression.default)());
@@ -7754,6 +7911,62 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
   };
   app.post("/api/uploads/client-video", handleClientVideoUpload);
   app.post("/api/upload/client-video", handleClientVideoUpload);
+  const mobileAppUploadsDir = import_path2.default.join(uploadDir, "mobile-app");
+  if (!import_fs2.default.existsSync(mobileAppUploadsDir)) {
+    import_fs2.default.mkdirSync(mobileAppUploadsDir, { recursive: true });
+  }
+  const mobileAppStorage = import_multer.default.diskStorage({
+    destination: (_req, _file, cb) => {
+      if (!import_fs2.default.existsSync(mobileAppUploadsDir)) {
+        import_fs2.default.mkdirSync(mobileAppUploadsDir, { recursive: true });
+      }
+      cb(null, mobileAppUploadsDir);
+    },
+    filename: (_req, file, cb) => {
+      const safeUUID = import_crypto.default.randomUUID();
+      const rawExt = import_path2.default.extname(file.originalname).toLowerCase();
+      const validExts = ALLOWED_MIMES[file.mimetype] || [];
+      const safeExt = validExts.includes(rawExt) ? rawExt : validExts[0] || ".jpg";
+      cb(null, `app-${safeUUID}${safeExt}`);
+    }
+  });
+  const mobileAppUpload = (0, import_multer.default)({
+    storage: mobileAppStorage,
+    limits: { fileSize: 25 * 1024 * 1024, files: 1 },
+    fileFilter: (_req, file, cb) => {
+      const rawExt = import_path2.default.extname(file.originalname).toLowerCase();
+      if (file.originalname.includes("\0") || file.originalname.includes("..") || file.originalname.includes("/") || file.originalname.includes("\\")) {
+        return cb(new Error("Invalid characters in filename."));
+      }
+      if (DANGEROUS_EXT_REGEX.test(file.originalname) || DANGEROUS_EXT_REGEX.test(rawExt)) {
+        return cb(new Error("Dangerous or unsupported file extension detected."));
+      }
+      const validExts = ALLOWED_MIMES[file.mimetype];
+      if (!validExts || !validExts.includes(rawExt)) {
+        return cb(new Error("Unsupported file format. Allowed formats: JPG, PNG, WEBP, GIF, MP4, WEBM."));
+      }
+      cb(null, true);
+    }
+  });
+  const handleMobileAppUpload = (req, res) => {
+    mobileAppUpload.single("file")(req, res, async (err) => {
+      if (err) {
+        return res.status(400).json({ success: false, error: err.message || "Mobile app upload failed." });
+      }
+      if (!req.file) {
+        return res.status(400).json({ success: false, error: "No file uploaded." });
+      }
+      const fileUrl = `/uploads/mobile-app/${req.file.filename}`;
+      return res.json({
+        success: true,
+        url: fileUrl,
+        filename: req.file.filename,
+        size: req.file.size
+      });
+    });
+  };
+  app.post("/api/upload/mobile-app", requireAdmin, handleMobileAppUpload);
+  app.post("/api/uploads/mobile-app", requireAdmin, handleMobileAppUpload);
   const handleMediaFileDelete = (req, res) => {
     try {
       const filename = req.params.filename || req.body?.filename;

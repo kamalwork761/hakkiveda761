@@ -2,7 +2,7 @@ import { StrictMode } from 'react';
 import { createRoot } from 'react-dom/client';
 import App from './App.tsx';
 import './index.css';
-import { setupCapacitorApiProxy, setupCapacitorApp } from './utils/capacitorBridge';
+import { setupCapacitorApiProxy, setupCapacitorApp, isNativeApp } from './utils/capacitorBridge';
 
 console.log('[HAKKIVEDA STARTUP] main loaded');
 
@@ -10,18 +10,27 @@ console.log('[HAKKIVEDA STARTUP] main loaded');
 setupCapacitorApiProxy();
 setupCapacitorApp();
 
-// Progressive Web App Service Worker Registration
+// Progressive Web App Service Worker Registration (Web/PWA only; disabled inside native Capacitor)
 if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker
-      .register('/sw.js', { scope: '/' })
-      .then((registration) => {
-        console.log('[HAKKIVEDA PWA] Service Worker registered with scope:', registration.scope);
-      })
-      .catch((error) => {
-        console.warn('[HAKKIVEDA PWA] Service Worker registration failed:', error);
-      });
-  });
+  if (isNativeApp()) {
+    // Unregister any existing service workers inside native Capacitor app to prevent cross-origin fetch interference
+    navigator.serviceWorker.getRegistrations().then((registrations) => {
+      for (const registration of registrations) {
+        registration.unregister().catch(() => {});
+      }
+    }).catch(() => {});
+  } else {
+    window.addEventListener('load', () => {
+      navigator.serviceWorker
+        .register('/sw.js', { scope: '/' })
+        .then((registration) => {
+          console.log('[HAKKIVEDA PWA] Service Worker registered with scope:', registration.scope);
+        })
+        .catch((error) => {
+          console.warn('[HAKKIVEDA PWA] Service Worker registration failed:', error);
+        });
+    });
+  }
 }
 
 // Global Error Diagnostics

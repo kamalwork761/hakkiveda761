@@ -135,6 +135,75 @@ async function startServer() {
   // Enable HTTP response compression (gzip/deflate)
   app.use(compression());
 
+  // ============================================================================
+  // SECURE CORS MIDDLEWARE FOR TRUSTED HAKKIVEDA & CAPACITOR ORIGINS
+  // ============================================================================
+  const TRUSTED_CORS_ORIGINS = new Set([
+    'https://hakkiveda.com',
+    'https://www.hakkiveda.com',
+    'https://localhost',
+    'http://localhost',
+    'capacitor://localhost',
+  ]);
+
+  function isTrustedCorsOrigin(origin: string | undefined): boolean {
+    if (!origin) return false;
+    const trimmed = origin.trim().toLowerCase();
+
+    // 1. Direct match with trusted production / Capacitor origins
+    if (TRUSTED_CORS_ORIGINS.has(trimmed)) {
+      return true;
+    }
+
+    // 2. Allow Capacitor protocol variants (e.g. capacitor://localhost, ionic://localhost)
+    if (trimmed === 'capacitor://localhost' || trimmed === 'ionic://localhost') {
+      return true;
+    }
+
+    // 3. Allow localhost/127.0.0.1 on any port (for local dev / Capacitor webview debugging)
+    if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(trimmed)) {
+      return true;
+    }
+
+    // 4. Allow Google Cloud Run preview environments for this app (ais-dev / ais-pre)
+    if (trimmed.endsWith('.run.app') && trimmed.includes('ais-')) {
+      return true;
+    }
+
+    return false;
+  }
+
+  // Handle CORS for all requests across API and static routes
+  app.use((req, res, next) => {
+    const origin = req.headers.origin;
+
+    if (origin && isTrustedCorsOrigin(origin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader(
+        'Access-Control-Allow-Methods',
+        'GET, POST, PUT, DELETE, PATCH, OPTIONS'
+      );
+      res.setHeader(
+        'Access-Control-Allow-Headers',
+        'Content-Type, Authorization, X-Requested-With, Accept, Origin, Range, Cache-Control, X-Admin-Token, X-Customer-Token, X-CSRF-Token'
+      );
+      res.setHeader(
+        'Access-Control-Expose-Headers',
+        'Content-Range, Content-Length, ETag, Set-Cookie'
+      );
+      res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours preflight cache
+      res.setHeader('Vary', 'Origin');
+    }
+
+    // Explicitly handle OPTIONS preflight requests
+    if (req.method === 'OPTIONS') {
+      return res.status(204).end();
+    }
+
+    next();
+  });
+
   // Security Headers Middleware (Production-Grade CSP, HSTS, Permissions & Frame Protection)
   app.use((_req, res, next) => {
     res.setHeader('X-Content-Type-Options', 'nosniff');
@@ -164,7 +233,7 @@ async function startServer() {
       "font-src 'self' https://fonts.gstatic.com data:",
       "img-src 'self' data: blob: https:",
       "media-src 'self' data: blob: https:",
-      "connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com",
+      "connect-src 'self' https://hakkiveda.com https://www.hakkiveda.com https://localhost capacitor://localhost https://api.razorpay.com https://lumberjack.razorpay.com",
       "frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com",
       "object-src 'none'",
       "base-uri 'self'",

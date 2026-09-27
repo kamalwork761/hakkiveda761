@@ -97,6 +97,11 @@ self.addEventListener('fetch', (event) => {
 
   const url = new URL(request.url);
 
+  // Never intercept cross-origin requests (e.g. Capacitor localhost -> https://hakkiveda.com or 3rd party APIs)
+  if (url.origin !== self.location.origin) {
+    return;
+  }
+
   // 1. Completely bypass cache for sensitive authentication, checkout, and payment endpoints
   if (isSensitiveUrl(url)) {
     event.respondWith(fetch(request));

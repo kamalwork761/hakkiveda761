@@ -5448,6 +5448,55 @@ async function startServer() {
   app.set("trust proxy", 1);
   await getDb();
   app.use((0, import_compression.default)());
+  const TRUSTED_CORS_ORIGINS = /* @__PURE__ */ new Set([
+    "https://hakkiveda.com",
+    "https://www.hakkiveda.com",
+    "https://localhost",
+    "http://localhost",
+    "capacitor://localhost"
+  ]);
+  function isTrustedCorsOrigin(origin) {
+    if (!origin) return false;
+    const trimmed = origin.trim().toLowerCase();
+    if (TRUSTED_CORS_ORIGINS.has(trimmed)) {
+      return true;
+    }
+    if (trimmed === "capacitor://localhost" || trimmed === "ionic://localhost") {
+      return true;
+    }
+    if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(trimmed)) {
+      return true;
+    }
+    if (trimmed.endsWith(".run.app") && trimmed.includes("ais-")) {
+      return true;
+    }
+    return false;
+  }
+  app.use((req, res, next) => {
+    const origin = req.headers.origin;
+    if (origin && isTrustedCorsOrigin(origin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+      res.setHeader(
+        "Access-Control-Allow-Methods",
+        "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+      );
+      res.setHeader(
+        "Access-Control-Allow-Headers",
+        "Content-Type, Authorization, X-Requested-With, Accept, Origin, Range, Cache-Control, X-Admin-Token, X-Customer-Token, X-CSRF-Token"
+      );
+      res.setHeader(
+        "Access-Control-Expose-Headers",
+        "Content-Range, Content-Length, ETag, Set-Cookie"
+      );
+      res.setHeader("Access-Control-Max-Age", "86400");
+      res.setHeader("Vary", "Origin");
+    }
+    if (req.method === "OPTIONS") {
+      return res.status(204).end();
+    }
+    next();
+  });
   app.use((_req, res, next) => {
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
@@ -5466,7 +5515,7 @@ async function startServer() {
       "font-src 'self' https://fonts.gstatic.com data:",
       "img-src 'self' data: blob: https:",
       "media-src 'self' data: blob: https:",
-      "connect-src 'self' https://api.razorpay.com https://lumberjack.razorpay.com",
+      "connect-src 'self' https://hakkiveda.com https://www.hakkiveda.com https://localhost capacitor://localhost https://api.razorpay.com https://lumberjack.razorpay.com",
       "frame-src 'self' https://api.razorpay.com https://checkout.razorpay.com https://www.youtube.com https://www.youtube-nocookie.com https://player.vimeo.com",
       "object-src 'none'",
       "base-uri 'self'",

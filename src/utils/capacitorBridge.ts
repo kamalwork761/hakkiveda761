@@ -63,6 +63,13 @@ export function setupCapacitorApiProxy(): void {
       console.warn('[HAKKIVEDA Capacitor] URL rewriting error:', e);
     }
 
+    // Ensure cross-origin requests from Capacitor native webview to live backend send session credentials
+    if (!init) {
+      init = { credentials: 'include' };
+    } else if (!init.credentials) {
+      init = { ...init, credentials: 'include' };
+    }
+
     return originalFetch(input, init);
   };
 

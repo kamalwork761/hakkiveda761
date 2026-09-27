@@ -3541,11 +3541,11 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                               </td>
                               <td className="p-3.5 font-mono">
                                 <span className="font-bold text-emerald-300 block">
-                                  {log.currency} {log.amount.toLocaleString()}
+                                  {log.currency} {(log.amount || 0).toLocaleString()}
                                 </span>
                                 {log.currency !== 'INR' && (
                                   <span className="text-[10px] text-slate-400">
-                                    ₹{log.amountINR.toLocaleString()} INR
+                                    ₹{(log.amountINR || 0).toLocaleString()} INR
                                   </span>
                                 )}
                               </td>
@@ -3625,8 +3625,8 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
                     <div className="flex justify-between">
                       <span className="text-slate-400">Paid Amount:</span>
                       <span className="font-bold text-emerald-400">
-                        {refundingLog.currency} {refundingLog.amount.toLocaleString()} (₹
-                        {refundingLog.amountINR.toLocaleString()} INR)
+                        {refundingLog.currency} {(refundingLog.amount || 0).toLocaleString()} (₹
+                        {(refundingLog.amountINR || 0).toLocaleString()} INR)
                       </span>
                     </div>
                   </div>

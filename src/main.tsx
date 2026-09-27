@@ -12,15 +12,29 @@ setupCapacitorApp();
 
 // Progressive Web App Service Worker Registration (Web/PWA only; disabled inside native Capacitor)
 if (typeof window !== 'undefined' && 'serviceWorker' in navigator) {
-  if (isNativeApp()) {
-    // Unregister any existing service workers inside native Capacitor app to prevent cross-origin fetch interference
+  const isNative = isNativeApp();
+  if (isNative) {
+    console.log('[HAKKIVEDA Native] Native app detected: PWA Service Worker disabled');
     navigator.serviceWorker.getRegistrations().then((registrations) => {
       for (const registration of registrations) {
-        registration.unregister().catch(() => {});
+        registration.unregister().then(() => {
+          console.log('[HAKKIVEDA Native] Unregistered legacy Service Worker from native webview');
+        }).catch(() => {});
       }
     }).catch(() => {});
   } else {
     window.addEventListener('load', () => {
+      // Re-verify that we are not running inside native Capacitor before registering
+      if (isNativeApp()) {
+        console.log('[HAKKIVEDA Native] Native app confirmed at load: PWA Service Worker skipped');
+        navigator.serviceWorker.getRegistrations().then((registrations) => {
+          for (const registration of registrations) {
+            registration.unregister().catch(() => {});
+          }
+        }).catch(() => {});
+        return;
+      }
+
       navigator.serviceWorker
         .register('/sw.js', { scope: '/' })
         .then((registration) => {

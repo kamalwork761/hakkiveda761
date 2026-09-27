@@ -5347,7 +5347,7 @@ var isProductAvailableForCountry = (product, countryCodeOrName) => {
 };
 var getProductPriceINRForCountry = (product, countryCodeOrName) => {
   if (!product) return 0;
-  const basePrice = Number(product.priceINR) || 0;
+  const basePrice = Number(product.priceINR ?? product.price) || 0;
   if (isIndiaDestination(countryCodeOrName)) {
     return basePrice;
   }
@@ -5473,17 +5473,20 @@ async function startServer() {
     return false;
   }
   app.use((req, res, next) => {
-    const origin = req.headers.origin;
-    if (origin && isTrustedCorsOrigin(origin)) {
+    const rawOrigin = req.headers.origin || req.get("origin") || "";
+    const origin = rawOrigin.trim();
+    const normalizedOrigin = origin.toLowerCase().replace(/\/+$/, "");
+    if (origin && isTrustedCorsOrigin(normalizedOrigin)) {
       res.setHeader("Access-Control-Allow-Origin", origin);
       res.setHeader("Access-Control-Allow-Credentials", "true");
       res.setHeader(
         "Access-Control-Allow-Methods",
-        "GET, POST, PUT, DELETE, PATCH, OPTIONS"
+        "GET, POST, PUT, PATCH, DELETE, OPTIONS"
       );
+      const reqHeaders = req.headers["access-control-request-headers"];
       res.setHeader(
         "Access-Control-Allow-Headers",
-        "Content-Type, Authorization, X-Requested-With, Accept, Origin, Range, Cache-Control, X-Admin-Token, X-Customer-Token, X-CSRF-Token"
+        reqHeaders || "Content-Type, Authorization, Accept, X-Requested-With, Range, Cache-Control, X-Admin-Token, X-Customer-Token, X-CSRF-Token, Origin"
       );
       res.setHeader(
         "Access-Control-Expose-Headers",
@@ -5496,6 +5499,31 @@ async function startServer() {
       return res.status(204).end();
     }
     next();
+  });
+  app.options("*", (req, res) => {
+    const rawOrigin = req.headers.origin || req.get("origin") || "";
+    const origin = rawOrigin.trim();
+    const normalizedOrigin = origin.toLowerCase().replace(/\/+$/, "");
+    if (origin && isTrustedCorsOrigin(normalizedOrigin)) {
+      res.setHeader("Access-Control-Allow-Origin", origin);
+      res.setHeader("Access-Control-Allow-Credentials", "true");
+      res.setHeader(
+        "Access-Control-Allow-Methods",
+        "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+      );
+      const reqHeaders = req.headers["access-control-request-headers"];
+      res.setHeader(
+        "Access-Control-Allow-Headers",
+        reqHeaders || "Content-Type, Authorization, Accept, X-Requested-With, Range, Cache-Control, X-Admin-Token, X-Customer-Token, X-CSRF-Token, Origin"
+      );
+      res.setHeader(
+        "Access-Control-Expose-Headers",
+        "Content-Range, Content-Length, ETag, Set-Cookie"
+      );
+      res.setHeader("Access-Control-Max-Age", "86400");
+      res.setHeader("Vary", "Origin");
+    }
+    return res.status(204).end();
   });
   app.use((_req, res, next) => {
     res.setHeader("X-Content-Type-Options", "nosniff");
@@ -9703,6 +9731,9 @@ Advisor:`;
     }
   });
   app.all("/api/*", (req, res) => {
+    if (req.method === "OPTIONS") {
+      return res.status(204).end();
+    }
     res.status(404).json({
       success: false,
       error: `API endpoint not found: ${req.method} ${req.originalUrl}`,

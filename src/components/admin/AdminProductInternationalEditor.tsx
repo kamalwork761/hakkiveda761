@@ -177,7 +177,7 @@ export const AdminProductInternationalEditor: React.FC<AdminProductInternational
                   <span>International Pricing Strategy</span>
                 </h4>
                 <p className="text-xs text-slate-300 mt-0.5 font-sans">
-                  Define how international prices are derived (base domestic price is ₹{product.priceINR.toLocaleString('en-IN')}).
+                  Define how international prices are derived (base domestic price is ₹{(product.priceINR || 0).toLocaleString('en-IN')}).
                 </p>
               </div>
             </div>
@@ -203,10 +203,10 @@ export const AdminProductInternationalEditor: React.FC<AdminProductInternational
                   />
                 </div>
                 <p className="text-[11px] text-slate-300 font-sans leading-tight">
-                  Uses base price ₹{product.priceINR.toLocaleString('en-IN')} converted at live market forex rates.
+                  Uses base price ₹{(product.priceINR || 0).toLocaleString('en-IN')} converted at live market forex rates.
                 </p>
                 <span className="text-xs font-mono font-bold text-[var(--brand-gold)]">
-                  ₹{product.priceINR.toLocaleString('en-IN')} base
+                  ₹{(product.priceINR || 0).toLocaleString('en-IN')} base
                 </span>
               </button>
 
@@ -280,7 +280,7 @@ export const AdminProductInternationalEditor: React.FC<AdminProductInternational
                     className="w-48 bg-[var(--brand-primary-deep,#07150E)] border border-emerald-500/50 p-2.5 rounded-xl text-emerald-400 font-bold font-mono text-sm focus:border-emerald-400"
                   />
                   <span className="text-xs text-slate-300">
-                    Domestic price remains ₹{product.priceINR.toLocaleString('en-IN')}. International base price is ₹{fixedPriceINR.toLocaleString('en-IN')}.
+                    Domestic price remains ₹{(product.priceINR || 0).toLocaleString('en-IN')}. International base price is ₹{(fixedPriceINR || 0).toLocaleString('en-IN')}.
                   </span>
                 </div>
               </div>
@@ -304,7 +304,7 @@ export const AdminProductInternationalEditor: React.FC<AdminProductInternational
                     <Percent className="w-4 h-4 text-amber-400 absolute right-3 top-3" />
                   </div>
                   <span className="text-xs text-slate-300">
-                    Effective International Base: <strong className="text-amber-300 font-mono">₹{effectiveIntlPriceINR.toLocaleString('en-IN')}</strong> (₹{product.priceINR} + {markupPercent}%)
+                    Effective International Base: <strong className="text-amber-300 font-mono">₹{(effectiveIntlPriceINR || 0).toLocaleString('en-IN')}</strong> (₹{product.priceINR || 0} + {markupPercent}%)
                   </span>
                 </div>
               </div>
@@ -317,11 +317,11 @@ export const AdminProductInternationalEditor: React.FC<AdminProductInternational
                   <Sparkles className="w-3.5 h-3.5 text-[var(--brand-gold)]" />
                   <span>Live International Customer Prices Preview</span>
                 </span>
-                <span className="text-[10px] text-slate-400">Effective Base: ₹{effectiveIntlPriceINR.toLocaleString('en-IN')}</span>
+                <span className="text-[10px] text-slate-400">Effective Base: ₹{(effectiveIntlPriceINR || 0).toLocaleString('en-IN')}</span>
               </div>
               <div className="grid grid-cols-2 sm:grid-cols-4 gap-2">
                 {previewCurrencies.map((c) => {
-                  const converted = Math.round(effectiveIntlPriceINR / c.rate);
+                  const converted = Math.round((effectiveIntlPriceINR || 0) / (c.rate || 1));
                   return (
                     <div
                       key={c.code}
@@ -330,7 +330,7 @@ export const AdminProductInternationalEditor: React.FC<AdminProductInternational
                       <span className="text-[10px] text-slate-400 truncate">{c.label}</span>
                       <div className="flex items-baseline justify-between mt-1">
                         <span className="text-xs font-bold text-[var(--brand-gold)] font-mono">
-                          {c.symbol}{converted.toLocaleString()}
+                          {c.symbol}{(converted || 0).toLocaleString()}
                         </span>
                         <span className="text-[9px] text-slate-400 font-mono">{c.code}</span>
                       </div>

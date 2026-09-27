@@ -3,6 +3,7 @@ import { Sparkles, ShoppingBag, ShieldCheck } from 'lucide-react';
 import { Product } from '../../types/store';
 import { useStore } from '../../context/StoreContext';
 import { resolveAssetUrl } from '../utils/nativeUrl';
+import { formatSafeINR } from '../utils/formatMoney';
 
 interface AppFlagshipFeatureProps {
   flagshipProduct?: Product;
@@ -78,11 +79,11 @@ export const AppFlagshipFeature: React.FC<AppFlagshipFeatureProps> = ({
             <div className="mt-2.5 flex items-center justify-between">
               <div>
                 <span className="font-bold text-base text-[#0E382C]">
-                  ₹{product.price.toLocaleString('en-IN')}
+                  {formatSafeINR(product.price, 'Price on request')}
                 </span>
                 {product.originalPrice && (
                   <span className="text-[10px] text-slate-400 line-through ml-1.5">
-                    ₹{product.originalPrice.toLocaleString('en-IN')}
+                    {formatSafeINR(product.originalPrice)}
                   </span>
                 )}
               </div>

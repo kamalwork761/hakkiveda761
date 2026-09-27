@@ -4,12 +4,63 @@ import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
 import { Browser } from '@capacitor/browser';
 
-export const isNativeAndroid = (): boolean => {
-  return Capacitor.isNativePlatform() && Capacitor.getPlatform() === 'android';
+export const isNativeApp = (): boolean => {
+  if (typeof window === 'undefined') return false;
+
+  // 1. Capacitor core official check
+  try {
+    if (Capacitor.isNativePlatform()) return true;
+  } catch {}
+
+  const win = window as any;
+
+  // 2. Window Capacitor bridge check
+  if (typeof win.Capacitor !== 'undefined') {
+    if (typeof win.Capacitor.isNativePlatform === 'function' && win.Capacitor.isNativePlatform()) {
+      return true;
+    }
+    const plat = win.Capacitor.getPlatform ? win.Capacitor.getPlatform() : win.Capacitor.platform;
+    if (plat === 'android' || plat === 'ios') {
+      return true;
+    }
+  }
+
+  // 3. Custom protocols (e.g. capacitor://localhost or ionic://localhost)
+  if (window.location.protocol === 'capacitor:' || window.location.protocol === 'ionic:') {
+    return true;
+  }
+
+  // 4. Capacitor Android default scheme: https://localhost (with no port or 443)
+  if (
+    window.location.hostname === 'localhost' &&
+    window.location.protocol === 'https:' &&
+    (!window.location.port || window.location.port === '443')
+  ) {
+    return true;
+  }
+
+  // 5. Capacitor webview with Android user agent on localhost
+  if (
+    window.location.hostname === 'localhost' &&
+    /Android/i.test(navigator.userAgent) &&
+    (/wv/i.test(navigator.userAgent) || typeof win.Capacitor !== 'undefined' || !window.location.port || window.location.port === '443')
+  ) {
+    return true;
+  }
+
+  return false;
 };
 
-export const isNativeApp = (): boolean => {
-  return Capacitor.isNativePlatform();
+export const isNativeAndroid = (): boolean => {
+  if (typeof window === 'undefined') return false;
+  if (!isNativeApp()) return false;
+  try {
+    if (Capacitor.getPlatform() === 'android') return true;
+  } catch {}
+  const win = window as any;
+  if (win.Capacitor?.getPlatform?.() === 'android' || win.Capacitor?.platform === 'android') return true;
+  if (/Android/i.test(navigator.userAgent)) return true;
+  return false;
 };
 
 /**

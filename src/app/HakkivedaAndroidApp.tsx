@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { Component, useState, useEffect } from 'react';
 import { useStore } from '../context/StoreContext';
 import {
   MobileAppHeroSlide,
@@ -25,6 +25,48 @@ import { AppProductDetailModal } from './screens/AppProductDetailModal';
 import { AppCartDrawer } from './screens/AppCartDrawer';
 import { AppSearchModal } from './screens/AppSearchModal';
 import { CheckoutModal } from '../components/CheckoutModal';
+
+interface ErrorBoundaryProps {
+  children: React.ReactNode;
+  screenName: string;
+}
+
+interface ErrorBoundaryState {
+  hasError: boolean;
+}
+
+class AppScreenErrorBoundary extends (React.Component as new (props: ErrorBoundaryProps) => any) {
+  constructor(props: ErrorBoundaryProps) {
+    super(props);
+    this.state = { hasError: false };
+  }
+
+  public static getDerivedStateFromError(): ErrorBoundaryState {
+    return { hasError: true };
+  }
+
+  public componentDidCatch(error: any, errorInfo: any) {
+    console.error(`[HAKKIVEDA App] Error in ${this.props.screenName}:`, error, errorInfo);
+  }
+
+  public render() {
+    if (this.state.hasError) {
+      return (
+        <div className="p-6 text-center my-8 bg-white mx-4 rounded-2xl border border-emerald-950/10 shadow-xs">
+          <p className="text-xs text-slate-700 font-medium">Unable to display this section right now.</p>
+          <button
+            type="button"
+            onClick={() => this.setState({ hasError: false })}
+            className="mt-3 px-4 py-1.5 rounded-full bg-[#0E382C] text-[#C5A059] text-xs font-bold shadow-xs active:scale-95"
+          >
+            Retry
+          </button>
+        </div>
+      );
+    }
+    return this.props.children;
+  }
+}
 
 export const HakkivedaAndroidApp: React.FC = () => {
   const { isCheckoutOpen, setIsCheckoutOpen, playSound, openWishlist } = useStore();
@@ -168,40 +210,52 @@ export const HakkivedaAndroidApp: React.FC = () => {
       {/* Main View Area */}
       <main className="flex-1 overflow-x-hidden">
         {activeTab === 'home' && (
-          <AppHomeScreen
-            heroSlides={heroSlides}
-            banners={banners}
-            sections={sections}
-            featuredCategories={featuredCategories}
-            featuredProducts={featuredProducts}
-            onOpenProductDetail={(id) => setSelectedProductId(id)}
-            onNavigateToShop={handleNavigateToShop}
-            onNavigateToAnalysis={() => setActiveTab('analysis')}
-            onActionClick={handleActionClick}
-          />
+          <AppScreenErrorBoundary screenName="Home">
+            <AppHomeScreen
+              heroSlides={heroSlides}
+              banners={banners}
+              sections={sections}
+              featuredCategories={featuredCategories}
+              featuredProducts={featuredProducts}
+              onOpenProductDetail={(id) => setSelectedProductId(id)}
+              onNavigateToShop={handleNavigateToShop}
+              onNavigateToAnalysis={() => setActiveTab('analysis')}
+              onActionClick={handleActionClick}
+            />
+          </AppScreenErrorBoundary>
         )}
 
         {activeTab === 'shop' && (
-          <AppShopScreen
-            initialCategoryId={selectedCategoryId}
-            initialConcernId={selectedConcernId}
-            onOpenProductDetail={(id) => setSelectedProductId(id)}
-          />
+          <AppScreenErrorBoundary screenName="Shop">
+            <AppShopScreen
+              initialCategoryId={selectedCategoryId}
+              initialConcernId={selectedConcernId}
+              onOpenProductDetail={(id) => setSelectedProductId(id)}
+            />
+          </AppScreenErrorBoundary>
         )}
 
         {activeTab === 'analysis' && (
-          <AppHairAnalysisScreen
-            onOpenProductDetail={(id) => setSelectedProductId(id)}
-          />
+          <AppScreenErrorBoundary screenName="Hair Analysis">
+            <AppHairAnalysisScreen
+              onOpenProductDetail={(id) => setSelectedProductId(id)}
+            />
+          </AppScreenErrorBoundary>
         )}
 
-        {activeTab === 'orders' && <AppOrdersScreen />}
+        {activeTab === 'orders' && (
+          <AppScreenErrorBoundary screenName="Orders">
+            <AppOrdersScreen />
+          </AppScreenErrorBoundary>
+        )}
 
         {activeTab === 'account' && (
-          <AppAccountScreen
-            onOpenWishlist={() => openWishlist?.()}
-            onNavigateToOrders={() => setActiveTab('orders')}
-          />
+          <AppScreenErrorBoundary screenName="Account">
+            <AppAccountScreen
+              onOpenWishlist={() => openWishlist?.()}
+              onNavigateToOrders={() => setActiveTab('orders')}
+            />
+          </AppScreenErrorBoundary>
         )}
       </main>
 

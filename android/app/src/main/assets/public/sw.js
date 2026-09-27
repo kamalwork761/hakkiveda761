@@ -39,7 +39,22 @@ const SENSITIVE_PATH_PATTERNS = [
   /\/api\/orders/i,
   /\/api\/shiprocket/i,
   /\/api\/uploads/i,
+  /\/api\/session/i,
+  /\/api\/user/i,
+  /\/api\/cart/i,
+  /\/api\/profile/i,
 ];
+
+// Native Capacitor Guard: If ever loaded on localhost or capacitor scheme, self-unregister and deactivate
+if (typeof self !== 'undefined' && self.location) {
+  if (
+    self.location.hostname === 'localhost' ||
+    self.location.protocol === 'capacitor:' ||
+    self.location.protocol === 'ionic:'
+  ) {
+    self.registration?.unregister?.().catch(() => {});
+  }
+}
 
 // Install: precache app shell
 self.addEventListener('install', (event) => {
@@ -88,6 +103,15 @@ function isStaticAsset(url) {
 
 // Fetch handler
 self.addEventListener('fetch', (event) => {
+  // Never intercept any request if running inside native Capacitor (localhost or capacitor: / ionic:)
+  if (
+    self.location.hostname === 'localhost' ||
+    self.location.protocol === 'capacitor:' ||
+    self.location.protocol === 'ionic:'
+  ) {
+    return;
+  }
+
   const request = event.request;
 
   // Never intercept non-GET requests (POST, PUT, DELETE - checkout, orders, logins, payments)

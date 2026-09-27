@@ -2341,7 +2341,7 @@ export const CheckoutModal: React.FC = () => {
                   <span>Currency Charge Disclosure</span>
                 </div>
                 <p className="leading-relaxed">
-                  Your order display total is <strong>{formatPrice(grandTotalINR)} ({currentCurrency.code})</strong>. Because Razorpay processes transactions in Indian Rupees (INR) for this currency, <strong>your card will be charged ₹{grandTotalINR.toLocaleString('en-IN')} (INR)</strong> at checkout.
+                  Your order display total is <strong>{formatPrice(grandTotalINR)} ({currentCurrency.code})</strong>. Because Razorpay processes transactions in Indian Rupees (INR) for this currency, <strong>your card will be charged ₹{(grandTotalINR || 0).toLocaleString('en-IN')} (INR)</strong> at checkout.
                 </p>
                 <p className="text-[11px] text-amber-800 dark:text-amber-300">
                   Your bank or card issuer may apply its own currency conversion or international transaction fees.
@@ -2502,15 +2502,15 @@ export const CheckoutModal: React.FC = () => {
                     {isIndia
                       ? paymentMethod === 'COD'
                         ? 'PLACE CASH ON DELIVERY ORDER'
-                        : `PAY ₹${grandTotalINR.toLocaleString('en-IN')} SECURELY`
+                        : `PAY ₹${(grandTotalINR || 0).toLocaleString('en-IN')} SECURELY`
                       : !isServiceable
                       ? 'SHIPPING UNAVAILABLE'
                       : backendQuote.loading
                       ? 'CALCULATING SHIPPING...'
                       : `PAY ${currentCurrency.code} ${
                           currentCurrency.code === 'INR'
-                            ? grandTotalINR.toLocaleString('en-IN')
-                            : (grandTotalINR / currentCurrency.rateToINR).toFixed(2)
+                            ? (grandTotalINR || 0).toLocaleString('en-IN')
+                            : ((grandTotalINR || 0) / (currentCurrency.rateToINR || 1)).toFixed(2)
                         } SECURELY`}
                   </span>
                 )}

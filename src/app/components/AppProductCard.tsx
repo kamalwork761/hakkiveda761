@@ -3,6 +3,7 @@ import { Heart, Plus, Star, Check } from 'lucide-react';
 import { Product } from '../../types/store';
 import { useStore } from '../../context/StoreContext';
 import { resolveAssetUrl } from '../utils/nativeUrl';
+import { formatSafeINR } from '../utils/formatMoney';
 
 interface AppProductCardProps {
   product: Product;
@@ -18,15 +19,26 @@ export const AppProductCard: React.FC<AppProductCardProps> = ({
   const { addToCart, wishlist, toggleWishlist, playSound } = useStore();
   const [justAdded, setJustAdded] = useState(false);
 
-  const isWishlisted = wishlist.includes(product.id);
+  if (!product) return null;
+
+  const isWishlisted = wishlist?.includes(product.id) || false;
   const primaryImage = resolveAssetUrl(
     product.image || product.images?.[0] || '/images/hero_tribal_elders.jpg'
   );
 
-  const price = product.price;
-  const originalPrice = product.originalPrice || Math.round(price * 1.45);
+  const rawPrice = product.price;
+  const numPrice = typeof rawPrice === 'number' ? rawPrice : parseFloat(String(rawPrice || 0));
+  const hasValidPrice = !isNaN(numPrice) && numPrice > 0;
+
+  const rawOriginal = product.originalPrice;
+  const numOriginal = typeof rawOriginal === 'number' && rawOriginal > 0
+    ? rawOriginal
+    : (hasValidPrice ? Math.round(numPrice * 1.45) : 0);
+
   const discountPercent =
-    originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
+    hasValidPrice && numOriginal > numPrice
+      ? Math.round(((numOriginal - numPrice) / numOriginal) * 100)
+      : 0;
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -125,12 +137,18 @@ export const AppProductCard: React.FC<AppProductCardProps> = ({
         <div className="mt-2.5 pt-2 border-t border-slate-100 flex items-center justify-between">
           <div className="flex flex-col">
             <div className="flex items-baseline gap-1">
-              <span className="font-bold text-sm text-[#0E382C]">
-                ₹{price.toLocaleString('en-IN')}
-              </span>
-              {originalPrice > price && (
+              {hasValidPrice ? (
+                <span className="font-bold text-sm text-[#0E382C]">
+                  {formatSafeINR(numPrice)}
+                </span>
+              ) : (
+                <span className="font-bold text-xs text-slate-500">
+                  Contact for Price
+                </span>
+              )}
+              {hasValidPrice && numOriginal > numPrice && (
                 <span className="text-[10px] text-slate-400 line-through">
-                  ₹{originalPrice.toLocaleString('en-IN')}
+                  {formatSafeINR(numOriginal)}
                 </span>
               )}
             </div>

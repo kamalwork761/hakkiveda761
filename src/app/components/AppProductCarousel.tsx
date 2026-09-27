@@ -61,9 +61,9 @@ export const AppProductCarousel: React.FC<AppProductCarouselProps> = ({
         className="flex items-stretch gap-3 px-4 overflow-x-auto no-scrollbar scroll-smooth pb-1"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
-        {products.map((product) => (
+        {products.filter(Boolean).map((product) => (
           <AppProductCard
-            key={product.id}
+            key={product.id || Math.random().toString()}
             product={product}
             onOpenDetail={onOpenProductDetail}
             layout="carousel"

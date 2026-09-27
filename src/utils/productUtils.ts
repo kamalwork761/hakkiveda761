@@ -152,7 +152,7 @@ export const getProductPriceINRForCountry = (
   countryCodeOrName?: string
 ): number => {
   if (!product) return 0;
-  const basePrice = Number(product.priceINR) || 0;
+  const basePrice = Number(product.priceINR ?? (product as any).price) || 0;
 
   // Domestic (India) always uses the normal India INR price
   if (isIndiaDestination(countryCodeOrName)) {

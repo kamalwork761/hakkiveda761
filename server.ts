@@ -175,18 +175,22 @@ async function startServer() {
 
   // Handle CORS for all requests across API and static routes
   app.use((req, res, next) => {
-    const origin = req.headers.origin;
+    const rawOrigin = (req.headers.origin || req.get('origin') || '') as string;
+    const origin = rawOrigin.trim();
+    const normalizedOrigin = origin.toLowerCase().replace(/\/+$/, '');
 
-    if (origin && isTrustedCorsOrigin(origin)) {
+    if (origin && isTrustedCorsOrigin(normalizedOrigin)) {
       res.setHeader('Access-Control-Allow-Origin', origin);
       res.setHeader('Access-Control-Allow-Credentials', 'true');
       res.setHeader(
         'Access-Control-Allow-Methods',
-        'GET, POST, PUT, DELETE, PATCH, OPTIONS'
+        'GET, POST, PUT, PATCH, DELETE, OPTIONS'
       );
+      const reqHeaders = req.headers['access-control-request-headers'];
       res.setHeader(
         'Access-Control-Allow-Headers',
-        'Content-Type, Authorization, X-Requested-With, Accept, Origin, Range, Cache-Control, X-Admin-Token, X-Customer-Token, X-CSRF-Token'
+        reqHeaders ||
+          'Content-Type, Authorization, Accept, X-Requested-With, Range, Cache-Control, X-Admin-Token, X-Customer-Token, X-CSRF-Token, Origin'
       );
       res.setHeader(
         'Access-Control-Expose-Headers',
@@ -196,12 +200,41 @@ async function startServer() {
       res.setHeader('Vary', 'Origin');
     }
 
-    // Explicitly handle OPTIONS preflight requests
+    // Explicitly handle OPTIONS preflight requests immediately
     if (req.method === 'OPTIONS') {
       return res.status(204).end();
     }
 
     next();
+  });
+
+  // Explicit global handler for all OPTIONS preflights before any routes
+  app.options('*', (req, res) => {
+    const rawOrigin = (req.headers.origin || req.get('origin') || '') as string;
+    const origin = rawOrigin.trim();
+    const normalizedOrigin = origin.toLowerCase().replace(/\/+$/, '');
+
+    if (origin && isTrustedCorsOrigin(normalizedOrigin)) {
+      res.setHeader('Access-Control-Allow-Origin', origin);
+      res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader(
+        'Access-Control-Allow-Methods',
+        'GET, POST, PUT, PATCH, DELETE, OPTIONS'
+      );
+      const reqHeaders = req.headers['access-control-request-headers'];
+      res.setHeader(
+        'Access-Control-Allow-Headers',
+        reqHeaders ||
+          'Content-Type, Authorization, Accept, X-Requested-With, Range, Cache-Control, X-Admin-Token, X-Customer-Token, X-CSRF-Token, Origin'
+      );
+      res.setHeader(
+        'Access-Control-Expose-Headers',
+        'Content-Range, Content-Length, ETag, Set-Cookie'
+      );
+      res.setHeader('Access-Control-Max-Age', '86400');
+      res.setHeader('Vary', 'Origin');
+    }
+    return res.status(204).end();
   });
 
   // Security Headers Middleware (Production-Grade CSP, HSTS, Permissions & Frame Protection)
@@ -5364,6 +5397,9 @@ COMPLIANCE & COMMUNICATION RULES:
 
   // Explicit 404 handler for any unmatched /api/* requests so they NEVER return HTML
   app.all('/api/*', (req, res) => {
+    if (req.method === 'OPTIONS') {
+      return res.status(204).end();
+    }
     res.status(404).json({
       success: false,
       error: `API endpoint not found: ${req.method} ${req.originalUrl}`,

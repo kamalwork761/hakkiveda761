@@ -2,6 +2,7 @@ import React, { useState, useMemo } from 'react';
 import { Search, X, ArrowRight, Sparkles } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { resolveAssetUrl } from '../utils/nativeUrl';
+import { formatSafeINR } from '../utils/formatMoney';
 
 interface AppSearchModalProps {
   isOpen: boolean;
@@ -116,7 +117,7 @@ export const AppSearchModal: React.FC<AppSearchModalProps> = ({
                     {product.name}
                   </h4>
                   <div className="text-xs font-bold text-[#0E382C] mt-0.5">
-                    ₹{product.price.toLocaleString('en-IN')}
+                    {formatSafeINR(product.price)}
                   </div>
                 </div>
                 <ArrowRight className="w-4 h-4 text-slate-400" />

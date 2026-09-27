@@ -507,9 +507,9 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
       return [
         idx + 1,
         `${pName}${pVol}${pSku}`,
-        `INR ${unitPrice.toLocaleString('en-IN')}`,
+        `INR ${(unitPrice || 0).toLocaleString('en-IN')}`,
         item.quantity,
-        `INR ${itemTotal.toLocaleString('en-IN')}`
+        `INR ${(itemTotal || 0).toLocaleString('en-IN')}`
       ];
     });
 
@@ -549,20 +549,20 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     doc.setTextColor(71, 85, 105);
 
     doc.text('Subtotal:', 120, finalY + 8);
-    doc.text(`INR ${subtotal.toLocaleString('en-IN')}`, 190, finalY + 8, { align: 'right' });
+    doc.text(`INR ${(subtotal || 0).toLocaleString('en-IN')}`, 190, finalY + 8, { align: 'right' });
 
     if (discount > 0) {
       doc.text('Discount:', 120, finalY + 15);
-      doc.text(`- INR ${discount.toLocaleString('en-IN')}`, 190, finalY + 15, { align: 'right' });
+      doc.text(`- INR ${(discount || 0).toLocaleString('en-IN')}`, 190, finalY + 15, { align: 'right' });
     }
 
     doc.text('Shipping Charges:', 120, finalY + 22);
-    doc.text(shippingCharges === 0 ? 'FREE' : `INR ${shippingCharges.toLocaleString('en-IN')}`, 190, finalY + 22, { align: 'right' });
+    doc.text(shippingCharges === 0 ? 'FREE' : `INR ${(shippingCharges || 0).toLocaleString('en-IN')}`, 190, finalY + 22, { align: 'right' });
 
     const isExportOrder = order.customer.country && order.customer.country.trim().toLowerCase() !== 'india';
     const taxLabel = isExportOrder ? 'Taxes (Included):' : 'Incl. GST (18%):';
     doc.text(taxLabel, 120, finalY + 29);
-    doc.text(`INR ${taxGST.toLocaleString('en-IN')}`, 190, finalY + 29, { align: 'right' });
+    doc.text(`INR ${(taxGST || 0).toLocaleString('en-IN')}`, 190, finalY + 29, { align: 'right' });
 
     doc.setDrawColor(203, 213, 225);
     doc.line(120, finalY + 33, 192, finalY + 33);
@@ -571,7 +571,7 @@ export const OrderDetailsModal: React.FC<OrderDetailsModalProps> = ({
     doc.setFontSize(10);
     doc.setTextColor(11, 61, 46);
     doc.text('Grand Total:', 120, finalY + 40);
-    doc.text(`INR ${finalTotal.toLocaleString('en-IN')}`, 190, finalY + 40, { align: 'right' });
+    doc.text(`INR ${(finalTotal || 0).toLocaleString('en-IN')}`, 190, finalY + 40, { align: 'right' });
 
     // Terms & Footer
     doc.setFont('helvetica', 'normal');

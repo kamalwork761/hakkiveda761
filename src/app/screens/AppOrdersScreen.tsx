@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Package, Search, Truck, Clock, CheckCircle2, ChevronRight, AlertCircle } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
+import { formatSafeINR } from '../utils/formatMoney';
 
 export const AppOrdersScreen: React.FC = () => {
   const { currentCustomer } = useStore();
@@ -142,7 +143,7 @@ export const AppOrdersScreen: React.FC = () => {
             </div>
             <div className="flex justify-between text-slate-600">
               <span>Total Amount:</span>
-              <span className="font-bold text-[#0E382C]">₹{trackedOrder.totalAmount?.toLocaleString('en-IN')}</span>
+              <span className="font-bold text-[#0E382C]">{formatSafeINR(trackedOrder.totalAmount, '₹0')}</span>
             </div>
           </div>
         </div>

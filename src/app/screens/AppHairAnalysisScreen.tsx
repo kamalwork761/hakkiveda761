@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Sparkles, Check, ArrowRight, ShieldCheck, RefreshCw, ShoppingBag } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { resolveAssetUrl } from '../utils/nativeUrl';
+import { formatSafeINR } from '../utils/formatMoney';
 
 interface AppHairAnalysisScreenProps {
   onOpenProductDetail: (productId: string) => void;
@@ -384,7 +385,7 @@ export const AppHairAnalysisScreen: React.FC<AppHairAnalysisScreenProps> = ({
                     {recommendedProduct1.name}
                   </h4>
                   <div className="text-xs font-bold text-[#0E382C] mt-0.5">
-                    ₹{recommendedProduct1.price.toLocaleString('en-IN')}
+                    {formatSafeINR(recommendedProduct1.price, '')}
                   </div>
                 </div>
               </div>
@@ -408,7 +409,7 @@ export const AppHairAnalysisScreen: React.FC<AppHairAnalysisScreenProps> = ({
                     {recommendedProduct2.name}
                   </h4>
                   <div className="text-xs font-bold text-[#0E382C] mt-0.5">
-                    ₹{recommendedProduct2.price.toLocaleString('en-IN')}
+                    {formatSafeINR(recommendedProduct2.price, '')}
                   </div>
                 </div>
               </div>

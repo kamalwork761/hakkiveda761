@@ -19,7 +19,7 @@ export const formatOriginalAmount = (order: Order): string => {
   const amt = order.displayAmount ?? order.chargeAmount ?? order.convertedTotal ?? order.totalAmountINR;
 
   if (curr === 'INR' || !amt) {
-    return `₹${Math.round(order.totalAmountINR || 0).toLocaleString('en-IN')}`;
+    return `₹${Math.round(Number(order.totalAmountINR) || 0).toLocaleString('en-IN')}`;
   }
 
   const currencySymbols: Record<string, string> = {
@@ -40,5 +40,7 @@ export const formatOriginalAmount = (order: Order): string => {
   };
 
   const symbol = currencySymbols[curr] || `${curr} `;
-  return `${symbol}${amt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
+  const numAmt = typeof amt === 'number' ? amt : parseFloat(String(amt || 0));
+  const safeAmt = isNaN(numAmt) ? 0 : numAmt;
+  return `${symbol}${safeAmt.toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`;
 };

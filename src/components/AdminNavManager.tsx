@@ -1385,12 +1385,12 @@ export const AdminNavManager: React.FC<AdminNavManagerProps> = ({ showToast }) =
           <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
             <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10">
               <span className="text-slate-400 text-xs font-medium">Total Menu Impressions</span>
-              <div className="text-2xl font-bold text-slate-100 mt-1">{totalImpressions.toLocaleString()}</div>
+              <div className="text-2xl font-bold text-slate-100 mt-1">{(totalImpressions || 0).toLocaleString()}</div>
             </div>
 
             <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10">
               <span className="text-slate-400 text-xs font-medium">Total Menu Clicks</span>
-              <div className="text-2xl font-bold text-[var(--brand-gold)] mt-1">{totalClicks.toLocaleString()}</div>
+              <div className="text-2xl font-bold text-[var(--brand-gold)] mt-1">{(totalClicks || 0).toLocaleString()}</div>
             </div>
 
             <div className="bg-[var(--brand-primary-deep)] p-4 rounded-xl border border-white/10">

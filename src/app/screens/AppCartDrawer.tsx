@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { X, Trash2, Plus, Minus, ArrowRight, ShoppingBag, ShieldCheck, Tag } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { resolveAssetUrl } from '../utils/nativeUrl';
+import { formatSafeINR } from '../utils/formatMoney';
 
 interface AppCartDrawerProps {
   isOpen: boolean;
@@ -22,7 +23,11 @@ export const AppCartDrawer: React.FC<AppCartDrawerProps> = ({
 
   if (!isOpen) return null;
 
-  const subtotal = cart.reduce((total, item) => total + item.product.price * item.quantity, 0);
+  const subtotal = cart.reduce((total, item) => {
+    const p = (item && item.product && typeof item.product.price === 'number') ? item.product.price : 0;
+    const q = (item && typeof item.quantity === 'number') ? item.quantity : 1;
+    return total + (p * q);
+  }, 0);
   const discount = appliedCoupon ? appliedCoupon.discountAmount || 200 : 0;
   const shipping = subtotal >= 499 ? 0 : 70;
   const finalTotal = Math.max(0, subtotal - discount + shipping);
@@ -133,7 +138,7 @@ export const AppCartDrawer: React.FC<AppCartDrawerProps> = ({
                       </span>
                     )}
                     <div className="text-xs font-bold text-[#0E382C] mt-1">
-                      ₹{(item.product.price * item.quantity).toLocaleString('en-IN')}
+                      {formatSafeINR((item?.product?.price || 0) * (item?.quantity || 1))}
                     </div>
                   </div>
 
@@ -213,12 +218,12 @@ export const AppCartDrawer: React.FC<AppCartDrawerProps> = ({
             <div className="space-y-1 text-xs text-slate-600 pt-1">
               <div className="flex justify-between">
                 <span>Subtotal</span>
-                <span>₹{subtotal.toLocaleString('en-IN')}</span>
+                <span>{formatSafeINR(subtotal, '₹0')}</span>
               </div>
               {discount > 0 && (
                 <div className="flex justify-between text-emerald-800 font-bold">
                   <span>Tribal Discount</span>
-                  <span>-₹{discount.toLocaleString('en-IN')}</span>
+                  <span>-{formatSafeINR(discount)}</span>
                 </div>
               )}
               <div className="flex justify-between">
@@ -227,7 +232,7 @@ export const AppCartDrawer: React.FC<AppCartDrawerProps> = ({
               </div>
               <div className="flex justify-between text-sm font-bold text-slate-900 pt-1.5 border-t border-slate-200">
                 <span>Total Amount</span>
-                <span className="text-[#0E382C] text-base">₹{finalTotal.toLocaleString('en-IN')}</span>
+                <span className="text-[#0E382C] text-base">{formatSafeINR(finalTotal, '₹0')}</span>
               </div>
             </div>
 

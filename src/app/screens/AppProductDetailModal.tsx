@@ -3,6 +3,7 @@ import { X, Star, Heart, Check, ShoppingBag, ShieldCheck, Zap, Sparkles } from '
 import { Product } from '../../types/store';
 import { useStore } from '../../context/StoreContext';
 import { resolveAssetUrl } from '../utils/nativeUrl';
+import { formatSafeINR } from '../utils/formatMoney';
 
 interface AppProductDetailModalProps {
   productId: string | null;
@@ -24,14 +25,23 @@ export const AppProductDetailModal: React.FC<AppProductDetailModalProps> = ({
   const product = products.find((p) => p.id === productId);
   if (!product) return null;
 
-  const isWishlisted = wishlist.includes(product.id);
+  const isWishlisted = wishlist?.includes(product.id) || false;
   const hasVariants = product.variants && product.variants.length > 0;
   const currentVariant = hasVariants ? product.variants[selectedVariantIndex] : null;
 
-  const price = currentVariant ? currentVariant.price : product.price;
-  const originalPrice = currentVariant?.originalPrice || product.originalPrice || Math.round(price * 1.45);
+  const rawPrice = currentVariant ? currentVariant.price : product.price;
+  const numPrice = typeof rawPrice === 'number' ? rawPrice : parseFloat(String(rawPrice || 0));
+  const hasValidPrice = !isNaN(numPrice) && numPrice > 0;
+
+  const rawOriginal = currentVariant?.originalPrice || product.originalPrice;
+  const numOriginal = typeof rawOriginal === 'number' && rawOriginal > 0
+    ? rawOriginal
+    : (hasValidPrice ? Math.round(numPrice * 1.45) : 0);
+
   const discountPercent =
-    originalPrice > price ? Math.round(((originalPrice - price) / originalPrice) * 100) : 0;
+    hasValidPrice && numOriginal > numPrice
+      ? Math.round(((numOriginal - numPrice) / numOriginal) * 100)
+      : 0;
 
   const primaryImage = resolveAssetUrl(
     product.image || product.images?.[0] || '/images/hero_tribal_elders.jpg'
@@ -152,12 +162,18 @@ export const AppProductDetailModal: React.FC<AppProductDetailModalProps> = ({
                 Special Offer Price
               </span>
               <div className="flex items-baseline gap-2 mt-0.5">
-                <span className="font-bold text-xl text-[#0E382C]">
-                  ₹{price.toLocaleString('en-IN')}
-                </span>
-                {originalPrice > price && (
+                {hasValidPrice ? (
+                  <span className="font-bold text-xl text-[#0E382C]">
+                    {formatSafeINR(numPrice)}
+                  </span>
+                ) : (
+                  <span className="font-bold text-sm text-slate-500">
+                    Contact for Price
+                  </span>
+                )}
+                {hasValidPrice && numOriginal > numPrice && (
                   <span className="text-xs text-slate-400 line-through">
-                    ₹{originalPrice.toLocaleString('en-IN')}
+                    {formatSafeINR(numOriginal)}
                   </span>
                 )}
                 {discountPercent > 0 && (

@@ -64,13 +64,13 @@ export const AppShopScreen: React.FC<AppShopScreenProps> = ({
     // Sorting
     switch (sortBy) {
       case 'price_low':
-        result.sort((a, b) => a.price - b.price);
+        result.sort((a, b) => (Number(a.price) || 0) - (Number(b.price) || 0));
         break;
       case 'price_high':
-        result.sort((a, b) => b.price - a.price);
+        result.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0));
         break;
       case 'rating':
-        result.sort((a, b) => (b.rating || 4.5) - (a.rating || 4.5));
+        result.sort((a, b) => (Number(b.rating) || 4.5) - (Number(a.rating) || 4.5));
         break;
       case 'featured':
       default:

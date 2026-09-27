@@ -1751,27 +1751,44 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   // Pricing Helpers
-  const convertPrice = (priceINR: number) => {
-    if (currentCurrency.code === 'INR') return priceINR;
-    return Math.round(priceINR / currentCurrency.rateToINR);
+  const convertPrice = (priceINR: number | null | undefined): number => {
+    if (priceINR === undefined || priceINR === null || isNaN(Number(priceINR))) return 0;
+    const num = Number(priceINR);
+    if (!currentCurrency || currentCurrency.code === 'INR') return num;
+    const rate = currentCurrency.rateToINR || 1;
+    return Math.round(num / (rate > 0 ? rate : 1));
   };
 
-  const formatPrice = (priceINR: number) => {
+  const formatPrice = (priceINR: number | null | undefined): string => {
+    const sym = currentCurrency?.symbol || '₹';
+    if (priceINR === undefined || priceINR === null || isNaN(Number(priceINR))) {
+      return `${sym}0`;
+    }
     const converted = convertPrice(priceINR);
-    return `${currentCurrency.symbol}${converted.toLocaleString()}`;
+    if (converted === undefined || converted === null || isNaN(converted)) {
+      return `${sym}0`;
+    }
+    try {
+      return `${sym}${converted.toLocaleString()}`;
+    } catch {
+      return `${sym}${converted}`;
+    }
   };
 
-  const getProductEffectivePriceINR = (product: Product, countryCodeOrName?: string): number => {
+  const getProductEffectivePriceINR = (product: Product | null | undefined, countryCodeOrName?: string): number => {
+    if (!product) return 0;
     const target = countryCodeOrName || selectedCountry?.code || selectedCountry?.name;
     return getProductPriceINRForCountry(product, target);
   };
 
-  const checkProductCountryAvailability = (product: Product, countryCodeOrName?: string) => {
+  const checkProductCountryAvailability = (product: Product | null | undefined, countryCodeOrName?: string) => {
+    if (!product) return false;
     const target = countryCodeOrName || selectedCountry?.code || selectedCountry?.name;
     return isProductAvailableForCountry(product, target);
   };
 
-  const formatProductPrice = (product: Product, countryCodeOrName?: string) => {
+  const formatProductPrice = (product: Product | null | undefined, countryCodeOrName?: string): string => {
+    if (!product) return '₹0';
     const effectiveINR = getProductEffectivePriceINR(product, countryCodeOrName);
     return formatPrice(effectiveINR);
   };

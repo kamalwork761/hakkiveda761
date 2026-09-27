@@ -20,7 +20,7 @@ export const AppHeader: React.FC<AppHeaderProps> = ({
   const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
 
   const logoSrc = resolveAssetUrl(
-    headerLogoUrl || siteSettings?.headerHvLogo || '/images/hakkiveda-logo.png',
+    headerLogoUrl || siteSettings?.headerHvLogo || '/images/hakkiveda_hv_logo.png',
     ''
   );
 

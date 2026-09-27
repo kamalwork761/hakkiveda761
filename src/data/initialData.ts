@@ -3141,9 +3141,9 @@ export const INITIAL_MOBILE_APP_SETTINGS = {
   freeDeliveryThreshold: 499,
   brandAccentColor: '#C5A059',
   brandDeepGreen: '#0E382C',
-  headerLogoUrl: '/images/hakkiveda-logo.png',
-  splashImageUrl: '/images/hero_tribal_elders.jpg',
-  homeLogoUrl: '/images/hakkiveda-logo.png',
+  headerLogoUrl: '/images/hakkiveda_hv_logo.png',
+  splashImageUrl: '/images/hakkiveda_hv_logo.png',
+  homeLogoUrl: '/images/hakkiveda_hv_logo.png',
 };
 
 export const INITIAL_MOBILE_APP_HERO_SLIDES = [

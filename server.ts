@@ -129,113 +129,52 @@ async function startServer() {
   // Trust proxy for secure cookies behind reverse proxies (Cloud Run / Nginx)
   app.set('trust proxy', 1);
 
-  // Initialize SQLite Database at startup
-  await getDb();
-
-  // Enable HTTP response compression (gzip/deflate)
-  app.use(compression());
-
   // ============================================================================
-  // SECURE CORS MIDDLEWARE FOR TRUSTED HAKKIVEDA & CAPACITOR ORIGINS
+  // EARLY GLOBAL CORS MIDDLEWARE FOR TRUSTED HAKKIVEDA & CAPACITOR ORIGINS
+  // Immediately after app creation, before all routes, 404, and error handlers
   // ============================================================================
   const TRUSTED_CORS_ORIGINS = new Set([
     'https://hakkiveda.com',
     'https://www.hakkiveda.com',
     'https://localhost',
-    'http://localhost',
     'capacitor://localhost',
   ]);
 
-  function isTrustedCorsOrigin(origin: string | undefined): boolean {
-    if (!origin) return false;
-    const trimmed = origin.trim().toLowerCase();
-
-    // 1. Direct match with trusted production / Capacitor origins
-    if (TRUSTED_CORS_ORIGINS.has(trimmed)) {
-      return true;
-    }
-
-    // 2. Allow Capacitor protocol variants (e.g. capacitor://localhost, ionic://localhost)
-    if (trimmed === 'capacitor://localhost' || trimmed === 'ionic://localhost') {
-      return true;
-    }
-
-    // 3. Allow localhost/127.0.0.1 on any port (for local dev / Capacitor webview debugging)
-    if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(trimmed)) {
-      return true;
-    }
-
-    // 4. Allow Google Cloud Run preview environments for this app (ais-dev / ais-pre)
-    if (trimmed.endsWith('.run.app') && trimmed.includes('ais-')) {
-      return true;
-    }
-
-    return false;
-  }
-
-  // Handle CORS for all requests across API and static routes
   app.use((req, res, next) => {
     const rawOrigin = (req.headers.origin || req.get('origin') || '') as string;
     const origin = rawOrigin.trim();
     const normalizedOrigin = origin.toLowerCase().replace(/\/+$/, '');
+    const isTrusted = TRUSTED_CORS_ORIGINS.has(normalizedOrigin);
 
-    if (origin && isTrustedCorsOrigin(normalizedOrigin)) {
+    if (isTrusted) {
       res.setHeader('Access-Control-Allow-Origin', origin);
       res.setHeader('Access-Control-Allow-Credentials', 'true');
+      res.setHeader('Vary', 'Origin');
       res.setHeader(
         'Access-Control-Allow-Methods',
-        'GET, POST, PUT, PATCH, DELETE, OPTIONS'
+        'GET,POST,PUT,PATCH,DELETE,OPTIONS'
       );
+
       const reqHeaders = req.headers['access-control-request-headers'];
       res.setHeader(
         'Access-Control-Allow-Headers',
-        reqHeaders ||
-          'Content-Type, Authorization, Accept, X-Requested-With, Range, Cache-Control, X-Admin-Token, X-Customer-Token, X-CSRF-Token, Origin'
+        reqHeaders || 'Content-Type,Authorization,Accept,X-Requested-With'
       );
-      res.setHeader(
-        'Access-Control-Expose-Headers',
-        'Content-Range, Content-Length, ETag, Set-Cookie'
-      );
-      res.setHeader('Access-Control-Max-Age', '86400'); // 24 hours preflight cache
-      res.setHeader('Vary', 'Origin');
     }
 
-    // Explicitly handle OPTIONS preflight requests immediately
-    if (req.method === 'OPTIONS') {
+    // Handle OPTIONS directly inside middleware before next()
+    if (req.method === 'OPTIONS' && isTrusted) {
       return res.status(204).end();
     }
 
     next();
   });
 
-  // Explicit global handler for all OPTIONS preflights before any routes
-  app.options('*', (req, res) => {
-    const rawOrigin = (req.headers.origin || req.get('origin') || '') as string;
-    const origin = rawOrigin.trim();
-    const normalizedOrigin = origin.toLowerCase().replace(/\/+$/, '');
+  // Initialize SQLite Database at startup
+  await getDb();
 
-    if (origin && isTrustedCorsOrigin(normalizedOrigin)) {
-      res.setHeader('Access-Control-Allow-Origin', origin);
-      res.setHeader('Access-Control-Allow-Credentials', 'true');
-      res.setHeader(
-        'Access-Control-Allow-Methods',
-        'GET, POST, PUT, PATCH, DELETE, OPTIONS'
-      );
-      const reqHeaders = req.headers['access-control-request-headers'];
-      res.setHeader(
-        'Access-Control-Allow-Headers',
-        reqHeaders ||
-          'Content-Type, Authorization, Accept, X-Requested-With, Range, Cache-Control, X-Admin-Token, X-Customer-Token, X-CSRF-Token, Origin'
-      );
-      res.setHeader(
-        'Access-Control-Expose-Headers',
-        'Content-Range, Content-Length, ETag, Set-Cookie'
-      );
-      res.setHeader('Access-Control-Max-Age', '86400');
-      res.setHeader('Vary', 'Origin');
-    }
-    return res.status(204).end();
-  });
+  // Enable HTTP response compression (gzip/deflate)
+  app.use(compression());
 
   // Security Headers Middleware (Production-Grade CSP, HSTS, Permissions & Frame Protection)
   app.use((_req, res, next) => {

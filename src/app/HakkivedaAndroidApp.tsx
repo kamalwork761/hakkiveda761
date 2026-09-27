@@ -6,6 +6,7 @@ import {
   MobileAppSectionConfig,
   MobileAppFeaturedCategory,
   MobileAppFeaturedProducts,
+  MobileAppSettings,
 } from '../types/mobileApp';
 import {
   INITIAL_MOBILE_APP_HERO_SLIDES,
@@ -13,6 +14,7 @@ import {
   INITIAL_MOBILE_APP_SECTIONS,
   INITIAL_MOBILE_APP_FEATURED_CATEGORIES,
   INITIAL_MOBILE_APP_FEATURED_PRODUCTS,
+  INITIAL_MOBILE_APP_SETTINGS,
 } from '../data/initialData';
 import { AppHeader } from './components/AppHeader';
 import { AppBottomNav, AppNavTab } from './navigation/AppBottomNav';
@@ -88,17 +90,19 @@ export const HakkivedaAndroidApp: React.FC = () => {
   const [featuredProducts, setFeaturedProducts] = useState<MobileAppFeaturedProducts>(
     INITIAL_MOBILE_APP_FEATURED_PRODUCTS
   );
+  const [appSettings, setAppSettings] = useState<MobileAppSettings>(INITIAL_MOBILE_APP_SETTINGS);
 
   // Fetch live app manager data from API on mount
   useEffect(() => {
     const fetchAppData = async () => {
       try {
-        const [slidesRes, bannersRes, sectionsRes, catsRes, prodsRes] = await Promise.all([
+        const [slidesRes, bannersRes, sectionsRes, catsRes, prodsRes, settingsRes] = await Promise.all([
           fetch('/api/store/mobile_app_hero_slides').then((r) => r.json()).catch(() => null),
           fetch('/api/store/mobile_app_banners').then((r) => r.json()).catch(() => null),
           fetch('/api/store/mobile_app_sections').then((r) => r.json()).catch(() => null),
           fetch('/api/store/mobile_app_featured_categories').then((r) => r.json()).catch(() => null),
           fetch('/api/store/mobile_app_featured_products').then((r) => r.json()).catch(() => null),
+          fetch('/api/store/mobile_app_settings').then((r) => r.json()).catch(() => null),
         ]);
 
         if (slidesRes?.success && Array.isArray(slidesRes.data) && slidesRes.data.length > 0) {
@@ -115,6 +119,9 @@ export const HakkivedaAndroidApp: React.FC = () => {
         }
         if (prodsRes?.success && prodsRes.data) {
           setFeaturedProducts(prodsRes.data);
+        }
+        if (settingsRes?.success && settingsRes.data) {
+          setAppSettings(settingsRes.data);
         }
       } catch (e) {
         console.warn('[HAKKIVEDA App] Using fallback initial configuration');
@@ -199,6 +206,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
     <div className="min-h-screen bg-[#FAF7F2] text-slate-900 font-sans flex flex-col justify-between selection:bg-[#C5A059]/30">
       {/* Top Native Header */}
       <AppHeader
+        headerLogoUrl={appSettings.headerLogoUrl}
         onOpenSearch={() => setIsSearchOpen(true)}
         onOpenCart={() => setIsCartOpen(true)}
         onOpenNotifications={() => {

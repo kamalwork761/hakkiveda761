@@ -741,20 +741,6 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               <span>Mobile Navigation</span>
             </button>
             <button
-              onClick={() => setActiveTab('mobile_app')}
-              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
-                activeTab === 'mobile_app' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
-              }`}
-            >
-              <div className="flex items-center gap-2.5">
-                <Smartphone className="w-4 h-4 text-emerald-400" />
-                <span>Mobile App Manager</span>
-              </div>
-              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
-                APP
-              </span>
-            </button>
-            <button
               onClick={() => setActiveTab('reviews')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
                 activeTab === 'reviews' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
@@ -894,6 +880,20 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
               <span>Global Clients & Stories</span>
             </button>
             <button
+              onClick={() => setActiveTab('mobile_app')}
+              className={`w-full flex items-center justify-between px-3 py-2 rounded-lg transition-colors ${
+                activeTab === 'mobile_app' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
+              }`}
+            >
+              <div className="flex items-center gap-2.5">
+                <Smartphone className="w-4 h-4 text-emerald-400" />
+                <span>Mobile App Manager</span>
+              </div>
+              <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+                APP
+              </span>
+            </button>
+            <button
               onClick={() => setActiveTab('customers')}
               className={`w-full flex items-center gap-2.5 px-3 py-2 rounded-lg transition-colors ${
                 activeTab === 'customers' ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold' : 'text-slate-200 hover:bg-white/5'
@@ -1019,6 +1019,34 @@ export const AdminDashboard: React.FC<AdminDashboardProps> = ({ onLogoutAdmin, o
             <div>
               <h1 className="text-2xl font-bold font-serif-luxury text-[#0B2F20] dark:text-slate-100">Store Command Dashboard</h1>
               <p className="text-xs text-[#6B756E] dark:text-slate-300">Live analytics and operational status of HAKKIVEDA.</p>
+            </div>
+
+            {/* Quick Mobile App Manager Banner */}
+            <div className="bg-[#FAF8F2] dark:bg-[var(--brand-primary-dark)] border border-[#E5D8B5] dark:border-[var(--brand-gold)]/30 p-4 rounded-2xl flex flex-col sm:flex-row sm:items-center justify-between gap-3 shadow-xs">
+              <div className="flex items-center gap-3">
+                <div className="w-10 h-10 rounded-xl bg-emerald-500/15 text-emerald-400 border border-emerald-500/30 flex items-center justify-center shrink-0">
+                  <Smartphone className="w-5 h-5 text-emerald-600 dark:text-emerald-400" />
+                </div>
+                <div>
+                  <div className="flex items-center gap-2">
+                    <h3 className="text-sm font-bold text-[#0B2F20] dark:text-white">Android Mobile App Manager</h3>
+                    <span className="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-700 dark:text-emerald-300 border border-emerald-500/30 uppercase tracking-wider">
+                      Android Native
+                    </span>
+                  </div>
+                  <p className="text-xs text-[#6B756E] dark:text-slate-300 mt-0.5">
+                    Configure hero slides, promo banners, home section order, curated remedies & app branding.
+                  </p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setActiveTab('mobile_app')}
+                className="px-4 py-2 rounded-xl bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] font-bold text-xs flex items-center gap-2 shrink-0 hover:bg-amber-400 transition-colors shadow-xs self-start sm:self-auto"
+              >
+                <Smartphone className="w-4 h-4" />
+                <span>Open Mobile App Manager →</span>
+              </button>
             </div>
 
             {/* Top Stat Cards for Requirement 7 */}

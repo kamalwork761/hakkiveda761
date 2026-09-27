@@ -64,4 +64,7 @@ export interface MobileAppSettings {
   freeDeliveryThreshold: number;
   brandAccentColor: string;
   brandDeepGreen: string;
+  headerLogoUrl?: string;
+  splashImageUrl?: string;
+  homeLogoUrl?: string;
 }

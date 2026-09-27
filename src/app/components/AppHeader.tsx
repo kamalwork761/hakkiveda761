@@ -7,18 +7,20 @@ interface AppHeaderProps {
   onOpenSearch: () => void;
   onOpenCart: () => void;
   onOpenNotifications?: () => void;
+  headerLogoUrl?: string;
 }
 
 export const AppHeader: React.FC<AppHeaderProps> = ({
   onOpenSearch,
   onOpenCart,
   onOpenNotifications,
+  headerLogoUrl,
 }) => {
   const { cart, siteSettings } = useStore();
   const cartItemCount = cart.reduce((total, item) => total + item.quantity, 0);
 
   const logoSrc = resolveAssetUrl(
-    siteSettings?.headerHvLogo || '/images/hakkiveda-logo.png',
+    headerLogoUrl || siteSettings?.headerHvLogo || '/images/hakkiveda-logo.png',
     ''
   );
 

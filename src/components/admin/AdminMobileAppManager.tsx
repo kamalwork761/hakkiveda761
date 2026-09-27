@@ -16,6 +16,9 @@ import {
   Grid,
   Star,
   ExternalLink,
+  Sparkles,
+  AlertCircle,
+  Info,
 } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import {
@@ -24,6 +27,7 @@ import {
   MobileAppSectionConfig,
   MobileAppFeaturedCategory,
   MobileAppFeaturedProducts,
+  MobileAppSettings,
 } from '../../types/mobileApp';
 import {
   INITIAL_MOBILE_APP_HERO_SLIDES,
@@ -31,6 +35,7 @@ import {
   INITIAL_MOBILE_APP_SECTIONS,
   INITIAL_MOBILE_APP_FEATURED_CATEGORIES,
   INITIAL_MOBILE_APP_FEATURED_PRODUCTS,
+  INITIAL_MOBILE_APP_SETTINGS,
 } from '../../data/initialData';
 import { resolveAssetUrl } from '../../app/utils/nativeUrl';
 
@@ -38,7 +43,7 @@ export const AdminMobileAppManager: React.FC = () => {
   const { products, categories, playSound } = useStore();
 
   const [activeSubTab, setActiveSubTab] = useState<
-    'hero' | 'banners' | 'sections' | 'categories' | 'products'
+    'hero' | 'banners' | 'sections' | 'categories' | 'products' | 'branding'
   >('hero');
 
   const [heroSlides, setHeroSlides] = useState<MobileAppHeroSlide[]>(INITIAL_MOBILE_APP_HERO_SLIDES);
@@ -50,10 +55,12 @@ export const AdminMobileAppManager: React.FC = () => {
   const [featuredProducts, setFeaturedProducts] = useState<MobileAppFeaturedProducts>(
     INITIAL_MOBILE_APP_FEATURED_PRODUCTS
   );
+  const [appSettings, setAppSettings] = useState<MobileAppSettings>(INITIAL_MOBILE_APP_SETTINGS);
 
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
   const [statusMessage, setStatusMessage] = useState<string | null>(null);
+  const [brandingUploading, setBrandingUploading] = useState<'header' | 'splash' | 'home' | null>(null);
 
   // Editing state for Hero Slide
   const [editingSlide, setEditingSlide] = useState<MobileAppHeroSlide | null>(null);
@@ -70,12 +77,13 @@ export const AdminMobileAppManager: React.FC = () => {
     const loadData = async () => {
       setIsLoading(true);
       try {
-        const [slidesRes, bannersRes, sectionsRes, catsRes, prodsRes] = await Promise.all([
+        const [slidesRes, bannersRes, sectionsRes, catsRes, prodsRes, settingsRes] = await Promise.all([
           fetch('/api/store/mobile_app_hero_slides').then((r) => r.json()).catch(() => null),
           fetch('/api/store/mobile_app_banners').then((r) => r.json()).catch(() => null),
           fetch('/api/store/mobile_app_sections').then((r) => r.json()).catch(() => null),
           fetch('/api/store/mobile_app_featured_categories').then((r) => r.json()).catch(() => null),
           fetch('/api/store/mobile_app_featured_products').then((r) => r.json()).catch(() => null),
+          fetch('/api/store/mobile_app_settings').then((r) => r.json()).catch(() => null),
         ]);
 
         if (slidesRes?.success && Array.isArray(slidesRes.data)) setHeroSlides(slidesRes.data);
@@ -83,6 +91,7 @@ export const AdminMobileAppManager: React.FC = () => {
         if (sectionsRes?.success && Array.isArray(sectionsRes.data)) setSections(sectionsRes.data);
         if (catsRes?.success && Array.isArray(catsRes.data)) setFeaturedCategories(catsRes.data);
         if (prodsRes?.success && prodsRes.data) setFeaturedProducts(prodsRes.data);
+        if (settingsRes?.success && settingsRes.data) setAppSettings((prev) => ({ ...prev, ...settingsRes.data }));
       } catch (e) {
         console.error('Error loading mobile app config', e);
       } finally {
@@ -225,6 +234,7 @@ export const AdminMobileAppManager: React.FC = () => {
           { id: 'sections', label: 'Home Sections Ordering', icon: Layers },
           { id: 'categories', label: 'Featured Categories', icon: Grid },
           { id: 'products', label: 'Curated Products', icon: Star },
+          { id: 'branding', label: 'App Branding', icon: Sparkles },
         ].map((tab) => {
           const Icon = tab.icon;
           const isActive = activeSubTab === tab.id;
@@ -702,6 +712,266 @@ export const AdminMobileAppManager: React.FC = () => {
                   </button>
                 );
               })}
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* TAB 6: APP BRANDING */}
+      {activeSubTab === 'branding' && (
+        <div className="space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <div>
+              <h2 className="text-sm font-bold text-slate-200">
+                Android App Branding & Visual Identity
+              </h2>
+              <p className="text-xs text-slate-400 mt-0.5">
+                Customize in-app header logo, startup splash asset, and home emblem with persistent server storage.
+              </p>
+            </div>
+            <button
+              type="button"
+              onClick={() => saveToServer('mobile_app_settings', appSettings)}
+              className="px-4 py-2 rounded-xl bg-[#C5A059] text-[#0E382C] font-bold text-xs flex items-center gap-1.5 self-start sm:self-auto hover:bg-[#d4af37] transition-all"
+            >
+              <Save className="w-4 h-4" />
+              <span>Save App Branding</span>
+            </button>
+          </div>
+
+          {/* Grid of Branding Assets */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+            {/* 1. In-App Header Logo */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col justify-between space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-[#C5A059] flex items-center gap-1.5">
+                    <Sparkles className="w-3.5 h-3.5" />
+                    <span>In-App Header Logo</span>
+                  </h3>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-emerald-500/20 text-emerald-300 font-mono">
+                    Header
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-300 mb-3">
+                  Shown in the sticky native app header at the top of all Android screens. High contrast on deep forest green recommended.
+                </p>
+
+                {/* Preview on App Header green */}
+                <div className="bg-[#0E382C] border border-[#C5A059]/30 rounded-xl p-3 flex items-center gap-3 mb-3 shadow-inner">
+                  <img
+                    src={resolveAssetUrl(appSettings.headerLogoUrl || '/images/hakkiveda-logo.png')}
+                    alt="Header Logo Preview"
+                    className="w-10 h-10 object-contain rounded-full border border-[#C5A059]/40 bg-[#07241C]"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/images/hakkiveda-logo.png';
+                    }}
+                  />
+                  <div>
+                    <div className="flex items-center gap-1">
+                      <span className="font-serif font-bold text-xs text-[#FDF8EC] uppercase tracking-wider">
+                        HAKKIVEDA
+                      </span>
+                      <span className="text-[8px] font-bold px-1 py-0.2 rounded bg-[#C5A059]/20 text-[#C5A059] border border-[#C5A059]/30">
+                        APP
+                      </span>
+                    </div>
+                    <span className="text-[9px] text-emerald-200/60 block">
+                      108 Sacred Forest Herbs
+                    </span>
+                  </div>
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] uppercase font-bold text-slate-400">Image Asset URL</label>
+                  <input
+                    type="text"
+                    value={appSettings.headerLogoUrl || ''}
+                    onChange={(e) => setAppSettings({ ...appSettings, headerLogoUrl: e.target.value })}
+                    placeholder="/images/hakkiveda-logo.png"
+                    className="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="w-full py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold cursor-pointer flex items-center justify-center gap-2 text-white border border-white/15 transition-all">
+                  <Upload className="w-3.5 h-3.5 text-[#C5A059]" />
+                  <span>{brandingUploading === 'header' ? 'Uploading...' : 'Upload Header Logo'}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    disabled={brandingUploading !== null}
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setBrandingUploading('header');
+                      try {
+                        const url = await uploadAppImage(file);
+                        setAppSettings({ ...appSettings, headerLogoUrl: url });
+                        setStatusMessage('Header logo uploaded to persistent server storage!');
+                      } catch (err: any) {
+                        alert(`Upload failed: ${err.message}`);
+                      } finally {
+                        setBrandingUploading(null);
+                      }
+                    }}
+                  />
+                </label>
+              </div>
+            </div>
+
+            {/* 2. Splash Screen Logo / Image */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col justify-between space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-emerald-400 flex items-center gap-1.5">
+                    <Smartphone className="w-3.5 h-3.5" />
+                    <span>Splash Logo / Image</span>
+                  </h3>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-amber-500/20 text-amber-300 font-mono">
+                    Startup
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-300 mb-3">
+                  Centerpiece visual presented during native app initialization, loading, and splash transition.
+                </p>
+
+                {/* Preview */}
+                <div className="bg-[#0B251D] border border-emerald-500/30 rounded-xl p-3 flex flex-col items-center justify-center mb-3 h-20 shadow-inner">
+                  <img
+                    src={resolveAssetUrl(appSettings.splashImageUrl || '/images/hero_tribal_elders.jpg')}
+                    alt="Splash Preview"
+                    className="h-12 w-28 object-cover rounded-lg border border-white/10"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/images/hero_tribal_elders.jpg';
+                    }}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] uppercase font-bold text-slate-400">Splash Image URL</label>
+                  <input
+                    type="text"
+                    value={appSettings.splashImageUrl || ''}
+                    onChange={(e) => setAppSettings({ ...appSettings, splashImageUrl: e.target.value })}
+                    placeholder="/images/hero_tribal_elders.jpg"
+                    className="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-emerald-400"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="w-full py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold cursor-pointer flex items-center justify-center gap-2 text-white border border-white/15 transition-all">
+                  <Upload className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>{brandingUploading === 'splash' ? 'Uploading...' : 'Upload Splash Asset'}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    disabled={brandingUploading !== null}
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setBrandingUploading('splash');
+                      try {
+                        const url = await uploadAppImage(file);
+                        setAppSettings({ ...appSettings, splashImageUrl: url });
+                        setStatusMessage('Splash asset uploaded to persistent server storage!');
+                      } catch (err: any) {
+                        alert(`Upload failed: ${err.message}`);
+                      } finally {
+                        setBrandingUploading(null);
+                      }
+                    }}
+                  />
+                </label>
+              </div>
+            </div>
+
+            {/* 3. Optional App Home Logo */}
+            <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col justify-between space-y-4">
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <h3 className="text-xs font-bold uppercase tracking-wider text-amber-300 flex items-center gap-1.5">
+                    <ImageIcon className="w-3.5 h-3.5" />
+                    <span>Optional Home Logo</span>
+                  </h3>
+                  <span className="text-[9px] px-1.5 py-0.5 rounded bg-blue-500/20 text-blue-300 font-mono">
+                    Home
+                  </span>
+                </div>
+                <p className="text-[11px] text-slate-300 mb-3">
+                  Optional tribal heritage emblem or badge displayed on the native Home screen footer / story card.
+                </p>
+
+                {/* Preview */}
+                <div className="bg-[#FAF7F2] border border-[#E5D8B5] rounded-xl p-3 flex items-center justify-center mb-3 h-20 shadow-inner">
+                  <img
+                    src={resolveAssetUrl(appSettings.homeLogoUrl || '/images/hakkiveda-logo.png')}
+                    alt="Home Logo Preview"
+                    className="h-12 w-12 object-contain rounded-full"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/images/hakkiveda-logo.png';
+                    }}
+                  />
+                </div>
+
+                <div className="space-y-1.5">
+                  <label className="text-[10px] uppercase font-bold text-slate-400">Home Logo URL</label>
+                  <input
+                    type="text"
+                    value={appSettings.homeLogoUrl || ''}
+                    onChange={(e) => setAppSettings({ ...appSettings, homeLogoUrl: e.target.value })}
+                    placeholder="/images/hakkiveda-logo.png"
+                    className="w-full px-3 py-2 bg-black/40 border border-white/10 rounded-xl text-xs text-white focus:outline-none focus:border-amber-400"
+                  />
+                </div>
+              </div>
+
+              <div>
+                <label className="w-full py-2 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-semibold cursor-pointer flex items-center justify-center gap-2 text-white border border-white/15 transition-all">
+                  <Upload className="w-3.5 h-3.5 text-amber-400" />
+                  <span>{brandingUploading === 'home' ? 'Uploading...' : 'Upload Home Logo'}</span>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    disabled={brandingUploading !== null}
+                    className="hidden"
+                    onChange={async (e) => {
+                      const file = e.target.files?.[0];
+                      if (!file) return;
+                      setBrandingUploading('home');
+                      try {
+                        const url = await uploadAppImage(file);
+                        setAppSettings({ ...appSettings, homeLogoUrl: url });
+                        setStatusMessage('Home logo uploaded to persistent server storage!');
+                      } catch (err: any) {
+                        alert(`Upload failed: ${err.message}`);
+                      } finally {
+                        setBrandingUploading(null);
+                      }
+                    }}
+                  />
+                </label>
+              </div>
+            </div>
+          </div>
+
+          {/* Architectural Notice: Android Native Launcher Icon Policy */}
+          <div className="bg-amber-950/40 border border-amber-500/40 rounded-2xl p-4 flex items-start gap-3 text-amber-200">
+            <AlertCircle className="w-5 h-5 text-amber-400 shrink-0 mt-0.5" />
+            <div className="space-y-1 text-xs">
+              <h4 className="font-bold text-amber-300">
+                Important Android Architecture Note: Native Launcher Icon
+              </h4>
+              <p className="text-amber-200/90 leading-relaxed">
+                The Android system launcher icon (the icon shown on user home screens and in the Android system app drawer) is compiled directly into the binary APK/AAB package (<code className="font-mono text-[11px] bg-black/40 px-1.5 py-0.5 rounded text-amber-300">android/app/src/main/res/mipmap-*/ic_launcher.png</code>).
+              </p>
+              <p className="text-amber-200/80 leading-relaxed text-[11px]">
+                Under Android operating system security specifications, launcher icons are immutable at runtime and cannot be dynamically swapped from a web admin dashboard. Updating the Android launcher icon requires compiling a new Android release package.
+              </p>
             </div>
           </div>
         </div>

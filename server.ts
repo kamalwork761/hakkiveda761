@@ -5336,9 +5336,6 @@ COMPLIANCE & COMMUNICATION RULES:
 
   // Explicit 404 handler for any unmatched /api/* requests so they NEVER return HTML
   app.all('/api/*', (req, res) => {
-    if (req.method === 'OPTIONS') {
-      return res.status(204).end();
-    }
     res.status(404).json({
       success: false,
       error: `API endpoint not found: ${req.method} ${req.originalUrl}`,

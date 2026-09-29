@@ -379,7 +379,7 @@ export const AppProductsManager: React.FC<AppProductsManagerProps> = ({
       {isModalOpen && editingOverride && activeProduct && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn">
           <div
-            className="bg-[#0c2920] border border-[#C5A059]/40 rounded-3xl max-w-2xl w-full p-6 text-white shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto"
+            className="bg-[#0c2920] border border-[#C5A059]/40 rounded-3xl max-w-2xl w-full p-6 text-white shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto mobile-app-modal"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
@@ -389,10 +389,10 @@ export const AppProductsManager: React.FC<AppProductsManagerProps> = ({
                   <Tag className="w-4 h-4" />
                 </span>
                 <div>
-                  <h3 className="font-serif text-lg font-bold text-white">
+                  <h3 className="font-serif text-lg font-bold text-[#FDF8EC]">
                     App Overrides: {activeProduct.name}
                   </h3>
-                  <span className="text-[11px] text-emerald-200/70">
+                  <span className="text-[11px] text-emerald-100">
                     Product ID: {activeProduct.id} • SKU: {activeProduct.sku || 'N/A'}
                   </span>
                 </div>
@@ -400,29 +400,30 @@ export const AppProductsManager: React.FC<AppProductsManagerProps> = ({
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-white/10 text-slate-300 hover:text-white flex items-center justify-center"
+                className="w-8 h-8 rounded-full bg-white/15 text-white hover:bg-white/25 flex items-center justify-center transition-all"
+                aria-label="Close modal"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4 stroke-[2.5]" />
               </button>
             </div>
 
             {/* Read-only Shared Catalog Info */}
             <div className="p-3 rounded-xl bg-white/5 border border-white/10 grid grid-cols-2 sm:grid-cols-4 gap-2 text-center text-xs">
               <div>
-                <span className="text-[10px] text-slate-400 block">Master Price</span>
+                <span className="text-[10px] text-slate-300 block font-semibold">Master Price</span>
                 <span className="font-bold text-emerald-400 text-sm">{formatSafeINR(activeProduct.price)}</span>
               </div>
               <div>
-                <span className="text-[10px] text-slate-400 block">MRP / Original</span>
-                <span className="text-slate-300">{formatSafeINR(activeProduct.originalPrice || activeProduct.price * 1.45)}</span>
+                <span className="text-[10px] text-slate-300 block font-semibold">MRP / Original</span>
+                <span className="text-slate-200">{formatSafeINR(activeProduct.originalPrice || activeProduct.price * 1.45)}</span>
               </div>
               <div>
-                <span className="text-[10px] text-slate-400 block">Inventory Stock</span>
-                <span className="text-slate-300 font-bold">{activeProduct.stock || 250} units</span>
+                <span className="text-[10px] text-slate-300 block font-semibold">Inventory Stock</span>
+                <span className="text-slate-200 font-bold">{activeProduct.stock || 250} units</span>
               </div>
               <div>
-                <span className="text-[10px] text-slate-400 block">Master Category</span>
-                <span className="text-slate-300">{activeProduct.category || 'Remedies'}</span>
+                <span className="text-[10px] text-slate-300 block font-semibold">Master Category</span>
+                <span className="text-slate-200">{activeProduct.category || 'Remedies'}</span>
               </div>
             </div>
 
@@ -430,11 +431,11 @@ export const AppProductsManager: React.FC<AppProductsManagerProps> = ({
             <div className="p-4 rounded-2xl bg-white/5 border border-white/10 space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-xs font-bold text-white block">
+                  <span className="text-xs font-bold text-[#FDF8EC] block">
                     App-Specific Product Image (1:1 Square)
                   </span>
-                  <span className="text-[10px] text-slate-400">
-                    Recommended: 1100 × 1100 px • Uploads to <code>/uploads/mobile-app/products/</code>
+                  <span className="text-[11px] text-emerald-100">
+                    Recommended: 1100 × 1100 px • Uploads to <code className="text-[#C5A059]">/uploads/mobile-app/products/</code>
                   </span>
                 </div>
 
@@ -442,7 +443,7 @@ export const AppProductsManager: React.FC<AppProductsManagerProps> = ({
                   <button
                     type="button"
                     onClick={() => setEditingOverride({ ...editingOverride, appImage: '' })}
-                    className="text-[10px] text-red-300 hover:text-red-200 underline"
+                    className="text-[11px] text-red-300 hover:text-red-200 underline font-semibold"
                   >
                     Clear Override (Use Catalog Image)
                   </button>
@@ -463,8 +464,8 @@ export const AppProductsManager: React.FC<AppProductsManagerProps> = ({
 
                 <div className="flex-1 space-y-2">
                   <label className="cursor-pointer block">
-                    <div className="px-3 py-2 rounded-xl border border-dashed border-[#C5A059]/60 hover:border-[#C5A059] bg-white/5 hover:bg-white/10 text-center transition-all flex items-center justify-center gap-2 text-xs font-semibold text-[#C5A059]">
-                      <Upload className="w-4 h-4" />
+                    <div className="px-3 py-2 rounded-xl border border-dashed border-[#C5A059] hover:border-[#E8D279] bg-white/10 hover:bg-white/15 text-center transition-all flex items-center justify-center gap-2 text-xs font-bold text-[#C5A059]">
+                      <Upload className="w-4 h-4 stroke-[2.5]" />
                       <span>{uploadStatus.uploading ? `Uploading (${uploadStatus.progress}%)...` : 'Upload 1:1 App Product Image'}</span>
                     </div>
                     <input
@@ -484,7 +485,7 @@ export const AppProductsManager: React.FC<AppProductsManagerProps> = ({
                     value={editingOverride.appImage || ''}
                     onChange={(e) => setEditingOverride({ ...editingOverride, appImage: e.target.value })}
                     placeholder="Or enter direct URL /uploads/mobile-app/products/..."
-                    className="w-full px-3 py-1.5 rounded-xl bg-black/40 border border-white/20 text-[11px] text-white focus:outline-none focus:border-[#C5A059]"
+                    className="w-full px-3 py-1.5 rounded-xl bg-[#07241C] border border-white/25 text-[11px] text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
                   />
                 </div>
               </div>
@@ -499,7 +500,7 @@ export const AppProductsManager: React.FC<AppProductsManagerProps> = ({
             {/* Overrides: Title, Subtitle, Badges, CTA */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                   App Display Title Override
                 </label>
                 <input
@@ -507,12 +508,12 @@ export const AppProductsManager: React.FC<AppProductsManagerProps> = ({
                   value={editingOverride.appTitle || ''}
                   onChange={(e) => setEditingOverride({ ...editingOverride, appTitle: e.target.value })}
                   placeholder={`Catalog: ${activeProduct.name}`}
-                  className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                   App Short Subtitle Override
                 </label>
                 <input
@@ -520,14 +521,14 @@ export const AppProductsManager: React.FC<AppProductsManagerProps> = ({
                   value={editingOverride.appSubtitle || ''}
                   onChange={(e) => setEditingOverride({ ...editingOverride, appSubtitle: e.target.value })}
                   placeholder={`Catalog: ${activeProduct.subtitle || '108 Sacred Forest Herbs'}`}
-                  className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
               <div>
-                <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                   App Badge Label
                 </label>
                 <input
@@ -535,12 +536,12 @@ export const AppProductsManager: React.FC<AppProductsManagerProps> = ({
                   value={editingOverride.badge || ''}
                   onChange={(e) => setEditingOverride({ ...editingOverride, badge: e.target.value })}
                   placeholder="e.g. Best Seller, New, 108 Herbs"
-                  className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                   Card CTA Button Label
                 </label>
                 <input
@@ -548,18 +549,18 @@ export const AppProductsManager: React.FC<AppProductsManagerProps> = ({
                   value={editingOverride.cardCtaLabel || ''}
                   onChange={(e) => setEditingOverride({ ...editingOverride, cardCtaLabel: e.target.value })}
                   placeholder="e.g. Buy Now, Quick Add"
-                  className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                   App Section Placement
                 </label>
                 <select
                   value={editingOverride.sectionAssignment || 'all'}
                   onChange={(e) => setEditingOverride({ ...editingOverride, sectionAssignment: e.target.value as any })}
-                  className="w-full px-3 py-2 rounded-xl bg-[#0c2920] border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white focus:outline-none focus:border-[#C5A059]"
                 >
                   <option value="all">All App Carousels</option>
                   <option value="best_seller">Best Seller Carousel</option>
@@ -584,7 +585,7 @@ export const AppProductsManager: React.FC<AppProductsManagerProps> = ({
               </p>
 
               <div>
-                <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                   Short Detail Headline
                 </label>
                 <input
@@ -592,25 +593,25 @@ export const AppProductsManager: React.FC<AppProductsManagerProps> = ({
                   value={editingOverride.appHeadline || ''}
                   onChange={(e) => setEditingOverride({ ...editingOverride, appHeadline: e.target.value })}
                   placeholder="e.g. Handmade by Hakki-Pikki Elders in Pakshirajapura Forest"
-                  className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
                 />
               </div>
 
               {/* Benefit Bullets */}
               <div>
-                <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                   Key Benefit Bullets
                 </label>
                 <div className="space-y-1.5 mb-2">
                   {(editingOverride.benefitBullets || []).map((bullet, idx) => (
-                    <div key={idx} className="flex items-center justify-between px-3 py-1.5 rounded-lg bg-black/30 border border-white/10 text-xs text-slate-200">
+                    <div key={idx} className="flex items-center justify-between px-3 py-1.5 rounded-lg bg-black/40 border border-white/15 text-xs text-white">
                       <span>• {bullet}</span>
                       <button
                         type="button"
                         onClick={() => handleRemoveBullet(idx)}
                         className="text-red-400 hover:text-red-300 p-0.5"
                       >
-                        <X className="w-3.5 h-3.5" />
+                        <X className="w-3.5 h-3.5 stroke-[2.5]" />
                       </button>
                     </div>
                   ))}
@@ -628,12 +629,12 @@ export const AppProductsManager: React.FC<AppProductsManagerProps> = ({
                       }
                     }}
                     placeholder="Type benefit bullet and press Add..."
-                    className="flex-1 px-3 py-1.5 rounded-xl bg-black/40 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                    className="flex-1 px-3 py-1.5 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
                   />
                   <button
                     type="button"
                     onClick={handleAddBullet}
-                    className="px-3 py-1.5 rounded-xl bg-white/10 hover:bg-white/20 text-xs font-bold text-[#C5A059]"
+                    className="px-3.5 py-2 rounded-xl bg-[#C5A059] hover:bg-[#d4af37] text-xs font-bold text-[#0E382C] shadow-sm transition-all"
                   >
                     + Add Bullet
                   </button>
@@ -642,7 +643,7 @@ export const AppProductsManager: React.FC<AppProductsManagerProps> = ({
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
                 <div>
-                  <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                  <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                     Quick Key Ingredients Summary
                   </label>
                   <textarea
@@ -650,12 +651,12 @@ export const AppProductsManager: React.FC<AppProductsManagerProps> = ({
                     value={editingOverride.quickIngredients || ''}
                     onChange={(e) => setEditingOverride({ ...editingOverride, quickIngredients: e.target.value })}
                     placeholder="e.g. Bhringraj, Wild Amla, Brahmi, Gunja, Neelambari..."
-                    className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059] resize-none"
+                    className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059] resize-none"
                   />
                 </div>
 
                 <div>
-                  <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                  <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                     Application Ritual / Usage Summary
                   </label>
                   <textarea
@@ -663,13 +664,13 @@ export const AppProductsManager: React.FC<AppProductsManagerProps> = ({
                     value={editingOverride.usageSummary || ''}
                     onChange={(e) => setEditingOverride({ ...editingOverride, usageSummary: e.target.value })}
                     placeholder="e.g. Warm 5ml between palms, massage scalp for 10 minutes at bedtime..."
-                    className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059] resize-none"
+                    className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059] resize-none"
                   />
                 </div>
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                   Trust Badge Text
                 </label>
                 <input
@@ -677,7 +678,7 @@ export const AppProductsManager: React.FC<AppProductsManagerProps> = ({
                   value={editingOverride.trustBadgeText || ''}
                   onChange={(e) => setEditingOverride({ ...editingOverride, trustBadgeText: e.target.value })}
                   placeholder="e.g. 100% Forest-Crafted • Tribal Certified"
-                  className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
                 />
               </div>
             </div>
@@ -687,7 +688,7 @@ export const AppProductsManager: React.FC<AppProductsManagerProps> = ({
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 rounded-xl border border-white/20 text-xs text-slate-300 hover:text-white"
+                className="px-4 py-2 rounded-xl border border-white/25 text-xs text-white bg-white/5 hover:bg-white/15 font-semibold transition-all"
               >
                 Cancel
               </button>
@@ -695,7 +696,7 @@ export const AppProductsManager: React.FC<AppProductsManagerProps> = ({
                 type="button"
                 onClick={handleSaveModal}
                 disabled={isSaving}
-                className="px-5 py-2 rounded-xl bg-[#C5A059] text-[#0E382C] font-bold text-xs shadow-md hover:bg-[#d4af37] disabled:opacity-50"
+                className="px-5 py-2 rounded-xl bg-[#C5A059] text-[#0E382C] font-bold text-xs shadow-md hover:bg-[#d4af37] disabled:opacity-50 transition-all"
               >
                 Save App Overrides
               </button>

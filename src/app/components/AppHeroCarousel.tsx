@@ -79,53 +79,63 @@ export const AppHeroCarousel: React.FC<AppHeroCarouselProps> = ({
             isInteractingRef.current = false;
           }, 3000);
         }}
-        className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar rounded-2xl shadow-lg border border-emerald-950/10"
+        className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar rounded-2xl shadow-none"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {publishedSlides.map((slide) => {
           const imgSrc = resolveAssetUrl(slide.imageUrl);
+          const hasTextOverlay = Boolean(slide.title || slide.subtitle || slide.ctaText);
+
           return (
             <div
               key={slide.id}
-              className="min-w-full w-full flex-shrink-0 snap-center relative aspect-[16/9] max-h-[220px] rounded-2xl overflow-hidden bg-gradient-to-br from-[#0E382C] to-[#07241C]"
+              className="min-w-full w-full flex-shrink-0 snap-center relative aspect-[2/1] rounded-2xl overflow-hidden bg-transparent"
             >
-              {/* Background Image */}
+              {/* Background Image - Full opacity, original brightness and colors */}
               <img
                 src={imgSrc}
-                alt={slide.title}
-                className="absolute inset-0 w-full h-full object-cover object-center opacity-85"
+                alt={slide.title || 'Hero Banner'}
+                className="absolute inset-0 w-full h-full object-cover object-center opacity-100"
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/images/hero_tribal_elders.jpg';
                 }}
               />
 
-              {/* Gradient Scrim for text readability */}
-              <div className="absolute inset-0 bg-gradient-to-t from-[#07241C] via-[#0E382C]/60 to-transparent" />
+              {/* Localized Text Overlay ONLY if title/subtitle/CTA configured (NO full-image scrim/gradient) */}
+              {hasTextOverlay && (
+                <div className="absolute inset-0 p-3 sm:p-4 flex flex-col justify-end pointer-events-none">
+                  <div className="max-w-[85%] space-y-0.5">
+                    {slide.eyebrow && (
+                      <span className="inline-block text-[9px] font-bold uppercase tracking-wider text-[#C5A059] bg-[#0E382C]/90 px-2 py-0.5 rounded shadow-xs mb-0.5">
+                        {slide.eyebrow}
+                      </span>
+                    )}
+                    {slide.title && (
+                      <h3 className="font-serif text-base sm:text-lg font-bold text-[#FDF8EC] line-clamp-1 leading-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]">
+                        {slide.title}
+                      </h3>
+                    )}
+                    {slide.subtitle && (
+                      <p className="text-[11px] sm:text-xs text-white/95 line-clamp-1 leading-snug font-sans drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
+                        {slide.subtitle}
+                      </p>
+                    )}
+                  </div>
 
-              {/* Slide Content */}
-              <div className="absolute inset-0 p-4 flex flex-col justify-end text-white">
-                <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-[#C5A059] mb-1">
-                  {slide.eyebrow || 'Forest Formulation'}
-                </span>
-                <h3 className="font-serif text-lg font-bold text-[#FDF8EC] line-clamp-1 leading-tight drop-shadow-sm">
-                  {slide.title}
-                </h3>
-                <p className="text-xs text-emerald-100/90 line-clamp-1 mt-0.5 leading-snug font-sans">
-                  {slide.subtitle}
-                </p>
-
-                {/* CTA Button */}
-                <div className="mt-2.5">
-                  <button
-                    type="button"
-                    onClick={() => onNavigateAction(slide.ctaDestination)}
-                    className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#C5A059] text-[#0E382C] font-bold text-xs shadow-md hover:bg-[#d4af37] active:scale-95 transition-all"
-                  >
-                    <span>{slide.ctaText || 'Shop Now'}</span>
-                    <ChevronRight className="w-3.5 h-3.5 stroke-[2.5]" />
-                  </button>
+                  {slide.ctaText && (
+                    <div className="mt-2 pointer-events-auto">
+                      <button
+                        type="button"
+                        onClick={() => onNavigateAction(slide.ctaDestination)}
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#C5A059] text-[#0E382C] font-bold text-xs shadow-md hover:bg-[#d4af37] active:scale-95 transition-all"
+                      >
+                        <span>{slide.ctaText}</span>
+                        <ChevronRight className="w-3.5 h-3.5 stroke-[2.5]" />
+                      </button>
+                    </div>
+                  )}
                 </div>
-              </div>
+              )}
             </div>
           );
         })}

@@ -69,7 +69,7 @@ export const AppSectionsManager: React.FC<AppSectionsManagerProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mobile-app-admin text-white">
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/5 border border-white/10 rounded-2xl p-4">
         <div>

@@ -87,45 +87,55 @@ export const AppPhonePreviewModal: React.FC<AppPhonePreviewModalProps> = ({
     switch (sectionId) {
       case 'hero':
         if (!currentHeroSlide) return null;
+        const hasHeroText = Boolean(currentHeroSlide.title || currentHeroSlide.subtitle || currentHeroSlide.ctaText);
         return (
-          <div key="hero" className="w-full relative aspect-[2/1] bg-slate-900 overflow-hidden">
+          <div key="hero" className="w-full relative aspect-[2/1] bg-transparent overflow-hidden">
             <img
               src={resolveAssetUrl(currentHeroSlide.imageUrl)}
               alt={currentHeroSlide.title}
-              className="w-full h-full object-cover"
+              className="w-full h-full object-cover opacity-100"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/images/hero_tribal_elders.jpg';
               }}
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent p-3.5 flex flex-col justify-end">
-              {currentHeroSlide.eyebrow && (
-                <span className="text-[8px] font-bold uppercase tracking-wider text-[#C5A059] bg-[#0E382C]/90 px-1.5 py-0.5 rounded w-max mb-1">
-                  {currentHeroSlide.eyebrow}
-                </span>
-              )}
-              <h3 className="font-serif text-xs font-bold text-white leading-tight">
-                {currentHeroSlide.title}
-              </h3>
-              <p className="text-[9px] text-slate-200 line-clamp-1 mt-0.5">
-                {currentHeroSlide.subtitle}
-              </p>
-              <div className="mt-1.5 flex items-center justify-between">
-                <span className="px-2.5 py-0.5 rounded-lg bg-[#C5A059] text-[#0E382C] font-bold text-[9px]">
-                  {currentHeroSlide.ctaText || 'Shop Now'}
-                </span>
-                <div className="flex gap-1">
-                  {sortedHeroSlides.map((_, idx) => (
-                    <button
-                      key={idx}
-                      onClick={() => setActiveSlideIdx(idx)}
-                      className={`w-1.5 h-1.5 rounded-full transition-all ${
-                        activeSlideIdx === idx ? 'bg-[#C5A059] w-3' : 'bg-white/40'
-                      }`}
-                    />
-                  ))}
+            {/* Localized text overlay only if configured - NO full-image scrim/gradient */}
+            {hasHeroText && (
+              <div className="absolute inset-0 p-3 flex flex-col justify-end pointer-events-none">
+                {currentHeroSlide.eyebrow && (
+                  <span className="text-[8px] font-bold uppercase tracking-wider text-[#C5A059] bg-[#0E382C]/90 px-1.5 py-0.5 rounded w-max mb-1">
+                    {currentHeroSlide.eyebrow}
+                  </span>
+                )}
+                {currentHeroSlide.title && (
+                  <h3 className="font-serif text-xs font-bold text-[#FDF8EC] leading-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]">
+                    {currentHeroSlide.title}
+                  </h3>
+                )}
+                {currentHeroSlide.subtitle && (
+                  <p className="text-[9px] text-white/95 line-clamp-1 mt-0.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
+                    {currentHeroSlide.subtitle}
+                  </p>
+                )}
+                <div className="mt-1.5 flex items-center justify-between">
+                  {currentHeroSlide.ctaText ? (
+                    <span className="px-2.5 py-0.5 rounded-lg bg-[#C5A059] text-[#0E382C] font-bold text-[9px] shadow-sm">
+                      {currentHeroSlide.ctaText}
+                    </span>
+                  ) : <span />}
+                  <div className="flex gap-1">
+                    {sortedHeroSlides.map((_, idx) => (
+                      <button
+                        key={idx}
+                        onClick={() => setActiveSlideIdx(idx)}
+                        className={`w-1.5 h-1.5 rounded-full transition-all ${
+                          activeSlideIdx === idx ? 'bg-[#C5A059] w-3' : 'bg-white/60 drop-shadow-xs'
+                        }`}
+                      />
+                    ))}
+                  </div>
                 </div>
               </div>
-            </div>
+            )}
           </div>
         );
 
@@ -372,7 +382,7 @@ export const AppPhonePreviewModal: React.FC<AppPhonePreviewModalProps> = ({
       onClick={onClose}
     >
       <div
-        className="bg-[#0c2920] border border-[#C5A059]/40 rounded-3xl max-w-4xl w-full p-6 text-white shadow-2xl flex flex-col md:flex-row gap-6 max-h-[95vh] overflow-y-auto"
+        className="bg-[#0c2920] border border-[#C5A059]/40 rounded-3xl max-w-4xl w-full p-6 text-white shadow-2xl flex flex-col md:flex-row gap-6 max-h-[95vh] overflow-y-auto mobile-app-modal"
         onClick={(e) => e.stopPropagation()}
       >
         {/* Left Column: Realistic Phone Mockup */}
@@ -449,14 +459,14 @@ export const AppPhonePreviewModal: React.FC<AppPhonePreviewModalProps> = ({
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
               <div className="flex items-center gap-2">
                 <Smartphone className="w-5 h-5 text-[#C5A059]" />
-                <h3 className="font-serif text-lg font-bold text-white">
+                <h3 className="font-serif text-lg font-bold text-[#FDF8EC]">
                   Live Android Content Preview
                 </h3>
               </div>
               <button
                 type="button"
                 onClick={onClose}
-                className="w-8 h-8 rounded-full bg-white/10 text-slate-300 hover:text-white flex items-center justify-center"
+                className="w-8 h-8 rounded-full bg-white/15 text-white hover:bg-white/25 flex items-center justify-center transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>

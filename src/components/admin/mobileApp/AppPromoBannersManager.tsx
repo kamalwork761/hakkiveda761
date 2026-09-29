@@ -296,7 +296,7 @@ export const AppPromoBannersManager: React.FC<AppPromoBannersManagerProps> = ({
       {isModalOpen && editingBanner && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn">
           <div
-            className="bg-[#0c2920] border border-[#C5A059]/40 rounded-3xl max-w-xl w-full p-6 text-white shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto"
+            className="bg-[#0c2920] border border-[#C5A059]/40 rounded-3xl max-w-xl w-full p-6 text-white shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto mobile-app-modal"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
@@ -305,10 +305,10 @@ export const AppPromoBannersManager: React.FC<AppPromoBannersManagerProps> = ({
                   <Tag className="w-4 h-4" />
                 </span>
                 <div>
-                  <h3 className="font-serif text-lg font-bold text-white">
+                  <h3 className="font-serif text-lg font-bold text-[#FDF8EC]">
                     {editingBanner.id.startsWith('app-banner-') ? 'New Promo Banner' : 'Edit Promo Banner'}
                   </h3>
-                  <span className="text-[11px] text-emerald-200/70">
+                  <span className="text-[11px] text-emerald-100">
                     Recommended 1080 × 360 px (3:1)
                   </span>
                 </div>
@@ -316,14 +316,15 @@ export const AppPromoBannersManager: React.FC<AppPromoBannersManagerProps> = ({
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-white/10 text-slate-300 hover:text-white flex items-center justify-center"
+                className="w-8 h-8 rounded-full bg-white/15 text-white hover:bg-white/25 flex items-center justify-center transition-all"
+                aria-label="Close modal"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4 stroke-[2.5]" />
               </button>
             </div>
 
             {/* Live Preview */}
-            <div className="relative aspect-[3/1] w-full rounded-2xl overflow-hidden border border-white/20 bg-slate-900 shadow-inner">
+            <div className="relative aspect-[3/1] w-full rounded-2xl overflow-hidden border border-white/25 bg-slate-900 shadow-inner">
               <img
                 src={resolveAssetUrl(editingBanner.imageUrl)}
                 alt="Banner preview"
@@ -338,7 +339,7 @@ export const AppPromoBannersManager: React.FC<AppPromoBannersManagerProps> = ({
                     USE CODE: {editingBanner.couponCode}
                   </span>
                 )}
-                <h4 className="font-serif text-sm font-bold text-white leading-tight">
+                <h4 className="font-serif text-sm font-bold text-[#FDF8EC] leading-tight">
                   {editingBanner.title || 'Promo Banner Title'}
                 </h4>
                 {editingBanner.subtitle && (
@@ -351,10 +352,10 @@ export const AppPromoBannersManager: React.FC<AppPromoBannersManagerProps> = ({
 
             {/* Upload Area */}
             <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-2">
-              <span className="text-xs font-bold text-white block">Banner Artwork</span>
+              <span className="text-xs font-bold text-[#FDF8EC] block">Banner Artwork</span>
               <label className="block cursor-pointer">
-                <div className="px-4 py-2 rounded-xl border border-dashed border-[#C5A059]/50 hover:border-[#C5A059] bg-white/5 text-center transition-all flex items-center justify-center gap-2 text-xs font-semibold text-[#C5A059]">
-                  <Upload className="w-4 h-4" />
+                <div className="px-4 py-2 rounded-xl border border-dashed border-[#C5A059] hover:border-[#E8D279] bg-white/10 hover:bg-white/15 text-center transition-all flex items-center justify-center gap-2 text-xs font-bold text-[#C5A059]">
+                  <Upload className="w-4 h-4 stroke-[2.5]" />
                   <span>{uploadStatus.uploading ? `Uploading (${uploadStatus.progress}%)...` : 'Upload 3:1 Promo Banner'}</span>
                 </div>
                 <input
@@ -374,13 +375,13 @@ export const AppPromoBannersManager: React.FC<AppPromoBannersManagerProps> = ({
                 value={editingBanner.imageUrl}
                 onChange={(e) => setEditingBanner({ ...editingBanner, imageUrl: e.target.value })}
                 placeholder="Or enter direct URL /uploads/mobile-app/banners/..."
-                className="w-full px-3 py-1.5 rounded-xl bg-black/40 border border-white/20 text-[11px] text-white focus:outline-none focus:border-[#C5A059]"
+                className="w-full px-3 py-1.5 rounded-xl bg-[#07241C] border border-white/25 text-[11px] text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
               />
             </div>
 
             {/* Inputs */}
             <div>
-              <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+              <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                 Banner Headline Title *
               </label>
               <input
@@ -388,12 +389,12 @@ export const AppPromoBannersManager: React.FC<AppPromoBannersManagerProps> = ({
                 value={editingBanner.title}
                 onChange={(e) => setEditingBanner({ ...editingBanner, title: e.target.value })}
                 placeholder="e.g. Flat ₹200 OFF on Complete Hair Revival Kit"
-                className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
               />
             </div>
 
             <div>
-              <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+              <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                 Subtitle / Offer Details
               </label>
               <input
@@ -401,13 +402,13 @@ export const AppPromoBannersManager: React.FC<AppPromoBannersManagerProps> = ({
                 value={editingBanner.subtitle || ''}
                 onChange={(e) => setEditingBanner({ ...editingBanner, subtitle: e.target.value })}
                 placeholder="e.g. Free Express Delivery across India with wooden neem comb gift"
-                className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
               />
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                   Coupon Code (Optional)
                 </label>
                 <input
@@ -415,12 +416,12 @@ export const AppPromoBannersManager: React.FC<AppPromoBannersManagerProps> = ({
                   value={editingBanner.couponCode || ''}
                   onChange={(e) => setEditingBanner({ ...editingBanner, couponCode: e.target.value })}
                   placeholder="e.g. TRIBAL200"
-                  className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                   CTA Button Label
                 </label>
                 <input
@@ -428,20 +429,20 @@ export const AppPromoBannersManager: React.FC<AppPromoBannersManagerProps> = ({
                   value={editingBanner.ctaText || ''}
                   onChange={(e) => setEditingBanner({ ...editingBanner, ctaText: e.target.value })}
                   placeholder="e.g. Claim Discount"
-                  className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                   Link / Action Destination
                 </label>
                 <select
                   value={editingBanner.linkAction}
                   onChange={(e) => setEditingBanner({ ...editingBanner, linkAction: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-[#0c2920] border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white focus:outline-none focus:border-[#C5A059]"
                 >
                   <option value="shop">Shop All Remedies</option>
                   <option value="analysis">Hair Root Analysis</option>
@@ -463,7 +464,7 @@ export const AppPromoBannersManager: React.FC<AppPromoBannersManagerProps> = ({
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                   Display Order
                 </label>
                 <input
@@ -473,7 +474,7 @@ export const AppPromoBannersManager: React.FC<AppPromoBannersManagerProps> = ({
                   onChange={(e) =>
                     setEditingBanner({ ...editingBanner, displayOrder: parseInt(e.target.value, 10) || 1 })
                   }
-                  className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
                 />
               </div>
             </div>
@@ -482,7 +483,7 @@ export const AppPromoBannersManager: React.FC<AppPromoBannersManagerProps> = ({
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 rounded-xl border border-white/20 text-xs text-slate-300 hover:text-white"
+                className="px-4 py-2 rounded-xl border border-white/25 text-xs text-white bg-white/5 hover:bg-white/15 font-semibold transition-all"
               >
                 Cancel
               </button>
@@ -490,7 +491,7 @@ export const AppPromoBannersManager: React.FC<AppPromoBannersManagerProps> = ({
                 type="button"
                 onClick={handleSaveModal}
                 disabled={isSaving}
-                className="px-5 py-2 rounded-xl bg-[#C5A059] text-[#0E382C] font-bold text-xs shadow-md hover:bg-[#d4af37]"
+                className="px-5 py-2 rounded-xl bg-[#C5A059] text-[#0E382C] font-bold text-xs shadow-md hover:bg-[#d4af37] disabled:opacity-50 transition-all"
               >
                 Save Banner
               </button>

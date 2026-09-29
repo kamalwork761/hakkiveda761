@@ -113,7 +113,7 @@ export const AppMediaLibrary: React.FC = () => {
   });
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mobile-app-admin text-white">
       {/* Header */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-5 flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
@@ -273,17 +273,17 @@ export const AppMediaLibrary: React.FC = () => {
           onClick={() => setPreviewItem(null)}
         >
           <div
-            className="bg-[#0c2920] border border-[#C5A059]/40 rounded-3xl max-w-xl w-full p-5 text-white shadow-2xl space-y-4"
+            className="bg-[#0c2920] border border-[#C5A059]/40 rounded-3xl max-w-xl w-full p-5 text-white shadow-2xl space-y-4 mobile-app-modal"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-white/10 pb-2.5">
-              <h3 className="font-serif text-sm font-bold text-white truncate max-w-md">
+              <h3 className="font-serif text-sm font-bold text-[#FDF8EC] truncate max-w-md">
                 {previewItem.name}
               </h3>
               <button
                 type="button"
                 onClick={() => setPreviewItem(null)}
-                className="w-7 h-7 rounded-full bg-white/10 text-slate-300 hover:text-white flex items-center justify-center"
+                className="w-7 h-7 rounded-full bg-white/15 text-white hover:bg-white/25 flex items-center justify-center transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>

@@ -278,7 +278,7 @@ export const AppCategoriesManager: React.FC<AppCategoriesManagerProps> = ({
       {isModalOpen && editingCategory && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn">
           <div
-            className="bg-[#0c2920] border border-[#C5A059]/40 rounded-3xl max-w-lg w-full p-6 text-white shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto"
+            className="bg-[#0c2920] border border-[#C5A059]/40 rounded-3xl max-w-lg w-full p-6 text-white shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto mobile-app-modal"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
@@ -286,20 +286,21 @@ export const AppCategoriesManager: React.FC<AppCategoriesManagerProps> = ({
                 <span className="w-8 h-8 rounded-xl bg-[#C5A059]/20 text-[#C5A059] flex items-center justify-center font-bold">
                   <Grid className="w-4 h-4" />
                 </span>
-                <h3 className="font-serif text-lg font-bold text-white">Configure App Category</h3>
+                <h3 className="font-serif text-lg font-bold text-[#FDF8EC]">Configure App Category</h3>
               </div>
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-white/10 text-slate-300 hover:text-white flex items-center justify-center"
+                className="w-8 h-8 rounded-full bg-white/15 text-white hover:bg-white/25 flex items-center justify-center transition-all"
+                aria-label="Close modal"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4 stroke-[2.5]" />
               </button>
             </div>
 
             {/* Target Category Select */}
             <div>
-              <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+              <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                 Link to Master Catalog Category
               </label>
               <select
@@ -313,7 +314,7 @@ export const AppCategoriesManager: React.FC<AppCategoriesManagerProps> = ({
                     customTitle: cat ? cat.name : (val === 'ALL' ? 'All Remedies' : editingCategory.customTitle),
                   });
                 }}
-                className="w-full px-3 py-2 rounded-xl bg-[#0c2920] border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white focus:outline-none focus:border-[#C5A059]"
               >
                 <option value="ALL">All Remedies (View All Catalog)</option>
                 {categories.map((c) => (
@@ -325,7 +326,7 @@ export const AppCategoriesManager: React.FC<AppCategoriesManagerProps> = ({
             </div>
 
             <div>
-              <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+              <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                 App-Specific Display Label
               </label>
               <input
@@ -333,13 +334,13 @@ export const AppCategoriesManager: React.FC<AppCategoriesManagerProps> = ({
                 value={editingCategory.customTitle}
                 onChange={(e) => setEditingCategory({ ...editingCategory, customTitle: e.target.value })}
                 placeholder="e.g. Hair Oils, Lepa Powder"
-                className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
               />
             </div>
 
             {/* Image Upload */}
             <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-2">
-              <span className="text-xs font-bold text-white block">Category Icon / Image (600 × 600 px)</span>
+              <span className="text-xs font-bold text-[#FDF8EC] block">Category Icon / Image (600 × 600 px)</span>
               <div className="flex items-center gap-3">
                 <div className="w-14 h-14 rounded-xl bg-slate-900 border border-white/20 overflow-hidden flex-shrink-0">
                   <img
@@ -354,8 +355,8 @@ export const AppCategoriesManager: React.FC<AppCategoriesManagerProps> = ({
 
                 <div className="flex-1 space-y-1.5">
                   <label className="cursor-pointer block">
-                    <div className="px-3 py-2 rounded-xl border border-dashed border-[#C5A059]/50 hover:border-[#C5A059] bg-white/5 text-center transition-all flex items-center justify-center gap-2 text-xs font-semibold text-[#C5A059]">
-                      <Upload className="w-4 h-4" />
+                    <div className="px-3 py-2 rounded-xl border border-dashed border-[#C5A059] hover:border-[#E8D279] bg-white/10 hover:bg-white/15 text-center transition-all flex items-center justify-center gap-2 text-xs font-bold text-[#C5A059]">
+                      <Upload className="w-4 h-4 stroke-[2.5]" />
                       <span>{uploadStatus.uploading ? `Uploading (${uploadStatus.progress}%)...` : 'Upload 1:1 Image'}</span>
                     </div>
                     <input
@@ -375,7 +376,7 @@ export const AppCategoriesManager: React.FC<AppCategoriesManagerProps> = ({
                     value={editingCategory.imageUrl || ''}
                     onChange={(e) => setEditingCategory({ ...editingCategory, imageUrl: e.target.value })}
                     placeholder="/uploads/mobile-app/categories/..."
-                    className="w-full px-3 py-1 rounded-xl bg-black/40 border border-white/20 text-[11px] text-white focus:outline-none focus:border-[#C5A059]"
+                    className="w-full px-3 py-1 rounded-xl bg-[#07241C] border border-white/25 text-[11px] text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
                   />
                 </div>
               </div>
@@ -383,7 +384,7 @@ export const AppCategoriesManager: React.FC<AppCategoriesManagerProps> = ({
 
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                   Display Order
                 </label>
                 <input
@@ -393,12 +394,12 @@ export const AppCategoriesManager: React.FC<AppCategoriesManagerProps> = ({
                   onChange={(e) =>
                     setEditingCategory({ ...editingCategory, displayOrder: parseInt(e.target.value, 10) || 1 })
                   }
-                  className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                   Status
                 </label>
                 <select
@@ -406,7 +407,7 @@ export const AppCategoriesManager: React.FC<AppCategoriesManagerProps> = ({
                   onChange={(e) =>
                     setEditingCategory({ ...editingCategory, enabled: e.target.value === 'true' })
                   }
-                  className="w-full px-3 py-2 rounded-xl bg-[#0c2920] border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white focus:outline-none focus:border-[#C5A059]"
                 >
                   <option value="true">Active in App</option>
                   <option value="false">Hidden</option>
@@ -418,7 +419,7 @@ export const AppCategoriesManager: React.FC<AppCategoriesManagerProps> = ({
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 rounded-xl border border-white/20 text-xs text-slate-300 hover:text-white"
+                className="px-4 py-2 rounded-xl border border-white/25 text-xs text-white bg-white/5 hover:bg-white/15 font-semibold transition-all"
               >
                 Cancel
               </button>
@@ -426,7 +427,7 @@ export const AppCategoriesManager: React.FC<AppCategoriesManagerProps> = ({
                 type="button"
                 onClick={handleSaveModal}
                 disabled={isSaving}
-                className="px-5 py-2 rounded-xl bg-[#C5A059] text-[#0E382C] font-bold text-xs shadow-md hover:bg-[#d4af37]"
+                className="px-5 py-2 rounded-xl bg-[#C5A059] text-[#0E382C] font-bold text-xs shadow-md hover:bg-[#d4af37] disabled:opacity-50 transition-all"
               >
                 Save Category
               </button>

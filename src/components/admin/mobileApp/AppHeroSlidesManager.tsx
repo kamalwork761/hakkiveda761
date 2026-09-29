@@ -250,7 +250,7 @@ export const AppHeroSlidesManager: React.FC<AppHeroSlidesManagerProps> = ({
               {/* Text Info */}
               <div className="p-3.5 flex-1 flex flex-col justify-between space-y-2">
                 <div>
-                  <h3 className="font-serif text-sm font-bold text-white line-clamp-1">
+                  <h3 className="font-serif text-sm font-bold text-[#FDF8EC] line-clamp-1">
                     {slide.title}
                   </h3>
                   <p className="text-[11px] text-slate-300 line-clamp-2 mt-0.5">
@@ -258,9 +258,9 @@ export const AppHeroSlidesManager: React.FC<AppHeroSlidesManagerProps> = ({
                   </p>
                 </div>
 
-                <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-400">
-                  <span>CTA: <strong className="text-white">{slide.ctaText}</strong></span>
-                  <span className="text-[10px] text-slate-400 truncate max-w-[120px]">
+                <div className="pt-2 border-t border-white/10 flex items-center justify-between text-[11px] text-slate-300">
+                  <span>CTA: <strong className="text-[#C5A059]">{slide.ctaText}</strong></span>
+                  <span className="text-[10px] text-emerald-100 truncate max-w-[120px]">
                     → {slide.ctaDestination}
                   </span>
                 </div>
@@ -330,7 +330,7 @@ export const AppHeroSlidesManager: React.FC<AppHeroSlidesManagerProps> = ({
       {isModalOpen && editingSlide && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn">
           <div
-            className="bg-[#0c2920] border border-[#C5A059]/40 rounded-3xl max-w-xl w-full p-6 text-white shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto"
+            className="bg-[#0c2920] border border-[#C5A059]/40 rounded-3xl max-w-xl w-full p-6 text-white shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto mobile-app-modal"
             onClick={(e) => e.stopPropagation()}
           >
             {/* Modal Header */}
@@ -340,10 +340,10 @@ export const AppHeroSlidesManager: React.FC<AppHeroSlidesManagerProps> = ({
                   <ImageIcon className="w-4 h-4" />
                 </span>
                 <div>
-                  <h3 className="font-serif text-lg font-bold text-white">
+                  <h3 className="font-serif text-lg font-bold text-[#FDF8EC]">
                     {editingSlide.id.startsWith('app-hero-') ? 'Configure Hero Slide' : 'Edit Hero Slide'}
                   </h3>
-                  <span className="text-[11px] text-emerald-200/70">
+                  <span className="text-[11px] text-emerald-100">
                     2:1 ratio responsive Android hero banner
                   </span>
                 </div>
@@ -351,18 +351,19 @@ export const AppHeroSlidesManager: React.FC<AppHeroSlidesManagerProps> = ({
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-white/10 text-slate-300 hover:text-white flex items-center justify-center"
+                className="w-8 h-8 rounded-full bg-white/15 text-white hover:bg-white/25 flex items-center justify-center transition-all"
+                aria-label="Close modal"
               >
-                <X className="w-4 h-4" />
+                <X className="w-4 h-4 stroke-[2.5]" />
               </button>
             </div>
 
             {/* Live Preview Inside Modal */}
             <div>
-              <label className="text-[10px] font-bold text-[#C5A059] uppercase tracking-wider block mb-1">
+              <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                 Hero Slide Live Preview (2:1 Ratio)
               </label>
-              <div className="relative aspect-[2/1] w-full rounded-2xl overflow-hidden border border-white/20 bg-slate-900 shadow-inner group">
+              <div className="relative aspect-[2/1] w-full rounded-2xl overflow-hidden border border-white/25 bg-slate-900 shadow-inner group">
                 <img
                   src={resolveAssetUrl(editingSlide.imageUrl)}
                   alt="Slide preview"
@@ -371,24 +372,34 @@ export const AppHeroSlidesManager: React.FC<AppHeroSlidesManagerProps> = ({
                     (e.target as HTMLImageElement).src = '/images/hero_tribal_elders.jpg';
                   }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/85 via-black/30 to-transparent p-4 flex flex-col justify-end">
-                  {editingSlide.eyebrow && (
-                    <span className="text-[10px] font-bold uppercase tracking-wider text-[#C5A059] bg-[#0E382C]/90 px-2 py-0.5 rounded w-max mb-1">
-                      {editingSlide.eyebrow}
-                    </span>
-                  )}
-                  <h4 className="font-serif text-base font-bold text-white leading-tight">
-                    {editingSlide.title || 'Slide Title Preview'}
-                  </h4>
-                  <p className="text-xs text-slate-200 mt-1 line-clamp-2">
-                    {editingSlide.subtitle || 'Slide subtitle description will appear right here.'}
-                  </p>
-                  <div className="mt-2.5">
-                    <span className="px-3 py-1 rounded-xl bg-[#C5A059] text-[#0E382C] font-bold text-[11px] shadow-sm inline-block">
-                      {editingSlide.ctaText || 'Shop Now'}
-                    </span>
+                {Boolean(editingSlide.title || editingSlide.subtitle || editingSlide.ctaText || editingSlide.eyebrow) && (
+                  <div className="absolute inset-0 p-4 flex flex-col justify-end pointer-events-none">
+                    <div className="max-w-[85%] space-y-0.5">
+                      {editingSlide.eyebrow && (
+                        <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-[#C5A059] bg-[#0E382C]/90 px-2 py-0.5 rounded w-max mb-1 shadow-xs">
+                          {editingSlide.eyebrow}
+                        </span>
+                      )}
+                      {editingSlide.title && (
+                        <h4 className="font-serif text-base font-bold text-[#FDF8EC] leading-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]">
+                          {editingSlide.title}
+                        </h4>
+                      )}
+                      {editingSlide.subtitle && (
+                        <p className="text-xs text-white/95 mt-1 line-clamp-2 drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
+                          {editingSlide.subtitle}
+                        </p>
+                      )}
+                    </div>
+                    {editingSlide.ctaText && (
+                      <div className="mt-2.5">
+                        <span className="px-3 py-1 rounded-xl bg-[#C5A059] text-[#0E382C] font-bold text-[11px] shadow-sm inline-block">
+                          {editingSlide.ctaText}
+                        </span>
+                      </div>
+                    )}
                   </div>
-                </div>
+                )}
               </div>
             </div>
 
@@ -396,9 +407,9 @@ export const AppHeroSlidesManager: React.FC<AppHeroSlidesManagerProps> = ({
             <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-3">
               <div className="flex items-center justify-between">
                 <div>
-                  <span className="text-xs font-bold text-white block">Hero Banner Image</span>
-                  <span className="text-[10px] text-slate-400">
-                    Recommended: 1080 × 540 px (2:1) • Saves to <code>/uploads/mobile-app/heroes/</code>
+                  <span className="text-xs font-bold text-[#FDF8EC] block">Hero Banner Image</span>
+                  <span className="text-[11px] text-emerald-100">
+                    Recommended: 1080 × 540 px (2:1) • Saves to <code className="text-[#C5A059]">/uploads/mobile-app/heroes/</code>
                   </span>
                 </div>
 
@@ -406,7 +417,7 @@ export const AppHeroSlidesManager: React.FC<AppHeroSlidesManagerProps> = ({
                   <button
                     type="button"
                     onClick={() => setEditingSlide({ ...editingSlide, imageUrl: '/images/hero_tribal_elders.jpg' })}
-                    className="text-[10px] text-red-300 hover:text-red-200 underline"
+                    className="text-[11px] text-red-300 hover:text-red-200 underline font-semibold"
                   >
                     Reset to Default
                   </button>
@@ -416,8 +427,8 @@ export const AppHeroSlidesManager: React.FC<AppHeroSlidesManagerProps> = ({
               {/* Upload Input */}
               <div className="flex items-center gap-2">
                 <label className="flex-1 cursor-pointer">
-                  <div className="px-4 py-2.5 rounded-xl border border-dashed border-[#C5A059]/50 hover:border-[#C5A059] bg-white/5 hover:bg-white/10 text-center transition-all flex items-center justify-center gap-2 text-xs font-semibold text-[#C5A059]">
-                    <Upload className="w-4 h-4" />
+                  <div className="px-4 py-2.5 rounded-xl border border-dashed border-[#C5A059] hover:border-[#E8D279] bg-white/10 hover:bg-white/15 text-center transition-all flex items-center justify-center gap-2 text-xs font-bold text-[#C5A059]">
+                    <Upload className="w-4 h-4 stroke-[2.5]" />
                     <span>{uploadStatus.uploading ? `Uploading (${uploadStatus.progress}%)...` : 'Upload / Replace Hero Image'}</span>
                   </div>
                   <input
@@ -443,13 +454,13 @@ export const AppHeroSlidesManager: React.FC<AppHeroSlidesManagerProps> = ({
                 </div>
               )}
               {uploadStatus.success && (
-                <div className="text-[11px] text-emerald-400 flex items-center gap-1.5">
+                <div className="text-[11px] text-emerald-300 flex items-center gap-1.5 font-semibold">
                   <Check className="w-3.5 h-3.5 stroke-[3]" />
                   <span>Image uploaded and persisted to /uploads/mobile-app/heroes/</span>
                 </div>
               )}
               {uploadStatus.error && (
-                <div className="text-[11px] text-rose-400 flex items-center gap-1.5">
+                <div className="text-[11px] text-rose-300 flex items-center gap-1.5 font-semibold">
                   <AlertCircle className="w-3.5 h-3.5 flex-shrink-0" />
                   <span>{uploadStatus.error}</span>
                 </div>
@@ -457,7 +468,7 @@ export const AppHeroSlidesManager: React.FC<AppHeroSlidesManagerProps> = ({
 
               {/* Or manual URL path */}
               <div>
-                <label className="text-[10px] text-slate-400 uppercase tracking-wider block mb-1">
+                <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                   Or Direct Image URL / Asset Path:
                 </label>
                 <input
@@ -465,7 +476,7 @@ export const AppHeroSlidesManager: React.FC<AppHeroSlidesManagerProps> = ({
                   value={editingSlide.imageUrl}
                   onChange={(e) => setEditingSlide({ ...editingSlide, imageUrl: e.target.value })}
                   placeholder="/uploads/mobile-app/heroes/your-image.jpg"
-                  className="w-full px-3 py-2 rounded-xl bg-black/40 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
                 />
               </div>
             </div>
@@ -474,7 +485,7 @@ export const AppHeroSlidesManager: React.FC<AppHeroSlidesManagerProps> = ({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {/* Eyebrow Tag */}
               <div>
-                <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                   Eyebrow / Badge Text
                 </label>
                 <input
@@ -482,13 +493,13 @@ export const AppHeroSlidesManager: React.FC<AppHeroSlidesManagerProps> = ({
                   value={editingSlide.eyebrow || ''}
                   onChange={(e) => setEditingSlide({ ...editingSlide, eyebrow: e.target.value })}
                   placeholder="e.g. Pure Wild Harvest"
-                  className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
                 />
               </div>
 
               {/* Display Order */}
               <div>
-                <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                   Display Order
                 </label>
                 <input
@@ -498,14 +509,14 @@ export const AppHeroSlidesManager: React.FC<AppHeroSlidesManagerProps> = ({
                   onChange={(e) =>
                     setEditingSlide({ ...editingSlide, displayOrder: parseInt(e.target.value, 10) || 1 })
                   }
-                  className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
                 />
               </div>
             </div>
 
             {/* Title */}
             <div>
-              <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+              <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                 Main Headline Title *
               </label>
               <input
@@ -513,13 +524,13 @@ export const AppHeroSlidesManager: React.FC<AppHeroSlidesManagerProps> = ({
                 value={editingSlide.title}
                 onChange={(e) => setEditingSlide({ ...editingSlide, title: e.target.value })}
                 placeholder="e.g. 108 Sacred Forest Herbs"
-                className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
               />
             </div>
 
             {/* Subtitle */}
             <div>
-              <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+              <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                 Supporting Subtitle
               </label>
               <textarea
@@ -527,14 +538,14 @@ export const AppHeroSlidesManager: React.FC<AppHeroSlidesManagerProps> = ({
                 value={editingSlide.subtitle}
                 onChange={(e) => setEditingSlide({ ...editingSlide, subtitle: e.target.value })}
                 placeholder="e.g. Handmade by Hakki-Pikki tribal elders in Pakshirajapura forest"
-                className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059] resize-none"
+                className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059] resize-none"
               />
             </div>
 
             {/* CTA Configuration */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               <div>
-                <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                   CTA Button Label
                 </label>
                 <input
@@ -542,18 +553,18 @@ export const AppHeroSlidesManager: React.FC<AppHeroSlidesManagerProps> = ({
                   value={editingSlide.ctaText}
                   onChange={(e) => setEditingSlide({ ...editingSlide, ctaText: e.target.value })}
                   placeholder="e.g. Shop Flagship Oil"
-                  className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                <label className="text-[11px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                   Action Destination
                 </label>
                 <select
                   value={editingSlide.ctaDestination}
                   onChange={(e) => setEditingSlide({ ...editingSlide, ctaDestination: e.target.value })}
-                  className="w-full px-3 py-2 rounded-xl bg-[#0c2920] border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                  className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-xs text-white focus:outline-none focus:border-[#C5A059]"
                 >
                   <option value="shop">Shop All Remedies (Catalog)</option>
                   <option value="analysis">AI Hair Root Analysis</option>
@@ -576,10 +587,10 @@ export const AppHeroSlidesManager: React.FC<AppHeroSlidesManagerProps> = ({
             </div>
 
             {/* Published Toggle */}
-            <div className="flex items-center justify-between p-3 rounded-xl bg-white/5 border border-white/10">
+            <div className="flex items-center justify-between p-3.5 rounded-xl bg-white/5 border border-white/10">
               <div>
-                <span className="text-xs font-bold text-white block">Publish in Android App</span>
-                <span className="text-[10px] text-slate-400">
+                <span className="text-xs font-bold text-[#FDF8EC] block">Publish in Android App</span>
+                <span className="text-[11px] text-emerald-100">
                   When enabled, this slide appears immediately in the live app carousel.
                 </span>
               </div>
@@ -599,7 +610,7 @@ export const AppHeroSlidesManager: React.FC<AppHeroSlidesManagerProps> = ({
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="px-4 py-2 rounded-xl border border-white/20 text-xs text-slate-300 hover:text-white"
+                className="px-4 py-2 rounded-xl border border-white/25 text-xs text-white bg-white/5 hover:bg-white/15 font-semibold transition-all"
               >
                 Cancel
               </button>
@@ -607,7 +618,7 @@ export const AppHeroSlidesManager: React.FC<AppHeroSlidesManagerProps> = ({
                 type="button"
                 onClick={handleSaveModal}
                 disabled={isSaving}
-                className="px-5 py-2 rounded-xl bg-[#C5A059] text-[#0E382C] font-bold text-xs shadow-md hover:bg-[#d4af37] disabled:opacity-50"
+                className="px-5 py-2 rounded-xl bg-[#C5A059] text-[#0E382C] font-bold text-xs shadow-md hover:bg-[#d4af37] disabled:opacity-50 transition-all"
               >
                 Save Slide
               </button>

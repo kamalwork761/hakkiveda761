@@ -65,7 +65,7 @@ export const AppBrandingManager: React.FC<AppBrandingManagerProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mobile-app-admin text-white">
       {/* Header */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
         <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
@@ -95,8 +95,8 @@ export const AppBrandingManager: React.FC<AppBrandingManagerProps> = ({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {/* Header Logo */}
           <div className="p-4 rounded-2xl bg-black/30 border border-white/10 space-y-3">
-            <span className="text-xs font-bold text-white block">In-App Header Logo</span>
-            <span className="text-[10px] text-slate-400 block">
+            <span className="text-xs font-bold text-[#FDF8EC] block">In-App Header Logo</span>
+            <span className="text-[10px] text-slate-300 block">
               Displayed in the persistent top native navigation bar.
             </span>
 
@@ -133,14 +133,14 @@ export const AppBrandingManager: React.FC<AppBrandingManagerProps> = ({
               value={formData.headerLogoUrl || ''}
               onChange={(e) => handleFieldChange('headerLogoUrl', e.target.value)}
               placeholder="/images/hakkiveda_hv_logo.png"
-              className="w-full px-3 py-1.5 rounded-xl bg-black/40 border border-white/15 text-[10px] text-white focus:outline-none focus:border-[#C5A059]"
+              className="w-full px-3 py-1.5 rounded-xl bg-black/40 border border-white/15 text-[10px] text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
             />
           </div>
 
           {/* Splash Image / Logo */}
           <div className="p-4 rounded-2xl bg-black/30 border border-white/10 space-y-3">
-            <span className="text-xs font-bold text-white block">In-App Splash / Loading Mark</span>
-            <span className="text-[10px] text-slate-400 block">
+            <span className="text-xs font-bold text-[#FDF8EC] block">In-App Splash / Loading Mark</span>
+            <span className="text-[10px] text-slate-300 block">
               Shown during app launch and initial initialization screens.
             </span>
 
@@ -177,14 +177,14 @@ export const AppBrandingManager: React.FC<AppBrandingManagerProps> = ({
               value={formData.splashImageUrl || ''}
               onChange={(e) => handleFieldChange('splashImageUrl', e.target.value)}
               placeholder="/images/hakkiveda_hv_logo.png"
-              className="w-full px-3 py-1.5 rounded-xl bg-black/40 border border-white/15 text-[10px] text-white focus:outline-none focus:border-[#C5A059]"
+              className="w-full px-3 py-1.5 rounded-xl bg-black/40 border border-white/15 text-[10px] text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
             />
           </div>
 
           {/* Home Optional Logo */}
           <div className="p-4 rounded-2xl bg-black/30 border border-white/10 space-y-3">
-            <span className="text-xs font-bold text-white block">Optional Home Header Logo</span>
-            <span className="text-[10px] text-slate-400 block">
+            <span className="text-xs font-bold text-[#FDF8EC] block">Optional Home Header Logo</span>
+            <span className="text-[10px] text-slate-300 block">
               Secondary emblem or celebratory festival badge.
             </span>
 
@@ -221,45 +221,45 @@ export const AppBrandingManager: React.FC<AppBrandingManagerProps> = ({
               value={formData.homeLogoUrl || ''}
               onChange={(e) => handleFieldChange('homeLogoUrl', e.target.value)}
               placeholder="/images/hakkiveda_hv_logo.png"
-              className="w-full px-3 py-1.5 rounded-xl bg-black/40 border border-white/15 text-[10px] text-white focus:outline-none focus:border-[#C5A059]"
+              className="w-full px-3 py-1.5 rounded-xl bg-black/40 border border-white/15 text-[10px] text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
             />
           </div>
         </div>
 
         {/* Text & Header Subtitles */}
         <div className="p-4 rounded-2xl bg-black/30 border border-white/10 space-y-4">
-          <span className="text-xs font-bold text-white uppercase tracking-wider block">
+          <span className="text-xs font-bold text-[#FDF8EC] uppercase tracking-wider block">
             App Header Titles & Copy
           </span>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
             <div>
-              <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+              <label className="text-[10px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                 App Name
               </label>
               <input
                 type="text"
                 value={formData.appName}
                 onChange={(e) => handleFieldChange('appName', e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
               />
             </div>
 
             <div>
-              <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+              <label className="text-[10px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                 Header Main Title
               </label>
               <input
                 type="text"
                 value={formData.headerTitle}
                 onChange={(e) => handleFieldChange('headerTitle', e.target.value)}
-                className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
               />
             </div>
           </div>
 
           <div>
-            <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+            <label className="text-[10px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
               Optional App Header Subtitle
             </label>
             <input
@@ -267,14 +267,14 @@ export const AppBrandingManager: React.FC<AppBrandingManagerProps> = ({
               value={formData.headerSubtitle}
               onChange={(e) => handleFieldChange('headerSubtitle', e.target.value)}
               placeholder="e.g. Authentic Hakki-Pikki Tribal Ayurveda"
-              className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+              className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
             />
           </div>
         </div>
 
         {/* Brand Theme Colors */}
         <div className="p-4 rounded-2xl bg-black/30 border border-white/10 space-y-4">
-          <span className="text-xs font-bold text-white uppercase tracking-wider block flex items-center gap-2">
+          <span className="text-xs font-bold text-[#FDF8EC] uppercase tracking-wider block flex items-center gap-2">
             <Palette className="w-4 h-4 text-[#C5A059]" />
             <span>Theme Colors</span>
           </span>
@@ -282,7 +282,7 @@ export const AppBrandingManager: React.FC<AppBrandingManagerProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-3 gap-3">
             {/* Primary Accent Color */}
             <div>
-              <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+              <label className="text-[10px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                 App Accent Gold Color
               </label>
               <div className="flex items-center gap-2">
@@ -303,7 +303,7 @@ export const AppBrandingManager: React.FC<AppBrandingManagerProps> = ({
 
             {/* Deep Green Primary */}
             <div>
-              <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+              <label className="text-[10px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                 Primary Forest Green
               </label>
               <div className="flex items-center gap-2">
@@ -324,7 +324,7 @@ export const AppBrandingManager: React.FC<AppBrandingManagerProps> = ({
 
             {/* Secondary Color */}
             <div>
-              <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+              <label className="text-[10px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                 Secondary Dark Green
               </label>
               <div className="flex items-center gap-2">
@@ -347,7 +347,7 @@ export const AppBrandingManager: React.FC<AppBrandingManagerProps> = ({
 
         {/* Free Delivery Threshold */}
         <div className="p-4 rounded-2xl bg-black/30 border border-white/10">
-          <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+          <label className="text-[10px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
             Free Express Delivery Minimum Amount (₹)
           </label>
           <input

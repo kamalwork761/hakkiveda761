@@ -159,7 +159,7 @@ export const AppConcernsManager: React.FC<AppConcernsManagerProps> = ({
   const sortedConcerns = [...concerns].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mobile-app-admin text-white">
       {/* Top Banner */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/5 border border-white/10 rounded-2xl p-4">
         <div>
@@ -298,7 +298,7 @@ export const AppConcernsManager: React.FC<AppConcernsManagerProps> = ({
       {isModalOpen && editingConcern && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-xs animate-fadeIn">
           <div
-            className="bg-[#0c2920] border border-[#C5A059]/40 rounded-3xl max-w-lg w-full p-6 text-white shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto"
+            className="bg-[#0c2920] border border-[#C5A059]/40 rounded-3xl max-w-lg w-full p-6 text-white shadow-2xl space-y-4 max-h-[92vh] overflow-y-auto mobile-app-modal"
             onClick={(e) => e.stopPropagation()}
           >
             <div className="flex items-center justify-between border-b border-white/10 pb-3">
@@ -306,7 +306,7 @@ export const AppConcernsManager: React.FC<AppConcernsManagerProps> = ({
                 <span className="w-8 h-8 rounded-xl bg-[#C5A059]/20 text-[#C5A059] flex items-center justify-center font-bold">
                   <Leaf className="w-4 h-4" />
                 </span>
-                <h3 className="font-serif text-lg font-bold text-white">
+                <h3 className="font-serif text-lg font-bold text-[#FDF8EC]">
                   {editingConcern.id.startsWith('concern-') && !editingConcern.title
                     ? 'New Concern Card'
                     : `Edit Concern: ${editingConcern.title || 'Untitled'}`}
@@ -315,7 +315,7 @@ export const AppConcernsManager: React.FC<AppConcernsManagerProps> = ({
               <button
                 type="button"
                 onClick={() => setIsModalOpen(false)}
-                className="w-8 h-8 rounded-full bg-white/10 text-slate-300 hover:text-white flex items-center justify-center"
+                className="w-8 h-8 rounded-full bg-white/15 text-white hover:bg-white/25 flex items-center justify-center transition-colors"
               >
                 <X className="w-4 h-4" />
               </button>
@@ -323,7 +323,7 @@ export const AppConcernsManager: React.FC<AppConcernsManagerProps> = ({
 
             {/* Title */}
             <div>
-              <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+              <label className="text-[10px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                 Concern Title *
               </label>
               <input
@@ -331,13 +331,13 @@ export const AppConcernsManager: React.FC<AppConcernsManagerProps> = ({
                 value={editingConcern.title}
                 onChange={(e) => setEditingConcern({ ...editingConcern, title: e.target.value })}
                 placeholder="e.g. Severe Hair Fall, Baldness & Receding Line"
-                className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
               />
             </div>
 
             {/* Subtitle */}
             <div>
-              <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+              <label className="text-[10px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                 Concern Subtitle / Remedy Description
               </label>
               <textarea
@@ -345,14 +345,14 @@ export const AppConcernsManager: React.FC<AppConcernsManagerProps> = ({
                 value={editingConcern.subtitle}
                 onChange={(e) => setEditingConcern({ ...editingConcern, subtitle: e.target.value })}
                 placeholder="e.g. Strengthen weak roots within 14 days with 108 wood-fired herbs"
-                className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059] resize-none"
+                className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059] resize-none"
               />
             </div>
 
             {/* Badge & Order */}
             <div className="grid grid-cols-2 gap-3">
               <div>
-                <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                <label className="text-[10px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                   Card Badge (e.g. High Impact, Popular)
                 </label>
                 <input
@@ -360,12 +360,12 @@ export const AppConcernsManager: React.FC<AppConcernsManagerProps> = ({
                   value={editingConcern.badge || ''}
                   onChange={(e) => setEditingConcern({ ...editingConcern, badge: e.target.value })}
                   placeholder="e.g. High Impact, Tribal Specialty"
-                  className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                  className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
                 />
               </div>
 
               <div>
-                <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+                <label className="text-[10px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                   Display Order
                 </label>
                 <input
@@ -375,14 +375,14 @@ export const AppConcernsManager: React.FC<AppConcernsManagerProps> = ({
                   onChange={(e) =>
                     setEditingConcern({ ...editingConcern, displayOrder: parseInt(e.target.value, 10) || 1 })
                   }
-                  className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                  className="w-full px-3 py-2 rounded-xl bg-white/10 border border-white/20 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
                 />
               </div>
             </div>
 
             {/* Destination */}
             <div>
-              <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider block mb-1">
+              <label className="text-[10px] font-bold text-[#FDF8EC] uppercase tracking-wider block mb-1">
                 Click Destination
               </label>
               <select
@@ -452,7 +452,7 @@ export const AppConcernsManager: React.FC<AppConcernsManagerProps> = ({
                     value={editingConcern.imageUrl}
                     onChange={(e) => setEditingConcern({ ...editingConcern, imageUrl: e.target.value })}
                     placeholder="/uploads/mobile-app/concerns/..."
-                    className="w-full px-3 py-1 rounded-xl bg-black/40 border border-white/20 text-[11px] text-white focus:outline-none focus:border-[#C5A059]"
+                    className="w-full px-3 py-1 rounded-xl bg-black/40 border border-white/20 text-[11px] text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
                   />
                 </div>
               </div>

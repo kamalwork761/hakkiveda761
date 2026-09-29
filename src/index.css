@@ -122,7 +122,9 @@
     .dark-section h1,
     #customer-reviews-section h1,
     #mobile-footer h1,
-    .mobile-dark-footer h1
+    .mobile-dark-footer h1,
+    .mobile-app-admin *,
+    .mobile-app-modal *
   ) {
     color: #0B2F20 !important;
   }
@@ -137,7 +139,9 @@
     .dark-section h2,
     #customer-reviews-section h2,
     #mobile-footer h2,
-    .mobile-dark-footer h2
+    .mobile-dark-footer h2,
+    .mobile-app-admin *,
+    .mobile-app-modal *
   ),
   [data-theme="light"] h3:not(
     .hero-content h3,
@@ -149,7 +153,9 @@
     .dark-section h3,
     #customer-reviews-section h3,
     #mobile-footer h3,
-    .mobile-dark-footer h3
+    .mobile-dark-footer h3,
+    .mobile-app-admin *,
+    .mobile-app-modal *
   ) {
     color: #0B2F20 !important;
   }
@@ -165,7 +171,9 @@
     #customer-reviews-section h4,
     .review-card h4,
     #mobile-footer h4,
-    .mobile-dark-footer h4
+    .mobile-dark-footer h4,
+    .mobile-app-admin *,
+    .mobile-app-modal *
   ),
   [data-theme="light"] h5:not(
     .hero-content h5,
@@ -177,7 +185,9 @@
     .dark-section h5,
     #customer-reviews-section h5,
     #mobile-footer h5,
-    .mobile-dark-footer h5
+    .mobile-dark-footer h5,
+    .mobile-app-admin *,
+    .mobile-app-modal *
   ),
   [data-theme="light"] h6:not(
     .hero-content h6,
@@ -189,7 +199,9 @@
     .dark-section h6,
     #customer-reviews-section h6,
     #mobile-footer h6,
-    .mobile-dark-footer h6
+    .mobile-dark-footer h6,
+    .mobile-app-admin *,
+    .mobile-app-modal *
   ) {
     color: #123F2A !important;
   }
@@ -206,7 +218,9 @@
     #customer-reviews-section *,
     .review-card *,
     #mobile-footer *,
-    .mobile-dark-footer *
+    .mobile-dark-footer *,
+    .mobile-app-admin *,
+    .mobile-app-modal *
   ),
   [data-theme="light"] .text-slate-200:not(
     .hero-content *,
@@ -219,7 +233,9 @@
     #customer-reviews-section *,
     .review-card *,
     #mobile-footer *,
-    .mobile-dark-footer *
+    .mobile-dark-footer *,
+    .mobile-app-admin *,
+    .mobile-app-modal *
   ),
   [data-theme="light"] .text-slate-300:not(
     .hero-content *,
@@ -232,7 +248,9 @@
     #customer-reviews-section *,
     .review-card *,
     #mobile-footer *,
-    .mobile-dark-footer *
+    .mobile-dark-footer *,
+    .mobile-app-admin *,
+    .mobile-app-modal *
   ) {
     color: var(--color-text, #123F2A) !important;
   }
@@ -248,7 +266,9 @@
     #customer-reviews-section *,
     .review-card *,
     #mobile-footer *,
-    .mobile-dark-footer *
+    .mobile-dark-footer *,
+    .mobile-app-admin *,
+    .mobile-app-modal *
   ),
   [data-theme="light"] .text-slate-500:not(
     .hero-content *,
@@ -261,7 +281,9 @@
     #customer-reviews-section *,
     .review-card *,
     #mobile-footer *,
-    .mobile-dark-footer *
+    .mobile-dark-footer *,
+    .mobile-app-admin *,
+    .mobile-app-modal *
   ) {
     color: var(--color-muted-text, #5F6B63) !important;
   }
@@ -1366,4 +1388,78 @@
 .hero-3d-overflow-shadow {
   filter: drop-shadow(0 20px 30px rgba(0, 0, 0, 0.45));
 }
+
+/* ========================================================= */
+/* MOBILE APP MANAGER & MODALS HIGH-CONTRAST ISOLATION       */
+/* ========================================================= */
+.mobile-app-admin,
+.mobile-app-modal {
+  color: #FAF7F2;
+}
+
+.mobile-app-admin label,
+.mobile-app-modal label {
+  color: #FDF8EC !important;
+  font-weight: 700;
+}
+
+.mobile-app-admin h1,
+.mobile-app-admin h2,
+.mobile-app-admin h3,
+.mobile-app-admin h4,
+.mobile-app-admin h5,
+.mobile-app-admin h6,
+.mobile-app-modal h1,
+.mobile-app-modal h2,
+.mobile-app-modal h3,
+.mobile-app-modal h4,
+.mobile-app-modal h5,
+.mobile-app-modal h6 {
+  color: #FFFFFF !important;
+}
+
+.mobile-app-admin input,
+.mobile-app-admin textarea,
+.mobile-app-admin select,
+.mobile-app-modal input,
+.mobile-app-modal textarea,
+.mobile-app-modal select {
+  color: #FFFFFF !important;
+  background-color: #07241C !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+.mobile-app-admin input::placeholder,
+.mobile-app-admin textarea::placeholder,
+.mobile-app-modal input::placeholder,
+.mobile-app-modal textarea::placeholder {
+  color: #94A3B8 !important;
+}
+
+.mobile-app-admin select option,
+.mobile-app-modal select option {
+  background-color: #0c2920 !important;
+  color: #FFFFFF !important;
+}
+
+.mobile-app-admin .text-slate-300,
+.mobile-app-modal .text-slate-300 {
+  color: #CBD5E1 !important;
+}
+
+.mobile-app-admin .text-slate-400,
+.mobile-app-modal .text-slate-400 {
+  color: #94A3B8 !important;
+}
+
+.mobile-app-admin .text-emerald-100,
+.mobile-app-modal .text-emerald-100 {
+  color: #D1FAE5 !important;
+}
+
+.mobile-app-admin .text-\[\#C5A059\],
+.mobile-app-modal .text-\[\#C5A059\] {
+  color: #C5A059 !important;
+}
+
 

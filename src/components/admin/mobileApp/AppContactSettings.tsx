@@ -49,7 +49,7 @@ export const AppContactSettings: React.FC<AppContactSettingsProps> = ({
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mobile-app-admin text-white">
       {/* Header */}
       <div className="bg-white/5 border border-white/10 rounded-2xl p-5">
         <h2 className="text-sm font-bold text-white uppercase tracking-wider flex items-center gap-2">
@@ -66,7 +66,7 @@ export const AppContactSettings: React.FC<AppContactSettingsProps> = ({
           {/* WhatsApp Field */}
           <div>
             <div className="flex items-center justify-between mb-1">
-              <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5">
+              <label className="text-[10px] font-bold text-[#FDF8EC] uppercase tracking-wider flex items-center gap-1.5">
                 <MessageSquare className="w-3.5 h-3.5 text-emerald-400" />
                 <span>Primary WhatsApp Consultation Number *</span>
               </label>
@@ -79,9 +79,9 @@ export const AppContactSettings: React.FC<AppContactSettingsProps> = ({
               value={whatsappNumber}
               onChange={(e) => setWhatsappNumber(e.target.value)}
               placeholder="+917619536831"
-              className="w-full px-3.5 py-2.5 rounded-xl bg-white/10 border border-white/20 text-xs text-white font-mono focus:outline-none focus:border-[#C5A059]"
+              className="w-full px-3.5 py-2.5 rounded-xl bg-white/10 border border-white/20 text-xs text-white placeholder:text-slate-400 font-mono focus:outline-none focus:border-[#C5A059]"
             />
-            <p className="text-[10px] text-slate-400 mt-1">
+            <p className="text-[10px] text-slate-300 mt-1">
               Directly powers all "Chat on WhatsApp" buttons and post-analysis consultations.
             </p>
           </div>
@@ -111,7 +111,7 @@ export const AppContactSettings: React.FC<AppContactSettingsProps> = ({
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
             {/* Support Phone */}
             <div>
-              <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5 mb-1">
+              <label className="text-[10px] font-bold text-[#FDF8EC] uppercase tracking-wider flex items-center gap-1.5 mb-1">
                 <Phone className="w-3.5 h-3.5 text-[#C5A059]" />
                 <span>Support Phone Number</span>
               </label>
@@ -120,13 +120,13 @@ export const AppContactSettings: React.FC<AppContactSettingsProps> = ({
                 value={contactPhone}
                 onChange={(e) => setContactPhone(e.target.value)}
                 placeholder="+917619536831"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-white/10 border border-white/20 text-xs text-white font-mono focus:outline-none focus:border-[#C5A059]"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white/10 border border-white/20 text-xs text-white placeholder:text-slate-400 font-mono focus:outline-none focus:border-[#C5A059]"
               />
             </div>
 
             {/* Support Email */}
             <div>
-              <label className="text-[10px] font-bold text-slate-300 uppercase tracking-wider flex items-center gap-1.5 mb-1">
+              <label className="text-[10px] font-bold text-[#FDF8EC] uppercase tracking-wider flex items-center gap-1.5 mb-1">
                 <Mail className="w-3.5 h-3.5 text-[#C5A059]" />
                 <span>Support Email Address</span>
               </label>
@@ -135,7 +135,7 @@ export const AppContactSettings: React.FC<AppContactSettingsProps> = ({
                 value={supportEmail}
                 onChange={(e) => setSupportEmail(e.target.value)}
                 placeholder="support@hakkiveda.com"
-                className="w-full px-3.5 py-2.5 rounded-xl bg-white/10 border border-white/20 text-xs text-white focus:outline-none focus:border-[#C5A059]"
+                className="w-full px-3.5 py-2.5 rounded-xl bg-white/10 border border-white/20 text-xs text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
               />
             </div>
           </div>

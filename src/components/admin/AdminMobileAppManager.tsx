@@ -173,9 +173,9 @@ export const AdminMobileAppManager: React.FC = () => {
   ];
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 mobile-app-admin text-white">
       {/* Top Banner / Header */}
-      <div className="bg-[#0E382C] rounded-3xl p-6 text-white border border-[#C5A059]/30 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="bg-[#0E382C] rounded-3xl p-6 text-white border border-[#C5A059]/40 shadow-md flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
           <div className="flex items-center gap-2 mb-1.5">
             <span className="w-8 h-8 rounded-xl bg-[#C5A059]/20 text-[#C5A059] flex items-center justify-center font-bold">
@@ -188,7 +188,7 @@ export const AdminMobileAppManager: React.FC = () => {
           <h1 className="font-serif text-2xl font-bold text-[#FDF8EC]">
             Mobile App Manager
           </h1>
-          <p className="text-xs text-emerald-100/80 mt-1 max-w-2xl leading-relaxed">
+          <p className="text-xs text-emerald-100 mt-1 max-w-2xl leading-relaxed">
             Full administrative control over app-only presentation, hero carousels, product merchandising overrides,
             Shop by Concern cards, home layout ordering, branding and WhatsApp channels without modifying the desktop website.
           </p>
@@ -218,14 +218,14 @@ export const AdminMobileAppManager: React.FC = () => {
 
       {/* Status Feedback Toast */}
       {statusMessage && (
-        <div className="p-4 rounded-xl bg-emerald-900/90 border border-emerald-500/40 text-emerald-200 text-xs font-semibold flex items-center gap-2 animate-fadeIn shadow-sm">
+        <div className="p-4 rounded-xl bg-emerald-900 border border-emerald-500/60 text-emerald-100 text-xs font-semibold flex items-center gap-2 animate-fadeIn shadow-sm">
           <Check className="w-4 h-4 text-emerald-400 stroke-[3]" />
           <span>{statusMessage}</span>
         </div>
       )}
 
       {/* Tab Navigation Strip */}
-      <div className="flex border-b border-white/10 gap-1.5 overflow-x-auto no-scrollbar pb-1">
+      <div className="flex border-b border-white/20 gap-1.5 overflow-x-auto no-scrollbar pb-1">
         {navTabs.map((tab) => {
           const Icon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -236,8 +236,8 @@ export const AdminMobileAppManager: React.FC = () => {
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-3.5 py-2.5 rounded-t-xl text-xs font-bold transition-all whitespace-nowrap ${
                 isActive
-                  ? 'bg-white/10 text-[#C5A059] border-b-2 border-[#C5A059]'
-                  : 'text-slate-400 hover:text-white hover:bg-white/5'
+                  ? 'bg-[#C5A059] text-[#0E382C] shadow-sm font-extrabold'
+                  : 'text-[#FDF8EC]/80 hover:text-white hover:bg-white/10'
               }`}
             >
               <Icon className="w-3.5 h-3.5" />
@@ -245,7 +245,7 @@ export const AdminMobileAppManager: React.FC = () => {
               {tab.badge !== undefined && (
                 <span
                   className={`px-1.5 py-0.2 rounded-full text-[9px] font-extrabold ${
-                    isActive ? 'bg-[#C5A059] text-[#0E382C]' : 'bg-white/10 text-slate-400'
+                    isActive ? 'bg-[#0E382C] text-[#C5A059]' : 'bg-white/20 text-[#FDF8EC]'
                   }`}
                 >
                   {tab.badge}

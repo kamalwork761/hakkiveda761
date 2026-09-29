@@ -1,6 +1,7 @@
 import React from 'react';
 import { ChevronRight } from 'lucide-react';
 import { Product } from '../../types/store';
+import { MobileAppProductOverride } from '../../types/mobileApp';
 import { AppProductCard } from './AppProductCard';
 
 interface AppProductCarouselProps {
@@ -8,6 +9,7 @@ interface AppProductCarouselProps {
   subtitle?: string;
   badge?: string;
   products: Product[];
+  appProductOverrides?: Record<string, MobileAppProductOverride>;
   onOpenProductDetail: (productId: string) => void;
   onSeeAll?: () => void;
 }
@@ -17,6 +19,7 @@ export const AppProductCarousel: React.FC<AppProductCarouselProps> = ({
   subtitle,
   badge,
   products,
+  appProductOverrides,
   onOpenProductDetail,
   onSeeAll,
 }) => {
@@ -65,6 +68,7 @@ export const AppProductCarousel: React.FC<AppProductCarouselProps> = ({
           <AppProductCard
             key={product.id || Math.random().toString()}
             product={product}
+            override={appProductOverrides?.[product.id]}
             onOpenDetail={onOpenProductDetail}
             layout="carousel"
           />
@@ -73,3 +77,4 @@ export const AppProductCarousel: React.FC<AppProductCarouselProps> = ({
     </div>
   );
 };
+

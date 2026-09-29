@@ -6,6 +6,8 @@ import {
   MobileAppSectionConfig,
   MobileAppFeaturedCategory,
   MobileAppFeaturedProducts,
+  MobileAppShopConcern,
+  MobileAppProductOverride,
 } from '../../types/mobileApp';
 import { AppHeroCarousel } from '../components/AppHeroCarousel';
 import { AppCategoriesScroll } from '../components/AppCategoriesScroll';
@@ -23,6 +25,8 @@ interface AppHomeScreenProps {
   sections: MobileAppSectionConfig[];
   featuredCategories?: MobileAppFeaturedCategory[];
   featuredProducts?: MobileAppFeaturedProducts;
+  concerns?: MobileAppShopConcern[];
+  appProductOverrides?: Record<string, MobileAppProductOverride>;
   onOpenProductDetail: (productId: string) => void;
   onNavigateToShop: (categoryId?: string, concernId?: string) => void;
   onNavigateToAnalysis: () => void;
@@ -35,6 +39,8 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
   sections,
   featuredCategories,
   featuredProducts,
+  concerns,
+  appProductOverrides,
   onOpenProductDetail,
   onNavigateToShop,
   onNavigateToAnalysis,
@@ -63,8 +69,10 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
       ? products.filter((p) => recommendedIds.includes(p.id))
       : products.slice(2, 6);
 
-  // Flagship Product (prod-1 or first)
-  const flagshipProduct = products.find((p) => p.id === 'prod-1') || products[0];
+  // Flagship Product (prod-1 or configured)
+  const flagshipId = featuredProducts?.flagshipProductId || 'prod-1';
+  const flagshipProduct = products.find((p) => p.id === flagshipId) || products[0];
+  const flagshipOverride = flagshipProduct ? appProductOverrides?.[flagshipProduct.id] : undefined;
 
   const renderSection = (sectionId: string) => {
     switch (sectionId) {
@@ -92,6 +100,7 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
         return (
           <AppShopByConcern
             key="shop_by_concern"
+            concerns={concerns}
             onSelectConcern={(concernId) => onNavigateToShop(undefined, concernId)}
           />
         );
@@ -104,6 +113,7 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
             subtitle="Most loved by 250,000+ customers across India"
             badge="Top Rated"
             products={bestSellerProducts}
+            appProductOverrides={appProductOverrides}
             onOpenProductDetail={onOpenProductDetail}
             onSeeAll={() => onNavigateToShop()}
           />
@@ -123,6 +133,7 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
           <AppFlagshipFeature
             key="flagship_product"
             flagshipProduct={flagshipProduct}
+            override={flagshipOverride}
             onOpenProductDetail={onOpenProductDetail}
           />
         );
@@ -134,6 +145,7 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
             title="Recommended For You"
             subtitle="Curated authentic remedies for dense holistic hair growth"
             products={recommendedProducts}
+            appProductOverrides={appProductOverrides}
             onOpenProductDetail={onOpenProductDetail}
             onSeeAll={() => onNavigateToShop()}
           />

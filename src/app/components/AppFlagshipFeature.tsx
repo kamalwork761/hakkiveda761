@@ -1,17 +1,20 @@
 import React from 'react';
 import { Sparkles, ShoppingBag, ShieldCheck } from 'lucide-react';
 import { Product } from '../../types/store';
+import { MobileAppProductOverride } from '../../types/mobileApp';
 import { useStore } from '../../context/StoreContext';
 import { resolveAssetUrl } from '../utils/nativeUrl';
 import { formatSafeINR } from '../utils/formatMoney';
 
 interface AppFlagshipFeatureProps {
   flagshipProduct?: Product;
+  override?: MobileAppProductOverride;
   onOpenProductDetail: (productId: string) => void;
 }
 
 export const AppFlagshipFeature: React.FC<AppFlagshipFeatureProps> = ({
   flagshipProduct,
+  override,
   onOpenProductDetail,
 }) => {
   const { addToCart, playSound } = useStore();
@@ -20,8 +23,11 @@ export const AppFlagshipFeature: React.FC<AppFlagshipFeatureProps> = ({
   if (!product) return null;
 
   const imgSrc = resolveAssetUrl(
-    product.image || '/images/hakkiveda_oil_couple_herbs.jpg'
+    override?.appImage || product.image || '/images/hakkiveda_oil_couple_herbs.jpg'
   );
+  const displayName = override?.appTitle || product.name;
+  const displaySubtitle = override?.appSubtitle || product.subtitle || '108 wild forest herbs extracted over firewood';
+  const ctaLabel = override?.cardCtaLabel || 'Claim Flagship';
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -69,10 +75,10 @@ export const AppFlagshipFeature: React.FC<AppFlagshipFeatureProps> = ({
                 onClick={() => onOpenProductDetail(product.id)}
                 className="font-serif text-sm font-bold text-slate-900 leading-snug cursor-pointer line-clamp-2"
               >
-                {product.name}
+                {displayName}
               </h3>
               <p className="text-[11px] text-slate-600 mt-1 line-clamp-2 leading-relaxed">
-                Slow-simmered over wood fire with 108 wild Nilgiri herbs for deep follicular revival.
+                {displaySubtitle}
               </p>
             </div>
 
@@ -94,7 +100,7 @@ export const AppFlagshipFeature: React.FC<AppFlagshipFeatureProps> = ({
                 className="px-3 py-1.5 rounded-xl bg-[#0E382C] text-[#FDF8EC] font-bold text-xs flex items-center gap-1.5 hover:bg-[#134E3F] active:scale-95 shadow-sm transition-all"
               >
                 <ShoppingBag className="w-3.5 h-3.5 text-[#C5A059]" />
-                <span>Add</span>
+                <span>{ctaLabel}</span>
               </button>
             </div>
           </div>

@@ -2,20 +2,26 @@ import React, { useState } from 'react';
 import { User, Heart, MapPin, MessageCircle, Phone, Bell, Shield, LogOut, ChevronRight, Check } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 
+import { MobileAppSettings } from '../../types/mobileApp';
+
 interface AppAccountScreenProps {
   onOpenWishlist: () => void;
   onNavigateToOrders: () => void;
+  appSettings?: MobileAppSettings;
 }
 
 export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
   onOpenWishlist,
   onNavigateToOrders,
+  appSettings,
 }) => {
   const { currentCustomer, logoutCustomer, siteSettings, wishlist } = useStore();
   const [notificationsEnabled, setNotificationsEnabled] = useState(true);
 
-  const whatsappNum = siteSettings?.socialWhatsapp || '919900110800';
-  const supportPhone = siteSettings?.contactPhone || '+91 99001 10800';
+  const rawWa = appSettings?.whatsappNumber || siteSettings?.socialWhatsapp || '+917619536831';
+  const whatsappNum = rawWa.replace(/[^\d]/g, '') || '917619536831';
+  const supportPhone = appSettings?.contactPhone || siteSettings?.contactPhone || '+917619536831';
+  const supportEmail = appSettings?.supportEmail || siteSettings?.contactEmail || 'support@hakkiveda.com';
 
   const handleOpenWhatsApp = () => {
     const url = `https://wa.me/${whatsappNum}?text=${encodeURIComponent(

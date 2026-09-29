@@ -105,7 +105,7 @@ export const AppHeroCarousel: React.FC<AppHeroCarouselProps> = ({
               {/* Slide Content */}
               <div className="absolute inset-0 p-4 flex flex-col justify-end text-white">
                 <span className="inline-block text-[10px] font-bold uppercase tracking-wider text-[#C5A059] mb-1">
-                  Forest Formulation
+                  {slide.eyebrow || 'Forest Formulation'}
                 </span>
                 <h3 className="font-serif text-lg font-bold text-[#FDF8EC] line-clamp-1 leading-tight drop-shadow-sm">
                   {slide.title}

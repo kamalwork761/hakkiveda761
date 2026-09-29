@@ -1782,7 +1782,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const checkProductCountryAvailability = (product: Product | null | undefined, countryCodeOrName?: string) => {
-    if (!product) return false;
+    if (!product) return { available: false, reason: 'Invalid product' };
     const target = countryCodeOrName || selectedCountry?.code || selectedCountry?.name;
     return isProductAvailableForCountry(product, target);
   };

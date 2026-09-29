@@ -3243,23 +3243,33 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
 
   // Dedicated Persistent Mobile App Upload Endpoint (/uploads/mobile-app/)
   const mobileAppUploadsDir = path.join(uploadDir, 'mobile-app');
+  const ALLOWED_APP_SUBFOLDERS = ['heroes', 'products', 'banners', 'categories', 'concerns', 'branding'];
   if (!fs.existsSync(mobileAppUploadsDir)) {
     fs.mkdirSync(mobileAppUploadsDir, { recursive: true });
   }
+  for (const sf of ALLOWED_APP_SUBFOLDERS) {
+    const p = path.join(mobileAppUploadsDir, sf);
+    if (!fs.existsSync(p)) fs.mkdirSync(p, { recursive: true });
+  }
 
   const mobileAppStorage = multer.diskStorage({
-    destination: (_req, _file, cb) => {
-      if (!fs.existsSync(mobileAppUploadsDir)) {
-        fs.mkdirSync(mobileAppUploadsDir, { recursive: true });
+    destination: (req, _file, cb) => {
+      const rawFolder = (req.query?.folder || req.body?.folder || '').toString().toLowerCase().trim();
+      const targetFolder = ALLOWED_APP_SUBFOLDERS.includes(rawFolder) ? rawFolder : '';
+      const destDir = targetFolder ? path.join(mobileAppUploadsDir, targetFolder) : mobileAppUploadsDir;
+      if (!fs.existsSync(destDir)) {
+        fs.mkdirSync(destDir, { recursive: true });
       }
-      cb(null, mobileAppUploadsDir);
+      cb(null, destDir);
     },
-    filename: (_req, file, cb) => {
+    filename: (req, file, cb) => {
       const safeUUID = crypto.randomUUID();
       const rawExt = path.extname(file.originalname).toLowerCase();
       const validExts = ALLOWED_MIMES[file.mimetype] || [];
       const safeExt = validExts.includes(rawExt) ? rawExt : (validExts[0] || '.jpg');
-      cb(null, `app-${safeUUID}${safeExt}`);
+      const rawFolder = (req.query?.folder || req.body?.folder || '').toString().toLowerCase().trim();
+      const prefix = ALLOWED_APP_SUBFOLDERS.includes(rawFolder) ? `${rawFolder.slice(0, 4)}` : 'app';
+      cb(null, `${prefix}-${safeUUID}${safeExt}`);
     },
   });
 
@@ -3290,11 +3300,16 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
       if (!req.file) {
         return res.status(400).json({ success: false, error: 'No file uploaded.' });
       }
-      const fileUrl = `/uploads/mobile-app/${req.file.filename}`;
+      const rawFolder = (req.query?.folder || req.body?.folder || '').toString().toLowerCase().trim();
+      const subfolder = ALLOWED_APP_SUBFOLDERS.includes(rawFolder) ? rawFolder : '';
+      const fileUrl = subfolder
+        ? `/uploads/mobile-app/${subfolder}/${req.file.filename}`
+        : `/uploads/mobile-app/${req.file.filename}`;
       return res.json({
         success: true,
         url: fileUrl,
         filename: req.file.filename,
+        folder: subfolder || 'general',
         size: req.file.size,
       });
     });
@@ -3302,6 +3317,79 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
 
   app.post('/api/upload/mobile-app', requireAdmin, handleMobileAppUpload);
   app.post('/api/uploads/mobile-app', requireAdmin, handleMobileAppUpload);
+
+  // Dedicated Mobile App Media Library API (Lists only /uploads/mobile-app/)
+  app.get('/api/media/mobile-app', requireAdmin, async (_req, res) => {
+    try {
+      const items: any[] = [];
+      const scanDir = (dir: string, folderName: string) => {
+        if (!fs.existsSync(dir)) return;
+        const entries = fs.readdirSync(dir, { withFileTypes: true });
+        for (const entry of entries) {
+          if (entry.isFile()) {
+            const ext = path.extname(entry.name).toLowerCase();
+            if (['.jpg', '.jpeg', '.png', '.webp', '.gif', '.mp4'].includes(ext)) {
+              const fullPath = path.join(dir, entry.name);
+              const stats = fs.statSync(fullPath);
+              const url = folderName && folderName !== 'general'
+                ? `/uploads/mobile-app/${folderName}/${entry.name}`
+                : `/uploads/mobile-app/${entry.name}`;
+              items.push({
+                id: `media-${entry.name}`,
+                filename: entry.name,
+                name: entry.name,
+                url,
+                folder: folderName || 'general',
+                size: stats.size,
+                updatedAt: stats.mtime.toISOString(),
+              });
+            }
+          }
+        }
+      };
+
+      // Scan root mobile-app dir
+      scanDir(mobileAppUploadsDir, 'general');
+      // Scan each subfolder
+      for (const sf of ALLOWED_APP_SUBFOLDERS) {
+        scanDir(path.join(mobileAppUploadsDir, sf), sf);
+      }
+
+      items.sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime());
+      return res.json({ success: true, items });
+    } catch (err: any) {
+      console.error('[Mobile App Media Error]:', err);
+      return res.status(500).json({ success: false, error: 'Failed to scan mobile app media library' });
+    }
+  });
+
+  app.delete('/api/media/mobile-app', requireAdmin, async (req, res) => {
+    try {
+      const { filename, folder } = req.body || req.query;
+      if (!filename || typeof filename !== 'string') {
+        return res.status(400).json({ success: false, error: 'Filename is required' });
+      }
+      const safeFilename = path.basename(filename.trim());
+      const safeFolder = folder && ALLOWED_APP_SUBFOLDERS.includes(String(folder).toLowerCase().trim())
+        ? String(folder).toLowerCase().trim()
+        : '';
+      const targetDir = safeFolder ? path.join(mobileAppUploadsDir, safeFolder) : mobileAppUploadsDir;
+      const targetPath = path.resolve(targetDir, safeFilename);
+
+      if (!targetPath.startsWith(path.resolve(mobileAppUploadsDir))) {
+        return res.status(403).json({ success: false, error: 'Path traversal prevented' });
+      }
+
+      if (fs.existsSync(targetPath)) {
+        fs.unlinkSync(targetPath);
+        return res.json({ success: true, message: 'File deleted from mobile app media library' });
+      } else {
+        return res.status(404).json({ success: false, error: 'File not found' });
+      }
+    } catch (err: any) {
+      return res.status(500).json({ success: false, error: err.message || 'Failed to delete file' });
+    }
+  });
 
   // Secure Media Deletion Helper
   const handleMediaFileDelete = (req: express.Request, res: express.Response) => {

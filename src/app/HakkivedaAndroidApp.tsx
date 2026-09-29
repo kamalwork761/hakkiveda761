@@ -7,6 +7,8 @@ import {
   MobileAppFeaturedCategory,
   MobileAppFeaturedProducts,
   MobileAppSettings,
+  MobileAppShopConcern,
+  MobileAppProductOverride,
 } from '../types/mobileApp';
 import {
   INITIAL_MOBILE_APP_HERO_SLIDES,
@@ -15,6 +17,8 @@ import {
   INITIAL_MOBILE_APP_FEATURED_CATEGORIES,
   INITIAL_MOBILE_APP_FEATURED_PRODUCTS,
   INITIAL_MOBILE_APP_SETTINGS,
+  INITIAL_MOBILE_APP_CONCERNS,
+  INITIAL_MOBILE_APP_PRODUCTS,
 } from '../data/initialData';
 import { AppHeader } from './components/AppHeader';
 import { AppBottomNav, AppNavTab } from './navigation/AppBottomNav';
@@ -91,18 +95,33 @@ export const HakkivedaAndroidApp: React.FC = () => {
     INITIAL_MOBILE_APP_FEATURED_PRODUCTS
   );
   const [appSettings, setAppSettings] = useState<MobileAppSettings>(INITIAL_MOBILE_APP_SETTINGS);
+  const [concerns, setConcerns] = useState<MobileAppShopConcern[]>(INITIAL_MOBILE_APP_CONCERNS);
+  const [appProductOverrides, setAppProductOverrides] = useState<Record<string, MobileAppProductOverride>>(
+    INITIAL_MOBILE_APP_PRODUCTS
+  );
 
   // Fetch live app manager data from API on mount
   useEffect(() => {
     const fetchAppData = async () => {
       try {
-        const [slidesRes, bannersRes, sectionsRes, catsRes, prodsRes, settingsRes] = await Promise.all([
+        const [
+          slidesRes,
+          bannersRes,
+          sectionsRes,
+          catsRes,
+          prodsRes,
+          settingsRes,
+          concernsRes,
+          overridesRes,
+        ] = await Promise.all([
           fetch('/api/store/mobile_app_hero_slides').then((r) => r.json()).catch(() => null),
           fetch('/api/store/mobile_app_banners').then((r) => r.json()).catch(() => null),
           fetch('/api/store/mobile_app_sections').then((r) => r.json()).catch(() => null),
           fetch('/api/store/mobile_app_featured_categories').then((r) => r.json()).catch(() => null),
           fetch('/api/store/mobile_app_featured_products').then((r) => r.json()).catch(() => null),
           fetch('/api/store/mobile_app_settings').then((r) => r.json()).catch(() => null),
+          fetch('/api/store/mobile_app_concerns').then((r) => r.json()).catch(() => null),
+          fetch('/api/store/mobile_app_products').then((r) => r.json()).catch(() => null),
         ]);
 
         if (slidesRes?.success && Array.isArray(slidesRes.data) && slidesRes.data.length > 0) {
@@ -122,6 +141,12 @@ export const HakkivedaAndroidApp: React.FC = () => {
         }
         if (settingsRes?.success && settingsRes.data) {
           setAppSettings(settingsRes.data);
+        }
+        if (concernsRes?.success && Array.isArray(concernsRes.data)) {
+          setConcerns(concernsRes.data);
+        }
+        if (overridesRes?.success && overridesRes.data) {
+          setAppProductOverrides(overridesRes.data);
         }
       } catch (e) {
         console.warn('[HAKKIVEDA App] Using fallback initial configuration');
@@ -225,6 +250,8 @@ export const HakkivedaAndroidApp: React.FC = () => {
               sections={sections}
               featuredCategories={featuredCategories}
               featuredProducts={featuredProducts}
+              concerns={concerns}
+              appProductOverrides={appProductOverrides}
               onOpenProductDetail={(id) => setSelectedProductId(id)}
               onNavigateToShop={handleNavigateToShop}
               onNavigateToAnalysis={() => setActiveTab('analysis')}
@@ -260,6 +287,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
         {activeTab === 'account' && (
           <AppScreenErrorBoundary screenName="Account">
             <AppAccountScreen
+              appSettings={appSettings}
               onOpenWishlist={() => openWishlist?.()}
               onNavigateToOrders={() => setActiveTab('orders')}
             />
@@ -281,6 +309,8 @@ export const HakkivedaAndroidApp: React.FC = () => {
       {/* Overlays */}
       <AppProductDetailModal
         productId={selectedProductId}
+        override={selectedProductId ? appProductOverrides[selectedProductId] : undefined}
+        whatsappNumber={appSettings.whatsappNumber}
         onClose={() => setSelectedProductId(null)}
         onProceedToCheckout={() => setIsCheckoutOpen(true)}
       />

@@ -1,18 +1,21 @@
 import React, { useState } from 'react';
 import { Heart, Plus, Star, Check } from 'lucide-react';
 import { Product } from '../../types/store';
+import { MobileAppProductOverride } from '../../types/mobileApp';
 import { useStore } from '../../context/StoreContext';
 import { resolveAssetUrl } from '../utils/nativeUrl';
 import { formatSafeINR } from '../utils/formatMoney';
 
 interface AppProductCardProps {
   product: Product;
+  override?: MobileAppProductOverride;
   onOpenDetail: (productId: string) => void;
   layout?: 'carousel' | 'grid';
 }
 
 export const AppProductCard: React.FC<AppProductCardProps> = ({
   product,
+  override,
   onOpenDetail,
   layout = 'carousel',
 }) => {
@@ -23,8 +26,12 @@ export const AppProductCard: React.FC<AppProductCardProps> = ({
 
   const isWishlisted = wishlist?.includes(product.id) || false;
   const primaryImage = resolveAssetUrl(
-    product.image || product.images?.[0] || '/images/hero_tribal_elders.jpg'
+    override?.appImage || product.image || product.images?.[0] || '/images/hero_tribal_elders.jpg'
   );
+  const displayName = override?.appTitle || product.name;
+  const displaySubtitle = override?.appSubtitle || product.subtitle || '108 wild forest herbs extracted over firewood';
+  const badgeText = override?.badge || (product.isBestSeller ? 'Bestseller' : null);
+  const ctaLabel = override?.cardCtaLabel || 'Add';
 
   const rawPrice = product.price;
   const numPrice = typeof rawPrice === 'number' ? rawPrice : parseFloat(String(rawPrice || 0));
@@ -71,7 +78,7 @@ export const AppProductCard: React.FC<AppProductCardProps> = ({
       <div className="relative aspect-square w-full bg-[#f4ede2] overflow-hidden">
         <img
           src={primaryImage}
-          alt={product.name}
+          alt={displayName}
           loading="lazy"
           className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
           onError={(e) => {
@@ -86,9 +93,9 @@ export const AppProductCard: React.FC<AppProductCardProps> = ({
               {discountPercent}% OFF
             </span>
           )}
-          {product.isBestSeller && (
+          {badgeText && (
             <span className="bg-[#C5A059] text-[#0E382C] font-extrabold text-[8px] uppercase tracking-wider px-1.5 py-0.5 rounded-md shadow-sm">
-              Bestseller
+              {badgeText}
             </span>
           )}
         </div>
@@ -126,10 +133,10 @@ export const AppProductCard: React.FC<AppProductCardProps> = ({
             {product.category?.replace(/Remedies|Care/gi, '').trim() || 'Remedy'}
           </span>
           <h3 className="font-serif text-xs font-bold text-slate-900 line-clamp-2 leading-tight mt-0.5">
-            {product.name}
+            {displayName}
           </h3>
           <p className="text-[10px] text-slate-500 line-clamp-1 mt-0.5">
-            {product.subtitle || '108 wild forest herbs extracted over firewood'}
+            {displaySubtitle}
           </p>
         </div>
 
@@ -166,7 +173,7 @@ export const AppProductCard: React.FC<AppProductCardProps> = ({
                 ? 'bg-emerald-700 text-white shadow-sm'
                 : 'bg-[#0E382C] text-[#FDF8EC] hover:bg-[#134E3F] active:scale-95 shadow-sm'
             }`}
-            aria-label={`Add ${product.name} to cart`}
+            aria-label={`Add ${displayName} to cart`}
           >
             {justAdded ? (
               <>
@@ -176,7 +183,7 @@ export const AppProductCard: React.FC<AppProductCardProps> = ({
             ) : (
               <>
                 <Plus className="w-3.5 h-3.5 stroke-[3] text-[#C5A059]" />
-                <span className="text-[11px]">Add</span>
+                <span className="text-[11px]">{ctaLabel}</span>
               </>
             )}
           </button>
@@ -185,3 +192,4 @@ export const AppProductCard: React.FC<AppProductCardProps> = ({
     </div>
   );
 };
+

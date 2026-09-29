@@ -3902,7 +3902,10 @@ var INITIAL_MOBILE_APP_SETTINGS = {
   enableNotifications: true,
   freeDeliveryThreshold: 499,
   brandAccentColor: "#C5A059",
-  brandDeepGreen: "#0E382C"
+  brandDeepGreen: "#0E382C",
+  headerLogoUrl: "/images/hakkiveda_hv_logo.png",
+  splashImageUrl: "/images/hakkiveda_hv_logo.png",
+  homeLogoUrl: "/images/hakkiveda_hv_logo.png"
 };
 var INITIAL_MOBILE_APP_HERO_SLIDES = [
   {
@@ -5446,85 +5449,38 @@ async function startServer() {
   const app = (0, import_express.default)();
   const PORT = process.env.PORT || 3e3;
   app.set("trust proxy", 1);
-  await getDb();
-  app.use((0, import_compression.default)());
   const TRUSTED_CORS_ORIGINS = /* @__PURE__ */ new Set([
     "https://hakkiveda.com",
     "https://www.hakkiveda.com",
     "https://localhost",
-    "http://localhost",
     "capacitor://localhost"
   ]);
-  function isTrustedCorsOrigin(origin) {
-    if (!origin) return false;
-    const trimmed = origin.trim().toLowerCase();
-    if (TRUSTED_CORS_ORIGINS.has(trimmed)) {
-      return true;
-    }
-    if (trimmed === "capacitor://localhost" || trimmed === "ionic://localhost") {
-      return true;
-    }
-    if (/^https?:\/\/(localhost|127\.0\.0\.1)(:\d+)?$/.test(trimmed)) {
-      return true;
-    }
-    if (trimmed.endsWith(".run.app") && trimmed.includes("ais-")) {
-      return true;
-    }
-    return false;
-  }
   app.use((req, res, next) => {
     const rawOrigin = req.headers.origin || req.get("origin") || "";
     const origin = rawOrigin.trim();
     const normalizedOrigin = origin.toLowerCase().replace(/\/+$/, "");
-    if (origin && isTrustedCorsOrigin(normalizedOrigin)) {
+    const isTrusted = TRUSTED_CORS_ORIGINS.has(normalizedOrigin);
+    if (isTrusted) {
       res.setHeader("Access-Control-Allow-Origin", origin);
       res.setHeader("Access-Control-Allow-Credentials", "true");
+      res.setHeader("Vary", "Origin");
       res.setHeader(
         "Access-Control-Allow-Methods",
-        "GET, POST, PUT, PATCH, DELETE, OPTIONS"
+        "GET,POST,PUT,PATCH,DELETE,OPTIONS"
       );
       const reqHeaders = req.headers["access-control-request-headers"];
       res.setHeader(
         "Access-Control-Allow-Headers",
-        reqHeaders || "Content-Type, Authorization, Accept, X-Requested-With, Range, Cache-Control, X-Admin-Token, X-Customer-Token, X-CSRF-Token, Origin"
+        reqHeaders || "Content-Type,Authorization,Accept,X-Requested-With"
       );
-      res.setHeader(
-        "Access-Control-Expose-Headers",
-        "Content-Range, Content-Length, ETag, Set-Cookie"
-      );
-      res.setHeader("Access-Control-Max-Age", "86400");
-      res.setHeader("Vary", "Origin");
     }
-    if (req.method === "OPTIONS") {
+    if (req.method === "OPTIONS" && isTrusted) {
       return res.status(204).end();
     }
     next();
   });
-  app.options("*", (req, res) => {
-    const rawOrigin = req.headers.origin || req.get("origin") || "";
-    const origin = rawOrigin.trim();
-    const normalizedOrigin = origin.toLowerCase().replace(/\/+$/, "");
-    if (origin && isTrustedCorsOrigin(normalizedOrigin)) {
-      res.setHeader("Access-Control-Allow-Origin", origin);
-      res.setHeader("Access-Control-Allow-Credentials", "true");
-      res.setHeader(
-        "Access-Control-Allow-Methods",
-        "GET, POST, PUT, PATCH, DELETE, OPTIONS"
-      );
-      const reqHeaders = req.headers["access-control-request-headers"];
-      res.setHeader(
-        "Access-Control-Allow-Headers",
-        reqHeaders || "Content-Type, Authorization, Accept, X-Requested-With, Range, Cache-Control, X-Admin-Token, X-Customer-Token, X-CSRF-Token, Origin"
-      );
-      res.setHeader(
-        "Access-Control-Expose-Headers",
-        "Content-Range, Content-Length, ETag, Set-Cookie"
-      );
-      res.setHeader("Access-Control-Max-Age", "86400");
-      res.setHeader("Vary", "Origin");
-    }
-    return res.status(204).end();
-  });
+  await getDb();
+  app.use((0, import_compression.default)());
   app.use((_req, res, next) => {
     res.setHeader("X-Content-Type-Options", "nosniff");
     res.setHeader("Referrer-Policy", "strict-origin-when-cross-origin");
@@ -9731,9 +9687,6 @@ Advisor:`;
     }
   });
   app.all("/api/*", (req, res) => {
-    if (req.method === "OPTIONS") {
-      return res.status(204).end();
-    }
     res.status(404).json({
       success: false,
       error: `API endpoint not found: ${req.method} ${req.originalUrl}`,

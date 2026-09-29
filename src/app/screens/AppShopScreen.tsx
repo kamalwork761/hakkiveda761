@@ -1,17 +1,20 @@
 import React, { useState, useMemo } from 'react';
 import { Search, SlidersHorizontal, ArrowUpDown, X } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
+import { MobileAppProductOverride } from '../../types/mobileApp';
 import { AppProductCard } from '../components/AppProductCard';
 
 interface AppShopScreenProps {
   initialCategoryId?: string;
   initialConcernId?: string;
+  appProductOverrides?: Record<string, MobileAppProductOverride>;
   onOpenProductDetail: (productId: string) => void;
 }
 
 export const AppShopScreen: React.FC<AppShopScreenProps> = ({
   initialCategoryId = 'ALL',
   initialConcernId,
+  appProductOverrides,
   onOpenProductDetail,
 }) => {
   const { products, categories } = useStore();
@@ -273,6 +276,7 @@ export const AppShopScreen: React.FC<AppShopScreenProps> = ({
               <AppProductCard
                 key={product.id}
                 product={product}
+                override={appProductOverrides?.[product.id]}
                 onOpenDetail={onOpenProductDetail}
                 layout="grid"
               />

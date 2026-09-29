@@ -1,18 +1,35 @@
 import React, { useState } from 'react';
-import { X, Star, Heart, Check, ShoppingBag, ShieldCheck, Zap, Sparkles } from 'lucide-react';
+import {
+  X,
+  Star,
+  Heart,
+  Check,
+  ShoppingBag,
+  ShieldCheck,
+  Zap,
+  Sparkles,
+  MessageSquare,
+  Leaf,
+  Droplet,
+} from 'lucide-react';
 import { Product } from '../../types/store';
+import { MobileAppProductOverride } from '../../types/mobileApp';
 import { useStore } from '../../context/StoreContext';
 import { resolveAssetUrl } from '../utils/nativeUrl';
 import { formatSafeINR } from '../utils/formatMoney';
 
 interface AppProductDetailModalProps {
   productId: string | null;
+  override?: MobileAppProductOverride;
+  whatsappNumber?: string;
   onClose: () => void;
   onProceedToCheckout: () => void;
 }
 
 export const AppProductDetailModal: React.FC<AppProductDetailModalProps> = ({
   productId,
+  override,
+  whatsappNumber = '+917619536831',
   onClose,
   onProceedToCheckout,
 }) => {
@@ -29,6 +46,7 @@ export const AppProductDetailModal: React.FC<AppProductDetailModalProps> = ({
   const hasVariants = product.variants && product.variants.length > 0;
   const currentVariant = hasVariants ? product.variants[selectedVariantIndex] : null;
 
+  // Master shared pricing & stock (Shared catalog data)
   const rawPrice = currentVariant ? currentVariant.price : product.price;
   const numPrice = typeof rawPrice === 'number' ? rawPrice : parseFloat(String(rawPrice || 0));
   const hasValidPrice = !isNaN(numPrice) && numPrice > 0;
@@ -43,9 +61,24 @@ export const AppProductDetailModal: React.FC<AppProductDetailModalProps> = ({
       ? Math.round(((numOriginal - numPrice) / numOriginal) * 100)
       : 0;
 
+  // Overrides with fallbacks to catalog
   const primaryImage = resolveAssetUrl(
-    product.image || product.images?.[0] || '/images/hero_tribal_elders.jpg'
+    override?.appImage || product.image || product.images?.[0] || '/images/hero_tribal_elders.jpg'
   );
+  const displayName = override?.appTitle || product.name;
+  const displaySubtitle = override?.appSubtitle || product.subtitle;
+  const customBadge = override?.badge || (product.isBestSeller ? '108 Sacred Herbs' : null);
+  const appHeadline = override?.appHeadline;
+  const benefitBullets = override?.benefitBullets && override.benefitBullets.length > 0 ? override.benefitBullets : null;
+  const quickIngredients = override?.quickIngredients;
+  const usageSummary = override?.usageSummary;
+  const trustBadgeText = override?.trustBadgeText || '100% Forest-Crafted • Tribal Certified';
+  const ctaLabel = override?.cardCtaLabel || 'Add to Cart';
+
+  const cleanWaNumber = (whatsappNumber || '+917619536831').replace(/[^\d]/g, '');
+  const whatsappUrl = `https://wa.me/${cleanWaNumber}?text=${encodeURIComponent(
+    `Namaste HAKKIVEDA! I want to enquire about ${displayName}.`
+  )}`;
 
   const handleAddToCart = () => {
     addToCart(product, 1, currentVariant || undefined);
@@ -78,8 +111,9 @@ export const AppProductDetailModal: React.FC<AppProductDetailModalProps> = ({
         {/* Top Header bar with Drag pill and Close */}
         <div className="relative pt-2 pb-1.5 px-4 flex items-center justify-between border-b border-slate-100 bg-white">
           <div className="w-10 h-1 bg-slate-200 rounded-full mx-auto absolute left-1/2 -translate-x-1/2 top-2" />
-          <div className="text-[10px] font-bold text-[#0E382C] uppercase tracking-wider pt-2">
-            Remedy Details
+          <div className="text-[10px] font-bold text-[#0E382C] uppercase tracking-wider pt-2 flex items-center gap-1.5">
+            <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
+            <span>Tribal Remedy Details</span>
           </div>
           <button
             type="button"
@@ -97,7 +131,7 @@ export const AppProductDetailModal: React.FC<AppProductDetailModalProps> = ({
           <div className="relative aspect-square w-full rounded-2xl bg-[#FAF7F2] overflow-hidden border border-emerald-950/10">
             <img
               src={primaryImage}
-              alt={product.name}
+              alt={displayName}
               className="w-full h-full object-cover object-center"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/images/hero_tribal_elders.jpg';
@@ -121,26 +155,35 @@ export const AppProductDetailModal: React.FC<AppProductDetailModalProps> = ({
 
             {/* Badges */}
             <div className="absolute bottom-3 left-3 flex items-center gap-1.5">
-              <span className="bg-[#0E382C] text-[#C5A059] font-bold text-[10px] px-2 py-0.5 rounded-full shadow-sm">
-                108 Sacred Herbs
-              </span>
+              {customBadge && (
+                <span className="bg-[#0E382C] text-[#C5A059] font-bold text-[10px] px-2.5 py-0.5 rounded-full shadow-sm border border-[#C5A059]/30">
+                  {customBadge}
+                </span>
+              )}
               <span className="bg-[#C5A059] text-[#0E382C] font-extrabold text-[9px] uppercase px-2 py-0.5 rounded-full shadow-sm">
                 Adivasi Heritage
               </span>
             </div>
           </div>
 
-          {/* Title & Reviews */}
+          {/* Title, Headline & Reviews */}
           <div>
             <span className="text-[11px] font-bold text-[#0E382C] uppercase tracking-wider">
               {product.category || 'Tribal Remedy'}
             </span>
             <h2 className="font-serif text-lg font-bold text-slate-900 leading-tight mt-0.5">
-              {product.name}
+              {displayName}
             </h2>
-            {product.subtitle && (
-              <p className="text-xs text-slate-500 mt-1 font-sans">
-                {product.subtitle}
+
+            {appHeadline && (
+              <p className="text-xs font-semibold text-[#0E382C] mt-1 font-serif">
+                {appHeadline}
+              </p>
+            )}
+
+            {displaySubtitle && (
+              <p className="text-xs text-slate-600 mt-1 font-sans leading-relaxed">
+                {displaySubtitle}
               </p>
             )}
 
@@ -150,16 +193,16 @@ export const AppProductDetailModal: React.FC<AppProductDetailModalProps> = ({
                 <span>{product.rating || '4.9'}</span>
               </div>
               <span className="text-xs text-slate-500">
-                ({product.reviewsCount || 248} verified reviews)
+                ({product.reviewsCount || 248} verified tribal reviews)
               </span>
             </div>
           </div>
 
-          {/* Pricing */}
+          {/* Pricing & Stock (Shared Master Catalog Data) */}
           <div className="p-3 rounded-2xl bg-[#FAF7F2] border border-emerald-950/10 flex items-center justify-between">
             <div>
               <span className="text-[10px] text-slate-400 font-bold uppercase tracking-wider block">
-                Special Offer Price
+                Special App Offer Price
               </span>
               <div className="flex items-baseline gap-2 mt-0.5">
                 {hasValidPrice ? (
@@ -224,39 +267,86 @@ export const AppProductDetailModal: React.FC<AppProductDetailModalProps> = ({
             </div>
           )}
 
+          {/* App Benefit Bullets Override */}
+          {benefitBullets && (
+            <div className="p-3.5 rounded-2xl bg-emerald-950/5 border border-emerald-950/10 space-y-1.5">
+              <h3 className="text-xs font-bold text-[#0E382C] uppercase tracking-wider flex items-center gap-1.5">
+                <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
+                <span>Key Proven Benefits</span>
+              </h3>
+              <ul className="space-y-1 text-xs text-slate-700 font-sans">
+                {benefitBullets.map((bullet, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <span className="text-[#C5A059] font-bold">•</span>
+                    <span>{bullet}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
+
           {/* Botanical Ingredients Highlight */}
           <div className="border-t border-slate-100 pt-3">
-            <h3 className="font-serif text-xs font-bold text-slate-900 uppercase tracking-wider mb-2">
-              Key Wild Forest Botanicals
+            <h3 className="font-serif text-xs font-bold text-slate-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
+              <Leaf className="w-3.5 h-3.5 text-[#0E382C]" />
+              <span>Key Wild Forest Botanicals</span>
             </h3>
-            <div className="grid grid-cols-2 gap-2">
-              <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
-                <div className="text-xs font-bold text-[#0E382C]">Bhringraj (Eclipta Alba)</div>
-                <div className="text-[10px] text-slate-500">Stimulates dormant follicular roots</div>
+
+            {quickIngredients ? (
+              <p className="text-xs text-slate-700 leading-relaxed font-sans bg-slate-50 p-3 rounded-xl border border-slate-100">
+                {quickIngredients}
+              </p>
+            ) : (
+              <div className="grid grid-cols-2 gap-2">
+                <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                  <div className="text-xs font-bold text-[#0E382C]">Bhringraj (Eclipta Alba)</div>
+                  <div className="text-[10px] text-slate-500">Stimulates dormant follicular roots</div>
+                </div>
+                <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                  <div className="text-xs font-bold text-[#0E382C]">Gunja Seeds</div>
+                  <div className="text-[10px] text-slate-500">Reverses hairline miniaturization</div>
+                </div>
+                <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                  <div className="text-xs font-bold text-[#0E382C]">Devadaru Himalayan Cedar</div>
+                  <div className="text-[10px] text-slate-500">Deep scalp circulation & cooling</div>
+                </div>
+                <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
+                  <div className="text-xs font-bold text-[#0E382C]">Nagarmotha Roots</div>
+                  <div className="text-[10px] text-slate-500">Removes DHT buildup from sebum</div>
+                </div>
               </div>
-              <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
-                <div className="text-xs font-bold text-[#0E382C]">Gunja Seeds</div>
-                <div className="text-[10px] text-slate-500">Reverses hairline miniaturization</div>
-              </div>
-              <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
-                <div className="text-xs font-bold text-[#0E382C]">Devadaru Himalayan Cedar</div>
-                <div className="text-[10px] text-slate-500">Deep scalp circulation & cooling</div>
-              </div>
-              <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
-                <div className="text-xs font-bold text-[#0E382C]">Nagarmotha Roots</div>
-                <div className="text-[10px] text-slate-500">Removes DHT buildup from sebum</div>
-              </div>
-            </div>
+            )}
           </div>
 
-          {/* How to use */}
+          {/* How to use / Ritual */}
           <div className="border-t border-slate-100 pt-3">
-            <h3 className="font-serif text-xs font-bold text-slate-900 uppercase tracking-wider mb-1.5">
-              Nightly Application Ritual
+            <h3 className="font-serif text-xs font-bold text-slate-900 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
+              <Droplet className="w-3.5 h-3.5 text-[#0E382C]" />
+              <span>Nightly Application Ritual</span>
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed font-sans">
-              Apply 8-12 drops directly along scalp partings. Gently massage using circular fingertip strokes for 5 minutes. Leave overnight and wash with herbal shampoo 2-3 times weekly.
+              {usageSummary ||
+                'Apply 8-12 drops directly along scalp partings. Gently massage using circular fingertip strokes for 5 minutes. Leave overnight and wash with herbal shampoo 2-3 times weekly.'}
             </p>
+          </div>
+
+          {/* Trust Badge */}
+          <div className="p-2.5 rounded-xl bg-[#FAF7F2] border border-[#C5A059]/30 text-center text-xs font-semibold text-[#0E382C] flex items-center justify-center gap-1.5">
+            <ShieldCheck className="w-4 h-4 text-[#C5A059]" />
+            <span>{trustBadgeText}</span>
+          </div>
+
+          {/* WhatsApp Direct Consult Button */}
+          <div className="pt-1">
+            <a
+              href={whatsappUrl}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="w-full py-2.5 px-3 rounded-2xl bg-emerald-50 hover:bg-emerald-100 text-emerald-800 border border-emerald-300 font-bold text-xs flex items-center justify-center gap-2 transition-all"
+            >
+              <MessageSquare className="w-4 h-4 text-emerald-600 fill-emerald-600" />
+              <span>Ask Tribal Vaidya on WhatsApp ({whatsappNumber})</span>
+            </a>
           </div>
         </div>
 
@@ -279,7 +369,7 @@ export const AppProductDetailModal: React.FC<AppProductDetailModalProps> = ({
             ) : (
               <>
                 <ShoppingBag className="w-4 h-4" />
-                <span>Add to Cart</span>
+                <span>{ctaLabel}</span>
               </>
             )}
           </button>

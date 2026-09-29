@@ -40,6 +40,8 @@ import {
   INITIAL_MOBILE_APP_SECTIONS,
   INITIAL_MOBILE_APP_FEATURED_CATEGORIES,
   INITIAL_MOBILE_APP_FEATURED_PRODUCTS,
+  INITIAL_MOBILE_APP_CONCERNS,
+  INITIAL_MOBILE_APP_PRODUCTS,
 } from '../data/initialData';
 
 const DEFAULT_HERO_SLIDER_SETTINGS = {
@@ -179,6 +181,8 @@ export async function getDb() {
       mobile_app_sections: INITIAL_MOBILE_APP_SECTIONS,
       mobile_app_featured_categories: INITIAL_MOBILE_APP_FEATURED_CATEGORIES,
       mobile_app_featured_products: INITIAL_MOBILE_APP_FEATURED_PRODUCTS,
+      mobile_app_concerns: INITIAL_MOBILE_APP_CONCERNS,
+      mobile_app_products: INITIAL_MOBILE_APP_PRODUCTS,
       max_bestsellers_count: 8,
       seeded: true,
     };
@@ -294,6 +298,14 @@ export async function getDb() {
       store.mobile_app_featured_products = INITIAL_MOBILE_APP_FEATURED_PRODUCTS;
       needsFlush = true;
     }
+    if (!store.mobile_app_concerns || !Array.isArray(store.mobile_app_concerns)) {
+      store.mobile_app_concerns = INITIAL_MOBILE_APP_CONCERNS;
+      needsFlush = true;
+    }
+    if (!store.mobile_app_products) {
+      store.mobile_app_products = INITIAL_MOBILE_APP_PRODUCTS;
+      needsFlush = true;
+    }
     if (needsFlush) {
       await flushToDisk();
     }
@@ -357,6 +369,8 @@ export async function getStoreValue<T = any>(key: string): Promise<T | null> {
     if (cleanKey === 'mobile_app_sections') return INITIAL_MOBILE_APP_SECTIONS as unknown as T;
     if (cleanKey === 'mobile_app_featured_categories') return INITIAL_MOBILE_APP_FEATURED_CATEGORIES as unknown as T;
     if (cleanKey === 'mobile_app_featured_products') return INITIAL_MOBILE_APP_FEATURED_PRODUCTS as unknown as T;
+    if (cleanKey === 'mobile_app_concerns') return INITIAL_MOBILE_APP_CONCERNS as unknown as T;
+    if (cleanKey === 'mobile_app_products') return INITIAL_MOBILE_APP_PRODUCTS as unknown as T;
     return null;
   }
   return store[cleanKey] as T;
@@ -446,6 +460,8 @@ export const PUBLIC_STORE_ALLOWLIST: readonly string[] = [
   'mobile_app_sections',
   'mobile_app_featured_categories',
   'mobile_app_featured_products',
+  'mobile_app_concerns',
+  'mobile_app_products',
 ];
 
 export async function getPublicStoreData(): Promise<Record<string, any>> {

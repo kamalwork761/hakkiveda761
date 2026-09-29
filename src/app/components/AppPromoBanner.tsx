@@ -20,9 +20,12 @@ export const AppPromoBanner: React.FC<AppPromoBannerProps> = ({
 
   const bgImage = resolveAssetUrl(banner.imageUrl);
 
+  const codeToCopy = banner.couponCode || 'TRIBAL200';
+  const ctaLabel = banner.ctaText || 'Claim Discount';
+
   const handleCopyCode = (e: React.MouseEvent) => {
     e.stopPropagation();
-    navigator.clipboard?.writeText('TRIBAL200');
+    navigator.clipboard?.writeText(codeToCopy);
     setCopied(true);
     setTimeout(() => setCopied(false), 2000);
   };
@@ -70,7 +73,7 @@ export const AppPromoBanner: React.FC<AppPromoBannerProps> = ({
               onClick={handleCopyCode}
               className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 text-xs font-mono font-bold text-[#C5A059] transition-colors"
             >
-              <span>TRIBAL200</span>
+              <span>{codeToCopy}</span>
               {copied ? (
                 <Check className="w-3 h-3 text-emerald-400 stroke-[3]" />
               ) : (
@@ -82,7 +85,7 @@ export const AppPromoBanner: React.FC<AppPromoBannerProps> = ({
 
             {/* Action link */}
             <div className="flex items-center gap-1 text-xs font-bold text-[#C5A059]">
-              <span>Claim Discount</span>
+              <span>{ctaLabel}</span>
               <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
             </div>
           </div>

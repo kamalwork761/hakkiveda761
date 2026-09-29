@@ -42,9 +42,12 @@ export interface Product {
   subtitle: string;
   priceINR: number;
   originalPriceINR?: number;
+  price?: number;
+  originalPrice?: number;
   rating: number;
   reviewsCount: number;
   image: string;
+  images?: string[];
   additionalImages: string[];
   galleryItems?: ProductGalleryItem[];
   description: string;
@@ -57,6 +60,7 @@ export interface Product {
   stock: number;
   sku: string;
   isBestseller: boolean;
+  isBestSeller?: boolean;
   featuredBestSeller?: boolean;
   isNew: boolean;
   inStock: boolean;

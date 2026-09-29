@@ -852,6 +852,25 @@
   background: var(--brand-gold-light);
 }
 
+/* Suppress all scrollbars on elements designated with .no-scrollbar and mobile carousels */
+.no-scrollbar::-webkit-scrollbar,
+.app-hero-carousel::-webkit-scrollbar,
+[data-theme] .no-scrollbar::-webkit-scrollbar,
+[data-theme] .app-hero-carousel::-webkit-scrollbar,
+.no-scrollbar *::-webkit-scrollbar {
+  display: none !important;
+  width: 0 !important;
+  height: 0 !important;
+  background: transparent !important;
+  -webkit-appearance: none !important;
+}
+
+.no-scrollbar,
+.app-hero-carousel {
+  -ms-overflow-style: none !important;
+  scrollbar-width: none !important;
+}
+
 /* Luxury animations and effects */
 @keyframes goldPulse {
   0%, 100% { opacity: 0.8; transform: scale(1); }

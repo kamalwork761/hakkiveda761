@@ -217,11 +217,11 @@ export const AppHeroSlidesManager: React.FC<AppHeroSlidesManagerProps> = ({
                   src={resolveAssetUrl(slide.imageUrl)}
                   alt={slide.title}
                   className="w-full h-full object-cover"
+                  style={{ opacity: 1, filter: 'none' }}
                   onError={(e) => {
                     (e.target as HTMLImageElement).src = '/images/hero_tribal_elders.jpg';
                   }}
                 />
-                <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/20 to-transparent pointer-events-none" />
 
                 {/* Eyebrow & Badges */}
                 <div className="absolute top-2.5 left-2.5 flex items-center gap-1.5">

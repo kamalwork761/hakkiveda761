@@ -79,7 +79,7 @@ export const AppHeroCarousel: React.FC<AppHeroCarouselProps> = ({
             isInteractingRef.current = false;
           }, 3000);
         }}
-        className="flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar rounded-2xl shadow-none"
+        className="app-hero-carousel flex overflow-x-auto snap-x snap-mandatory scroll-smooth no-scrollbar rounded-2xl shadow-none"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {publishedSlides.map((slide) => {
@@ -91,32 +91,46 @@ export const AppHeroCarousel: React.FC<AppHeroCarouselProps> = ({
               key={slide.id}
               className="min-w-full w-full flex-shrink-0 snap-center relative aspect-[2/1] rounded-2xl overflow-hidden bg-transparent"
             >
-              {/* Background Image - Full opacity, original brightness and colors */}
+              {/* Background Image - Pristine original colors and brightness */}
               <img
                 src={imgSrc}
                 alt={slide.title || 'Hero Banner'}
-                className="absolute inset-0 w-full h-full object-cover object-center opacity-100"
+                className="absolute inset-0 w-full h-full object-cover object-center"
+                style={{
+                  opacity: 1,
+                  filter: 'none',
+                  mixBlendMode: 'normal',
+                }}
                 onError={(e) => {
                   (e.target as HTMLImageElement).src = '/images/hero_tribal_elders.jpg';
                 }}
               />
 
-              {/* Localized Text Overlay ONLY if title/subtitle/CTA configured (NO full-image scrim/gradient) */}
+              {/* Localized Text / CTA ONLY if configured - absolutely NO background, scrim, or gradient */}
               {hasTextOverlay && (
-                <div className="absolute inset-0 p-3 sm:p-4 flex flex-col justify-end pointer-events-none">
+                <div className="absolute inset-0 p-3 sm:p-4 flex flex-col justify-end pointer-events-none bg-transparent">
                   <div className="max-w-[85%] space-y-0.5">
                     {slide.eyebrow && (
-                      <span className="inline-block text-[9px] font-bold uppercase tracking-wider text-[#C5A059] bg-[#0E382C]/90 px-2 py-0.5 rounded shadow-xs mb-0.5">
+                      <span
+                        className="inline-block text-[9px] font-bold uppercase tracking-wider text-[#C5A059] mb-0.5"
+                        style={{ textShadow: '0 1px 2px rgba(0,0,0,0.85)' }}
+                      >
                         {slide.eyebrow}
                       </span>
                     )}
                     {slide.title && (
-                      <h3 className="font-serif text-base sm:text-lg font-bold text-[#FDF8EC] line-clamp-1 leading-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]">
+                      <h3
+                        className="font-serif text-base sm:text-lg font-bold text-white line-clamp-1 leading-tight"
+                        style={{ textShadow: '0 1px 3px rgba(0,0,0,0.85)' }}
+                      >
                         {slide.title}
                       </h3>
                     )}
                     {slide.subtitle && (
-                      <p className="text-[11px] sm:text-xs text-white/95 line-clamp-1 leading-snug font-sans drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
+                      <p
+                        className="text-[11px] sm:text-xs text-white/95 line-clamp-1 leading-snug font-sans"
+                        style={{ textShadow: '0 1px 2px rgba(0,0,0,0.85)' }}
+                      >
                         {slide.subtitle}
                       </p>
                     )}
@@ -141,7 +155,7 @@ export const AppHeroCarousel: React.FC<AppHeroCarouselProps> = ({
         })}
       </div>
 
-      {/* Pagination Dots */}
+      {/* Pagination Dots - Clean small circular dots, green active, gray inactive, no gold bar */}
       {publishedSlides.length > 1 && (
         <div className="flex items-center justify-center gap-1.5 mt-2.5">
           {publishedSlides.map((_, i) => (
@@ -149,10 +163,10 @@ export const AppHeroCarousel: React.FC<AppHeroCarouselProps> = ({
               key={i}
               type="button"
               onClick={() => scrollToSlide(i)}
-              className={`transition-all duration-300 rounded-full h-1.5 ${
+              className={`rounded-full transition-all duration-200 ${
                 i === activeIndex
-                  ? 'w-5 bg-[#0E382C]'
-                  : 'w-1.5 bg-emerald-950/20 hover:bg-emerald-950/40'
+                  ? 'w-2 h-2 bg-[#0E382C]'
+                  : 'w-2 h-2 bg-slate-300 hover:bg-slate-400'
               }`}
               aria-label={`Go to slide ${i + 1}`}
             />

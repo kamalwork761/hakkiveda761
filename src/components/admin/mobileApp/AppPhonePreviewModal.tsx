@@ -93,26 +93,36 @@ export const AppPhonePreviewModal: React.FC<AppPhonePreviewModalProps> = ({
             <img
               src={resolveAssetUrl(currentHeroSlide.imageUrl)}
               alt={currentHeroSlide.title}
-              className="w-full h-full object-cover opacity-100"
+              className="w-full h-full object-cover object-center"
+              style={{ opacity: 1, filter: 'none', mixBlendMode: 'normal' }}
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/images/hero_tribal_elders.jpg';
               }}
             />
             {/* Localized text overlay only if configured - NO full-image scrim/gradient */}
             {hasHeroText && (
-              <div className="absolute inset-0 p-3 flex flex-col justify-end pointer-events-none">
+              <div className="absolute inset-0 p-3 flex flex-col justify-end pointer-events-none bg-transparent">
                 {currentHeroSlide.eyebrow && (
-                  <span className="text-[8px] font-bold uppercase tracking-wider text-[#C5A059] bg-[#0E382C]/90 px-1.5 py-0.5 rounded w-max mb-1">
+                  <span
+                    className="text-[8px] font-bold uppercase tracking-wider text-[#C5A059] mb-1"
+                    style={{ textShadow: '0 1px 2px rgba(0,0,0,0.85)' }}
+                  >
                     {currentHeroSlide.eyebrow}
                   </span>
                 )}
                 {currentHeroSlide.title && (
-                  <h3 className="font-serif text-xs font-bold text-[#FDF8EC] leading-tight drop-shadow-[0_1px_3px_rgba(0,0,0,0.85)]">
+                  <h3
+                    className="font-serif text-xs font-bold text-white leading-tight"
+                    style={{ textShadow: '0 1px 3px rgba(0,0,0,0.85)' }}
+                  >
                     {currentHeroSlide.title}
                   </h3>
                 )}
                 {currentHeroSlide.subtitle && (
-                  <p className="text-[9px] text-white/95 line-clamp-1 mt-0.5 drop-shadow-[0_1px_2px_rgba(0,0,0,0.85)]">
+                  <p
+                    className="text-[9px] text-white/95 line-clamp-1 mt-0.5"
+                    style={{ textShadow: '0 1px 2px rgba(0,0,0,0.85)' }}
+                  >
                     {currentHeroSlide.subtitle}
                   </p>
                 )}
@@ -128,7 +138,7 @@ export const AppPhonePreviewModal: React.FC<AppPhonePreviewModalProps> = ({
                         key={idx}
                         onClick={() => setActiveSlideIdx(idx)}
                         className={`w-1.5 h-1.5 rounded-full transition-all ${
-                          activeSlideIdx === idx ? 'bg-[#C5A059] w-3' : 'bg-white/60 drop-shadow-xs'
+                          activeSlideIdx === idx ? 'bg-[#0E382C]' : 'bg-slate-300'
                         }`}
                       />
                     ))}

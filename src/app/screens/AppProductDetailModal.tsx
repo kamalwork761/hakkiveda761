@@ -17,6 +17,7 @@ import { MobileAppProductOverride } from '../../types/mobileApp';
 import { useStore } from '../../context/StoreContext';
 import { resolveAssetUrl } from '../utils/nativeUrl';
 import { formatSafeINR } from '../utils/formatMoney';
+import { getAuthoritativePriceINR, getAuthoritativeOriginalPriceINR } from '../utils/productPrice';
 
 interface AppProductDetailModalProps {
   productId: string | null;
@@ -46,14 +47,14 @@ export const AppProductDetailModal: React.FC<AppProductDetailModalProps> = ({
   const hasVariants = product.variants && product.variants.length > 0;
   const currentVariant = hasVariants ? product.variants[selectedVariantIndex] : null;
 
-  // Master shared pricing & stock (Shared catalog data)
-  const rawPrice = currentVariant ? currentVariant.price : product.price;
-  const numPrice = typeof rawPrice === 'number' ? rawPrice : parseFloat(String(rawPrice || 0));
-  const hasValidPrice = !isNaN(numPrice) && numPrice > 0;
+  // Master shared pricing & stock using authoritative priceINR
+  const authoritativePrice = getAuthoritativePriceINR(product, currentVariant);
+  const hasValidPrice = authoritativePrice !== null && authoritativePrice > 0;
+  const numPrice = hasValidPrice ? authoritativePrice : 0;
 
-  const rawOriginal = currentVariant?.originalPrice || product.originalPrice;
-  const numOriginal = typeof rawOriginal === 'number' && rawOriginal > 0
-    ? rawOriginal
+  const authoritativeOriginal = getAuthoritativeOriginalPriceINR(product, currentVariant);
+  const numOriginal = authoritativeOriginal !== null && authoritativeOriginal > 0
+    ? authoritativeOriginal
     : (hasValidPrice ? Math.round(numPrice * 1.45) : 0);
 
   const discountPercent =
@@ -81,6 +82,7 @@ export const AppProductDetailModal: React.FC<AppProductDetailModalProps> = ({
   )}`;
 
   const handleAddToCart = () => {
+    if (!hasValidPrice) return;
     addToCart(product, 1, currentVariant || undefined);
     try {
       playSound('success');
@@ -90,6 +92,7 @@ export const AppProductDetailModal: React.FC<AppProductDetailModalProps> = ({
   };
 
   const handleBuyNow = () => {
+    if (!hasValidPrice) return;
     addToCart(product, 1, currentVariant || undefined);
     try {
       playSound('success');
@@ -256,7 +259,7 @@ export const AppProductDetailModal: React.FC<AppProductDetailModalProps> = ({
                   >
                     <div>
                       <div className="text-xs font-bold text-slate-900">{v.name}</div>
-                      <div className="text-[10px] text-slate-500">₹{v.price}</div>
+                      <div className="text-[10px] text-slate-500">{formatSafeINR(v.priceINR ?? (v as any).price)}</div>
                     </div>
                     {selectedVariantIndex === idx && (
                       <Check className="w-4 h-4 text-[#0E382C] stroke-[3]" />

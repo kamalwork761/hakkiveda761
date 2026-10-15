@@ -12,7 +12,7 @@ export const AppHairAnalysisCard: React.FC<AppHairAnalysisCardProps> = ({
     <div className="w-full px-4 py-3">
       <div
         onClick={onStartAnalysis}
-        className="rounded-3xl p-4 bg-gradient-to-br from-[#0E382C] via-[#134E3F] to-[#07241C] text-white shadow-md border border-[#C5A059]/40 relative overflow-hidden cursor-pointer active:scale-[0.99] transition-all"
+        className="rounded-3xl p-4 bg-gradient-to-br from-[#0E382C] via-[#134E3F] to-[#07241C] text-white shadow-md border border-[#C5A059]/40 relative overflow-hidden cursor-pointer active:scale-[0.99] transition-all app-dark-card"
       >
         {/* Subtle decorative circles */}
         <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-[#C5A059]/10 blur-xl pointer-events-none" />
@@ -28,7 +28,7 @@ export const AppHairAnalysisCard: React.FC<AppHairAnalysisCardProps> = ({
             </span>
           </div>
 
-          <h3 className="font-serif text-base font-bold text-[#FDF8EC] leading-tight">
+          <h3 className="font-serif text-base font-bold text-[#FDF8EC] leading-tight dark-heading">
             Discover Your Root Cause & Custom Regimen
           </h3>
 

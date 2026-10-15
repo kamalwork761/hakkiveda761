@@ -5,6 +5,7 @@ import { MobileAppProductOverride } from '../../types/mobileApp';
 import { useStore } from '../../context/StoreContext';
 import { resolveAssetUrl } from '../utils/nativeUrl';
 import { formatSafeINR } from '../utils/formatMoney';
+import { getAuthoritativePriceINR, getAuthoritativeOriginalPriceINR } from '../utils/productPrice';
 
 interface AppFlagshipFeatureProps {
   flagshipProduct?: Product;
@@ -85,11 +86,11 @@ export const AppFlagshipFeature: React.FC<AppFlagshipFeatureProps> = ({
             <div className="mt-2.5 flex items-center justify-between">
               <div>
                 <span className="font-bold text-base text-[#0E382C]">
-                  {formatSafeINR(product.price, 'Price on request')}
+                  {formatSafeINR(getAuthoritativePriceINR(product), 'Price on request')}
                 </span>
-                {product.originalPrice && (
+                {getAuthoritativeOriginalPriceINR(product) && (
                   <span className="text-[10px] text-slate-400 line-through ml-1.5">
-                    {formatSafeINR(product.originalPrice)}
+                    {formatSafeINR(getAuthoritativeOriginalPriceINR(product))}
                   </span>
                 )}
               </div>

@@ -5,6 +5,7 @@ import { MobileAppProductOverride } from '../../types/mobileApp';
 import { useStore } from '../../context/StoreContext';
 import { resolveAssetUrl } from '../utils/nativeUrl';
 import { formatSafeINR } from '../utils/formatMoney';
+import { getAuthoritativePriceINR, getAuthoritativeOriginalPriceINR } from '../utils/productPrice';
 
 interface AppProductCardProps {
   product: Product;
@@ -33,13 +34,13 @@ export const AppProductCard: React.FC<AppProductCardProps> = ({
   const badgeText = override?.badge || (product.isBestSeller ? 'Bestseller' : null);
   const ctaLabel = override?.cardCtaLabel || 'Add';
 
-  const rawPrice = product.price;
-  const numPrice = typeof rawPrice === 'number' ? rawPrice : parseFloat(String(rawPrice || 0));
-  const hasValidPrice = !isNaN(numPrice) && numPrice > 0;
+  const authoritativePrice = getAuthoritativePriceINR(product);
+  const hasValidPrice = authoritativePrice !== null && authoritativePrice > 0;
+  const numPrice = hasValidPrice ? authoritativePrice : 0;
 
-  const rawOriginal = product.originalPrice;
-  const numOriginal = typeof rawOriginal === 'number' && rawOriginal > 0
-    ? rawOriginal
+  const authoritativeOriginal = getAuthoritativeOriginalPriceINR(product);
+  const numOriginal = authoritativeOriginal !== null && authoritativeOriginal > 0
+    ? authoritativeOriginal
     : (hasValidPrice ? Math.round(numPrice * 1.45) : 0);
 
   const discountPercent =
@@ -49,6 +50,7 @@ export const AppProductCard: React.FC<AppProductCardProps> = ({
 
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
+    if (!hasValidPrice) return;
     addToCart(product, 1);
     try {
       playSound('success');

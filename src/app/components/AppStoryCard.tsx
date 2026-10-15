@@ -9,7 +9,7 @@ export const AppStoryCard: React.FC = () => {
 
   return (
     <div className="w-full px-4 py-3">
-      <div className="rounded-3xl bg-[#0E382C] text-white p-4 shadow-md border border-[#C5A059]/30 relative overflow-hidden">
+      <div className="rounded-3xl bg-[#0E382C] text-white p-4 shadow-md border border-[#C5A059]/30 relative overflow-hidden app-dark-card">
         {/* Header */}
         <div className="flex items-center gap-1.5 mb-2">
           <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
@@ -18,7 +18,7 @@ export const AppStoryCard: React.FC = () => {
           </span>
         </div>
 
-        <h3 className="font-serif text-base font-bold text-[#FDF8EC] leading-tight">
+        <h3 className="font-serif text-base font-bold text-[#FDF8EC] leading-tight dark-heading">
           Handcrafted by Hakki-Pikki Tribal Elders
         </h3>
 

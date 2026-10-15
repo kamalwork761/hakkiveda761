@@ -1,12 +1,16 @@
 import React, { useState, useMemo } from 'react';
 import { Search, SlidersHorizontal, ArrowUpDown, X } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
-import { MobileAppProductOverride } from '../../types/mobileApp';
+import { MobileAppProductOverride, MobileAppShopConcern } from '../../types/mobileApp';
+import { INITIAL_MOBILE_APP_CONCERNS } from '../../data/initialData';
 import { AppProductCard } from '../components/AppProductCard';
+import { resolveAssetUrl } from '../utils/nativeUrl';
+import { getAuthoritativePriceINR } from '../utils/productPrice';
 
 interface AppShopScreenProps {
   initialCategoryId?: string;
   initialConcernId?: string;
+  concerns?: MobileAppShopConcern[];
   appProductOverrides?: Record<string, MobileAppProductOverride>;
   onOpenProductDetail: (productId: string) => void;
 }
@@ -14,6 +18,7 @@ interface AppShopScreenProps {
 export const AppShopScreen: React.FC<AppShopScreenProps> = ({
   initialCategoryId = 'ALL',
   initialConcernId,
+  concerns,
   appProductOverrides,
   onOpenProductDetail,
 }) => {
@@ -25,13 +30,12 @@ export const AppShopScreen: React.FC<AppShopScreenProps> = ({
   const [sortBy, setSortBy] = useState<'featured' | 'price_low' | 'price_high' | 'rating'>('featured');
   const [isSortOpen, setIsSortOpen] = useState(false);
 
-  const concernsList = [
-    { id: 'hair-fall', label: 'Hair Fall' },
-    { id: 'hair-growth', label: 'Growth' },
-    { id: 'baldness', label: 'Baldness' },
-    { id: 'dandruff', label: 'Dandruff' },
-    { id: 'scalp-care', label: 'Scalp Care' },
-  ];
+  const activeConcerns = useMemo(() => {
+    return (concerns && concerns.length > 0
+      ? concerns.filter((c) => c.published !== false)
+      : INITIAL_MOBILE_APP_CONCERNS
+    ).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+  }, [concerns]);
 
   // Filter products
   const filteredProducts = useMemo(() => {
@@ -67,10 +71,10 @@ export const AppShopScreen: React.FC<AppShopScreenProps> = ({
     // Sorting
     switch (sortBy) {
       case 'price_low':
-        result.sort((a, b) => (Number(a.price) || 0) - (Number(b.price) || 0));
+        result.sort((a, b) => (getAuthoritativePriceINR(a) || 0) - (getAuthoritativePriceINR(b) || 0));
         break;
       case 'price_high':
-        result.sort((a, b) => (Number(b.price) || 0) - (Number(a.price) || 0));
+        result.sort((a, b) => (getAuthoritativePriceINR(b) || 0) - (getAuthoritativePriceINR(a) || 0));
         break;
       case 'rating':
         result.sort((a, b) => (Number(b.rating) || 4.5) - (Number(a.rating) || 4.5));
@@ -86,8 +90,8 @@ export const AppShopScreen: React.FC<AppShopScreenProps> = ({
 
   return (
     <div className="w-full pb-24">
-      {/* Top Search Bar */}
-      <div className="sticky top-14 z-30 bg-[#FAF7F2] px-4 pt-3 pb-2 border-b border-emerald-950/10">
+      {/* Top Search Bar with optimized compact top padding */}
+      <div className="sticky top-14 z-30 bg-[#FAF7F2] px-4 pt-2 pb-1.5 border-b border-emerald-950/10">
         <div className="relative flex items-center">
           <Search className="absolute left-3 w-4 h-4 text-emerald-900/50" />
           <input
@@ -95,7 +99,7 @@ export const AppShopScreen: React.FC<AppShopScreenProps> = ({
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             placeholder="Search herbal remedies, oil, lepa..."
-            className="w-full pl-9 pr-8 py-2 bg-white rounded-xl text-xs text-slate-800 placeholder-slate-400 border border-emerald-950/15 focus:outline-none focus:ring-1 focus:ring-[#0E382C] shadow-xs"
+            className="w-full pl-9 pr-8 py-1.5 bg-white rounded-xl text-xs text-slate-800 placeholder-slate-400 border border-emerald-950/15 focus:outline-none focus:ring-1 focus:ring-[#0E382C] shadow-xs"
           />
           {searchQuery && (
             <button
@@ -108,9 +112,9 @@ export const AppShopScreen: React.FC<AppShopScreenProps> = ({
           )}
         </div>
 
-        {/* Category Filter Chips */}
+        {/* Category & Concern Filter Chips */}
         <div
-          className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-2.5 pb-1"
+          className="flex items-center gap-1.5 overflow-x-auto no-scrollbar pt-2 pb-0.5"
           style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
         >
           <button
@@ -129,7 +133,7 @@ export const AppShopScreen: React.FC<AppShopScreenProps> = ({
           </button>
 
           {categories.map((cat) => {
-            const isSelected = selectedCategory === cat.id;
+            const isSelected = selectedCategory === cat.id && !selectedConcern;
             return (
               <button
                 key={cat.id}
@@ -149,24 +153,37 @@ export const AppShopScreen: React.FC<AppShopScreenProps> = ({
             );
           })}
 
-          {/* Concern pills */}
-          {concernsList.map((con) => {
-            const isSelected = selectedConcern === con.id;
+          {/* Configured Concern Pills with Concern-Specific Images */}
+          {activeConcerns.map((con) => {
+            const conKey = con.destination ? con.destination.replace('concern:', '') : con.id;
+            const isSelected = selectedConcern === conKey || selectedConcern === con.id;
+            const concernImg = con.imageUrl ? resolveAssetUrl(con.imageUrl) : null;
+
             return (
               <button
                 key={con.id}
                 type="button"
                 onClick={() => {
-                  setSelectedConcern(con.id);
+                  setSelectedConcern(conKey);
                   setSelectedCategory('ALL');
                 }}
-                className={`px-3 py-1 rounded-full text-[11px] font-medium whitespace-nowrap transition-all ${
+                className={`px-2.5 py-1 rounded-full text-[11px] font-medium whitespace-nowrap transition-all flex items-center gap-1.5 ${
                   isSelected
                     ? 'bg-[#C5A059] text-[#0E382C] font-bold shadow-xs'
-                    : 'bg-[#C5A059]/10 text-emerald-950 border border-[#C5A059]/30'
+                    : 'bg-[#C5A059]/10 text-emerald-950 border border-[#C5A059]/30 hover:bg-[#C5A059]/20'
                 }`}
               >
-                {con.label}
+                {concernImg && (
+                  <img
+                    src={concernImg}
+                    alt={con.title}
+                    className="w-3.5 h-3.5 rounded-full object-cover border border-[#C5A059]/40"
+                    onError={(e) => {
+                      (e.target as HTMLElement).style.display = 'none';
+                    }}
+                  />
+                )}
+                <span>{con.title}</span>
               </button>
             );
           })}

@@ -1,8 +1,10 @@
-import React, { useState } from 'react';
-import { X, Trash2, Plus, Minus, ArrowRight, ShoppingBag, ShieldCheck, Tag } from 'lucide-react';
+import React, { useState, useMemo } from 'react';
+import { X, Trash2, Plus, Minus, ArrowRight, ShoppingBag, ShieldCheck, Tag, AlertTriangle } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
+import { CartItem } from '../../types/store';
 import { resolveAssetUrl } from '../utils/nativeUrl';
 import { formatSafeINR } from '../utils/formatMoney';
+import { getAuthoritativePriceINR, isSellablePrice } from '../utils/productPrice';
 
 interface AppCartDrawerProps {
   isOpen: boolean;
@@ -23,11 +25,51 @@ export const AppCartDrawer: React.FC<AppCartDrawerProps> = ({
 
   if (!isOpen) return null;
 
-  const subtotal = cart.reduce((total, item) => {
-    const p = (item && item.product && typeof item.product.price === 'number') ? item.product.price : 0;
-    const q = (item && typeof item.quantity === 'number') ? item.quantity : 1;
-    return total + (p * q);
-  }, 0);
+  // Consolidate identical product + variant into merged rows
+  const mergedCart = useMemo(() => {
+    const map = new Map<string, { itemKey: string; item: CartItem }>();
+    for (const item of cart) {
+      if (!item || !item.product) continue;
+      const variant = item.selectedVariant || (item as any).variant;
+      const variantId = variant?.id || '';
+      const itemKey = variantId ? `${item.product.id}-${variantId}` : item.product.id;
+      const existing = map.get(itemKey);
+      if (existing) {
+        existing.item.quantity += (item.quantity || 1);
+      } else {
+        map.set(itemKey, {
+          itemKey,
+          item: {
+            product: item.product,
+            quantity: item.quantity || 1,
+            selectedVariant: variant,
+          },
+        });
+      }
+    }
+    return Array.from(map.values());
+  }, [cart]);
+
+  // Subtotal using authoritative priceINR
+  const subtotal = useMemo(() => {
+    return mergedCart.reduce((total, { item }) => {
+      const p = getAuthoritativePriceINR(item.product, item.selectedVariant);
+      const validPrice = p !== null && p > 0 ? p : 0;
+      const q = typeof item.quantity === 'number' && item.quantity > 0 ? item.quantity : 1;
+      return total + (validPrice * q);
+    }, 0);
+  }, [mergedCart]);
+
+  // Check if any cart item lacks an authoritative positive price
+  const hasInvalidPriceItem = useMemo(() => {
+    return mergedCart.some(({ item }) => {
+      const p = getAuthoritativePriceINR(item.product, item.selectedVariant);
+      return !isSellablePrice(p);
+    });
+  }, [mergedCart]);
+
+  const canCheckout = mergedCart.length > 0 && !hasInvalidPriceItem && subtotal > 0;
+
   const discount = appliedCoupon ? appliedCoupon.discountAmount || 200 : 0;
   const shipping = subtotal >= 499 ? 0 : 70;
   const finalTotal = Math.max(0, subtotal - discount + shipping);
@@ -119,26 +161,46 @@ export const AppCartDrawer: React.FC<AppCartDrawerProps> = ({
               </button>
             </div>
           ) : (
-            cart.map((item) => {
+            mergedCart.map(({ itemKey, item }) => {
               const imgSrc = resolveAssetUrl(item.product.image);
+              const unitPrice = getAuthoritativePriceINR(item.product, item.selectedVariant);
+              const isValid = isSellablePrice(unitPrice);
+              const lineTotal = isValid ? unitPrice! * item.quantity : 0;
+
               return (
-                <div key={item.product.id} className="py-3 flex gap-3 items-center">
+                <div key={itemKey} className="py-3 flex gap-3 items-center">
                   <img
                     src={imgSrc}
                     alt={item.product.name}
                     className="w-16 h-16 rounded-xl object-cover border border-slate-100"
+                    onError={(e) => {
+                      (e.target as HTMLImageElement).src = '/images/hero_tribal_elders.jpg';
+                    }}
                   />
                   <div className="flex-1 min-w-0">
                     <h4 className="font-serif text-xs font-bold text-slate-900 truncate">
                       {item.product.name}
                     </h4>
-                    {item.variant && (
+                    {item.selectedVariant && (
                       <span className="text-[10px] text-slate-500 block">
-                        Volume: {item.variant.name}
+                        Volume: {item.selectedVariant.name}
                       </span>
                     )}
-                    <div className="text-xs font-bold text-[#0E382C] mt-1">
-                      {formatSafeINR((item?.product?.price || 0) * (item?.quantity || 1))}
+                    <div className="mt-1">
+                      {isValid ? (
+                        <div className="text-xs font-bold text-[#0E382C]">
+                          {formatSafeINR(lineTotal)}
+                          {item.quantity > 1 && (
+                            <span className="text-[10px] text-slate-400 font-normal ml-1">
+                              ({formatSafeINR(unitPrice)} each)
+                            </span>
+                          )}
+                        </div>
+                      ) : (
+                        <span className="inline-block text-[10px] font-bold text-rose-600 bg-rose-50 px-1.5 py-0.5 rounded border border-rose-200">
+                          Invalid Price
+                        </span>
+                      )}
                     </div>
                   </div>
 
@@ -148,12 +210,13 @@ export const AppCartDrawer: React.FC<AppCartDrawerProps> = ({
                       type="button"
                       onClick={() => {
                         if (item.quantity > 1) {
-                          updateQuantity(item.product.id, item.quantity - 1);
+                          updateQuantity(itemKey, item.quantity - 1);
                         } else {
-                          removeFromCart(item.product.id);
+                          removeFromCart(itemKey);
                         }
                       }}
                       className="w-6 h-6 rounded-lg bg-white flex items-center justify-center text-slate-600 hover:text-black shadow-xs"
+                      aria-label="Decrease quantity"
                     >
                       {item.quantity === 1 ? <Trash2 className="w-3 h-3 text-rose-500" /> : <Minus className="w-3 h-3" />}
                     </button>
@@ -162,8 +225,9 @@ export const AppCartDrawer: React.FC<AppCartDrawerProps> = ({
                     </span>
                     <button
                       type="button"
-                      onClick={() => updateQuantity(item.product.id, item.quantity + 1)}
+                      onClick={() => updateQuantity(itemKey, item.quantity + 1)}
                       className="w-6 h-6 rounded-lg bg-white flex items-center justify-center text-slate-600 hover:text-black shadow-xs"
+                      aria-label="Increase quantity"
                     >
                       <Plus className="w-3 h-3" />
                     </button>
@@ -236,16 +300,30 @@ export const AppCartDrawer: React.FC<AppCartDrawerProps> = ({
               </div>
             </div>
 
+            {/* Invalid Price Warning Banner */}
+            {hasInvalidPriceItem && (
+              <div className="flex items-center gap-2 p-2.5 rounded-xl bg-rose-50 border border-rose-200 text-rose-800 text-xs font-semibold">
+                <AlertTriangle className="w-4 h-4 flex-shrink-0 text-rose-600" />
+                <span>Checkout is blocked because one or more remedies have an invalid price. Please remove them to proceed.</span>
+              </div>
+            )}
+
             {/* Checkout Button */}
             <button
               type="button"
+              disabled={!canCheckout}
               onClick={() => {
+                if (!canCheckout) return;
                 onClose();
                 onProceedToCheckout();
               }}
-              className="w-full py-3.5 rounded-2xl bg-[#0E382C] text-[#C5A059] font-bold text-sm shadow-lg flex items-center justify-center gap-2 hover:bg-[#134E3F] active:scale-98 transition-all"
+              className={`w-full py-3.5 rounded-2xl font-bold text-sm shadow-lg flex items-center justify-center gap-2 transition-all ${
+                canCheckout
+                  ? 'bg-[#0E382C] text-[#C5A059] hover:bg-[#134E3F] active:scale-98 cursor-pointer'
+                  : 'bg-slate-300 text-slate-500 cursor-not-allowed opacity-60 shadow-none'
+              }`}
             >
-              <span>Proceed to Checkout</span>
+              <span>{canCheckout ? 'Proceed to Checkout' : 'Checkout Unavailable'}</span>
               <ArrowRight className="w-4 h-4 stroke-[2.5]" />
             </button>
           </div>

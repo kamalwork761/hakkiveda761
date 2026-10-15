@@ -23,7 +23,7 @@ export function formatSafeINR(
   fallback: string = ''
 ): string {
   const num = parseSafeAmount(amount);
-  if (num === null) {
+  if (num === null || (num <= 0 && fallback !== '' && fallback !== '₹0')) {
     return fallback;
   }
 

@@ -34,7 +34,7 @@ export const AppPromoBanner: React.FC<AppPromoBannerProps> = ({
     <div className="w-full px-4 py-2.5">
       <div
         onClick={() => onNavigateAction(banner.linkAction || 'shop')}
-        className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-[#0E382C] via-[#134E3F] to-[#07241C] text-white p-4 shadow-md border border-[#C5A059]/30 cursor-pointer active:scale-[0.99] transition-all"
+        className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-[#0E382C] via-[#134E3F] to-[#07241C] text-white p-4 shadow-md border border-[#C5A059]/30 cursor-pointer active:scale-[0.99] transition-all app-dark-card"
       >
         {/* Subtle Background Pattern / Image */}
         {bgImage && (
@@ -56,7 +56,7 @@ export const AppPromoBanner: React.FC<AppPromoBannerProps> = ({
             </span>
           </div>
 
-          <h3 className="font-serif text-base font-bold text-[#FDF8EC] leading-tight">
+          <h3 className="font-serif text-base font-bold text-[#FDF8EC] leading-tight dark-heading">
             {banner.title}
           </h3>
 

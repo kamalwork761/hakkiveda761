@@ -265,6 +265,8 @@ export const HakkivedaAndroidApp: React.FC = () => {
             <AppShopScreen
               initialCategoryId={selectedCategoryId}
               initialConcernId={selectedConcernId}
+              concerns={concerns}
+              appProductOverrides={appProductOverrides}
               onOpenProductDetail={(id) => setSelectedProductId(id)}
             />
           </AppScreenErrorBoundary>

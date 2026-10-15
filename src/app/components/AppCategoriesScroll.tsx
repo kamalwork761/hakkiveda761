@@ -39,19 +39,20 @@ export const AppCategoriesScroll: React.FC<AppCategoriesScrollProps> = ({
           })),
         ];
 
-  const renderIcon = (iconName?: string) => {
+  const renderIcon = (iconName?: string, isSelected?: boolean) => {
+    const iconClass = `w-5 h-5 transition-colors ${isSelected ? 'text-[#C5A059]' : 'text-emerald-800'}`;
     switch (iconName) {
       case 'Droplet':
-        return <Droplet className="w-5 h-5 text-emerald-800" />;
+        return <Droplet className={iconClass} />;
       case 'Leaf':
-        return <Leaf className="w-5 h-5 text-emerald-800" />;
+        return <Leaf className={iconClass} />;
       case 'Wind':
-        return <Wind className="w-5 h-5 text-emerald-800" />;
+        return <Wind className={iconClass} />;
       case 'Package':
-        return <Package className="w-5 h-5 text-emerald-800" />;
+        return <Package className={iconClass} />;
       case 'Sparkles':
       default:
-        return <Sparkles className="w-5 h-5 text-emerald-800" />;
+        return <Sparkles className={iconClass} />;
     }
   };
 
@@ -83,9 +84,7 @@ export const AppCategoriesScroll: React.FC<AppCategoriesScrollProps> = ({
                     : 'bg-white text-emerald-900 shadow-sm border border-emerald-950/10 group-hover:border-[#C5A059]/40'
                 }`}
               >
-                <div className={isSelected ? 'text-[#C5A059]' : 'text-emerald-800'}>
-                  {renderIcon(item.icon)}
-                </div>
+                {renderIcon(item.icon, isSelected)}
               </div>
               <span
                 className={`text-[11px] font-medium tracking-tight whitespace-nowrap text-center max-w-[68px] truncate ${

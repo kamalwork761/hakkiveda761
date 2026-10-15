@@ -124,7 +124,9 @@
     #mobile-footer h1,
     .mobile-dark-footer h1,
     .mobile-app-admin *,
-    .mobile-app-modal *
+    .mobile-app-modal *,
+    .app-dark-card *,
+    .dark-heading
   ) {
     color: #0B2F20 !important;
   }
@@ -141,7 +143,9 @@
     #mobile-footer h2,
     .mobile-dark-footer h2,
     .mobile-app-admin *,
-    .mobile-app-modal *
+    .mobile-app-modal *,
+    .app-dark-card *,
+    .dark-heading
   ),
   [data-theme="light"] h3:not(
     .hero-content h3,
@@ -155,7 +159,9 @@
     #mobile-footer h3,
     .mobile-dark-footer h3,
     .mobile-app-admin *,
-    .mobile-app-modal *
+    .mobile-app-modal *,
+    .app-dark-card *,
+    .dark-heading
   ) {
     color: #0B2F20 !important;
   }
@@ -173,7 +179,9 @@
     #mobile-footer h4,
     .mobile-dark-footer h4,
     .mobile-app-admin *,
-    .mobile-app-modal *
+    .mobile-app-modal *,
+    .app-dark-card *,
+    .dark-heading
   ),
   [data-theme="light"] h5:not(
     .hero-content h5,
@@ -187,7 +195,9 @@
     #mobile-footer h5,
     .mobile-dark-footer h5,
     .mobile-app-admin *,
-    .mobile-app-modal *
+    .mobile-app-modal *,
+    .app-dark-card *,
+    .dark-heading
   ),
   [data-theme="light"] h6:not(
     .hero-content h6,
@@ -201,9 +211,32 @@
     #mobile-footer h6,
     .mobile-dark-footer h6,
     .mobile-app-admin *,
-    .mobile-app-modal *
+    .mobile-app-modal *,
+    .app-dark-card *,
+    .dark-heading
   ) {
     color: #123F2A !important;
+  }
+
+  /* Explicit High-Contrast Light Headings on Dark Cards (Android App & Web) */
+  .app-dark-card h1,
+  .app-dark-card h2,
+  .app-dark-card h3,
+  .app-dark-card h4,
+  .app-dark-card h5,
+  .app-dark-card h6,
+  .app-dark-card .dark-heading,
+  .dark-heading,
+  [data-theme="light"] .app-dark-card h1,
+  [data-theme="light"] .app-dark-card h2,
+  [data-theme="light"] .app-dark-card h3,
+  [data-theme="light"] .app-dark-card h4,
+  [data-theme="light"] .app-dark-card h5,
+  [data-theme="light"] .app-dark-card h6,
+  [data-theme="light"] .app-dark-card .dark-heading,
+  [data-theme="light"] .dark-heading {
+    color: #FDF8EC !important;
+    -webkit-text-fill-color: #FDF8EC !important;
   }
 
   /* Light Theme Text Contrast for Light Background Sections ONLY */

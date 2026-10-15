@@ -37,7 +37,7 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
   return (
     <div className="w-full pb-24 px-4 pt-3">
       {/* Profile Header */}
-      <div className="rounded-3xl p-5 bg-gradient-to-br from-[#0E382C] via-[#134E3F] to-[#07241C] text-white shadow-md border border-[#C5A059]/30 mb-4">
+      <div className="rounded-3xl p-5 bg-gradient-to-br from-[#0E382C] via-[#134E3F] to-[#07241C] text-white shadow-md border border-[#C5A059]/30 mb-4 app-dark-card">
         <div className="flex items-center gap-3.5">
           <div className="w-14 h-14 rounded-2xl bg-[#C5A059]/20 border border-[#C5A059]/40 text-[#C5A059] flex items-center justify-center font-bold text-xl shadow-inner">
             {currentCustomer ? currentCustomer.name.charAt(0).toUpperCase() : <User className="w-7 h-7 text-[#C5A059]" />}
@@ -45,7 +45,7 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
 
           <div className="flex-1">
             <div className="flex items-center gap-1.5">
-              <h2 className="font-serif text-base font-bold text-[#FDF8EC] leading-tight">
+              <h2 className="font-serif text-base font-bold text-[#FDF8EC] leading-tight dark-heading">
                 {currentCustomer ? currentCustomer.name : 'Welcome, Sacred Seeker'}
               </h2>
             </div>
@@ -137,7 +137,7 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
               <MessageCircle className="w-4 h-4" />
             </div>
             <div>
-              <div className="text-xs font-bold text-emerald-950">Chat with Senior Vaidya</div>
+              <div className="text-xs font-bold text-emerald-950">WhatsApp Hair Care Support</div>
               <div className="text-[10px] text-emerald-700">Official WhatsApp: +{whatsappNum}</div>
             </div>
           </div>
@@ -165,7 +165,7 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
       {/* App Version Info */}
       <div className="text-center py-2">
         <span className="text-[10px] font-mono text-slate-400">
-          HAKKIVEDA Android Native Edition • v1.0.0
+          HAKKIVEDA • Version 1.0.0
         </span>
       </div>
     </div>

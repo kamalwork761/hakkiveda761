@@ -3,6 +3,7 @@ import { Search, X, ArrowRight, Sparkles } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { resolveAssetUrl } from '../utils/nativeUrl';
 import { formatSafeINR } from '../utils/formatMoney';
+import { getAuthoritativePriceINR } from '../utils/productPrice';
 
 interface AppSearchModalProps {
   isOpen: boolean;
@@ -117,7 +118,7 @@ export const AppSearchModal: React.FC<AppSearchModalProps> = ({
                     {product.name}
                   </h4>
                   <div className="text-xs font-bold text-[#0E382C] mt-0.5">
-                    {formatSafeINR(product.price)}
+                    {formatSafeINR(getAuthoritativePriceINR(product), 'Price on request')}
                   </div>
                 </div>
                 <ArrowRight className="w-4 h-4 text-slate-400" />

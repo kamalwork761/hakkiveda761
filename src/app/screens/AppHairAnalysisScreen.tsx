@@ -1,8 +1,9 @@
-import React, { useState } from 'react';
+import React, { useState, useMemo } from 'react';
 import { Sparkles, Check, ArrowRight, ShieldCheck, RefreshCw, ShoppingBag } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { resolveAssetUrl } from '../utils/nativeUrl';
 import { formatSafeINR } from '../utils/formatMoney';
+import { getAuthoritativePriceINR } from '../utils/productPrice';
 
 interface AppHairAnalysisScreenProps {
   onOpenProductDetail: (productId: string) => void;
@@ -56,12 +57,73 @@ export const AppHairAnalysisScreen: React.FC<AppHairAnalysisScreenProps> = ({
     setAddedRegimen(false);
   };
 
-  // Determine recommended bundle
-  const recommendedProduct1 = products.find((p) => p.id === 'prod-1') || products[0];
-  const recommendedProduct2 =
-    concern === 'baldness'
-      ? products.find((p) => p.id === 'prod-4') || products[1]
-      : products.find((p) => p.id === 'prod-2') || products[1];
+  // Strictly filter hair & scalp eligible products (excluding jewellery, rudraksha, bracelets)
+  const hairCareProducts = useMemo(() => {
+    return products.filter((p) => {
+      if (!p) return false;
+      const cat = (p.category || '').toLowerCase();
+      const name = (p.name || '').toLowerCase();
+      const desc = (p.description || '').toLowerCase();
+
+      // Exclude unrelated categories / keywords
+      const isUnrelated =
+        cat.includes('jewel') ||
+        cat.includes('rudraksha') ||
+        cat.includes('mala') ||
+        cat.includes('bead') ||
+        cat.includes('bracelet') ||
+        name.includes('rudraksha') ||
+        name.includes('bracelet') ||
+        name.includes('mala') ||
+        name.includes('bead') ||
+        name.includes('pendant');
+      if (isUnrelated) return false;
+
+      // Include scalp & hair remedies
+      return (
+        cat.includes('hair') ||
+        cat.includes('oil') ||
+        cat.includes('shampoo') ||
+        cat.includes('lepa') ||
+        cat.includes('scalp') ||
+        cat.includes('powder') ||
+        name.includes('hair') ||
+        name.includes('oil') ||
+        name.includes('shampoo') ||
+        name.includes('lepa') ||
+        name.includes('bald') ||
+        desc.includes('follicle') ||
+        desc.includes('scalp')
+      );
+    });
+  }, [products]);
+
+  // Determine recommended bundle strictly from hairCareProducts
+  const recommendedProduct1 = useMemo(() => {
+    return (
+      hairCareProducts.find((p) => p.id === 'prod-1') ||
+      hairCareProducts.find((p) => p.name.toLowerCase().includes('oil')) ||
+      hairCareProducts[0] ||
+      null
+    );
+  }, [hairCareProducts]);
+
+  const recommendedProduct2 = useMemo(() => {
+    if (concern === 'baldness') {
+      return (
+        hairCareProducts.find((p) => p.id === 'prod-4') ||
+        hairCareProducts.find((p) => p.name.toLowerCase().includes('bald') || p.name.toLowerCase().includes('powder') || p.name.toLowerCase().includes('lepa')) ||
+        hairCareProducts.find((p) => p.id !== recommendedProduct1?.id) ||
+        null
+      );
+    }
+    return (
+      hairCareProducts.find((p) => p.id === 'prod-2') ||
+      hairCareProducts.find((p) => p.name.toLowerCase().includes('shampoo') || p.name.toLowerCase().includes('cleans')) ||
+      hairCareProducts.find((p) => p.id !== recommendedProduct1?.id) ||
+      null
+    );
+  }, [hairCareProducts, concern, recommendedProduct1]);
 
   const handleAddAllRegimen = () => {
     if (recommendedProduct1) addToCart(recommendedProduct1, 1);
@@ -346,18 +408,18 @@ export const AppHairAnalysisScreen: React.FC<AppHairAnalysisScreenProps> = ({
       ) : (
         /* COMPLETED STATE: CUSTOM REGIMEN REVEAL */
         <div className="space-y-4">
-          <div className="rounded-3xl p-5 bg-gradient-to-br from-[#0E382C] to-[#07241C] text-white shadow-md border border-[#C5A059]/40 text-center">
+          <div className="rounded-3xl p-5 bg-gradient-to-br from-[#0E382C] to-[#07241C] text-white shadow-md border border-[#C5A059]/40 text-center app-dark-card">
             <div className="w-12 h-12 rounded-full bg-[#C5A059]/20 text-[#C5A059] flex items-center justify-center mx-auto mb-2">
               <Check className="w-6 h-6 stroke-[3]" />
             </div>
             <span className="text-[10px] font-bold uppercase tracking-wider text-[#C5A059]">
               Diagnostic Complete
             </span>
-            <h2 className="font-serif text-lg font-bold text-[#FDF8EC] mt-0.5">
+            <h2 className="font-serif text-lg font-bold text-[#FDF8EC] mt-0.5 dark-heading">
               Personalized Regimen for {name}
             </h2>
-            <p className="text-xs text-emerald-100/80 mt-1 max-w-xs mx-auto leading-relaxed">
-              Your profile indicates follicular stress caused by scalp heat and mineral deficiency. Here is the verified Hakki-Pikki tribal formula:
+            <p className="text-xs text-emerald-100/90 mt-1 max-w-xs mx-auto leading-relaxed">
+              Based on your responses, here is our handcrafted Hakki-Pikki tribal herbal routine tailored to help nourish your scalp terrain and care for your follicles naturally:
             </p>
           </div>
 
@@ -376,6 +438,9 @@ export const AppHairAnalysisScreen: React.FC<AppHairAnalysisScreenProps> = ({
                   src={resolveAssetUrl(recommendedProduct1.image)}
                   alt={recommendedProduct1.name}
                   className="w-14 h-14 rounded-xl object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/images/hero_tribal_elders.jpg';
+                  }}
                 />
                 <div className="flex-1">
                   <div className="text-[9px] font-bold text-[#C5A059] uppercase tracking-wider">
@@ -385,7 +450,7 @@ export const AppHairAnalysisScreen: React.FC<AppHairAnalysisScreenProps> = ({
                     {recommendedProduct1.name}
                   </h4>
                   <div className="text-xs font-bold text-[#0E382C] mt-0.5">
-                    {formatSafeINR(recommendedProduct1.price, '')}
+                    {formatSafeINR(getAuthoritativePriceINR(recommendedProduct1), 'Price on request')}
                   </div>
                 </div>
               </div>
@@ -400,6 +465,9 @@ export const AppHairAnalysisScreen: React.FC<AppHairAnalysisScreenProps> = ({
                   src={resolveAssetUrl(recommendedProduct2.image)}
                   alt={recommendedProduct2.name}
                   className="w-14 h-14 rounded-xl object-cover"
+                  onError={(e) => {
+                    (e.target as HTMLImageElement).src = '/images/hero_tribal_elders.jpg';
+                  }}
                 />
                 <div className="flex-1">
                   <div className="text-[9px] font-bold text-[#C5A059] uppercase tracking-wider">
@@ -409,7 +477,7 @@ export const AppHairAnalysisScreen: React.FC<AppHairAnalysisScreenProps> = ({
                     {recommendedProduct2.name}
                   </h4>
                   <div className="text-xs font-bold text-[#0E382C] mt-0.5">
-                    {formatSafeINR(recommendedProduct2.price, '')}
+                    {formatSafeINR(getAuthoritativePriceINR(recommendedProduct2), 'Price on request')}
                   </div>
                 </div>
               </div>

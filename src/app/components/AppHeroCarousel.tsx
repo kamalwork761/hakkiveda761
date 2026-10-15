@@ -84,7 +84,7 @@ export const AppHeroCarousel: React.FC<AppHeroCarouselProps> = ({
       >
         {publishedSlides.map((slide) => {
           const imgSrc = resolveAssetUrl(slide.imageUrl);
-          const hasTextOverlay = Boolean(slide.title || slide.subtitle || slide.ctaText);
+          const hasTextOverlay = (slide as any).showTextOverlay === true;
 
           return (
             <div

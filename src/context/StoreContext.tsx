@@ -1841,7 +1841,44 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const [customerAccounts, setCustomerAccounts] = useState<User[]>(() => getStored('customer_accounts', INITIAL_CUSTOMER_ACCOUNTS));
 
   // Cart & Wishlist
-  const [cart, setCart] = useState<CartItem[]>(() => getStored('cart', []));
+  const [cart, setCart] = useState<CartItem[]>(() => {
+    const storedCart = getStored<CartItem[]>('cart', []);
+    const merged = new Map<string, CartItem>();
+
+    for (const item of storedCart) {
+      if (!item?.product) continue;
+
+      const variant =
+        item.selectedVariant ||
+        item.product.selectedVariant ||
+        item.product.variants?.find((v) => v.active !== false) ||
+        item.product.variants?.[0];
+
+      const key = variant
+        ? `${item.product.id}-${variant.id}`
+        : item.product.id;
+
+      const existing = merged.get(key);
+
+      if (existing) {
+        existing.quantity += item.quantity || 1;
+      } else {
+        merged.set(key, {
+          ...item,
+          quantity: item.quantity || 1,
+          selectedVariant: variant,
+        });
+      }
+    }
+
+    const normalized = Array.from(merged.values());
+
+    try {
+      localStorage.setItem('hakkiveda_cart', JSON.stringify(normalized));
+    } catch (_) {}
+
+    return normalized;
+  });
   const [appliedCoupon, setAppliedCoupon] = useState<Coupon | null>(() => getStored('applied_coupon', null));
   const [wishlist, setWishlist] = useState<Product[]>(() => {
     try {

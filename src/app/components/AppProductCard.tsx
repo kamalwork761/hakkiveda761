@@ -51,7 +51,8 @@ export const AppProductCard: React.FC<AppProductCardProps> = ({
   const handleAddToCart = (e: React.MouseEvent) => {
     e.stopPropagation();
     if (!hasValidPrice) return;
-    addToCart(product, 1);
+    const defaultVariant = product.selectedVariant || product.variants?.find((v) => v.active !== false) || product.variants?.[0];
+    addToCart(product, 1, defaultVariant);
     try {
       playSound('success');
     } catch {}

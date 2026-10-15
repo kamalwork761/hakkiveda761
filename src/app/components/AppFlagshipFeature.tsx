@@ -32,7 +32,8 @@ export const AppFlagshipFeature: React.FC<AppFlagshipFeatureProps> = ({
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
-    addToCart(product, 1);
+    const defaultVariant = product.selectedVariant || product.variants?.find((v) => v.active !== false) || product.variants?.[0];
+    addToCart(product, 1, defaultVariant);
     try {
       playSound('success');
     } catch {}

@@ -23,8 +23,6 @@ export const AppCartDrawer: React.FC<AppCartDrawerProps> = ({
   const [couponInput, setCouponInput] = useState('');
   const [couponError, setCouponError] = useState('');
 
-  if (!isOpen) return null;
-
   // Consolidate identical product + variant into merged rows
   const mergedCart = useMemo(() => {
     const map = new Map<string, { itemKey: string; item: CartItem }>();
@@ -69,6 +67,8 @@ export const AppCartDrawer: React.FC<AppCartDrawerProps> = ({
   }, [mergedCart]);
 
   const canCheckout = mergedCart.length > 0 && !hasInvalidPriceItem && subtotal > 0;
+
+  if (!isOpen) return null;
 
   const discount = appliedCoupon ? appliedCoupon.discountAmount || 200 : 0;
   const shipping = subtotal >= 499 ? 0 : 70;

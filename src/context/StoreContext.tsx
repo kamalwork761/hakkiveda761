@@ -587,7 +587,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   // Load private orders for authenticated customer
   const loadCustomerOrders = async () => {
     try {
-      const res = await fetch('/api/customer/orders', { credentials: 'include' });
+      const token = localStorage.getItem('hakkiveda_customer_token');
+      const res = await fetch('/api/customer/orders', {
+        credentials: 'include',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       const data = await res.json();
       if (res.ok && data.success && Array.isArray(data.orders)) {
         setOrders(data.orders);
@@ -606,7 +610,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       sessionStorage.removeItem('current_user');
     } catch (_) {}
 
-    fetch('/api/auth/me', { credentials: 'include' })
+    const customerToken = localStorage.getItem('hakkiveda_customer_token');
+
+    fetch('/api/auth/me', {
+      credentials: 'include',
+      headers: customerToken
+        ? { Authorization: `Bearer ${customerToken}` }
+        : {},
+    })
       .then((res) => {
         if (!res.ok) {
           setCurrentUser(null);
@@ -2507,6 +2518,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       });
       const data = await res.json();
       if (res.ok && data.success && data.customer) {
+        if (data.token) {
+          localStorage.setItem('hakkiveda_customer_token', data.token);
+        }
         setCurrentUser(data.customer);
         await loadCustomerOrders();
         soundManager.play('order_success');
@@ -2537,6 +2551,9 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       });
       const resData = await res.json();
       if (res.ok && resData.success && resData.customer) {
+        if (resData.token) {
+          localStorage.setItem('hakkiveda_customer_token', resData.token);
+        }
         setCurrentUser(resData.customer);
         await loadCustomerOrders();
         soundManager.play('order_success');
@@ -2584,9 +2601,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     newPassword: string
   ): Promise<{ success: boolean; message: string }> => {
     try {
+      const token = localStorage.getItem('hakkiveda_customer_token');
+
       const res = await fetch('/api/customer/change-password', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         credentials: 'include',
         body: JSON.stringify({ currentPassword, newPassword }),
       });
@@ -2609,7 +2631,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const logoutUser = () => {
-    fetch('/api/auth/logout', { method: 'POST', credentials: 'include' }).catch(() => {});
+    const token = localStorage.getItem('hakkiveda_customer_token');
+
+    fetch('/api/auth/logout', {
+      method: 'POST',
+      credentials: 'include',
+      headers: token ? { Authorization: `Bearer ${token}` } : {},
+    }).catch(() => {});
+
+    localStorage.removeItem('hakkiveda_customer_token');
     soundManager.play('toggle_switch');
     setCurrentUser(null);
     if (!adminAuthenticated) {
@@ -2620,9 +2650,14 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const updateUserProfile = async (partial: Partial<User>) => {
     if (!currentUser) return;
     try {
+      const token = localStorage.getItem('hakkiveda_customer_token');
+
       const res = await fetch('/api/customer/profile', {
         method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        },
         credentials: 'include',
         body: JSON.stringify(partial),
       });

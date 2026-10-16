@@ -1,14 +1,21 @@
-import React, { useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Package, Search, Truck, Clock, CheckCircle2, ChevronRight, AlertCircle } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { formatSafeINR } from '../utils/formatMoney';
 
 export const AppOrdersScreen: React.FC = () => {
-  const { currentCustomer } = useStore();
+  const { currentUser, orders, loadCustomerOrders } = useStore();
   const [orderQuery, setOrderQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [trackedOrder, setTrackedOrder] = useState<any | null>(null);
+  const detailsRef = useRef<HTMLDivElement | null>(null);
   const [searchError, setSearchError] = useState('');
+
+  useEffect(() => {
+    if (currentUser) {
+      loadCustomerOrders();
+    }
+  }, [currentUser?.id]);
 
   const handleTrackOrder = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +58,68 @@ export const AppOrdersScreen: React.FC = () => {
           Real-time updates via Shiprocket, Bluedart, and Delhivery express
         </p>
       </div>
+
+      {currentUser && (
+        <div className="bg-white rounded-3xl p-4 border border-emerald-950/10 shadow-sm mb-4">
+          <div className="flex items-center justify-between mb-3">
+            <div>
+              <h2 className="text-sm font-bold text-slate-900">My Orders</h2>
+              <p className="text-[10px] text-slate-500">{currentUser.email}</p>
+            </div>
+            <Package className="w-5 h-5 text-[#0E382C]" />
+          </div>
+
+          {orders.length === 0 ? (
+            <div className="rounded-2xl bg-[#FAF7F2] p-4 text-center">
+              <p className="text-xs font-bold text-slate-800">No orders yet</p>
+              <p className="text-[10px] text-slate-500 mt-1">
+                Orders placed with this account will appear here.
+              </p>
+            </div>
+          ) : (
+            <div className="space-y-3">
+              {orders.map((order) => (
+                <button
+                  key={order.id}
+                  type="button"
+                  onClick={() => {
+                    setTrackedOrder(order);
+                    setTimeout(() => {
+                      detailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 50);
+                  }}
+                  className="w-full text-left rounded-2xl border border-slate-100 p-3 bg-[#FAF7F2]"
+                >
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <div className="text-xs font-bold text-slate-900">
+                        {order.orderNumber || order.id}
+                      </div>
+                      <div className="text-[10px] text-slate-500 mt-0.5">
+                        {order.date}
+                      </div>
+                    </div>
+
+                    <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-50 text-emerald-700">
+                      {order.trackingStatus || 'ORDER_PLACED'}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center justify-between mt-3">
+                    <span className="text-xs font-bold text-[#0E382C]">
+                      {formatSafeINR(order.totalAmountINR, '₹0')}
+                    </span>
+                    <span className="text-[10px] font-bold text-slate-600 flex items-center gap-1">
+                      View Details
+                      <ChevronRight className="w-3 h-3" />
+                    </span>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
+        </div>
+      )}
 
       {/* Track Form Card */}
       <div className="bg-white rounded-3xl p-4 border border-emerald-950/10 shadow-sm mb-4">
@@ -95,7 +164,10 @@ export const AppOrdersScreen: React.FC = () => {
 
       {/* Tracked Order Details */}
       {trackedOrder && (
-        <div className="bg-white rounded-3xl p-4 border border-emerald-950/10 shadow-sm space-y-4">
+        <div
+          ref={detailsRef}
+          className="bg-white rounded-3xl p-4 border border-emerald-950/10 shadow-sm space-y-4 scroll-mt-4"
+        >
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">
             <div>
               <span className="text-[10px] font-bold text-slate-400 uppercase tracking-wider block">

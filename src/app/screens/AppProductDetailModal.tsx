@@ -37,6 +37,7 @@ export const AppProductDetailModal: React.FC<AppProductDetailModalProps> = ({
   const { products, addToCart, wishlist, toggleWishlist, playSound } = useStore();
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
   const [added, setAdded] = useState(false);
+  const [selectedGalleryImage, setSelectedGalleryImage] = useState<string | null>(null);
 
   if (!productId) return null;
 
@@ -62,10 +63,29 @@ export const AppProductDetailModal: React.FC<AppProductDetailModalProps> = ({
       ? Math.round(((numOriginal - numPrice) / numOriginal) * 100)
       : 0;
 
-  // Overrides with fallbacks to catalog
-  const primaryImage = resolveAssetUrl(
-    override?.appImage || product.image || product.images?.[0] || '/images/hero_tribal_elders.jpg'
-  );
+  // Product gallery: use all active Admin-uploaded images
+  const gallerySources = [
+    ...(override?.appImage ? [override.appImage] : []),
+    ...(product.galleryItems || [])
+      .filter((item) => item.active !== false && item.url)
+      .sort((a, b) => (a.sortOrder || 0) - (b.sortOrder || 0))
+      .map((item) => item.url),
+    ...(product.image ? [product.image] : []),
+    ...(product.images || []),
+    ...(product.additionalImages || []),
+    ...(currentVariant?.image ? [currentVariant.image] : []),
+  ].filter(Boolean);
+
+  const galleryImages = Array.from(new Set(gallerySources)).map(resolveAssetUrl);
+
+  if (galleryImages.length === 0) {
+    galleryImages.push(resolveAssetUrl('/images/hero_tribal_elders.jpg'));
+  }
+
+  const primaryImage =
+    selectedGalleryImage && galleryImages.includes(selectedGalleryImage)
+      ? selectedGalleryImage
+      : galleryImages[0];
   const displayName = override?.appTitle || product.name;
   const displaySubtitle = override?.appSubtitle || product.subtitle;
   const customBadge = override?.badge || (product.isBestSeller ? '108 Sacred Herbs' : null);
@@ -135,7 +155,7 @@ export const AppProductDetailModal: React.FC<AppProductDetailModalProps> = ({
             <img
               src={primaryImage}
               alt={displayName}
-              className="w-full h-full object-cover object-center"
+              className="w-full h-full object-contain object-center p-2"
               onError={(e) => {
                 (e.target as HTMLImageElement).src = '/images/hero_tribal_elders.jpg';
               }}
@@ -168,6 +188,33 @@ export const AppProductDetailModal: React.FC<AppProductDetailModalProps> = ({
               </span>
             </div>
           </div>
+
+          {galleryImages.length > 1 && (
+            <div
+              className="flex gap-2 overflow-x-auto no-scrollbar pb-1"
+              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+            >
+              {galleryImages.map((imageUrl, index) => (
+                <button
+                  key={`${imageUrl}-${index}`}
+                  type="button"
+                  onClick={() => setSelectedGalleryImage(imageUrl)}
+                  className={`w-16 h-16 flex-shrink-0 rounded-xl overflow-hidden border-2 bg-[#FAF7F2] ${
+                    primaryImage === imageUrl
+                      ? 'border-[#C5A059]'
+                      : 'border-emerald-950/10'
+                  }`}
+                  aria-label={`View product image ${index + 1}`}
+                >
+                  <img
+                    src={imageUrl}
+                    alt={`${displayName} ${index + 1}`}
+                    className="w-full h-full object-contain p-1"
+                  />
+                </button>
+              ))}
+            </div>
+          )}
 
           {/* Title, Headline & Reviews */}
           <div>

@@ -19,7 +19,7 @@ export const AppCartDrawer: React.FC<AppCartDrawerProps> = ({
   onProceedToCheckout,
   onExploreShop,
 }) => {
-  const { cart, updateQuantity, removeFromCart, appliedCoupon, applyCoupon, removeCoupon } = useStore();
+  const { cart, updateCartQuantity, removeFromCart, appliedCoupon, applyCoupon, removeCoupon } = useStore();
   const [couponInput, setCouponInput] = useState('');
   const [couponError, setCouponError] = useState('');
 
@@ -210,7 +210,7 @@ export const AppCartDrawer: React.FC<AppCartDrawerProps> = ({
                       type="button"
                       onClick={() => {
                         if (item.quantity > 1) {
-                          updateQuantity(itemKey, item.quantity - 1);
+                          updateCartQuantity(itemKey, item.quantity - 1);
                         } else {
                           removeFromCart(itemKey);
                         }
@@ -225,7 +225,7 @@ export const AppCartDrawer: React.FC<AppCartDrawerProps> = ({
                     </span>
                     <button
                       type="button"
-                      onClick={() => updateQuantity(itemKey, item.quantity + 1)}
+                      onClick={() => updateCartQuantity(itemKey, item.quantity + 1)}
                       className="w-6 h-6 rounded-lg bg-white flex items-center justify-center text-slate-600 hover:text-black shadow-xs"
                       aria-label="Increase quantity"
                     >

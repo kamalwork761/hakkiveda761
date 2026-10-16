@@ -83,7 +83,7 @@ export const AppProductCard: React.FC<AppProductCardProps> = ({
           src={primaryImage}
           alt={displayName}
           loading="lazy"
-          className="w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
+          className="w-full h-full object-contain object-center p-2 group-hover:scale-[1.02] transition-transform duration-300"
           onError={(e) => {
             (e.target as HTMLImageElement).src = '/images/hero_tribal_elders.jpg';
           }}

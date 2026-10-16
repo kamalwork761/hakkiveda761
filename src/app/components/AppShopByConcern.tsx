@@ -13,10 +13,17 @@ export const AppShopByConcern: React.FC<AppShopByConcernProps> = ({
   concerns,
   onSelectConcern,
 }) => {
+  const supportedConcernKeys = new Set(['hair_fall', 'hair_growth']);
+
   const displayConcerns = (concerns && concerns.length > 0
     ? concerns.filter((c) => c.published !== false)
     : INITIAL_MOBILE_APP_CONCERNS
-  ).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+  )
+    .filter((c) => {
+      const key = (c.destination || c.id).replace('concern:', '');
+      return supportedConcernKeys.has(key);
+    })
+    .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
 
   return (
     <div className="w-full py-3">

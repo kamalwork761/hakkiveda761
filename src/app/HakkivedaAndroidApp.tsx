@@ -210,9 +210,11 @@ export const HakkivedaAndroidApp: React.FC = () => {
     } else if (destination.startsWith('category:')) {
       const cId = destination.replace('category:', '').trim();
       setSelectedCategoryId(cId);
+      setSelectedConcernId(undefined);
       setActiveTab('shop');
     } else if (destination.startsWith('concern:')) {
       const conId = destination.replace('concern:', '').trim();
+      setSelectedCategoryId('ALL');
       setSelectedConcernId(conId);
       setActiveTab('shop');
     }
@@ -222,8 +224,8 @@ export const HakkivedaAndroidApp: React.FC = () => {
     try {
       playSound('click');
     } catch {}
-    if (categoryId) setSelectedCategoryId(categoryId);
-    if (concernId) setSelectedConcernId(concernId);
+    setSelectedCategoryId(categoryId || 'ALL');
+    setSelectedConcernId(concernId);
     setActiveTab('shop');
   };
 
@@ -304,7 +306,12 @@ export const HakkivedaAndroidApp: React.FC = () => {
           try {
             playSound('click');
           } catch {}
+          if (tab === 'shop') {
+            setSelectedCategoryId('ALL');
+            setSelectedConcernId(undefined);
+          }
           setActiveTab(tab);
+          window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
         }}
       />
 
@@ -326,6 +333,8 @@ export const HakkivedaAndroidApp: React.FC = () => {
         }}
         onExploreShop={() => {
           setIsCartOpen(false);
+          setSelectedCategoryId('ALL');
+          setSelectedConcernId(undefined);
           setActiveTab('shop');
         }}
       />
@@ -338,6 +347,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
         }}
         onSearchCategory={(catId) => {
           setSelectedCategoryId(catId);
+          setSelectedConcernId(undefined);
           setActiveTab('shop');
         }}
       />

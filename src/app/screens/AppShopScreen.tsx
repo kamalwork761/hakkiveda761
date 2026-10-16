@@ -50,13 +50,26 @@ export const AppShopScreen: React.FC<AppShopScreenProps> = ({
       );
     }
 
-    // Concern filter (search in name, subtitle, or tags)
+    // Explicit concern → product mapping.
+    // Only map concerns supported by current product data.
     if (selectedConcern) {
-      const q = selectedConcern.replace('-', ' ').toLowerCase();
-      result = result.filter((p) => {
-        const text = `${p.name} ${p.subtitle || ''} ${p.description || ''} ${p.tags?.join(' ') || ''}`.toLowerCase();
-        return text.includes(q) || (selectedConcern === 'baldness' && text.includes('lepa'));
-      });
+      const concernKey = selectedConcern.replace('concern:', '');
+
+      const concernProductMap: Record<string, string[]> = {
+        hair_fall: [
+          'prod-1787468753505',
+          'prod-1787571609170',
+          'prod-1789578854229',
+        ],
+        hair_growth: [
+          'prod-1787468753505',
+          'prod-1787571609170',
+          'prod-1789578854229',
+        ],
+      };
+
+      const productIds = concernProductMap[concernKey] || [];
+      result = result.filter((p) => productIds.includes(p.id));
     }
 
     // Search query filter
@@ -271,7 +284,7 @@ export const AppShopScreen: React.FC<AppShopScreenProps> = ({
       </div>
 
       {/* 2-Column Product Grid */}
-      <div className="px-4 pt-3">
+      <div className="px-4 pt-8">
         {filteredProducts.length === 0 ? (
           <div className="py-16 text-center">
             <p className="text-slate-500 text-sm">No formulations found matching your filter.</p>

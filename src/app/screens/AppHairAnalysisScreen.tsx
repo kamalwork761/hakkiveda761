@@ -57,53 +57,20 @@ export const AppHairAnalysisScreen: React.FC<AppHairAnalysisScreenProps> = ({
     setAddedRegimen(false);
   };
 
-  // Strictly filter hair & scalp eligible products (excluding jewellery, rudraksha, bracelets)
+  // Only products explicitly approved for Hair Analysis recommendations
   const hairCareProducts = useMemo(() => {
-    return products.filter((p) => {
-      if (!p) return false;
-      const cat = (p.category || '').toLowerCase();
-      const name = (p.name || '').toLowerCase();
-      const desc = (p.description || '').toLowerCase();
+    const approvedHairProductIds = new Set([
+      'prod-1787468753505', // 108 Forest Herbs Hair Oil
+      'prod-1787571609170', // Brahmi Powder for Hair Care
+      'prod-1789578854229', // 30 Herb Keshvana Shampoo
+    ]);
 
-      // Exclude unrelated categories / keywords
-      const isUnrelated =
-        cat.includes('jewel') ||
-        cat.includes('rudraksha') ||
-        cat.includes('mala') ||
-        cat.includes('bead') ||
-        cat.includes('bracelet') ||
-        name.includes('rudraksha') ||
-        name.includes('bracelet') ||
-        name.includes('mala') ||
-        name.includes('bead') ||
-        name.includes('pendant');
-      if (isUnrelated) return false;
-
-      // Include scalp & hair remedies
-      return (
-        cat.includes('hair') ||
-        cat.includes('oil') ||
-        cat.includes('shampoo') ||
-        cat.includes('lepa') ||
-        cat.includes('scalp') ||
-        cat.includes('powder') ||
-        name.includes('hair') ||
-        name.includes('oil') ||
-        name.includes('shampoo') ||
-        name.includes('lepa') ||
-        name.includes('bald') ||
-        desc.includes('follicle') ||
-        desc.includes('scalp')
-      );
-    });
+    return products.filter((p) => p && approvedHairProductIds.has(p.id));
   }, [products]);
 
-  // Determine recommended bundle strictly from hairCareProducts
   const recommendedProduct1 = useMemo(() => {
     return (
-      hairCareProducts.find((p) => p.id === 'prod-1') ||
-      hairCareProducts.find((p) => p.name.toLowerCase().includes('oil')) ||
-      hairCareProducts[0] ||
+      hairCareProducts.find((p) => p.id === 'prod-1787468753505') ||
       null
     );
   }, [hairCareProducts]);
@@ -111,15 +78,13 @@ export const AppHairAnalysisScreen: React.FC<AppHairAnalysisScreenProps> = ({
   const recommendedProduct2 = useMemo(() => {
     if (concern === 'baldness') {
       return (
-        hairCareProducts.find((p) => p.id === 'prod-4') ||
-        hairCareProducts.find((p) => p.name.toLowerCase().includes('bald') || p.name.toLowerCase().includes('powder') || p.name.toLowerCase().includes('lepa')) ||
-        hairCareProducts.find((p) => p.id !== recommendedProduct1?.id) ||
+        hairCareProducts.find((p) => p.id === 'prod-1787571609170') ||
         null
       );
     }
+
     return (
-      hairCareProducts.find((p) => p.id === 'prod-2') ||
-      hairCareProducts.find((p) => p.name.toLowerCase().includes('shampoo') || p.name.toLowerCase().includes('cleans')) ||
+      hairCareProducts.find((p) => p.id === 'prod-1789578854229') ||
       hairCareProducts.find((p) => p.id !== recommendedProduct1?.id) ||
       null
     );

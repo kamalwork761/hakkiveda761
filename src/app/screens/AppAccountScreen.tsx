@@ -212,6 +212,7 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
       setCurrentPasswordInput('');
       setNewPasswordInput('');
       setConfirmPasswordInput('');
+      setShowPasswordEditor(false);
     }
   };
 

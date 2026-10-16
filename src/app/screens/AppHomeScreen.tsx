@@ -18,6 +18,7 @@ import { AppFlagshipFeature } from '../components/AppFlagshipFeature';
 import { AppStoryCard } from '../components/AppStoryCard';
 import { AppGlobalClientsCompact } from '../components/AppGlobalClientsCompact';
 import { AppHairAnalysisCard } from '../components/AppHairAnalysisCard';
+import { AppHomeValueSections } from '../components/AppHomeValueSections';
 
 interface AppHomeScreenProps {
   heroSlides: MobileAppHeroSlide[];
@@ -173,6 +174,10 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
   return (
     <div className="w-full pb-20 overflow-y-auto no-scrollbar">
       {sortedSections.map((sec) => renderSection(sec.id))}
+
+      <AppHomeValueSections
+        onShop={() => onNavigateToShop()}
+      />
     </div>
   );
 };

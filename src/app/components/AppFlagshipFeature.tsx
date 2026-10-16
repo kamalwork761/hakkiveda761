@@ -28,15 +28,11 @@ export const AppFlagshipFeature: React.FC<AppFlagshipFeatureProps> = ({
   );
   const displayName = override?.appTitle || product.name;
   const displaySubtitle = override?.appSubtitle || product.subtitle || '108 wild forest herbs extracted over firewood';
-  const ctaLabel = override?.cardCtaLabel || 'Claim Flagship';
+  const ctaLabel = 'View Product';
 
   const handleQuickAdd = (e: React.MouseEvent) => {
     e.stopPropagation();
-    const defaultVariant = product.selectedVariant || product.variants?.find((v) => v.active !== false) || product.variants?.[0];
-    addToCart(product, 1, defaultVariant);
-    try {
-      playSound('success');
-    } catch {}
+    onOpenProductDetail(product.id);
   };
 
   return (

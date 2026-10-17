@@ -4,64 +4,62 @@ import { resolveAssetUrl } from '../utils/nativeUrl';
 
 export const AppStoryCard: React.FC = () => {
   const [expanded, setExpanded] = useState(false);
-
   const elderImg = resolveAssetUrl('/images/hero_tribal_elders.jpg');
 
   return (
     <div className="w-full px-4 py-3">
-      <div className="rounded-3xl bg-[#0E382C] text-white p-4 shadow-md border border-[#C5A059]/30 relative overflow-hidden app-dark-card">
-        {/* Header */}
-        <div className="flex items-center gap-1.5 mb-2">
-          <Sparkles className="w-3.5 h-3.5 text-[#C5A059]" />
-          <span className="text-[10px] font-bold uppercase tracking-wider text-[#C5A059]">
-            Sacred Heritage
-          </span>
+      <div className="overflow-hidden rounded-3xl border border-[#C5A059]/25 bg-[#FFFDF7] shadow-md">
+        <div className="relative h-36 overflow-hidden">
+          <img
+            src={elderImg}
+            alt="HAKKIVEDA heritage"
+            className="h-full w-full object-cover object-center"
+          />
+          <div className="absolute inset-0 bg-gradient-to-t from-[#0B2E25]/85 via-[#0B2E25]/20 to-transparent" />
+
+          <div className="absolute bottom-3 left-4 right-4">
+            <div className="flex items-center gap-1.5 text-[#F4D77E]">
+              <Sparkles className="w-4 h-4" />
+              <span className="text-[9px] font-black uppercase tracking-[0.18em]">
+                Sacred Heritage
+              </span>
+            </div>
+
+            <h3 className="mt-1 font-serif text-lg font-bold leading-tight text-white">
+              The Story Behind HAKKIVEDA
+            </h3>
+          </div>
         </div>
 
-        <h3 className="font-serif text-base font-bold text-[#FDF8EC] leading-tight dark-heading">
-          Handcrafted by Hakki-Pikki Tribal Elders
-        </h3>
-
-        <div className="mt-3 flex gap-3 items-center">
-          <div className="w-20 h-20 rounded-2xl overflow-hidden flex-shrink-0 border border-[#C5A059]/40 bg-[#07241C]">
-            <img
-              src={elderImg}
-              alt="Hakki-Pikki Tribal Elders"
-              className="w-full h-full object-cover object-center"
-              onError={(e) => {
-                (e.target as HTMLImageElement).src = '/images/hero_tribal_elders.jpg';
-              }}
-            />
-          </div>
-
-          <p className="text-xs text-emerald-100/90 leading-relaxed font-sans flex-1">
-            In the dense forests of Pakshirajapura, our family continues 5 generations of wood-fired copper vessel botanical extraction. No machines, no chemicals.
+        <div className="p-4">
+          <p className="text-[11px] leading-relaxed text-slate-600">
+            Discover the heritage, traditional preparation methods, and story behind our herbal formulations.
           </p>
-        </div>
 
-        {expanded && (
-          <div className="mt-3 pt-3 border-t border-emerald-800/60 text-xs text-emerald-200/90 space-y-2 leading-relaxed animate-fadeIn">
-            <p>
-              Each batch takes 21 days of slow brewing. We gather 108 rare forest barks, roots, and wild seeds during the auspicious lunar phases to ensure maximum prana (vitality) in every drop.
-            </p>
-            <p>
-              When you use HAKKIVEDA, you are supporting the livelihood of over 120 indigenous tribal families.
-            </p>
-          </div>
-        )}
-
-        <button
-          type="button"
-          onClick={() => setExpanded(!expanded)}
-          className="mt-3 w-full py-1.5 rounded-xl bg-white/10 hover:bg-white/15 text-[#C5A059] font-bold text-xs flex items-center justify-center gap-1 transition-colors"
-        >
-          <span>{expanded ? 'Show Less' : 'Read Sacred Story'}</span>
-          {expanded ? (
-            <ChevronUp className="w-3.5 h-3.5 stroke-[2.5]" />
-          ) : (
-            <ChevronDown className="w-3.5 h-3.5 stroke-[2.5]" />
+          {expanded && (
+            <div className="mt-3 space-y-2 border-t border-[#C5A059]/20 pt-3 text-[11px] leading-relaxed text-slate-600">
+              <p>
+                Our formulations draw inspiration from traditional botanical knowledge and long-standing herbal care practices.
+              </p>
+              <p>
+                Learn more about the ingredients, preparation process, and the people behind HAKKIVEDA.
+              </p>
+            </div>
           )}
-        </button>
+
+          <button
+            type="button"
+            onClick={() => setExpanded(!expanded)}
+            className="mt-3 flex w-full items-center justify-center gap-1 rounded-xl bg-[#0E382C] py-2.5 text-[11px] font-bold text-[#F6E7BD]"
+          >
+            {expanded ? 'Show Less' : 'Read Our Story'}
+            {expanded ? (
+              <ChevronUp className="w-4 h-4" />
+            ) : (
+              <ChevronDown className="w-4 h-4" />
+            )}
+          </button>
+        </div>
       </div>
     </div>
   );

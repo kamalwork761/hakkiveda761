@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Tag, Check, ArrowRight } from 'lucide-react';
+import { Tag, Check, ArrowRight, Gift } from 'lucide-react';
 import { MobileAppBanner } from '../../types/mobileApp';
 import { resolveAssetUrl } from '../utils/nativeUrl';
 
@@ -13,13 +13,11 @@ export const AppPromoBanner: React.FC<AppPromoBannerProps> = ({
   onNavigateAction,
 }) => {
   const [copied, setCopied] = useState(false);
-  const activeBanners = banners.filter((b) => b.published !== false);
-  const banner = activeBanners[0];
+  const banner = banners.filter((b) => b.published !== false)[0];
 
   if (!banner) return null;
 
   const bgImage = resolveAssetUrl(banner.imageUrl);
-
   const codeToCopy = banner.couponCode || 'TRIBAL200';
   const ctaLabel = banner.ctaText || 'Claim Discount';
 
@@ -31,62 +29,65 @@ export const AppPromoBanner: React.FC<AppPromoBannerProps> = ({
   };
 
   return (
-    <div className="w-full px-4 py-2.5">
+    <div className="w-full px-4 py-3">
       <div
         onClick={() => onNavigateAction(banner.linkAction || 'shop')}
-        className="relative rounded-2xl overflow-hidden bg-gradient-to-r from-[#0E382C] via-[#134E3F] to-[#07241C] text-white p-4 shadow-md border border-[#C5A059]/30 cursor-pointer active:scale-[0.99] transition-all app-dark-card"
+        className="relative overflow-hidden rounded-3xl border border-[#D8B65D]/45 bg-gradient-to-br from-[#FFF8E5] via-[#F8EAC2] to-[#E9C86D] p-4 shadow-lg cursor-pointer active:scale-[0.99] transition-all"
       >
-        {/* Subtle Background Pattern / Image */}
+        <div className="absolute -right-8 -top-8 w-28 h-28 rounded-full bg-white/35" />
+        <div className="absolute right-4 bottom-2 opacity-10">
+          <Gift className="w-24 h-24 text-[#0E382C]" />
+        </div>
+
         {bgImage && (
           <img
             src={bgImage}
             alt={banner.title}
-            className="absolute inset-0 w-full h-full object-cover object-center opacity-15 mix-blend-overlay pointer-events-none"
+            className="absolute right-0 bottom-0 h-full w-[38%] object-cover opacity-15"
           />
         )}
 
-        <div className="relative z-10 flex flex-col justify-between">
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <span className="bg-[#C5A059] text-[#0E382C] font-extrabold text-[9px] uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
-              <Tag className="w-2.5 h-2.5" />
-              <span>Special Offer</span>
+        <div className="relative z-10 max-w-[82%]">
+          <div className="flex items-center gap-2">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#0E382C] px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-[#F7D978]">
+              <Tag className="w-3 h-3" />
+              Special Offer
             </span>
-            <span className="text-[10px] text-emerald-200 font-medium">
-              Limited Tribal Batch
+
+            <span className="text-[9px] font-bold text-[#7A5A18]">
+              Limited Time
             </span>
           </div>
 
-          <h3 className="font-serif text-base font-bold text-[#FDF8EC] leading-tight dark-heading">
+          <h3 className="mt-2 font-serif text-lg font-bold leading-tight text-[#0B2E25]">
             {banner.title}
           </h3>
 
           {banner.subtitle && (
-            <p className="text-xs text-emerald-100/80 mt-1 leading-snug font-sans">
+            <p className="mt-1 text-[11px] leading-relaxed text-[#4E5A52]">
               {banner.subtitle}
             </p>
           )}
 
-          <div className="mt-3 flex items-center justify-between gap-2">
-            {/* Coupon Code Pill */}
+          <div className="mt-3 flex items-center gap-2">
             <button
               type="button"
               onClick={handleCopyCode}
-              className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/10 border border-white/20 hover:bg-white/20 text-xs font-mono font-bold text-[#C5A059] transition-colors"
+              className="rounded-xl border border-[#0E382C]/25 bg-white/75 px-3 py-2 text-[10px] font-black text-[#0E382C] shadow-sm"
             >
-              <span>{codeToCopy}</span>
               {copied ? (
-                <Check className="w-3 h-3 text-emerald-400 stroke-[3]" />
-              ) : (
-                <span className="text-[9px] uppercase tracking-wider text-white/70">
-                  Tap to Copy
+                <span className="flex items-center gap-1">
+                  <Check className="w-3 h-3" />
+                  COPIED
                 </span>
+              ) : (
+                <span>{codeToCopy} • TAP TO COPY</span>
               )}
             </button>
 
-            {/* Action link */}
-            <div className="flex items-center gap-1 text-xs font-bold text-[#C5A059]">
-              <span>{ctaLabel}</span>
-              <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+            <div className="flex items-center gap-1 text-[11px] font-black text-[#0E382C]">
+              {ctaLabel}
+              <ArrowRight className="w-4 h-4" />
             </div>
           </div>
         </div>

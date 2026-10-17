@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, ArrowRight, ShieldCheck } from 'lucide-react';
+import { Sparkles, ArrowRight, ShieldCheck, ScanFace } from 'lucide-react';
 
 interface AppHairAnalysisCardProps {
   onStartAnalysis: () => void;
@@ -12,34 +12,37 @@ export const AppHairAnalysisCard: React.FC<AppHairAnalysisCardProps> = ({
     <div className="w-full px-4 py-3">
       <div
         onClick={onStartAnalysis}
-        className="rounded-3xl p-4 bg-gradient-to-br from-[#0E382C] via-[#134E3F] to-[#07241C] text-white shadow-md border border-[#C5A059]/40 relative overflow-hidden cursor-pointer active:scale-[0.99] transition-all app-dark-card"
+        className="relative overflow-hidden rounded-3xl border border-[#D6B86C]/40 bg-gradient-to-br from-[#0B2E25] via-[#12614B] to-[#0A3A2D] p-4 shadow-xl cursor-pointer active:scale-[0.99] transition-all"
       >
-        {/* Subtle decorative circles */}
-        <div className="absolute -top-10 -right-10 w-32 h-32 rounded-full bg-[#C5A059]/10 blur-xl pointer-events-none" />
+        <div className="absolute -right-8 -top-8 w-32 h-32 rounded-full bg-[#E0BD65]/15 blur-xl" />
+        <div className="absolute right-4 top-12 opacity-10">
+          <ScanFace className="w-28 h-28 text-white" />
+        </div>
 
         <div className="relative z-10">
-          <div className="flex items-center justify-between mb-2">
-            <span className="bg-[#C5A059] text-[#0E382C] font-extrabold text-[9px] uppercase tracking-wider px-2 py-0.5 rounded-full flex items-center gap-1 shadow-sm">
-              <Sparkles className="w-2.5 h-2.5" />
-              <span>AI Scalp Diagnosis</span>
+          <div className="flex items-center justify-between">
+            <span className="inline-flex items-center gap-1 rounded-full bg-[#F5D77F] px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-[#0E382C]">
+              <Sparkles className="w-3 h-3" />
+              Free AI Hair Check
             </span>
-            <span className="text-[10px] text-emerald-200 font-semibold">
-              Takes 60 Seconds • 100% Free
+
+            <span className="text-[9px] font-bold text-emerald-100">
+              60 Seconds
             </span>
           </div>
 
-          <h3 className="font-serif text-base font-bold text-[#FDF8EC] leading-tight dark-heading">
-            Discover Your Root Cause & Custom Regimen
+          <h3 className="mt-2 font-serif text-xl font-bold leading-tight text-white">
+            Discover Your Hair & Scalp Needs
           </h3>
 
-          <p className="text-xs text-emerald-100/80 mt-1 leading-relaxed font-sans">
-            Answer 4 quick scalp questions to get personalized Hakki-Pikki tribal remedies targeted directly to your follicular stage.
+          <p className="mt-1.5 max-w-[88%] text-[11px] leading-relaxed text-emerald-100/85">
+            Answer a few quick questions and get a personalized HAKKIVEDA product recommendation.
           </p>
 
-          <div className="mt-3.5 flex items-center justify-between">
-            <div className="flex items-center gap-2 text-[10px] text-emerald-200">
-              <ShieldCheck className="w-3.5 h-3.5 text-[#C5A059]" />
-              <span>35,000+ Scalps Diagnosed</span>
+          <div className="mt-4 flex items-center justify-between gap-3">
+            <div className="flex items-center gap-1.5 text-[9px] font-semibold text-emerald-100">
+              <ShieldCheck className="w-4 h-4 text-[#F5D77F]" />
+              Free • Quick • Personalized
             </div>
 
             <button
@@ -48,10 +51,10 @@ export const AppHairAnalysisCard: React.FC<AppHairAnalysisCardProps> = ({
                 e.stopPropagation();
                 onStartAnalysis();
               }}
-              className="px-3.5 py-1.5 rounded-full bg-[#C5A059] text-[#0E382C] font-bold text-xs shadow-md flex items-center gap-1.5 hover:bg-[#d4af37] active:scale-95 transition-all"
+              className="flex items-center gap-1.5 rounded-full bg-[#F5D77F] px-4 py-2 text-[11px] font-black text-[#0E382C] shadow-lg active:scale-95"
             >
-              <span>Start Free Analysis</span>
-              <ArrowRight className="w-3.5 h-3.5 stroke-[2.5]" />
+              Start Now
+              <ArrowRight className="w-4 h-4" />
             </button>
           </div>
         </div>

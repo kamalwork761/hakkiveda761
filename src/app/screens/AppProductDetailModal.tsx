@@ -90,9 +90,24 @@ export const AppProductDetailModal: React.FC<AppProductDetailModalProps> = ({
   const displaySubtitle = override?.appSubtitle || product.subtitle;
   const customBadge = override?.badge || (product.isBestSeller ? '108 Sacred Herbs' : null);
   const appHeadline = override?.appHeadline;
-  const benefitBullets = override?.benefitBullets && override.benefitBullets.length > 0 ? override.benefitBullets : null;
-  const quickIngredients = override?.quickIngredients;
-  const usageSummary = override?.usageSummary;
+  const benefitBullets =
+    override?.benefitBullets && override.benefitBullets.length > 0
+      ? override.benefitBullets
+      : product.benefits && product.benefits.length > 0
+        ? product.benefits
+        : null;
+
+  const quickIngredients =
+    override?.quickIngredients ||
+    (product.ingredients && product.ingredients.length > 0
+      ? product.ingredients.join(', ')
+      : '');
+
+  const usageSummary =
+    override?.usageSummary ||
+    (product.howToUse && product.howToUse.length > 0
+      ? product.howToUse.join(' ')
+      : product.usageRitual || '');
   const trustBadgeText = override?.trustBadgeText || '100% Forest-Crafted • Tribal Certified';
   const ctaLabel = override?.cardCtaLabel || 'Add to Cart';
 
@@ -339,44 +354,22 @@ export const AppProductDetailModal: React.FC<AppProductDetailModalProps> = ({
           <div className="border-t border-slate-100 pt-3">
             <h3 className="font-serif text-xs font-bold text-slate-900 uppercase tracking-wider mb-2 flex items-center gap-1.5">
               <Leaf className="w-3.5 h-3.5 text-[#0E382C]" />
-              <span>Key Wild Forest Botanicals</span>
+              <span>Key Ingredients</span>
             </h3>
 
-            {quickIngredients ? (
-              <p className="text-xs text-slate-700 leading-relaxed font-sans bg-slate-50 p-3 rounded-xl border border-slate-100">
-                {quickIngredients}
-              </p>
-            ) : (
-              <div className="grid grid-cols-2 gap-2">
-                <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
-                  <div className="text-xs font-bold text-[#0E382C]">Bhringraj (Eclipta Alba)</div>
-                  <div className="text-[10px] text-slate-500">Stimulates dormant follicular roots</div>
-                </div>
-                <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
-                  <div className="text-xs font-bold text-[#0E382C]">Gunja Seeds</div>
-                  <div className="text-[10px] text-slate-500">Reverses hairline miniaturization</div>
-                </div>
-                <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
-                  <div className="text-xs font-bold text-[#0E382C]">Devadaru Himalayan Cedar</div>
-                  <div className="text-[10px] text-slate-500">Deep scalp circulation & cooling</div>
-                </div>
-                <div className="p-2 rounded-xl bg-slate-50 border border-slate-100">
-                  <div className="text-xs font-bold text-[#0E382C]">Nagarmotha Roots</div>
-                  <div className="text-[10px] text-slate-500">Removes DHT buildup from sebum</div>
-                </div>
-              </div>
-            )}
+            <p className="text-xs text-slate-700 leading-relaxed font-sans bg-slate-50 p-3 rounded-xl border border-slate-100">
+              {quickIngredients || 'Ingredient details will be updated soon.'}
+            </p>
           </div>
 
           {/* How to use / Ritual */}
           <div className="border-t border-slate-100 pt-3">
             <h3 className="font-serif text-xs font-bold text-slate-900 uppercase tracking-wider mb-1.5 flex items-center gap-1.5">
               <Droplet className="w-3.5 h-3.5 text-[#0E382C]" />
-              <span>Nightly Application Ritual</span>
+              <span>How to Use</span>
             </h3>
             <p className="text-xs text-slate-600 leading-relaxed font-sans">
-              {usageSummary ||
-                'Apply 8-12 drops directly along scalp partings. Gently massage using circular fingertip strokes for 5 minutes. Leave overnight and wash with herbal shampoo 2-3 times weekly.'}
+              {usageSummary || 'Usage instructions will be updated soon.'}
             </p>
           </div>
 

@@ -41,6 +41,24 @@ export const AppOrdersScreen: React.FC = () => {
     }
   };
 
+  const openCancellationWhatsApp = (order: any) => {
+    const dispatchedStatuses = ['DISPATCHED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED'];
+    const isAfterDispatch = dispatchedStatuses.includes(
+      String(order?.trackingStatus || '').toUpperCase()
+    );
+
+    const phone = '917619536831';
+
+    const message = isAfterDispatch
+      ? `Namaste HAKKIVEDA, I want to request cancellation for Order ${order?.orderNumber || order?.id}. I understand the order has already been dispatched and courier/return charges may apply. Please assist me.`
+      : `Namaste HAKKIVEDA, I want to request cancellation for Order ${order?.orderNumber || order?.id}. The order has not been dispatched yet. Please cancel it and confirm.`;
+
+    window.open(
+      `https://wa.me/${phone}?text=${encodeURIComponent(message)}`,
+      '_system'
+    );
+  };
+
   return (
     <div className="w-full pb-24 px-4 pt-3">
       {/* Title */}
@@ -178,30 +196,48 @@ export const AppOrdersScreen: React.FC = () => {
               </span>
             </div>
             <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
-              {trackedOrder.status || 'CONFIRMED'}
+              {String(trackedOrder.trackingStatus || 'ORDER_PLACED').replace(/_/g, ' ')}
             </span>
           </div>
 
-          {/* Stepper */}
-          <div className="space-y-3">
+          {/* Real Order Status */}
+          <div className="rounded-2xl bg-[#FAF7F2] p-3 space-y-3">
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 rounded-full bg-[#0E382C] text-[#C5A059] flex items-center justify-center flex-shrink-0 text-xs">
+              <div className="w-7 h-7 rounded-full bg-[#0E382C] text-[#C5A059] flex items-center justify-center flex-shrink-0">
                 <CheckCircle2 className="w-4 h-4" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-slate-900">Order Confirmed & Sacred Oil Bottled</h4>
-                <p className="text-[10px] text-slate-500">Pakshirajapura Forest Depot</p>
+                <h4 className="text-xs font-bold text-slate-900">
+                  {trackedOrder.paymentMethod === 'COD'
+                    ? 'Cash on Delivery Order Received'
+                    : trackedOrder.paymentStatus === 'PAID' || trackedOrder.paymentStatus === 'Paid'
+                      ? 'Online Payment Successful'
+                      : 'Payment Status Pending'}
+                </h4>
+                <p className="text-[10px] text-slate-500 mt-0.5">
+                  {trackedOrder.paymentMethod === 'COD'
+                    ? 'Your COD order is awaiting processing by HAKKIVEDA.'
+                    : `Payment: ${trackedOrder.paymentStatus || 'Pending'}`}
+                </p>
               </div>
             </div>
 
             <div className="flex items-start gap-3">
-              <div className="w-6 h-6 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center flex-shrink-0 text-xs">
+              <div className="w-7 h-7 rounded-full bg-emerald-100 text-emerald-800 flex items-center justify-center flex-shrink-0">
                 <Truck className="w-3.5 h-3.5" />
               </div>
               <div>
-                <h4 className="text-xs font-bold text-slate-900">In Transit with Express Courier</h4>
-                <p className="text-[10px] text-slate-500">
-                  {trackedOrder.awbCode ? `AWB: ${trackedOrder.awbCode}` : 'Dispatched via Express Courier'}
+                <h4 className="text-xs font-bold text-slate-900">
+                  {String(trackedOrder.trackingStatus || 'ORDER_PLACED').replace(/_/g, ' ')}
+                </h4>
+                <p className="text-[10px] text-slate-500 mt-0.5">
+                  {trackedOrder.awbCode
+                    ? `AWB: ${trackedOrder.awbCode}${trackedOrder.courierName ? ` • ${trackedOrder.courierName}` : ''}`
+                    : trackedOrder.trackingStatus === 'DISPATCHED' ||
+                      trackedOrder.trackingStatus === 'IN_TRANSIT' ||
+                      trackedOrder.trackingStatus === 'OUT_FOR_DELIVERY'
+                      ? 'Courier details will appear here when available.'
+                      : 'Your order has not been dispatched yet.'}
                 </p>
               </div>
             </div>
@@ -214,9 +250,60 @@ export const AppOrdersScreen: React.FC = () => {
               <span className="font-semibold text-slate-900">{trackedOrder.customer?.name || 'Customer'}</span>
             </div>
             <div className="flex justify-between text-slate-600">
-              <span>Total Amount:</span>
-              <span className="font-bold text-[#0E382C]">{formatSafeINR(trackedOrder.totalAmount, '₹0')}</span>
+              <span>Payment:</span>
+              <span className="font-semibold text-slate-900">
+                {trackedOrder.paymentMethod === 'COD' ? 'Cash on Delivery' : 'Prepaid • Razorpay'}
+              </span>
             </div>
+            <div className="flex justify-between text-slate-600">
+              <span>Payment Status:</span>
+              <span className="font-semibold text-slate-900">
+                {String(trackedOrder.paymentStatus || 'Pending').replace(/_/g, ' ')}
+              </span>
+            </div>
+            <div className="flex justify-between text-slate-600">
+              <span>Total Amount:</span>
+              <span className="font-bold text-[#0E382C]">{formatSafeINR(trackedOrder.totalAmountINR, '₹0')}</span>
+            </div>
+          </div>
+
+          <div className="pt-3 border-t border-slate-100">
+            {['DISPATCHED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED'].includes(
+              String(trackedOrder.trackingStatus || '').toUpperCase()
+            ) ? (
+              <div className="space-y-2">
+                <div className="rounded-xl bg-amber-50 border border-amber-200 p-3 text-[10px] text-amber-800 leading-relaxed">
+                  This order has already been dispatched. Standard cancellation is no longer available.
+                  If you still want to cancel, courier/return charges may apply and the request must be handled through WhatsApp support.
+                </div>
+
+                <button
+                  type="button"
+                  onClick={() => openCancellationWhatsApp(trackedOrder)}
+                  className="w-full h-10 rounded-xl border border-amber-300 bg-amber-50 text-amber-800 text-xs font-bold"
+                >
+                  Request Cancellation on WhatsApp
+                </button>
+              </div>
+            ) : trackedOrder.trackingStatus === 'CANCELLED' ? (
+              <div className="rounded-xl bg-rose-50 border border-rose-200 p-3 text-[11px] font-bold text-rose-700">
+                This order has been cancelled.
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <p className="text-[10px] text-slate-500 leading-relaxed">
+                  Cancellation is available before dispatch. Send a cancellation request to HAKKIVEDA support on WhatsApp.
+                </p>
+
+                <button
+                  type="button"
+                  onClick={() => openCancellationWhatsApp(trackedOrder)}
+                  className="w-full h-10 rounded-xl bg-[#0E382C] text-white text-xs font-bold"
+                >
+                  Request Cancellation on WhatsApp
+                </button>
+              </div>
+            )}
           </div>
         </div>
       )}

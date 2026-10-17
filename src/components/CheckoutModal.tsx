@@ -1044,6 +1044,22 @@ export const CheckoutModal: React.FC = () => {
         return;
       }
 
+      const cancelPendingRazorpayOrder = async () => {
+        try {
+          await fetch('/api/payments/razorpay/cancel-order', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify({
+              localOrderId: orderData.orderId,
+              razorpayOrderId: orderData.razorpayOrderId,
+            }),
+          });
+        } catch (err) {
+          console.warn('[Razorpay Cancel Pending Order Warning]:', err);
+        }
+      };
+
       const options = {
         key: orderData.keyId,
         amount: orderData.amount,
@@ -1125,17 +1141,22 @@ export const CheckoutModal: React.FC = () => {
           }
         },
         modal: {
-          ondismiss: function () {
+          ondismiss: async function () {
             console.log('[Razorpay Modal] Dismissed by customer');
+            await cancelPendingRazorpayOrder();
+            setAddressFormError('Payment cancelled. No order has been confirmed.');
             setIsProcessingPayment(false);
           },
         },
       };
 
       const rzpInstance = new (window as any).Razorpay(options);
-      rzpInstance.on('payment.failed', function (failResp: any) {
+      rzpInstance.on('payment.failed', async function (failResp: any) {
         console.error('[Razorpay Payment Failed]:', failResp.error);
-        setAddressFormError(`Payment failed: ${failResp.error?.description || failResp.error?.reason || 'Transaction declined'}`);
+        await cancelPendingRazorpayOrder();
+        setAddressFormError(
+          `Payment failed: ${failResp.error?.description || failResp.error?.reason || 'Transaction declined'}`
+        );
         setIsProcessingPayment(false);
       });
 

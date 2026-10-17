@@ -1696,6 +1696,7 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
       }
 
       const { name, phone, avatar, addresses, preferences, savedPayments } = req.body;
+
       const customer = customers[customerIndex];
 
       if (name && typeof name === 'string') customer.name = name.trim();
@@ -1792,7 +1793,24 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
       const customerOrders = orders.filter((o: any) => {
         const orderEmail = (o.customer?.email || '').toLowerCase().trim();
         const orderCustomerId = o.customerId;
-        return orderEmail === customerEmail || (customerId && orderCustomerId === customerId);
+
+        const belongsToCustomer =
+          orderEmail === customerEmail ||
+          (customerId && orderCustomerId === customerId);
+
+        if (!belongsToCustomer) return false;
+
+        // Do not expose abandoned/failed Razorpay attempts as real customer orders.
+        if (
+          String(o.paymentMethod || '').toUpperCase() === 'RAZORPAY' &&
+          !['PAID', 'PAID SUCCESS', 'SUCCESSFUL'].includes(
+            String(o.paymentStatus || '').trim().toUpperCase()
+          )
+        ) {
+          return false;
+        }
+
+        return true;
       });
 
       res.json({
@@ -4858,6 +4876,69 @@ COMPLIANCE & COMMUNICATION RULES:
     }
   });
 
+  // Cancel/abandon an unpaid Razorpay checkout attempt
+  app.post('/api/payments/razorpay/cancel-order', async (req, res) => {
+    try {
+      const { localOrderId, razorpayOrderId } = req.body || {};
+
+      if (!localOrderId || !razorpayOrderId) {
+        return res.status(400).json({
+          success: false,
+          error: 'Missing Razorpay order reference.',
+        });
+      }
+
+      const orders = (await getStoreValue<any[]>('orders')) || [];
+
+      const index = orders.findIndex(
+        (o: any) =>
+          o.id === localOrderId &&
+          o.razorpayOrderId === razorpayOrderId &&
+          String(o.paymentMethod || '').toUpperCase() === 'RAZORPAY'
+      );
+
+      if (index === -1) {
+        return res.status(404).json({
+          success: false,
+          error: 'Pending payment order not found.',
+        });
+      }
+
+      const order = orders[index];
+      const paymentStatus = String(order.paymentStatus || '').toUpperCase();
+
+      // Never overwrite a successful payment.
+      if (paymentStatus === 'PAID' || paymentStatus === 'SUCCESSFUL') {
+        return res.json({
+          success: true,
+          order,
+          message: 'Order is already paid.',
+        });
+      }
+
+      orders[index] = {
+        ...order,
+        paymentStatus: 'CANCELLED',
+        trackingStatus: 'CANCELLED',
+        cancelledAt: new Date().toISOString(),
+        cancellationReason: 'Razorpay checkout closed before payment completion',
+      };
+
+      await setStoreValue('orders', orders);
+
+      return res.json({
+        success: true,
+        order: orders[index],
+      });
+    } catch (err: any) {
+      console.error('[Razorpay Cancel Order Error]:', err?.message || err);
+      return res.status(500).json({
+        success: false,
+        error: 'Unable to update cancelled payment attempt.',
+      });
+    }
+  });
+
   // 2. Verify Razorpay Payment Endpoint (Rate Limited)
   app.post('/api/payments/razorpay/verify', async (req, res) => {
     try {
@@ -5174,10 +5255,10 @@ COMPLIANCE & COMMUNICATION RULES:
 
         currencyCode: 'INR',
         paymentMethod: 'COD',
-        paymentStatus: 'COD Confirmed',
+        paymentStatus: 'COD_DUE',
         stockDeductedAt: new Date().toISOString(),
         isStockDeducted: true,
-        trackingStatus: 'Pending Fulfillment',
+        trackingStatus: 'ORDER_PLACED',
         trackingNumber: 'Awaiting Fulfillment',
         courierName: null,
       };

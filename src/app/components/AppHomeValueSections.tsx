@@ -178,10 +178,21 @@ export const AppHomeValueSections: React.FC<Props> = ({ onShop }) => {
         </p>
 
         <div className="flex justify-center gap-4 mt-4 text-[10px] text-emerald-100/80">
-          <span>Shipping</span>
-          <span>Returns</span>
-          <span>Privacy</span>
-          <span>Support</span>
+          <a href="/shipping-policy" className="hover:text-white">
+            Shipping
+          </a>
+          <a href="/refund-policy" className="hover:text-white">
+            Returns
+          </a>
+          <a href="/privacy-policy" className="hover:text-white">
+            Privacy
+          </a>
+          <a
+            href="https://wa.me/917619536831"
+            className="hover:text-white"
+          >
+            Support
+          </a>
         </div>
 
         <div className="border-t border-white/10 mt-4 pt-3">

@@ -131,6 +131,7 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
           <AppPromoBanner
             key="promo_banner"
             banners={banners}
+            imageUrl={section.imageUrl}
             onNavigateAction={onActionClick}
           />
         );

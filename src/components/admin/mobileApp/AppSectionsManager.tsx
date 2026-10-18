@@ -45,7 +45,7 @@ export const AppSectionsManager: React.FC<AppSectionsManagerProps> = ({
   };
 
   const handleSectionBannerUpload = async (
-    sectionId: 'hair_analysis' | 'brand_story',
+    sectionId: 'hair_analysis' | 'brand_story' | 'promo_banner',
     file: File
   ) => {
     const allowed = ['image/jpeg', 'image/png', 'image/webp'];
@@ -172,7 +172,7 @@ export const AppSectionsManager: React.FC<AppSectionsManagerProps> = ({
               </div>
 
               <div className="flex items-center gap-1.5 flex-shrink-0">
-                {(section.id === 'hair_analysis' || section.id === 'brand_story') && (
+                {(section.id === 'hair_analysis' || section.id === 'brand_story' || section.id === 'promo_banner') && (
                   <div className="flex items-center gap-2">
                     {section.imageUrl && (
                       <img

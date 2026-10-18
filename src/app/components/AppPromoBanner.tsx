@@ -4,12 +4,14 @@ import { MobileAppBanner } from '../../types/mobileApp';
 import { resolveAssetUrl } from '../utils/nativeUrl';
 
 interface AppPromoBannerProps {
+  imageUrl?: string;
   banners: MobileAppBanner[];
   onNavigateAction: (linkAction: string) => void;
 }
 
 export const AppPromoBanner: React.FC<AppPromoBannerProps> = ({
   banners,
+  imageUrl,
   onNavigateAction,
 }) => {
   const [copied, setCopied] = useState(false);
@@ -17,7 +19,7 @@ export const AppPromoBanner: React.FC<AppPromoBannerProps> = ({
 
   if (!banner) return null;
 
-  const bgImage = resolveAssetUrl(banner.imageUrl);
+  const bgImage = resolveAssetUrl(imageUrl || banner.imageUrl);
   const codeToCopy = banner.couponCode || 'TRIBAL200';
   const ctaLabel = banner.ctaText || 'Claim Discount';
 

@@ -131,7 +131,7 @@ export const AppHomeValueSections: React.FC<Props> = ({
                 Business Opportunities
               </p>
 
-              <h2 className="font-serif text-lg font-bold text-[#FFF8E8] mt-1">
+              <h2 className="font-serif text-lg font-bold mt-1" style={{ color: "#FFF8E8", WebkitTextFillColor: "#FFF8E8" }}>
                 B2B & Private Label
               </h2>
 

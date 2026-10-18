@@ -340,7 +340,7 @@ export const AppCategoriesManager: React.FC<AppCategoriesManagerProps> = ({
 
             {/* Image Upload */}
             <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-2">
-              <span className="text-xs font-bold text-[#FDF8EC] block">Category Icon / Image (600 × 600 px)</span>
+              <span className="text-xs font-bold text-[#FDF8EC] block">Category Artwork (Recommended 900 × 480 px)</span>
               <div className="flex items-center gap-3">
                 <div className="w-14 h-14 rounded-xl bg-slate-900 border border-white/20 overflow-hidden flex-shrink-0">
                   <img
@@ -357,7 +357,7 @@ export const AppCategoriesManager: React.FC<AppCategoriesManagerProps> = ({
                   <label className="cursor-pointer block">
                     <div className="px-3 py-2 rounded-xl border border-dashed border-[#C5A059] hover:border-[#E8D279] bg-white/10 hover:bg-white/15 text-center transition-all flex items-center justify-center gap-2 text-xs font-bold text-[#C5A059]">
                       <Upload className="w-4 h-4 stroke-[2.5]" />
-                      <span>{uploadStatus.uploading ? `Uploading (${uploadStatus.progress}%)...` : 'Upload 1:1 Image'}</span>
+                      <span>{uploadStatus.uploading ? `Uploading (${uploadStatus.progress}%)...` : 'Upload Category Artwork'}</span>
                     </div>
                     <input
                       type="file"

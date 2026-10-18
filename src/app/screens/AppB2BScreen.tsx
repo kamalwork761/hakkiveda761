@@ -1,4 +1,5 @@
 import React from 'react';
+import { Browser } from '@capacitor/browser';
 import {
   ArrowLeft,
   BriefcaseBusiness,
@@ -70,7 +71,7 @@ export const AppB2BScreen: React.FC<Props> = ({ onBack }) => {
             <p className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#D6B65D]">
               Business With HAKKIVEDA
             </p>
-            <h1 className="font-serif text-lg font-bold text-white">
+            <h1 className="font-serif text-lg font-bold" style={{ color: "#FFF8E7", WebkitTextFillColor: "#FFF8E7" }}>
               B2B & Private Label
             </h1>
           </div>
@@ -83,7 +84,7 @@ export const AppB2BScreen: React.FC<Props> = ({ onBack }) => {
             <BriefcaseBusiness className="w-6 h-6 text-[#E5C86F]" />
           </div>
 
-          <h2 className="font-serif text-xl font-bold text-[#FFF8E7] mt-3">
+          <h2 className="font-serif text-xl font-bold mt-3" style={{ color: "#FFF8E7", WebkitTextFillColor: "#FFF8E7" }}>
             Build Your Herbal Business With Us
           </h2>
 
@@ -157,10 +158,9 @@ export const AppB2BScreen: React.FC<Props> = ({ onBack }) => {
             </p>
           </a>
 
-          <a
-            href="https://hakkiveda.com/downloads/hakkiveda-catalogue.pdf"
-            target="_blank"
-            rel="noopener noreferrer"
+          <button
+            type="button"
+            onClick={() => Browser.open({ url: 'https://hakkiveda.com/downloads/hakkiveda-catalogue.pdf' })}
             className="rounded-2xl bg-white border border-[#D6B65D]/50 p-4 text-center shadow-sm active:scale-95"
           >
             <Download className="w-6 h-6 text-[#A37E35] mx-auto" />
@@ -170,7 +170,7 @@ export const AppB2BScreen: React.FC<Props> = ({ onBack }) => {
             <p className="text-[8px] text-slate-500 mt-0.5">
               View 14-page product catalogue
             </p>
-          </a>
+          </button>
         </div>
       </section>
     </div>

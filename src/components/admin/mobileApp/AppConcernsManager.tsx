@@ -416,7 +416,7 @@ export const AppConcernsManager: React.FC<AppConcernsManagerProps> = ({
 
             {/* Image Upload (512x512) */}
             <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-2">
-              <span className="text-xs font-bold text-white block">Concern Icon / Artwork (512 × 512 px)</span>
+              <span className="text-xs font-bold text-white block">Concern Artwork (Recommended 720 × 840 px)</span>
               <div className="flex items-center gap-3">
                 <div className="w-14 h-14 rounded-xl bg-slate-900 border border-white/20 overflow-hidden flex-shrink-0">
                   <img
@@ -433,7 +433,7 @@ export const AppConcernsManager: React.FC<AppConcernsManagerProps> = ({
                   <label className="cursor-pointer block">
                     <div className="px-3 py-2 rounded-xl border border-dashed border-[#C5A059]/50 hover:border-[#C5A059] bg-white/5 text-center transition-all flex items-center justify-center gap-2 text-xs font-semibold text-[#C5A059]">
                       <Upload className="w-4 h-4" />
-                      <span>{uploadStatus.uploading ? `Uploading (${uploadStatus.progress}%)...` : 'Upload 1:1 Image'}</span>
+                      <span>{uploadStatus.uploading ? `Uploading (${uploadStatus.progress}%)...` : 'Upload Concern Artwork'}</span>
                     </div>
                     <input
                       type="file"

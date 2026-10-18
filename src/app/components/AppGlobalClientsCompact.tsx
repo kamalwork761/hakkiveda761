@@ -35,7 +35,7 @@ export const AppGlobalClientsCompact: React.FC<Props> = ({ onOpen }) => {
                     From Mysuru to the World
                   </p>
 
-                  <h3 className="font-serif text-lg font-bold text-[#FFF8E8] leading-tight mt-0.5">
+                  <h3 className="font-serif text-lg font-bold leading-tight mt-0.5" style={{ color: "#FFF8E8", WebkitTextFillColor: "#FFF8E8" }}>
                     Global Tribal Community
                   </h3>
 

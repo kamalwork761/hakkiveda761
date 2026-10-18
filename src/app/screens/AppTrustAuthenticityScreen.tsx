@@ -1,4 +1,5 @@
 import React from 'react';
+import { Browser } from '@capacitor/browser';
 import {
   ArrowLeft,
   BadgeCheck,
@@ -72,7 +73,7 @@ export const AppTrustAuthenticityScreen: React.FC<Props> = ({ onBack }) => {
             <p className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#D6B65D]">
               Trust Centre
             </p>
-            <h1 className="font-serif text-lg font-bold text-white">
+            <h1 className="font-serif text-lg font-bold" style={{ color: "#FFF8E7", WebkitTextFillColor: "#FFF8E7" }}>
               Why Choose HAKKIVEDA
             </h1>
           </div>
@@ -88,7 +89,7 @@ export const AppTrustAuthenticityScreen: React.FC<Props> = ({ onBack }) => {
               <ShieldCheck className="w-6 h-6 text-[#E5C86F]" />
             </div>
 
-            <h2 className="font-serif text-xl font-bold text-[#FFF8E7] mt-3">
+            <h2 className="font-serif text-xl font-bold mt-3" style={{ color: "#FFF8E7", WebkitTextFillColor: "#FFF8E7" }}>
               Authenticity Starts With Origin
             </h2>
 
@@ -188,11 +189,10 @@ export const AppTrustAuthenticityScreen: React.FC<Props> = ({ onBack }) => {
                 href: 'https://hakkiveda.com/documents/hair-oil-test-report.pdf',
               },
             ].map((doc) => (
-              <a
+              <button
                 key={doc.title}
-                href={doc.href}
-                target="_blank"
-                rel="noopener noreferrer"
+                type="button"
+                onClick={() => Browser.open({ url: doc.href })}
                 className="flex items-center gap-3 rounded-2xl border border-[#D6B65D]/25 bg-[#FFFDF8] p-3 active:scale-[0.99] transition-all"
               >
                 <div className="w-10 h-10 rounded-xl bg-[#0E382C] flex items-center justify-center shrink-0">
@@ -211,7 +211,7 @@ export const AppTrustAuthenticityScreen: React.FC<Props> = ({ onBack }) => {
                 <span className="text-[9px] font-black text-[#A37E35] whitespace-nowrap">
                   View PDF →
                 </span>
-              </a>
+              </button>
             ))}
           </div>
 

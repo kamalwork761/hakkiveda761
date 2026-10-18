@@ -47,7 +47,7 @@ export const AppGlobalCommunityScreen: React.FC<Props> = ({ onBack }) => {
             <p className="text-[9px] uppercase tracking-[0.2em] font-bold text-[#D6B65D]">
               Worldwide Network
             </p>
-            <h1 className="font-serif text-lg font-bold text-white">
+            <h1 className="font-serif text-lg font-bold" style={{ color: "#FFF8E7", WebkitTextFillColor: "#FFF8E7" }}>
               Global Tribal Community
             </h1>
           </div>
@@ -60,7 +60,7 @@ export const AppGlobalCommunityScreen: React.FC<Props> = ({ onBack }) => {
             <Globe2 className="w-6 h-6 text-[#E5C86F]" />
           </div>
 
-          <h2 className="font-serif text-xl font-bold text-[#FFF8E7] mt-3">
+          <h2 className="font-serif text-xl font-bold mt-3" style={{ color: "#FFF8E7", WebkitTextFillColor: "#FFF8E7" }}>
             From Mysuru to Global Markets
           </h2>
 

@@ -75,8 +75,8 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
   const flagshipProduct = products.find((p) => p.id === flagshipId) || products[0];
   const flagshipOverride = flagshipProduct ? appProductOverrides?.[flagshipProduct.id] : undefined;
 
-  const renderSection = (sectionId: string) => {
-    switch (sectionId) {
+  const renderSection = (section: MobileAppSectionConfig) => {
+    switch (section.id) {
       case 'hero':
         return (
           <AppHeroCarousel
@@ -156,6 +156,7 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
         return (
           <AppHairAnalysisCard
             key="hair_analysis"
+            imageUrl={section.imageUrl}
             onStartAnalysis={onNavigateToAnalysis}
           />
         );
@@ -173,7 +174,7 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
 
   return (
     <div className="w-full pb-20 overflow-y-auto no-scrollbar">
-      {sortedSections.map((sec) => renderSection(sec.id))}
+      {sortedSections.map((sec) => renderSection(sec))}
 
       <AppHomeValueSections
         onShop={() => onNavigateToShop()}

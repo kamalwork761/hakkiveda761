@@ -39,6 +39,7 @@ export interface MobileAppSectionConfig {
   name: string;
   enabled: boolean;
   displayOrder: number;
+  imageUrl?: string;
 }
 
 export interface MobileAppFeaturedCategory {

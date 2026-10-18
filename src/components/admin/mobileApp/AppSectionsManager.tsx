@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import {
   Layers,
   ArrowUp,
@@ -7,6 +7,7 @@ import {
   EyeOff,
   Check,
   Sparkles,
+  Upload,
 } from 'lucide-react';
 import { MobileAppSectionConfig } from '../../../types/mobileApp';
 
@@ -23,6 +24,8 @@ export const AppSectionsManager: React.FC<AppSectionsManagerProps> = ({
   isSaving,
   onOpenLivePreview,
 }) => {
+  const [uploadingSectionId, setUploadingSectionId] = useState<string | null>(null);
+
   const handleMove = (index: number, direction: 'up' | 'down') => {
     const targetIdx = direction === 'up' ? index - 1 : index + 1;
     if (targetIdx < 0 || targetIdx >= sections.length) return;
@@ -39,6 +42,45 @@ export const AppSectionsManager: React.FC<AppSectionsManagerProps> = ({
   const handleToggle = (id: string) => {
     const updated = sections.map((s) => (s.id === id ? { ...s, enabled: !s.enabled } : s));
     onSave(updated);
+  };
+
+  const handleHairAnalysisUpload = async (file: File) => {
+    const allowed = ['image/jpeg', 'image/png', 'image/webp'];
+    if (!allowed.includes(file.type)) {
+      alert('Please upload JPG, PNG or WebP image.');
+      return;
+    }
+
+    setUploadingSectionId('hair_analysis');
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const res = await fetch('/api/upload/mobile-app?folder=banners', {
+        method: 'POST',
+        credentials: 'include',
+        body: formData,
+      });
+
+      const data = await res.json();
+
+      if (!res.ok || !data.success || !data.url) {
+        throw new Error(data.error || 'Banner upload failed');
+      }
+
+      const updated = sections.map((section) =>
+        section.id === 'hair_analysis'
+          ? { ...section, imageUrl: data.url }
+          : section
+      );
+
+      onSave(updated);
+    } catch (err: any) {
+      alert(err.message || 'Banner upload failed.');
+    } finally {
+      setUploadingSectionId(null);
+    }
   };
 
   const getSectionDescription = (id: string) => {
@@ -127,6 +169,34 @@ export const AppSectionsManager: React.FC<AppSectionsManagerProps> = ({
               </div>
 
               <div className="flex items-center gap-1.5 flex-shrink-0">
+                {section.id === 'hair_analysis' && (
+                  <label
+                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#C5A059]/15 text-[#E8D279] hover:bg-[#C5A059]/25 cursor-pointer flex items-center gap-1"
+                    title="Upload Hair Analysis banner"
+                  >
+                    <Upload className="w-3.5 h-3.5" />
+                    <span>
+                      {uploadingSectionId === 'hair_analysis'
+                        ? 'Uploading...'
+                        : section.imageUrl
+                          ? 'Change Banner'
+                          : 'Upload Banner'}
+                    </span>
+
+                    <input
+                      type="file"
+                      accept="image/jpeg,image/png,image/webp,image/jpg"
+                      disabled={uploadingSectionId === 'hair_analysis'}
+                      className="hidden"
+                      onChange={(e) => {
+                        const file = e.target.files?.[0];
+                        if (file) handleHairAnalysisUpload(file);
+                        e.currentTarget.value = '';
+                      }}
+                    />
+                  </label>
+                )}
+
                 <button
                   type="button"
                   disabled={index === 0}

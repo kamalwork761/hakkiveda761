@@ -32,7 +32,7 @@ export const AppPromoBanner: React.FC<AppPromoBannerProps> = ({
     <div className="w-full px-4 py-3">
       <div
         onClick={() => onNavigateAction(banner.linkAction || 'shop')}
-        className="relative overflow-hidden rounded-3xl border border-[#D8B65D]/45 bg-gradient-to-br from-[#FFF8E5] via-[#F8EAC2] to-[#E9C86D] p-4 shadow-lg cursor-pointer active:scale-[0.99] transition-all"
+        className="relative overflow-hidden rounded-3xl border border-[#D8B65D]/45 bg-gradient-to-br from-[#FFF8E5] via-[#F8EAC2] to-[#E9C86D] p-4 shadow-none cursor-pointer active:scale-[0.99] transition-all"
       >
         <div className="absolute -right-8 -top-8 w-28 h-28 rounded-full bg-white/35" />
         <div className="absolute right-4 bottom-2 opacity-10">

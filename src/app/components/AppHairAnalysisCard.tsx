@@ -2,12 +2,32 @@ import React from 'react';
 import { Sparkles, ArrowRight, ShieldCheck, ScanFace } from 'lucide-react';
 
 interface AppHairAnalysisCardProps {
+  imageUrl?: string;
   onStartAnalysis: () => void;
 }
 
 export const AppHairAnalysisCard: React.FC<AppHairAnalysisCardProps> = ({
+  imageUrl,
   onStartAnalysis,
 }) => {
+  if (imageUrl) {
+    return (
+      <div className="w-full px-4 py-3">
+        <button
+          type="button"
+          onClick={onStartAnalysis}
+          className="block w-full overflow-hidden rounded-3xl active:scale-[0.99] transition-transform"
+        >
+          <img
+            src={imageUrl}
+            alt="Free AI Hair Analysis"
+            className="block w-full h-auto"
+          />
+        </button>
+      </div>
+    );
+  }
+
   return (
     <div className="w-full px-4 py-3">
       <div

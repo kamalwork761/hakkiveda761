@@ -162,19 +162,62 @@ export const AppTrustAuthenticityScreen: React.FC<Props> = ({ onBack }) => {
           </div>
 
           <p className="text-[10px] text-slate-500 mt-2 leading-relaxed">
-            Lab reports, registration documents and other approved certificates
-            will be available here for customers and business partners to review.
+            Review selected business registrations and quality documentation for HAKKIVEDA.
           </p>
 
-          <div className="mt-3 rounded-2xl border border-dashed border-[#D6B65D]/60 bg-[#FFFDF8] p-4 text-center">
-            <FileCheck2 className="w-6 h-6 text-[#A37E35] mx-auto" />
-            <p className="text-[10px] font-bold text-[#123F34] mt-2">
-              Certificate Library
-            </p>
-            <p className="text-[9px] text-slate-500 mt-1">
-              Admin upload support will be connected next.
-            </p>
+          <div className="mt-4 space-y-2.5">
+            {[
+              {
+                title: 'Udyam Registration',
+                subtitle: 'MSME / Micro Enterprise • Manufacturing',
+                href: 'https://hakkiveda.com/documents/udyam-registration.pdf',
+              },
+              {
+                title: 'GST Registration',
+                subtitle: 'Hakkiveda Herbal Enterprises • Karnataka',
+                href: 'https://hakkiveda.com/documents/gst-registration.pdf',
+              },
+              {
+                title: 'HAKKIVEDA Trademark Application',
+                subtitle: 'Trademark application filed in India',
+                href: 'https://hakkiveda.com/documents/hakkiveda-trademark-application.pdf',
+              },
+              {
+                title: 'Hair Oil Test Report',
+                subtitle: 'FARE Labs quality test report • Natural Adivasi Herbal Oil',
+                href: 'https://hakkiveda.com/documents/hair-oil-test-report.pdf',
+              },
+            ].map((doc) => (
+              <a
+                key={doc.title}
+                href={doc.href}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-3 rounded-2xl border border-[#D6B65D]/25 bg-[#FFFDF8] p-3 active:scale-[0.99] transition-all"
+              >
+                <div className="w-10 h-10 rounded-xl bg-[#0E382C] flex items-center justify-center shrink-0">
+                  <FileCheck2 className="w-5 h-5 text-[#E5C86F]" />
+                </div>
+
+                <div className="flex-1 min-w-0">
+                  <p className="text-[11px] font-black text-[#123F34]">
+                    {doc.title}
+                  </p>
+                  <p className="text-[9px] text-slate-500 mt-0.5 leading-snug">
+                    {doc.subtitle}
+                  </p>
+                </div>
+
+                <span className="text-[9px] font-black text-[#A37E35] whitespace-nowrap">
+                  View PDF →
+                </span>
+              </a>
+            ))}
           </div>
+
+          <p className="text-[8px] text-slate-400 leading-relaxed mt-3">
+            Test reports relate only to the tested sample and are provided as quality documentation.
+          </p>
         </div>
       </section>
     </div>

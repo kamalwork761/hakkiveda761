@@ -351,32 +351,67 @@ export const AppPromoBannersManager: React.FC<AppPromoBannersManagerProps> = ({
             </div>
 
             {/* Upload Area */}
-            <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-2">
-              <span className="text-xs font-bold text-[#FDF8EC] block">Banner Artwork</span>
-              <label className="block cursor-pointer">
-                <div className="px-4 py-2 rounded-xl border border-dashed border-[#C5A059] hover:border-[#E8D279] bg-white/10 hover:bg-white/15 text-center transition-all flex items-center justify-center gap-2 text-xs font-bold text-[#C5A059]">
-                  <Upload className="w-4 h-4 stroke-[2.5]" />
-                  <span>{uploadStatus.uploading ? `Uploading (${uploadStatus.progress}%)...` : 'Upload 3:1 Promo Banner'}</span>
-                </div>
-                <input
-                  type="file"
-                  accept="image/jpeg,image/png,image/webp,image/jpg"
-                  disabled={uploadStatus.uploading}
-                  className="hidden"
-                  onChange={(e) => {
-                    const file = e.target.files?.[0];
-                    if (file) handleFileUpload(file);
-                  }}
-                />
-              </label>
+            <div className="p-3.5 rounded-2xl bg-white/5 border border-white/10 space-y-3">
+              <div>
+                <span className="text-xs font-bold text-[#FDF8EC] block">
+                  Banner Artwork
+                </span>
+                <p className="text-[10px] text-slate-400 mt-0.5">
+                  Recommended: 1080 × 360 px (3:1) • JPG, PNG or WebP
+                </p>
+              </div>
 
-              <input
-                type="text"
-                value={editingBanner.imageUrl}
-                onChange={(e) => setEditingBanner({ ...editingBanner, imageUrl: e.target.value })}
-                placeholder="Or enter direct URL /uploads/mobile-app/banners/..."
-                className="w-full px-3 py-1.5 rounded-xl bg-[#07241C] border border-white/25 text-[11px] text-white placeholder:text-slate-400 focus:outline-none focus:border-[#C5A059]"
-              />
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
+                <label className="block cursor-pointer">
+                  <div className="px-4 py-2.5 rounded-xl border border-dashed border-[#C5A059] hover:border-[#E8D279] bg-[#C5A059]/10 hover:bg-[#C5A059]/20 text-center transition-all flex items-center justify-center gap-2 text-xs font-bold text-[#E8D279]">
+                    <Upload className="w-4 h-4 stroke-[2.5]" />
+                    <span>
+                      {uploadStatus.uploading
+                        ? `Uploading (${uploadStatus.progress}%)...`
+                        : editingBanner.imageUrl
+                          ? 'Replace Banner Image'
+                          : 'Upload Banner Image'}
+                    </span>
+                  </div>
+                  <input
+                    type="file"
+                    accept="image/jpeg,image/png,image/webp,image/jpg"
+                    disabled={uploadStatus.uploading}
+                    className="hidden"
+                    onChange={(e) => {
+                      const file = e.target.files?.[0];
+                      if (file) handleFileUpload(file);
+                      e.currentTarget.value = '';
+                    }}
+                  />
+                </label>
+
+                <button
+                  type="button"
+                  disabled={!editingBanner.imageUrl || uploadStatus.uploading}
+                  onClick={() =>
+                    setEditingBanner({ ...editingBanner, imageUrl: '' })
+                  }
+                  className="px-4 py-2.5 rounded-xl border border-red-500/40 bg-red-950/30 text-red-300 hover:bg-red-950/50 text-xs font-bold disabled:opacity-30 disabled:cursor-not-allowed transition-all"
+                >
+                  Remove Banner Image
+                </button>
+              </div>
+
+              <div>
+                <label className="text-[10px] font-bold text-slate-300 block mb-1">
+                  Image URL
+                </label>
+                <input
+                  type="text"
+                  value={editingBanner.imageUrl}
+                  onChange={(e) =>
+                    setEditingBanner({ ...editingBanner, imageUrl: e.target.value })
+                  }
+                  placeholder="/uploads/mobile-app/banners/..."
+                  className="w-full px-3 py-2 rounded-xl bg-[#07241C] border border-white/25 text-[11px] text-white placeholder:text-slate-500 focus:outline-none focus:border-[#C5A059]"
+                />
+              </div>
             </div>
 
             {/* Inputs */}

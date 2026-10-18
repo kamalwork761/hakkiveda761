@@ -1,5 +1,6 @@
 import React from 'react';
 import { Sparkles, ArrowRight, ShieldCheck, ScanFace } from 'lucide-react';
+import { resolveAssetUrl } from '../utils/nativeUrl';
 
 interface AppHairAnalysisCardProps {
   imageUrl?: string;
@@ -19,7 +20,7 @@ export const AppHairAnalysisCard: React.FC<AppHairAnalysisCardProps> = ({
           className="block w-full overflow-hidden rounded-3xl active:scale-[0.99] transition-transform"
         >
           <img
-            src={imageUrl}
+            src={resolveAssetUrl(imageUrl)}
             alt="Free AI Hair Analysis"
             className="block w-full h-auto"
           />

@@ -44,14 +44,17 @@ export const AppSectionsManager: React.FC<AppSectionsManagerProps> = ({
     onSave(updated);
   };
 
-  const handleHairAnalysisUpload = async (file: File) => {
+  const handleSectionBannerUpload = async (
+    sectionId: 'hair_analysis' | 'brand_story',
+    file: File
+  ) => {
     const allowed = ['image/jpeg', 'image/png', 'image/webp'];
     if (!allowed.includes(file.type)) {
       alert('Please upload JPG, PNG or WebP image.');
       return;
     }
 
-    setUploadingSectionId('hair_analysis');
+    setUploadingSectionId(sectionId);
 
     try {
       const formData = new FormData();
@@ -70,7 +73,7 @@ export const AppSectionsManager: React.FC<AppSectionsManagerProps> = ({
       }
 
       const updated = sections.map((section) =>
-        section.id === 'hair_analysis'
+        section.id === sectionId
           ? { ...section, imageUrl: data.url }
           : section
       );
@@ -169,32 +172,63 @@ export const AppSectionsManager: React.FC<AppSectionsManagerProps> = ({
               </div>
 
               <div className="flex items-center gap-1.5 flex-shrink-0">
-                {section.id === 'hair_analysis' && (
-                  <label
-                    className="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#C5A059]/15 text-[#E8D279] hover:bg-[#C5A059]/25 cursor-pointer flex items-center gap-1"
-                    title="Upload Hair Analysis banner"
-                  >
-                    <Upload className="w-3.5 h-3.5" />
-                    <span>
-                      {uploadingSectionId === 'hair_analysis'
-                        ? 'Uploading...'
-                        : section.imageUrl
-                          ? 'Change Banner'
-                          : 'Upload Banner'}
-                    </span>
+                {(section.id === 'hair_analysis' || section.id === 'brand_story') && (
+                  <div className="flex items-center gap-2">
+                    {section.imageUrl && (
+                      <img
+                        src={section.imageUrl}
+                        alt="Hair Analysis banner"
+                        className="w-14 h-8 rounded-lg object-cover border border-white/20"
+                      />
+                    )}
 
-                    <input
-                      type="file"
-                      accept="image/jpeg,image/png,image/webp,image/jpg"
-                      disabled={uploadingSectionId === 'hair_analysis'}
-                      className="hidden"
-                      onChange={(e) => {
-                        const file = e.target.files?.[0];
-                        if (file) handleHairAnalysisUpload(file);
-                        e.currentTarget.value = '';
-                      }}
-                    />
-                  </label>
+                    <label
+                      className="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#C5A059]/15 text-[#E8D279] hover:bg-[#C5A059]/25 cursor-pointer flex items-center gap-1"
+                      title="Upload Hair Analysis banner"
+                    >
+                      <Upload className="w-3.5 h-3.5" />
+                      <span>
+                        {uploadingSectionId === section.id
+                          ? 'Uploading...'
+                          : section.imageUrl
+                            ? 'Replace Banner'
+                            : 'Upload Banner'}
+                      </span>
+
+                      <input
+                        type="file"
+                        accept="image/jpeg,image/png,image/webp,image/jpg"
+                        disabled={uploadingSectionId === section.id}
+                        className="hidden"
+                        onChange={(e) => {
+                          const file = e.target.files?.[0];
+                          if (file)
+                            handleSectionBannerUpload(
+                              section.id as 'hair_analysis' | 'brand_story',
+                              file
+                            );
+                          e.currentTarget.value = '';
+                        }}
+                      />
+                    </label>
+
+                    {section.imageUrl && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const updated = sections.map((item) =>
+                            item.id === section.id
+                              ? { ...item, imageUrl: '' }
+                              : item
+                          );
+                          onSave(updated);
+                        }}
+                        className="px-3 py-1.5 rounded-xl text-xs font-bold border border-red-500/40 bg-red-950/30 text-red-300 hover:bg-red-950/50"
+                      >
+                        Remove Banner
+                      </button>
+                    )}
+                  </div>
                 )}
 
                 <button

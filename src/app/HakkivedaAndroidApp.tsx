@@ -23,6 +23,7 @@ import {
 import { AppHeader } from './components/AppHeader';
 import { AppBottomNav, AppNavTab } from './navigation/AppBottomNav';
 import { AppHomeScreen } from './screens/AppHomeScreen';
+import { resolveApiUrl } from './utils/nativeUrl';
 import { AppShopScreen } from './screens/AppShopScreen';
 import { AppHairAnalysisScreen } from './screens/AppHairAnalysisScreen';
 import { AppOrdersScreen } from './screens/AppOrdersScreen';
@@ -114,14 +115,14 @@ export const HakkivedaAndroidApp: React.FC = () => {
           concernsRes,
           overridesRes,
         ] = await Promise.all([
-          fetch('/api/store/mobile_app_hero_slides').then((r) => r.json()).catch(() => null),
-          fetch('/api/store/mobile_app_banners').then((r) => r.json()).catch(() => null),
-          fetch('/api/store/mobile_app_sections').then((r) => r.json()).catch(() => null),
-          fetch('/api/store/mobile_app_featured_categories').then((r) => r.json()).catch(() => null),
-          fetch('/api/store/mobile_app_featured_products').then((r) => r.json()).catch(() => null),
-          fetch('/api/store/mobile_app_settings').then((r) => r.json()).catch(() => null),
-          fetch('/api/store/mobile_app_concerns').then((r) => r.json()).catch(() => null),
-          fetch('/api/store/mobile_app_products').then((r) => r.json()).catch(() => null),
+          fetch(resolveApiUrl('/api/store/mobile_app_hero_slides')).then((r) => r.json()).catch(() => null),
+          fetch(resolveApiUrl('/api/store/mobile_app_banners')).then((r) => r.json()).catch(() => null),
+          fetch(resolveApiUrl('/api/store/mobile_app_sections')).then((r) => r.json()).catch(() => null),
+          fetch(resolveApiUrl('/api/store/mobile_app_featured_categories')).then((r) => r.json()).catch(() => null),
+          fetch(resolveApiUrl('/api/store/mobile_app_featured_products')).then((r) => r.json()).catch(() => null),
+          fetch(resolveApiUrl('/api/store/mobile_app_settings')).then((r) => r.json()).catch(() => null),
+          fetch(resolveApiUrl('/api/store/mobile_app_concerns')).then((r) => r.json()).catch(() => null),
+          fetch(resolveApiUrl('/api/store/mobile_app_products')).then((r) => r.json()).catch(() => null),
         ]);
 
         if (slidesRes?.success && Array.isArray(slidesRes.data) && slidesRes.data.length > 0) {

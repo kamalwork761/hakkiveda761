@@ -185,7 +185,13 @@ export const AdminMobileAppManager: React.FC = () => {
               Android Capacitor App Control Center
             </span>
           </div>
-          <h1 className="font-serif text-2xl font-bold text-[#FDF8EC]">
+          <h1
+            className="font-serif text-2xl font-bold"
+            style={{
+              color: '#FDF8EC',
+              WebkitTextFillColor: '#FDF8EC',
+            }}
+          >
             Mobile App Manager
           </h1>
           <p className="text-xs text-emerald-100 mt-1 max-w-2xl leading-relaxed">
@@ -236,16 +242,20 @@ export const AdminMobileAppManager: React.FC = () => {
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-3.5 py-2.5 rounded-t-xl text-xs font-bold transition-all whitespace-nowrap ${
                 isActive
-                  ? 'bg-[#C5A059] text-[#0E382C] shadow-sm font-extrabold'
-                  : 'text-[#FDF8EC]/80 hover:text-white hover:bg-white/10'
+                  ? 'bg-[#C5A059] shadow-sm font-extrabold'
+                  : 'hover:bg-[#C5A059]/10'
               }`}
+              style={{
+                color: '#0E382C',
+                WebkitTextFillColor: '#0E382C',
+              }}
             >
               <Icon className="w-3.5 h-3.5" />
               <span>{tab.label}</span>
               {tab.badge !== undefined && (
                 <span
                   className={`px-1.5 py-0.2 rounded-full text-[9px] font-extrabold ${
-                    isActive ? 'bg-[#0E382C] text-[#C5A059]' : 'bg-white/20 text-[#FDF8EC]'
+                    isActive ? 'bg-[#0E382C] text-[#C5A059]' : 'bg-[#0E382C]/10 text-[#0E382C]'
                   }`}
                 >
                   {tab.badge}

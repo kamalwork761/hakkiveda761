@@ -32,7 +32,7 @@ export const AppPromoBanner: React.FC<AppPromoBannerProps> = ({
     <div className="w-full px-4 py-3">
       <div
         onClick={() => onNavigateAction(banner.linkAction || 'shop')}
-        className="relative overflow-hidden rounded-3xl border border-[#D8B65D]/45 bg-gradient-to-br from-[#FFF8E5] via-[#F8EAC2] to-[#E9C86D] p-4 shadow-none cursor-pointer active:scale-[0.99] transition-all"
+        className="relative overflow-hidden rounded-3xl border border-[#D8B65D]/45 bg-[#FFF8E5] aspect-[3/1] p-3 shadow-none cursor-pointer active:scale-[0.99] transition-all"
       >
         <div className="absolute -right-8 -top-8 w-28 h-28 rounded-full bg-white/35" />
         <div className="absolute right-4 bottom-2 opacity-10">
@@ -40,14 +40,17 @@ export const AppPromoBanner: React.FC<AppPromoBannerProps> = ({
         </div>
 
         {bgImage && (
-          <img
-            src={bgImage}
-            alt={banner.title}
-            className="absolute right-0 bottom-0 h-full w-[38%] object-cover opacity-15"
-          />
+          <>
+            <img
+              src={bgImage}
+              alt={banner.title}
+              className="absolute inset-0 w-full h-full object-cover object-center"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-[#FFF8E5]/95 via-[#FFF8E5]/72 to-transparent" />
+          </>
         )}
 
-        <div className="relative z-10 max-w-[82%]">
+        <div className="relative z-10 max-w-[62%]">
           <div className="flex items-center gap-2">
             <span className="inline-flex items-center gap-1 rounded-full bg-[#0E382C] px-2.5 py-1 text-[9px] font-black uppercase tracking-wider text-[#F7D978]">
               <Tag className="w-3 h-3" />
@@ -59,21 +62,21 @@ export const AppPromoBanner: React.FC<AppPromoBannerProps> = ({
             </span>
           </div>
 
-          <h3 className="mt-2 font-serif text-lg font-bold leading-tight text-[#0B2E25]">
+          <h3 className="mt-1.5 font-serif text-base font-bold leading-tight text-[#0B2E25]">
             {banner.title}
           </h3>
 
           {banner.subtitle && (
-            <p className="mt-1 text-[11px] leading-relaxed text-[#4E5A52]">
+            <p className="mt-1 text-[9px] leading-snug text-[#4E5A52] line-clamp-2">
               {banner.subtitle}
             </p>
           )}
 
-          <div className="mt-3 flex items-center gap-2">
+          <div className="mt-2 flex items-center gap-2">
             <button
               type="button"
               onClick={handleCopyCode}
-              className="rounded-xl border border-[#0E382C]/25 bg-white/75 px-3 py-2 text-[10px] font-black text-[#0E382C] shadow-sm"
+              className="rounded-lg border border-[#0E382C]/25 bg-white/80 px-2.5 py-1.5 text-[9px] font-black text-[#0E382C] shadow-sm"
             >
               {copied ? (
                 <span className="flex items-center gap-1">
@@ -85,7 +88,7 @@ export const AppPromoBanner: React.FC<AppPromoBannerProps> = ({
               )}
             </button>
 
-            <div className="flex items-center gap-1 text-[11px] font-black text-[#0E382C]">
+            <div className="flex items-center gap-1 text-[10px] font-black text-[#0E382C]">
               {ctaLabel}
               <ArrowRight className="w-4 h-4" />
             </div>

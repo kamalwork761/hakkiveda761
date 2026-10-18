@@ -2,9 +2,15 @@ import React, { useState } from 'react';
 import { Sparkles, ChevronDown, ChevronUp } from 'lucide-react';
 import { resolveAssetUrl } from '../utils/nativeUrl';
 
-export const AppStoryCard: React.FC = () => {
+interface AppStoryCardProps {
+  imageUrl?: string;
+}
+
+export const AppStoryCard: React.FC<AppStoryCardProps> = ({ imageUrl }) => {
   const [expanded, setExpanded] = useState(false);
-  const elderImg = resolveAssetUrl('/images/hero_tribal_elders.jpg');
+  const elderImg = resolveAssetUrl(
+    imageUrl || '/images/hero_tribal_elders.jpg'
+  );
 
   return (
     <div className="w-full px-4 py-3">
@@ -15,20 +21,7 @@ export const AppStoryCard: React.FC = () => {
             alt="HAKKIVEDA heritage"
             className="h-full w-full object-cover object-center"
           />
-          <div className="absolute inset-0 bg-gradient-to-t from-[#0B2E25]/85 via-[#0B2E25]/20 to-transparent" />
 
-          <div className="absolute bottom-3 left-4 right-4">
-            <div className="flex items-center gap-1.5 text-[#F4D77E]">
-              <Sparkles className="w-4 h-4" />
-              <span className="text-[9px] font-black uppercase tracking-[0.18em]">
-                Sacred Heritage
-              </span>
-            </div>
-
-            <h3 className="mt-1 font-serif text-lg font-bold leading-tight text-white">
-              The Story Behind HAKKIVEDA
-            </h3>
-          </div>
         </div>
 
         <div className="p-4">

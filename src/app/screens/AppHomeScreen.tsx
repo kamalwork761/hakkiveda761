@@ -162,7 +162,12 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
         );
 
       case 'brand_story':
-        return <AppStoryCard key="brand_story" />;
+        return (
+          <AppStoryCard
+            key="brand_story"
+            imageUrl={section.imageUrl}
+          />
+        );
 
       case 'global_clients':
         return <AppGlobalClientsCompact key="global_clients" />;

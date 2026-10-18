@@ -1460,13 +1460,7 @@
 .mobile-app-admin h3,
 .mobile-app-admin h4,
 .mobile-app-admin h5,
-.mobile-app-admin h6,
-.mobile-app-modal h1,
-.mobile-app-modal h2,
-.mobile-app-modal h3,
-.mobile-app-modal h4,
-.mobile-app-modal h5,
-.mobile-app-modal h6 {
+.mobile-app-admin h6 {
   color: #FFFFFF !important;
 }
 

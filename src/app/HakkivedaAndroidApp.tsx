@@ -28,6 +28,9 @@ import { AppShopScreen } from './screens/AppShopScreen';
 import { AppHairAnalysisScreen } from './screens/AppHairAnalysisScreen';
 import { AppOrdersScreen } from './screens/AppOrdersScreen';
 import { AppAccountScreen } from './screens/AppAccountScreen';
+import { AppGlobalCommunityScreen } from './screens/AppGlobalCommunityScreen';
+import { AppTrustAuthenticityScreen } from './screens/AppTrustAuthenticityScreen';
+import { AppB2BScreen } from './screens/AppB2BScreen';
 import { AppProductDetailModal } from './screens/AppProductDetailModal';
 import { AppCartDrawer } from './screens/AppCartDrawer';
 import { AppSearchModal } from './screens/AppSearchModal';
@@ -84,6 +87,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
+  const [extraScreen, setExtraScreen] = useState<'global' | 'trust' | 'b2b' | null>(null);
 
   // App-specific admin configurable state
   const [heroSlides, setHeroSlides] = useState<MobileAppHeroSlide[]>(INITIAL_MOBILE_APP_HERO_SLIDES);
@@ -160,6 +164,12 @@ export const HakkivedaAndroidApp: React.FC = () => {
   // Native Android back button listener
   useEffect(() => {
     const handleAndroidBack = (e: Event) => {
+      if (extraScreen) {
+        e.preventDefault();
+        setExtraScreen(null);
+        return;
+      }
+
       if (isCheckoutOpen) {
         e.preventDefault();
         setIsCheckoutOpen(false);
@@ -191,7 +201,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
     return () => {
       window.removeEventListener('hakkiveda:android-back', handleAndroidBack);
     };
-  }, [isCheckoutOpen, selectedProductId, isCartOpen, isSearchOpen, activeTab, setIsCheckoutOpen]);
+  }, [extraScreen, isCheckoutOpen, selectedProductId, isCartOpen, isSearchOpen, activeTab, setIsCheckoutOpen]);
 
   const handleActionClick = (destination: string) => {
     try {
@@ -245,7 +255,24 @@ export const HakkivedaAndroidApp: React.FC = () => {
 
       {/* Main View Area */}
       <main className="flex-1 overflow-x-hidden">
-        {activeTab === 'home' && (
+        {extraScreen === 'global' && (
+          <AppScreenErrorBoundary screenName="Global Community">
+            <AppGlobalCommunityScreen onBack={() => setExtraScreen(null)} />
+          </AppScreenErrorBoundary>
+        )}
+
+        {extraScreen === 'trust' && (
+          <AppScreenErrorBoundary screenName="Trust & Authenticity">
+            <AppTrustAuthenticityScreen onBack={() => setExtraScreen(null)} />
+          </AppScreenErrorBoundary>
+        )}
+
+        {extraScreen === 'b2b' && (
+          <AppScreenErrorBoundary screenName="B2B">
+            <AppB2BScreen onBack={() => setExtraScreen(null)} />
+          </AppScreenErrorBoundary>
+        )}
+        {!extraScreen && activeTab === 'home' && (
           <AppScreenErrorBoundary screenName="Home">
             <AppHomeScreen
               heroSlides={heroSlides}
@@ -258,12 +285,24 @@ export const HakkivedaAndroidApp: React.FC = () => {
               onOpenProductDetail={(id) => setSelectedProductId(id)}
               onNavigateToShop={handleNavigateToShop}
               onNavigateToAnalysis={() => setActiveTab('analysis')}
+              onOpenGlobalCommunity={() => {
+                setExtraScreen('global');
+                window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+              }}
+              onOpenTrust={() => {
+                setExtraScreen('trust');
+                window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+              }}
+              onOpenB2B={() => {
+                setExtraScreen('b2b');
+                window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+              }}
               onActionClick={handleActionClick}
             />
           </AppScreenErrorBoundary>
         )}
 
-        {activeTab === 'shop' && (
+        {!extraScreen && activeTab === 'shop' && (
           <AppScreenErrorBoundary screenName="Shop">
             <AppShopScreen
               initialCategoryId={selectedCategoryId}
@@ -275,7 +314,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
           </AppScreenErrorBoundary>
         )}
 
-        {activeTab === 'analysis' && (
+        {!extraScreen && activeTab === 'analysis' && (
           <AppScreenErrorBoundary screenName="Hair Analysis">
             <AppHairAnalysisScreen
               onOpenProductDetail={(id) => setSelectedProductId(id)}
@@ -283,13 +322,13 @@ export const HakkivedaAndroidApp: React.FC = () => {
           </AppScreenErrorBoundary>
         )}
 
-        {activeTab === 'orders' && (
+        {!extraScreen && activeTab === 'orders' && (
           <AppScreenErrorBoundary screenName="Orders">
             <AppOrdersScreen />
           </AppScreenErrorBoundary>
         )}
 
-        {activeTab === 'account' && (
+        {!extraScreen && activeTab === 'account' && (
           <AppScreenErrorBoundary screenName="Account">
             <AppAccountScreen
               appSettings={appSettings}
@@ -301,6 +340,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
       </main>
 
       {/* App Bottom Navigation */}
+      {!extraScreen && (
       <AppBottomNav
         activeTab={activeTab}
         onTabChange={(tab) => {
@@ -315,6 +355,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
           window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
         }}
       />
+      )}
 
       {/* Overlays */}
       <AppProductDetailModal

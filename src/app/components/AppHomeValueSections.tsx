@@ -18,59 +18,153 @@ import {
 
 interface Props {
   onShop: () => void;
+  onOpenTrust: () => void;
+  onOpenB2B: () => void;
 }
 
-export const AppHomeValueSections: React.FC<Props> = ({ onShop }) => {
+export const AppHomeValueSections: React.FC<Props> = ({
+  onShop,
+  onOpenTrust,
+  onOpenB2B,
+}) => {
   return (
     <>
       {/* WHY HAKKIVEDA */}
       <section className="px-4 py-4">
-        <div className="flex items-end justify-between mb-3">
-          <div>
-            <p className="text-[10px] uppercase tracking-[0.18em] font-bold text-[#B18A3C]">
-              Our Promise
-            </p>
-            <h2 className="font-serif text-lg font-bold text-slate-900">
-              Why Choose HAKKIVEDA
-            </h2>
-          </div>
+        <div className="mb-3">
+          <p className="text-[10px] uppercase tracking-[0.18em] font-bold text-[#B18A3C]">
+            Trust & Authenticity
+          </p>
+
+          <h2 className="font-serif text-lg font-bold text-slate-900">
+            Why Choose HAKKIVEDA
+          </h2>
+
+          <p className="text-[10px] text-slate-500 mt-1">
+            Know where your products come from, how to verify them and why authenticity matters.
+          </p>
         </div>
 
         <div className="grid grid-cols-2 gap-2.5">
           {[
             {
               icon: Leaf,
-              title: 'Herbal Formulations',
-              text: 'Traditional botanical care for everyday hair & skin rituals.',
+              title: 'Tribal Heritage',
+              text: 'Traditional Hakki-Pikki herbal knowledge from Mysuru.',
+              style: 'from-emerald-500 to-emerald-700',
             },
             {
               icon: ShieldCheck,
               title: 'Authentic Products',
-              text: 'Products supplied directly through HAKKIVEDA.',
+              text: 'Learn how to identify genuine HAKKIVEDA products.',
+              style: 'from-blue-500 to-indigo-600',
             },
             {
               icon: PackageCheck,
-              title: 'Secure Shopping',
-              text: 'Simple ordering with trusted delivery support.',
+              title: 'Quality & Documents',
+              text: 'Lab reports, registrations and product documentation.',
+              style: 'from-violet-500 to-purple-700',
             },
             {
               icon: Headphones,
               title: 'Customer Support',
-              text: 'Get help before and after your purchase.',
+              text: 'Direct help before and after your purchase.',
+              style: 'from-amber-500 to-orange-600',
             },
-          ].map(({ icon: Icon, title, text }) => (
-            <div
+          ].map(({ icon: Icon, title, text, style }) => (
+            <button
               key={title}
-              className="rounded-2xl bg-white border border-emerald-950/10 p-3 shadow-sm"
+              type="button"
+              onClick={onOpenTrust}
+              className="rounded-2xl bg-white border border-slate-200 p-3.5 shadow-sm text-left active:scale-[0.98] transition-all"
             >
-              <div className="w-9 h-9 rounded-xl bg-[#0E382C]/8 flex items-center justify-center mb-2">
-                <Icon className="w-4.5 h-4.5 text-[#0E382C]" />
+              <div
+                className={`w-11 h-11 rounded-2xl bg-gradient-to-br ${style} flex items-center justify-center shadow-md`}
+              >
+                <Icon className="w-5 h-5 text-white" />
               </div>
-              <h3 className="text-xs font-bold text-slate-900">{title}</h3>
-              <p className="text-[10px] text-slate-500 leading-relaxed mt-1">{text}</p>
-            </div>
+
+              <h3 className="text-[12px] font-black text-[#123F34] mt-3">
+                {title}
+              </h3>
+
+              <p className="text-[9px] text-slate-500 leading-relaxed mt-1">
+                {text}
+              </p>
+
+              <div className="mt-2 flex items-center text-[9px] font-bold text-[#0E6A54]">
+                View Details
+                <ChevronRight className="w-3 h-3 ml-0.5" />
+              </div>
+            </button>
           ))}
         </div>
+
+        <button
+          type="button"
+          onClick={onOpenTrust}
+          className="mt-3 w-full rounded-2xl bg-[#FFF7DF] border border-[#D6B65D]/40 p-3 flex items-center justify-between text-left active:scale-[0.99]"
+        >
+          <div>
+            <p className="text-[9px] font-black uppercase tracking-[0.14em] text-[#A37E35]">
+              Verify Before You Buy
+            </p>
+            <p className="text-[10px] text-slate-600 mt-0.5">
+              Check authenticity, registrations and available certificates.
+            </p>
+          </div>
+
+          <ChevronRight className="w-5 h-5 text-[#A37E35]" />
+        </button>
+      </section>
+
+      {/* B2B */}
+      <section className="px-4 py-4">
+        <button
+          type="button"
+          onClick={onOpenB2B}
+          className="w-full overflow-hidden rounded-3xl bg-gradient-to-br from-[#0B2E25] via-[#124838] to-[#17634C] border border-[#D6B65D]/35 p-4 text-left shadow-lg active:scale-[0.99] transition-all"
+        >
+          <div className="flex items-start justify-between gap-3">
+            <div>
+              <p className="text-[9px] uppercase tracking-[0.18em] font-black text-[#E6C86B]">
+                Business Opportunities
+              </p>
+
+              <h2 className="font-serif text-lg font-bold text-[#FFF8E8] mt-1">
+                B2B & Private Label
+              </h2>
+
+              <p className="text-[10px] text-emerald-100/75 leading-relaxed mt-1">
+                Bulk orders, wholesale supply, distributor opportunities,
+                third-party manufacturing and private labelling.
+              </p>
+            </div>
+
+            <ChevronRight className="w-5 h-5 text-[#E6C86B] shrink-0 mt-1" />
+          </div>
+
+          <div className="grid grid-cols-3 gap-2 mt-4">
+            <div className="rounded-xl bg-white/10 px-2 py-2 text-center">
+              <p className="text-[9px] font-black text-white">Wholesale</p>
+              <p className="text-[8px] text-emerald-100/60">Bulk pricing</p>
+            </div>
+
+            <div className="rounded-xl bg-white/10 px-2 py-2 text-center">
+              <p className="text-[9px] font-black text-white">Private Label</p>
+              <p className="text-[8px] text-emerald-100/60">Custom MOQ</p>
+            </div>
+
+            <div className="rounded-xl bg-white/10 px-2 py-2 text-center">
+              <p className="text-[9px] font-black text-white">Distributor</p>
+              <p className="text-[8px] text-emerald-100/60">Join network</p>
+            </div>
+          </div>
+
+          <div className="mt-3 rounded-xl bg-[#E6C86B] py-2.5 text-center text-[10px] font-black text-[#0B382C]">
+            Explore B2B Opportunities →
+          </div>
+        </button>
       </section>
 
       {/* HAIR CARE ROUTINE */}

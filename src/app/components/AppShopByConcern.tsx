@@ -1,5 +1,5 @@
 import React from 'react';
-import { ShieldCheck, Sparkles, AlertCircle, Droplets, Zap, Leaf } from 'lucide-react';
+import { ArrowRight, Leaf } from 'lucide-react';
 import { MobileAppShopConcern } from '../../types/mobileApp';
 import { INITIAL_MOBILE_APP_CONCERNS } from '../../data/initialData';
 import { resolveAssetUrl } from '../utils/nativeUrl';
@@ -15,9 +15,10 @@ export const AppShopByConcern: React.FC<AppShopByConcernProps> = ({
 }) => {
   const supportedConcernKeys = new Set(['hair_fall', 'hair_growth']);
 
-  const displayConcerns = (concerns && concerns.length > 0
-    ? concerns.filter((c) => c.published !== false)
-    : INITIAL_MOBILE_APP_CONCERNS
+  const displayConcerns = (
+    concerns && concerns.length > 0
+      ? concerns.filter((c) => c.published !== false)
+      : INITIAL_MOBILE_APP_CONCERNS
   )
     .filter((c) => {
       const key = (c.destination || c.id).replace('concern:', '');
@@ -25,64 +26,101 @@ export const AppShopByConcern: React.FC<AppShopByConcernProps> = ({
     })
     .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
 
+  const getConcernCopy = (c: MobileAppShopConcern) => {
+    const key = (c.destination || c.id).replace('concern:', '');
+
+    if (key === 'hair_fall') {
+      return {
+        title: 'Hair Fall & Weak Roots',
+        support: 'For excessive shedding and weak-feeling roots',
+        value: 'Recommended herbal routine',
+      };
+    }
+
+    if (key === 'hair_growth') {
+      return {
+        title: 'Hair Growth & Density',
+        support: 'For thin-looking or low-density hair',
+        value: 'Personalized care options',
+      };
+    }
+
+    return {
+      title: c.title,
+      support: c.subtitle,
+      value: 'Explore recommended remedies',
+    };
+  };
+
   return (
-    <div className="w-full py-3">
-      <div className="flex items-center justify-between px-4 mb-2">
-        <div>
-          <h2 className="text-xs font-bold uppercase tracking-wider text-emerald-950/70 font-sans">
-            Shop by Concern
-          </h2>
-          <p className="text-[11px] text-slate-500 font-sans">
-            Targeted tribal formulations for specific hair needs
-          </p>
-        </div>
+    <div className="w-full py-4">
+      <div className="px-4 mb-3">
+        <h2 className="text-[13px] font-black uppercase tracking-[0.12em] text-[#0B4A3A]">
+          What Would You Like to Improve?
+        </h2>
+        <p className="mt-0.5 text-[11px] text-slate-500">
+          Find a routine based on your hair concern
+        </p>
       </div>
 
-      <div
-        className="flex items-stretch gap-3 px-4 overflow-x-auto no-scrollbar scroll-smooth pb-1"
-        style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-      >
+      <div className="space-y-3 px-4">
         {displayConcerns.map((c) => {
+          const copy = getConcernCopy(c);
+
           return (
             <button
               key={c.id}
               type="button"
               onClick={() => onSelectConcern(c.destination || c.id)}
-              className="flex-shrink-0 w-44 rounded-2xl p-3 bg-white border border-emerald-950/10 shadow-sm hover:shadow-md active:scale-98 transition-all flex flex-col justify-between text-left group"
+              className="w-full overflow-hidden rounded-2xl border border-[#DDD6C8] bg-[#FFFDF8] shadow-sm active:scale-[0.99] transition-all text-left"
             >
-              <div>
-                <div className="flex items-center justify-between mb-2">
+              <div className="flex items-stretch">
+                <div className="w-[96px] min-h-[112px] flex-shrink-0 bg-[#F2EAD9]">
                   {c.imageUrl ? (
                     <img
                       src={resolveAssetUrl(c.imageUrl)}
-                      alt={c.title}
-                      className="w-9 h-9 rounded-xl object-cover border border-[#C5A059]/30"
+                      alt={copy.title}
+                      className="w-full h-full object-cover"
                       onError={(e) => {
                         (e.target as HTMLImageElement).src = '/images/hakkiveda-logo.png';
                       }}
                     />
                   ) : (
-                    <div className="w-8 h-8 rounded-xl bg-[#0E382C]/10 text-[#0E382C] flex items-center justify-center group-hover:bg-[#0E382C] group-hover:text-[#C5A059] transition-colors">
-                      <Leaf className="w-4 h-4" />
+                    <div className="w-full h-full flex items-center justify-center text-[#0E6A54]">
+                      <Leaf className="w-8 h-8" />
                     </div>
                   )}
-                  {c.badge && (
-                    <span className="text-[9px] font-bold text-[#C5A059] bg-[#C5A059]/10 px-1.5 py-0.5 rounded-full border border-[#C5A059]/20">
-                      {c.badge}
-                    </span>
-                  )}
                 </div>
-                <h3 className="font-serif text-sm font-bold text-slate-900 leading-tight">
-                  {c.title}
-                </h3>
-                <p className="text-[11px] text-slate-500 mt-1 leading-snug">
-                  {c.subtitle}
-                </p>
-              </div>
 
-              <div className="mt-3 flex items-center text-[11px] font-semibold text-[#0E382C] group-hover:text-[#C5A059] transition-colors">
-                <span>Explore Remedies</span>
-                <span className="ml-1 text-xs">→</span>
+                <div className="flex-1 p-3 min-w-0">
+                  <div className="flex items-start justify-between gap-2">
+                    <div>
+                      <h3 className="font-serif text-[15px] font-bold leading-tight text-[#123F34]">
+                        {copy.title}
+                      </h3>
+                      <p className="mt-1 text-[10px] leading-snug text-slate-500">
+                        {copy.support}
+                      </p>
+                    </div>
+
+                    {c.badge && (
+                      <span className="flex-shrink-0 rounded-full border border-[#D7B55B]/35 bg-[#FFF6DE] px-2 py-1 text-[8px] font-black uppercase text-[#A17B27]">
+                        {c.badge}
+                      </span>
+                    )}
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-between gap-2">
+                    <span className="rounded-full bg-[#EAF5F0] px-2.5 py-1 text-[9px] font-bold text-[#0E6A54]">
+                      {copy.value}
+                    </span>
+
+                    <span className="flex items-center gap-1 text-[10px] font-black text-[#0E4B3B]">
+                      View Routine
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </span>
+                  </div>
+                </div>
               </div>
             </button>
           );
@@ -91,4 +129,3 @@ export const AppShopByConcern: React.FC<AppShopByConcernProps> = ({
     </div>
   );
 };
-

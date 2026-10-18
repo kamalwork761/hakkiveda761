@@ -31,6 +31,9 @@ interface AppHomeScreenProps {
   onOpenProductDetail: (productId: string) => void;
   onNavigateToShop: (categoryId?: string, concernId?: string) => void;
   onNavigateToAnalysis: () => void;
+  onOpenGlobalCommunity: () => void;
+  onOpenTrust: () => void;
+  onOpenB2B: () => void;
   onActionClick: (destination: string) => void;
 }
 
@@ -45,6 +48,9 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
   onOpenProductDetail,
   onNavigateToShop,
   onNavigateToAnalysis,
+  onOpenGlobalCommunity,
+  onOpenTrust,
+  onOpenB2B,
   onActionClick,
 }) => {
   const { products, categories } = useStore();
@@ -170,7 +176,12 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
         );
 
       case 'global_clients':
-        return <AppGlobalClientsCompact key="global_clients" />;
+        return (
+          <AppGlobalClientsCompact
+            key="global_clients"
+            onOpen={onOpenGlobalCommunity}
+          />
+        );
 
       default:
         return null;
@@ -183,6 +194,8 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
 
       <AppHomeValueSections
         onShop={() => onNavigateToShop()}
+        onOpenTrust={onOpenTrust}
+        onOpenB2B={onOpenB2B}
       />
     </div>
   );

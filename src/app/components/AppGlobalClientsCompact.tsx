@@ -1,70 +1,85 @@
 import React from 'react';
-import { Globe, Star, Quote } from 'lucide-react';
+import {
+  ArrowRight,
+  Globe2,
+  Handshake,
+  MapPin,
+  PackageCheck,
+} from 'lucide-react';
 
-export const AppGlobalClientsCompact: React.FC = () => {
-  const internationalHighlights = [
-    { country: 'Mauritius', flag: '🇲🇺', name: 'Devika Ramgoolam', text: 'Thickened my crown within 45 days. Truly miraculous oil.' },
-    { country: 'Singapore', flag: '🇸🇬', name: 'Marcus Tan', text: 'Stops humid scalp itch instantly and keeps follicles alive.' },
-    { country: 'UAE', flag: '🇦🇪', name: 'Fatima Al-Zahra', text: 'Shields against harsh desalinated shower water hair loss.' },
-    { country: 'Malaysia', flag: '🇲🇾', name: 'Priya Pillay', text: 'Authentic forest aroma, pure natural botanical revival.' },
-  ];
+interface Props {
+  onOpen?: () => void;
+}
 
+export const AppGlobalClientsCompact: React.FC<Props> = ({ onOpen }) => {
   return (
-    <div className="w-full px-4 py-3">
-      <div className="rounded-3xl bg-white border border-emerald-950/10 p-4 shadow-sm">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <div className="w-8 h-8 rounded-xl bg-emerald-50 text-[#0E382C] flex items-center justify-center">
-              <Globe className="w-4 h-4 text-[#0E382C]" />
+    <div className="w-full px-4 py-4">
+      <button
+        type="button"
+        onClick={onOpen}
+        className="w-full text-left overflow-hidden rounded-3xl bg-gradient-to-br from-[#0B382C] via-[#10503D] to-[#17634C] border border-[#D6B65D]/35 shadow-lg active:scale-[0.99] transition-all"
+      >
+        <div className="relative p-4">
+          <div className="absolute -top-10 -right-8 w-32 h-32 rounded-full bg-[#D6B65D]/10" />
+          <div className="absolute -bottom-12 -left-8 w-28 h-28 rounded-full bg-white/5" />
+
+          <div className="relative z-10">
+            <div className="flex items-start justify-between gap-3">
+              <div className="flex gap-3">
+                <div className="w-12 h-12 rounded-2xl bg-[#E6C86B]/15 border border-[#E6C86B]/30 flex items-center justify-center shrink-0">
+                  <Globe2 className="w-6 h-6 text-[#E6C86B]" />
+                </div>
+
+                <div>
+                  <p className="text-[9px] uppercase tracking-[0.18em] font-black text-[#E6C86B]">
+                    From Mysuru to the World
+                  </p>
+
+                  <h3 className="font-serif text-lg font-bold text-[#FFF8E8] leading-tight mt-0.5">
+                    Global Tribal Community
+                  </h3>
+
+                  <p className="text-[10px] text-emerald-100/75 mt-1 leading-relaxed">
+                    International customers, wholesalers, distributors and business partners.
+                  </p>
+                </div>
+              </div>
+
+              <ArrowRight className="w-5 h-5 text-[#E6C86B] shrink-0 mt-1" />
             </div>
-            <div>
-              <h3 className="font-serif text-sm font-bold text-slate-900 leading-tight">
-                Global Tribal Community
-              </h3>
-              <p className="text-[10px] text-slate-500 font-sans">
-                Trusted across 14+ countries worldwide
-              </p>
+
+            <div className="grid grid-cols-3 gap-2 mt-4">
+              <div className="rounded-2xl bg-white/10 border border-white/10 px-2 py-2.5 text-center">
+                <MapPin className="w-4 h-4 text-[#E6C86B] mx-auto" />
+                <p className="text-[13px] font-black text-white mt-1">14+</p>
+                <p className="text-[8px] text-emerald-100/65">Markets</p>
+              </div>
+
+              <div className="rounded-2xl bg-white/10 border border-white/10 px-2 py-2.5 text-center">
+                <Handshake className="w-4 h-4 text-[#E6C86B] mx-auto" />
+                <p className="text-[10px] font-black text-white mt-1">B2B</p>
+                <p className="text-[8px] text-emerald-100/65">Partners</p>
+              </div>
+
+              <div className="rounded-2xl bg-white/10 border border-white/10 px-2 py-2.5 text-center">
+                <PackageCheck className="w-4 h-4 text-[#E6C86B] mx-auto" />
+                <p className="text-[10px] font-black text-white mt-1">Export</p>
+                <p className="text-[8px] text-emerald-100/65">Support</p>
+              </div>
+            </div>
+
+            <div className="mt-3 flex items-center justify-between rounded-2xl bg-[#FFF7DB]/10 border border-[#E6C86B]/20 px-3 py-2">
+              <span className="text-[9px] font-bold text-[#F7E8B5]">
+                Explore countries, export reach & partner opportunities
+              </span>
+
+              <span className="text-[9px] font-black text-[#E6C86B] whitespace-nowrap ml-2">
+                Explore →
+              </span>
             </div>
           </div>
-          <span className="text-[9px] font-bold text-emerald-800 bg-emerald-50 px-2 py-0.5 rounded-full border border-emerald-200">
-            Export Grade
-          </span>
         </div>
-
-        {/* Horizontal Testimonials */}
-        <div
-          className="flex gap-2.5 overflow-x-auto no-scrollbar scroll-smooth pb-1"
-          style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-        >
-          {internationalHighlights.map((item, idx) => (
-            <div
-              key={idx}
-              className="flex-shrink-0 w-52 rounded-2xl bg-[#FAF7F2] p-3 border border-emerald-950/5 flex flex-col justify-between"
-            >
-              <div>
-                <div className="flex items-center justify-between mb-1.5">
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-base">{item.flag}</span>
-                    <span className="text-xs font-bold text-slate-800">{item.country}</span>
-                  </div>
-                  <div className="flex text-amber-400">
-                    {[...Array(5)].map((_, i) => (
-                      <Star key={i} className="w-2.5 h-2.5 fill-current" />
-                    ))}
-                  </div>
-                </div>
-                <p className="text-[11px] text-slate-600 italic leading-relaxed line-clamp-2">
-                  "{item.text}"
-                </p>
-              </div>
-
-              <div className="mt-2 pt-1.5 border-t border-slate-200/60 text-[10px] font-medium text-slate-500 truncate">
-                — {item.name}
-              </div>
-            </div>
-          ))}
-        </div>
-      </div>
+      </button>
     </div>
   );
 };

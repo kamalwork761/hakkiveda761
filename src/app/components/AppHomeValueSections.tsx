@@ -123,19 +123,21 @@ export const AppHomeValueSections: React.FC<Props> = ({
         <button
           type="button"
           onClick={onOpenB2B}
-          className="w-full overflow-hidden rounded-3xl bg-gradient-to-br from-[#0B2E25] via-[#124838] to-[#17634C] border border-[#D6B65D]/35 p-4 text-left shadow-lg active:scale-[0.99] transition-all"
+          className="w-full overflow-hidden rounded-[28px] bg-gradient-to-br from-[#073B2F] via-[#0D5A45] to-[#07805E] border border-[#E7C95F]/45 p-5 text-left shadow-[0_12px_34px_rgba(7,59,47,0.25)] active:scale-[0.99] transition-all relative"
         >
-          <div className="flex items-start justify-between gap-3">
+          <div className="absolute -top-16 -right-10 w-40 h-40 rounded-full bg-[#F0CD68]/12 blur-sm" />
+          <div className="absolute -bottom-16 -left-12 w-36 h-36 rounded-full bg-cyan-300/10 blur-xl" />
+          <div className="relative z-10 flex items-start justify-between gap-3">
             <div>
               <p className="text-[9px] uppercase tracking-[0.18em] font-black text-[#E6C86B]">
                 Business Opportunities
               </p>
 
-              <h2 className="font-serif text-lg font-bold mt-1" style={{ color: "#FFF8E8", WebkitTextFillColor: "#FFF8E8" }}>
+              <h2 className="font-serif text-[22px] font-black mt-1" style={{ color: "#FFF8E8", WebkitTextFillColor: "#FFF8E8" }}>
                 B2B & Private Label
               </h2>
 
-              <p className="text-[10px] text-emerald-100/75 leading-relaxed mt-1">
+              <p className="text-[11px] text-emerald-50/85 leading-relaxed mt-1.5">
                 Bulk orders, wholesale supply, distributor opportunities,
                 third-party manufacturing and private labelling.
               </p>
@@ -144,24 +146,24 @@ export const AppHomeValueSections: React.FC<Props> = ({
             <ChevronRight className="w-5 h-5 text-[#E6C86B] shrink-0 mt-1" />
           </div>
 
-          <div className="grid grid-cols-3 gap-2 mt-4">
-            <div className="rounded-xl bg-white/10 px-2 py-2 text-center">
-              <p className="text-[9px] font-black text-white">Wholesale</p>
+          <div className="relative z-10 grid grid-cols-3 gap-2 mt-4">
+            <div className="rounded-2xl bg-gradient-to-b from-white/15 to-white/8 border border-white/10 px-2 py-3 text-center shadow-inner">
+              <p className="text-[10px] font-black text-white">Wholesale</p>
               <p className="text-[8px] text-emerald-100/60">Bulk pricing</p>
             </div>
 
-            <div className="rounded-xl bg-white/10 px-2 py-2 text-center">
-              <p className="text-[9px] font-black text-white">Private Label</p>
+            <div className="rounded-2xl bg-gradient-to-b from-white/15 to-white/8 border border-white/10 px-2 py-3 text-center shadow-inner">
+              <p className="text-[10px] font-black text-white">Private Label</p>
               <p className="text-[8px] text-emerald-100/60">Custom MOQ</p>
             </div>
 
-            <div className="rounded-xl bg-white/10 px-2 py-2 text-center">
-              <p className="text-[9px] font-black text-white">Distributor</p>
+            <div className="rounded-2xl bg-gradient-to-b from-white/15 to-white/8 border border-white/10 px-2 py-3 text-center shadow-inner">
+              <p className="text-[10px] font-black text-white">Distributor</p>
               <p className="text-[8px] text-emerald-100/60">Join network</p>
             </div>
           </div>
 
-          <div className="mt-3 rounded-xl bg-[#E6C86B] py-2.5 text-center text-[10px] font-black text-[#0B382C]">
+          <div className="relative z-10 mt-4 rounded-2xl bg-gradient-to-r from-[#F3D76E] via-[#E7C451] to-[#F0CD68] py-3.5 text-center text-[11px] font-black text-[#083A2F] shadow-[0_6px_18px_rgba(240,205,104,0.28)]">
             Explore B2B Opportunities →
           </div>
         </button>

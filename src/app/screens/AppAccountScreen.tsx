@@ -291,23 +291,24 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
   return (
     <div className="w-full pb-24 px-4 pt-3">
       {/* Profile Header */}
-      <div className="rounded-3xl p-5 bg-gradient-to-br from-[#0E382C] via-[#134E3F] to-[#07241C] text-white shadow-md border border-[#C5A059]/30 mb-4 app-dark-card">
-        <div className="flex items-center gap-3.5">
-          <div className="w-14 h-14 rounded-2xl bg-[#C5A059]/20 border border-[#C5A059]/40 text-[#C5A059] flex items-center justify-center font-bold text-xl shadow-inner">
+      <div className="rounded-[28px] p-5 bg-gradient-to-br from-[#073B2F] via-[#0E5A47] to-[#082A22] text-white shadow-[0_12px_34px_rgba(7,59,47,0.24)] border border-[#E1C15A]/35 mb-4 app-dark-card relative overflow-hidden">
+        <div className="absolute -top-12 -right-10 w-36 h-36 rounded-full bg-[#E8C85F]/10 blur-sm" />
+        <div className="relative z-10 flex items-center gap-3.5">
+          <div className="w-16 h-16 rounded-[22px] bg-gradient-to-br from-[#F2D66F]/24 to-white/10 border border-[#E7C85F]/40 text-[#F0CD68] flex items-center justify-center font-black text-2xl shadow-inner">
             {currentUser ? currentUser.name.charAt(0).toUpperCase() : <User className="w-7 h-7 text-[#C5A059]" />}
           </div>
 
           <div className="flex-1">
             <div className="flex items-center gap-1.5">
-              <h2 className="font-serif text-base font-bold text-[#FDF8EC] leading-tight dark-heading">
-                {currentUser ? currentUser.name : 'Welcome, Sacred Seeker'}
+              <h2 className="font-serif text-[20px] font-black text-[#FFF9EA] leading-tight dark-heading">
+                {currentUser ? currentUser.name : 'My HAKKIVEDA'}
               </h2>
             </div>
             <p className="text-xs text-emerald-200/80 mt-0.5 font-sans">
-              {currentUser ? currentUser.email : 'Explore 108 Sacred Forest Herbal Remedies'}
+              {currentUser ? currentUser.email : 'Sign in to manage orders, addresses and saved remedies'}
             </p>
             <div className="mt-1.5 inline-flex items-center gap-1 bg-[#C5A059]/15 border border-[#C5A059]/30 px-2 py-0.5 rounded-full text-[9px] font-bold text-[#C5A059] uppercase tracking-wider">
-              <span>HAKKIVEDA Tribal Club Member</span>
+              <span>{currentUser ? 'HAKKIVEDA Member' : 'Secure Customer Account'}</span>
             </div>
           </div>
         </div>
@@ -315,8 +316,17 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
 
       {/* Customer Authentication */}
       {!currentUser ? (
-        <div className="bg-white rounded-3xl border border-emerald-950/10 shadow-sm p-4 mb-4">
-          <div className="flex bg-[#FAF7F2] rounded-2xl p-1 mb-4">
+        <div className="bg-white rounded-[28px] border border-emerald-950/10 shadow-[0_8px_28px_rgba(15,50,40,0.08)] p-4.5 mb-4">
+          <div className="mb-4">
+            <p className="text-[10px] uppercase tracking-[0.16em] font-black text-[#A27C2D]">Customer Account</p>
+            <h3 className="mt-1 font-serif text-[19px] font-black text-[#123F34]">
+              Sign in or create your account
+            </h3>
+            <p className="mt-1 text-[11px] leading-relaxed text-slate-500">
+              Keep your orders, delivery addresses and saved products together in one secure place.
+            </p>
+          </div>
+          <div className="flex bg-[#F6F1E8] rounded-2xl p-1.5 mb-4 border border-[#E7DFD1]">
             <button
               type="button"
               onClick={() => {
@@ -326,7 +336,7 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
               }}
               className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
                 authMode === 'SIGN_IN'
-                  ? 'bg-[#0E382C] text-white shadow-sm'
+                  ? 'bg-[#0E382C] text-[#FFF8E8] shadow-md'
                   : 'text-slate-600'
               }`}
             >
@@ -341,7 +351,7 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
               }}
               className={`flex-1 py-2 rounded-xl text-xs font-bold transition-all ${
                 authMode === 'REGISTER'
-                  ? 'bg-[#0E382C] text-white shadow-sm'
+                  ? 'bg-[#0E382C] text-[#FFF8E8] shadow-md'
                   : 'text-slate-600'
               }`}
             >
@@ -380,7 +390,7 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
               <button
                 type="submit"
                 disabled={authSubmitting}
-                className="w-full h-11 rounded-xl bg-[#0E382C] text-[#FDF8EC] text-xs font-bold disabled:opacity-60"
+                className="w-full h-12 rounded-2xl bg-gradient-to-r from-[#0B4A3A] to-[#0E6A54] text-[#FFF8E8] text-[13px] font-black shadow-md disabled:opacity-60 active:scale-[0.99] transition-all"
               >
                 {authSubmitting ? 'Submitting...' : 'Continue'}
               </button>
@@ -430,7 +440,7 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
               <button
                 type="submit"
                 disabled={authSubmitting}
-                className="w-full h-11 rounded-xl bg-[#0E382C] text-[#FDF8EC] text-xs font-bold disabled:opacity-60"
+                className="w-full h-12 rounded-2xl bg-gradient-to-r from-[#0B4A3A] to-[#0E6A54] text-[#FFF8E8] text-[13px] font-black shadow-md disabled:opacity-60 active:scale-[0.99] transition-all"
               >
                 {authSubmitting ? 'Signing In...' : 'Sign In'}
               </button>
@@ -475,7 +485,7 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
               <button
                 type="submit"
                 disabled={authSubmitting}
-                className="w-full h-11 rounded-xl bg-[#0E382C] text-[#FDF8EC] text-xs font-bold disabled:opacity-60"
+                className="w-full h-12 rounded-2xl bg-gradient-to-r from-[#0B4A3A] to-[#0E6A54] text-[#FFF8E8] text-[13px] font-black shadow-md disabled:opacity-60 active:scale-[0.99] transition-all"
               >
                 {authSubmitting ? 'Creating Account...' : 'Create Account'}
               </button>
@@ -484,10 +494,10 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
         </div>
       ) : (
         <div className="space-y-4 mb-4">
-          <div className="bg-white rounded-3xl border border-emerald-950/10 shadow-sm p-4">
+          <div className="bg-white rounded-[28px] border border-emerald-950/10 shadow-[0_8px_26px_rgba(15,50,40,0.07)] p-4">
             <div className="flex items-center justify-between gap-3">
               <div className="min-w-0">
-                <div className="text-xs font-bold text-slate-900">{currentUser.name}</div>
+                <div className="font-serif text-[17px] font-black text-[#123F34]">{currentUser.name}</div>
                 <div className="text-[11px] text-slate-500 truncate">{currentUser.email}</div>
                 {currentUser.phone && (
                   <div className="text-[11px] text-slate-500">{currentUser.phone}</div>
@@ -497,7 +507,7 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
               <button
                 type="button"
                 onClick={logoutUser}
-                className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2 text-[11px] font-bold text-rose-700"
+                className="flex items-center gap-1.5 rounded-xl border border-rose-200 bg-rose-50 px-3 py-2.5 text-[11px] font-black text-rose-700"
               >
                 <LogOut className="w-3.5 h-3.5" />
                 Sign Out
@@ -725,7 +735,7 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
       )}
 
       {/* Quick Actions List */}
-      <div className="bg-white rounded-3xl border border-emerald-950/10 shadow-sm overflow-hidden mb-4">
+      <div className="bg-white rounded-[28px] border border-emerald-950/10 shadow-[0_8px_26px_rgba(15,50,40,0.07)] overflow-hidden mb-4">
         <button
           type="button"
           onClick={onNavigateToOrders}
@@ -786,10 +796,10 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
         </div>
       </div>
 
-      {/* Support & Tribal Vaidya Consultation */}
+      {/* Customer Support */}
       <div className="bg-white rounded-3xl p-4 border border-emerald-950/10 shadow-sm mb-4 space-y-2.5">
         <h3 className="text-xs font-bold text-slate-900 uppercase tracking-wider">
-          Direct Tribal Assistance
+          Customer Support
         </h3>
 
         <button
@@ -802,7 +812,7 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
               <MessageCircle className="w-4 h-4" />
             </div>
             <div>
-              <div className="text-xs font-bold text-emerald-950">WhatsApp Hair Care Support</div>
+              <div className="text-xs font-bold text-emerald-950">WhatsApp Customer Support</div>
               <div className="text-[10px] text-emerald-700">Official WhatsApp: +{whatsappNum}</div>
             </div>
           </div>
@@ -819,7 +829,7 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
               <Phone className="w-4 h-4" />
             </div>
             <div>
-              <div className="text-xs font-bold text-slate-900">Call Forest Helpdesk</div>
+              <div className="text-xs font-bold text-slate-900">Call HAKKIVEDA Support</div>
               <div className="text-[10px] text-slate-500">10:00 AM - 7:00 PM IST ({supportPhone})</div>
             </div>
           </div>

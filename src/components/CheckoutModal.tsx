@@ -1225,24 +1225,42 @@ export const CheckoutModal: React.FC = () => {
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center p-2 sm:p-4 bg-black/85 backdrop-blur-md overflow-hidden">
       <div className="relative w-full max-w-3xl h-[96dvh] sm:h-[90dvh] max-h-[850px] bg-[var(--surface-background)] border border-[var(--border-strong)] rounded-2xl shadow-2xl flex flex-col text-[var(--text-primary)] font-sans overflow-hidden my-auto">
-        {/* Sticky Header with Step Navigation and Close Button */}
-        <div className="flex-none px-4 py-3.5 sm:px-8 sm:py-4 border-b border-[var(--border-muted)] bg-[var(--surface-background)] relative z-30 flex items-center justify-between gap-3">
-          <div className="flex items-center gap-2 sm:gap-3 text-[10px] sm:text-xs uppercase tracking-widest font-bold overflow-x-auto whitespace-nowrap scrollbar-none pr-8">
-            <span className={step === 'address' ? 'text-[var(--heading-primary)] underline decoration-2 font-black' : 'text-[var(--text-muted)]'}>
-              1. Delivery Address
-            </span>
-            <span className="text-[var(--text-muted)]">/</span>
-            <span className={step === 'review' ? 'text-[var(--heading-primary)] underline decoration-2 font-black' : 'text-[var(--text-muted)]'}>
-              2. Order Review
-            </span>
-            <span className="text-[var(--text-muted)]">/</span>
-            <span className={step === 'payment' ? 'text-[var(--heading-primary)] underline decoration-2 font-black' : 'text-[var(--text-muted)]'}>
-              3. Payment Method
-            </span>
-            <span className="text-[var(--text-muted)]">/</span>
-            <span className={step === 'confirmation' || step === 'processing' ? 'text-[var(--heading-primary)] underline decoration-2 font-black' : 'text-[var(--text-muted)]'}>
-              4. Order Receipt
-            </span>
+        {/* Sticky Header with responsive checkout progress and Close Button */}
+        <div className="flex-none px-3 py-3 sm:px-8 sm:py-4 border-b border-[var(--border-muted)] bg-[var(--surface-background)] relative z-30 flex items-center gap-2 sm:gap-4">
+          <div className="grid grid-cols-4 items-start gap-1 sm:gap-3 flex-1 min-w-0">
+            {[
+              { key: 'address', number: '1', mobile: 'Address', desktop: 'Delivery Address' },
+              { key: 'review', number: '2', mobile: 'Review', desktop: 'Order Review' },
+              { key: 'payment', number: '3', mobile: 'Payment', desktop: 'Payment Method' },
+              { key: 'receipt', number: '4', mobile: 'Receipt', desktop: 'Order Receipt' },
+            ].map((item) => {
+              const active =
+                step === item.key ||
+                (item.key === 'receipt' && (step === 'processing' || step === 'confirmation'));
+
+              return (
+                <div key={item.key} className="min-w-0 text-center">
+                  <div
+                    className={`mx-auto w-6 h-6 sm:w-7 sm:h-7 rounded-full flex items-center justify-center text-[10px] sm:text-xs font-black border transition-colors ${
+                      active
+                        ? 'bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] border-[var(--brand-gold)]'
+                        : 'bg-[var(--surface-muted)] text-[var(--text-muted)] border-[var(--border-default)]'
+                    }`}
+                  >
+                    {item.number}
+                  </div>
+                  <div
+                    className={`mt-1 text-[9px] sm:text-[11px] uppercase font-bold leading-tight tracking-normal sm:tracking-wide truncate ${
+                      active ? 'text-[var(--heading-primary)]' : 'text-[var(--text-muted)]'
+                    }`}
+                    title={item.desktop}
+                  >
+                    <span className="sm:hidden">{item.mobile}</span>
+                    <span className="hidden sm:inline">{item.desktop}</span>
+                  </div>
+                </div>
+              );
+            })}
           </div>
 
           <button

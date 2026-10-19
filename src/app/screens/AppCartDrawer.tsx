@@ -5,6 +5,7 @@ import { CartItem } from '../../types/store';
 import { resolveAssetUrl } from '../utils/nativeUrl';
 import { formatSafeINR } from '../utils/formatMoney';
 import { getAuthoritativePriceINR, isSellablePrice } from '../utils/productPrice';
+import { getAuthoritativeShippingQuote } from '../../utils/shipping';
 
 interface AppCartDrawerProps {
   isOpen: boolean;
@@ -19,7 +20,16 @@ export const AppCartDrawer: React.FC<AppCartDrawerProps> = ({
   onProceedToCheckout,
   onExploreShop,
 }) => {
-  const { cart, updateCartQuantity, removeFromCart, appliedCoupon, applyCoupon, removeCoupon } = useStore();
+  const {
+    cart,
+    updateCartQuantity,
+    removeFromCart,
+    appliedCoupon,
+    applyCoupon,
+    removeCoupon,
+    selectedCountry,
+    siteSettings,
+  } = useStore();
   const [couponInput, setCouponInput] = useState('');
   const [couponError, setCouponError] = useState('');
 
@@ -71,12 +81,21 @@ export const AppCartDrawer: React.FC<AppCartDrawerProps> = ({
   if (!isOpen) return null;
 
   const discount = appliedCoupon ? appliedCoupon.discountAmount || 200 : 0;
-  const shipping = subtotal >= 499 ? 0 : 70;
+  const shippingQuote = getAuthoritativeShippingQuote(
+    subtotal,
+    selectedCountry?.code || selectedCountry?.name,
+    null,
+    undefined,
+    siteSettings
+  );
+  const shipping = shippingQuote.serviceable ? shippingQuote.shippingFeeINR : 0;
   const finalTotal = Math.max(0, subtotal - discount + shipping);
 
-  const freeDeliveryThreshold = 499;
-  const amountToFreeShipping = Math.max(0, freeDeliveryThreshold - subtotal);
-  const shippingProgress = Math.min(100, Math.round((subtotal / freeDeliveryThreshold) * 100));
+  const freeDeliveryThreshold = shippingQuote.thresholdINR;
+  const amountToFreeShipping = shippingQuote.amountNeededForFreeINR;
+  const shippingProgress = freeDeliveryThreshold && freeDeliveryThreshold > 0
+    ? Math.min(100, Math.round((subtotal / freeDeliveryThreshold) * 100))
+    : 0;
 
   const handleApplyCoupon = (e: React.FormEvent) => {
     e.preventDefault();
@@ -123,24 +142,26 @@ export const AppCartDrawer: React.FC<AppCartDrawerProps> = ({
         </div>
 
         {/* Free Shipping Progress Bar */}
-        <div className="bg-[#FAF7F2] px-4 py-2 border-b border-emerald-950/10">
-          <div className="flex items-center justify-between text-xs font-medium text-slate-700 mb-1">
-            <span>
-              {amountToFreeShipping === 0 ? (
-                <strong className="text-emerald-800">You unlocked FREE Express Shipping!</strong>
-              ) : (
-                <>Add <strong className="text-[#0E382C]">₹{amountToFreeShipping}</strong> more for Free Shipping</>
-              )}
-            </span>
-            <span className="text-[10px] font-bold text-[#0E382C]">{shippingProgress}%</span>
+        {freeDeliveryThreshold && freeDeliveryThreshold > 0 && (
+          <div className="bg-[#FAF7F2] px-4 py-2 border-b border-emerald-950/10">
+            <div className="flex items-center justify-between text-xs font-medium text-slate-700 mb-1">
+              <span>
+                {amountToFreeShipping === 0 ? (
+                  <strong className="text-emerald-800">You unlocked FREE Shipping!</strong>
+                ) : (
+                  <>Add <strong className="text-[#0E382C]">₹{amountToFreeShipping}</strong> more for Free Shipping</>
+                )}
+              </span>
+              <span className="text-[10px] font-bold text-[#0E382C]">{shippingProgress}%</span>
+            </div>
+            <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
+              <div
+                className="h-full bg-[#0E382C] transition-all duration-300"
+                style={{ width: `${shippingProgress}%` }}
+              />
+            </div>
           </div>
-          <div className="w-full h-1.5 bg-slate-200 rounded-full overflow-hidden">
-            <div
-              className="h-full bg-[#0E382C] transition-all duration-300"
-              style={{ width: `${shippingProgress}%` }}
-            />
-          </div>
-        </div>
+        )}
 
         {/* Items List */}
         <div className="flex-1 overflow-y-auto px-4 py-3 divide-y divide-slate-100">
@@ -290,9 +311,15 @@ export const AppCartDrawer: React.FC<AppCartDrawerProps> = ({
                   <span>-{formatSafeINR(discount)}</span>
                 </div>
               )}
-              <div className="flex justify-between">
-                <span>Express Delivery</span>
-                <span>{shipping === 0 ? <strong className="text-emerald-800">FREE</strong> : `₹${shipping}`}</span>
+              <div className="flex justify-between gap-3">
+                <span>Shipping</span>
+                <span className="text-right">
+                  {!shippingQuote.serviceable
+                    ? 'Calculated at checkout'
+                    : shipping === 0
+                      ? <strong className="text-emerald-800">FREE</strong>
+                      : formatSafeINR(shipping)}
+                </span>
               </div>
               <div className="flex justify-between text-sm font-bold text-slate-900 pt-1.5 border-t border-slate-200">
                 <span>Total Amount</span>

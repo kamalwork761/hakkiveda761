@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { X, ShieldCheck, CheckCircle2, Truck, ArrowRight, Building2, FileText, Globe, AlertTriangle } from 'lucide-react';
 import { useStore } from '../context/StoreContext';
 import { Order, PaymentGatewayId } from '../types/store';
@@ -111,6 +111,38 @@ export const CheckoutModal: React.FC = () => {
   const [paymentMethod, setPaymentMethod] = useState<PaymentGatewayId>('RAZORPAY');
   const [isProcessingPayment, setIsProcessingPayment] = useState(false);
   const [completedOrder, setCompletedOrder] = useState<Order | null>(null);
+
+  // Synchronous guard prevents rapid double-taps before React state updates.
+  const submitLockRef = useRef(false);
+  // Stable idempotency key survives retries/network uncertainty for the same checkout attempt.
+  const checkoutAttemptIdRef = useRef('');
+
+  const createCheckoutAttemptId = () =>
+    `HV-CHK-${Date.now()}-${Math.random().toString(36).slice(2, 10)}`;
+
+  const getCheckoutAttemptId = () => {
+    if (checkoutAttemptIdRef.current) return checkoutAttemptIdRef.current;
+    try {
+      const saved = localStorage.getItem('hakkiveda_checkout_attempt_id');
+      if (saved) {
+        checkoutAttemptIdRef.current = saved;
+        return saved;
+      }
+    } catch {}
+    const created = createCheckoutAttemptId();
+    checkoutAttemptIdRef.current = created;
+    try {
+      localStorage.setItem('hakkiveda_checkout_attempt_id', created);
+    } catch {}
+    return created;
+  };
+
+  const clearCheckoutAttemptId = () => {
+    checkoutAttemptIdRef.current = '';
+    try {
+      localStorage.removeItem('hakkiveda_checkout_attempt_id');
+    } catch {}
+  };
 
   // Shiprocket / India Pincode Lookup state
   const [isCheckingPincode, setIsCheckingPincode] = useState(false);
@@ -842,7 +874,7 @@ export const CheckoutModal: React.FC = () => {
   };
 
   const handlePlaceOrder = async () => {
-    if (isProcessingPayment) return; // Prevent duplicate order trigger
+    if (submitLockRef.current || isProcessingPayment) return; // Prevent duplicate order trigger
     validateCartStock();
 
     if (cart.length === 0) {
@@ -868,8 +900,11 @@ export const CheckoutModal: React.FC = () => {
       return;
     }
 
+    // Lock synchronously before any network request. React state alone can lag one render.
+    submitLockRef.current = true;
     setIsProcessingPayment(true);
     setAddressFormError('');
+    const checkoutAttemptId = getCheckoutAttemptId();
 
     const fullAddress = line2
       ? `${line1}, ${line2}${landmark ? `, Landmark: ${landmark}` : ''}`
@@ -920,6 +955,7 @@ export const CheckoutModal: React.FC = () => {
             expectedShippingFeeINR: shippingFeeINR,
             expectedGrandTotalINR: grandTotalINR,
             expectedShippingSource: shippingSource,
+            checkoutAttemptId,
           }),
         });
 
@@ -957,6 +993,7 @@ export const CheckoutModal: React.FC = () => {
           addOrder(data.order);
           setCompletedOrder(data.order);
           clearCart();
+          clearCheckoutAttemptId();
           try {
             localStorage.removeItem('hakkiveda_checkout_draft');
           } catch (e) {}
@@ -985,6 +1022,7 @@ export const CheckoutModal: React.FC = () => {
             : 'Network connection error while placing Cash on Delivery order.'
         );
       } finally {
+        submitLockRef.current = false;
         setIsProcessingPayment(false);
       }
       return;
@@ -995,6 +1033,7 @@ export const CheckoutModal: React.FC = () => {
       const scriptLoaded = await loadRazorpayScript();
       if (!scriptLoaded) {
         setAddressFormError('Failed to load Razorpay Checkout SDK. Please check your internet connection.');
+        submitLockRef.current = false;
         setIsProcessingPayment(false);
         return;
       }
@@ -1011,6 +1050,7 @@ export const CheckoutModal: React.FC = () => {
           expectedShippingFeeINR: shippingFeeINR,
           expectedGrandTotalINR: grandTotalINR,
           expectedShippingSource: shippingSource,
+          checkoutAttemptId,
         }),
       });
 
@@ -1020,6 +1060,7 @@ export const CheckoutModal: React.FC = () => {
       if (createRes.status === 409 || orderData.code === 'QUOTE_CHANGED') {
         setStep('review');
         setProcessingPhase('idle');
+        submitLockRef.current = false;
         setIsProcessingPayment(false);
         if (orderData.shippingFeeINR !== undefined) {
           setBackendQuote((prev) => ({
@@ -1040,6 +1081,7 @@ export const CheckoutModal: React.FC = () => {
 
       if (!parsedOrder.ok || !orderData.success) {
         setAddressFormError(orderData.error || parsedOrder.error || 'Failed to initiate Razorpay order.');
+        submitLockRef.current = false;
         setIsProcessingPayment(false);
         return;
       }
@@ -1109,6 +1151,7 @@ export const CheckoutModal: React.FC = () => {
               addOrder(verifyData.order);
               setCompletedOrder(verifyData.order);
               clearCart();
+              clearCheckoutAttemptId();
               try {
                 localStorage.removeItem('hakkiveda_checkout_draft');
               } catch (e) {}
@@ -1137,6 +1180,7 @@ export const CheckoutModal: React.FC = () => {
                 : 'Network issue verifying payment. Please contact support with payment ID: ' + response.razorpay_payment_id
             );
           } finally {
+            submitLockRef.current = false;
             setIsProcessingPayment(false);
           }
         },
@@ -1144,6 +1188,8 @@ export const CheckoutModal: React.FC = () => {
           ondismiss: async function () {
             console.log('[Razorpay Modal] Dismissed by customer');
             await cancelPendingRazorpayOrder();
+            clearCheckoutAttemptId();
+            submitLockRef.current = false;
             setAddressFormError('Payment cancelled. No order has been confirmed.');
             setIsProcessingPayment(false);
           },
@@ -1154,6 +1200,8 @@ export const CheckoutModal: React.FC = () => {
       rzpInstance.on('payment.failed', async function (failResp: any) {
         console.error('[Razorpay Payment Failed]:', failResp.error);
         await cancelPendingRazorpayOrder();
+        clearCheckoutAttemptId();
+        submitLockRef.current = false;
         setAddressFormError(
           `Payment failed: ${failResp.error?.description || failResp.error?.reason || 'Transaction declined'}`
         );
@@ -1167,6 +1215,7 @@ export const CheckoutModal: React.FC = () => {
         ? 'The payment service encountered a connection issue. Please try again or select Cash on Delivery.'
         : (err?.message || 'Payment initialization failed. Please try again.');
       setAddressFormError(friendlyMessage);
+      submitLockRef.current = false;
       setIsProcessingPayment(false);
     }
   };

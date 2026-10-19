@@ -2663,35 +2663,41 @@ export const CheckoutModal: React.FC = () => {
               <span className="text-xs uppercase font-bold text-[var(--brand-gold)] tracking-widest block">
                 Order Confirmed & Logged
               </span>
-              <h3 className="text-3xl font-serif-luxury font-bold text-slate-100 mt-1">
+              <h3 className="text-2xl sm:text-3xl font-serif-luxury font-bold text-[var(--heading-primary)] mt-1">
                 Thank You For Your Order!
               </h3>
-              <p className="text-xs text-slate-300 mt-1 font-sans">
+              <p className="text-xs text-[var(--text-secondary)] mt-1 font-sans max-w-md mx-auto">
                 Your order has been recorded successfully. Please save your order reference for support and tracking.
               </p>
             </div>
 
-            <div className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/40 p-6 rounded-2xl text-left space-y-3 font-sans text-xs">
-              <div className="flex justify-between border-b border-white/10 pb-2 font-bold">
-                <span>Order Reference: <span className="text-[var(--brand-gold)]">{completedOrder.orderNumber}</span></span>
-                <span className="text-emerald-400">Status: {completedOrder.paymentStatus}</span>
+            <div className="bg-[var(--brand-primary-dark)] border border-[var(--brand-gold)]/40 p-4 sm:p-6 rounded-2xl text-left space-y-4 font-sans text-xs">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-4 border-b border-white/10 pb-3 font-bold">
+                <div className="min-w-0">
+                  <span className="text-slate-400 block text-[10px] uppercase tracking-wide">Order Reference</span>
+                  <span className="text-[var(--brand-gold)] font-mono text-sm break-all">{completedOrder.orderNumber}</span>
+                </div>
+                <div className="sm:text-right">
+                  <span className="text-slate-400 block text-[10px] uppercase tracking-wide">Payment Status</span>
+                  <span className="text-emerald-400 text-sm break-words">{completedOrder.paymentStatus}</span>
+                </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4 pt-2">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-1">
                 <div>
-                  <span className="text-slate-400 block text-[10px] uppercase">Shipping Address</span>
-                  <p className="text-slate-200 font-medium">
+                  <span className="text-slate-400 block text-[10px] uppercase tracking-wide">Shipping Address</span>
+                  <p className="text-slate-200 font-medium leading-relaxed break-words">
                     {completedOrder.customer.name}<br />
                     {completedOrder.customer.address}, {completedOrder.customer.city}, {completedOrder.customer.country}
                   </p>
                 </div>
                 <div>
-                  <span className="text-slate-400 block text-[10px] uppercase">Tracking Number</span>
-                  <p className="text-[var(--brand-gold)] font-bold font-mono text-sm">{completedOrder.trackingNumber}</p>
+                  <span className="text-slate-400 block text-[10px] uppercase tracking-wide">Tracking</span>
+                  <p className="text-[var(--brand-gold)] font-bold font-mono text-sm break-words">{completedOrder.trackingNumber}</p>
                   {completedOrder.courierName ? (
-                    <p className="text-slate-400 text-[10px]">Courier: {completedOrder.courierName}</p>
+                    <p className="text-slate-400 text-[10px] mt-1">Courier: {completedOrder.courierName}</p>
                   ) : (
-                    <p className="text-slate-400 text-[10px]">Courier will be assigned after fulfillment.</p>
+                    <p className="text-slate-400 text-[10px] mt-1">Courier will be assigned after fulfillment.</p>
                   )}
                 </div>
               </div>
@@ -2699,7 +2705,7 @@ export const CheckoutModal: React.FC = () => {
 
             <button
               onClick={handleCloseModal}
-              className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-8 py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:bg-white transition-all shadow-xl cursor-pointer"
+              className="bg-[var(--brand-gold)] text-[var(--brand-primary-dark)] px-8 py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider hover:opacity-90 transition-all shadow-xl cursor-pointer"
             >
               Continue Shopping
             </button>

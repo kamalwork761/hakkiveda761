@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
+import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import {
   Product,
   ProductVariant,
@@ -233,6 +234,7 @@ interface StoreContextType {
   setCurrentUser: (user: User | null) => void;
   customerAccounts: User[];
   loginUser: (email: string, password?: string) => Promise<{ success: boolean; message: string }>;
+  loginWithGoogle: () => Promise<{ success: boolean; message: string }>;
   registerUser: (data: { name?: string; firstName?: string; lastName?: string; email: string; phone?: string; password?: string }) => Promise<{ success: boolean; message: string }>;
   adminSetCustomerPassword: (customerId: string, newPassword?: string, generateRandom?: boolean) => Promise<{ success: boolean; message: string; temporaryPassword?: string }>;
   changeCustomerPassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; message: string }>;
@@ -2534,6 +2536,48 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     }
   };
 
+  const loginWithGoogle = async (): Promise<{ success: boolean; message: string }> => {
+    try {
+      await FirebaseAuthentication.signInWithGoogle();
+      const tokenResult = await FirebaseAuthentication.getIdToken({ forceRefresh: true });
+
+      if (!tokenResult?.token) {
+        soundManager.play('error_warning');
+        return { success: false, message: 'Google sign-in did not return a valid identity token.' };
+      }
+
+      const res = await fetch('/api/auth/google', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        credentials: 'include',
+        body: JSON.stringify({ idToken: tokenResult.token }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success && data.customer) {
+        if (data.token) {
+          localStorage.setItem('hakkiveda_customer_token', data.token);
+        }
+        setCurrentUser(data.customer);
+        await loadCustomerOrders();
+        soundManager.play('order_success');
+        return { success: true, message: data.message || `Welcome, ${data.customer.name}!` };
+      }
+
+      await FirebaseAuthentication.signOut().catch(() => {});
+      soundManager.play('error_warning');
+      return { success: false, message: data.error || 'Google sign-in could not be completed.' };
+    } catch (err: any) {
+      soundManager.play('error_warning');
+      const rawMessage = typeof err?.message === 'string' ? err.message : '';
+      const cancelled = /cancel|canceled|cancelled/i.test(rawMessage);
+      return {
+        success: false,
+        message: cancelled ? 'Google sign-in was cancelled.' : 'Could not sign in with Google. Please try again.',
+      };
+    }
+  };
+
   const registerUser = async (data: {
     name?: string;
     firstName?: string;
@@ -2632,6 +2676,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const logoutUser = () => {
     const token = localStorage.getItem('hakkiveda_customer_token');
+
+    FirebaseAuthentication.signOut().catch(() => {});
 
     fetch('/api/auth/logout', {
       method: 'POST',
@@ -3370,6 +3416,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         setCurrentUser,
         customerAccounts,
         loginUser,
+        loginWithGoogle,
         registerUser,
         adminSetCustomerPassword,
         changeCustomerPassword,

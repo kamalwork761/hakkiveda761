@@ -31,6 +31,7 @@ interface AppHomeScreenProps {
   onOpenProductDetail: (productId: string) => void;
   onNavigateToShop: (categoryId?: string, concernId?: string) => void;
   onNavigateToAnalysis: () => void;
+  onOpenCareJourney: (journey: 'hair' | 'skin' | 'wellness') => void;
   onOpenGlobalCommunity: () => void;
   onOpenTrust: () => void;
   onOpenB2B: () => void;
@@ -48,6 +49,7 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
   onOpenProductDetail,
   onNavigateToShop,
   onNavigateToAnalysis,
+  onOpenCareJourney,
   onOpenGlobalCommunity,
   onOpenTrust,
   onOpenB2B,
@@ -108,7 +110,14 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
           <AppShopByConcern
             key="shop_by_concern"
             concerns={concerns}
-            onSelectConcern={(concernId) => onNavigateToShop(undefined, concernId)}
+            onSelectConcern={(destination) => {
+              if (destination.startsWith('care:')) {
+                const journey = destination.replace('care:', '') as 'hair' | 'skin' | 'wellness';
+                onOpenCareJourney(journey);
+                return;
+              }
+              onNavigateToShop(undefined, destination);
+            }}
           />
         );
 

@@ -18,6 +18,7 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
   const {
     currentUser,
     loginUser,
+    loginWithGoogle,
     registerUser,
     logoutUser,
     updateUserProfile,
@@ -127,6 +128,23 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
         setAuthMessage(res.message);
         setAuthEmail('');
         setAuthPassword('');
+      } else {
+        setAuthError(res.message);
+      }
+    } finally {
+      setAuthSubmitting(false);
+    }
+  };
+
+  const handleGoogleSignIn = async () => {
+    setAuthError('');
+    setAuthMessage('');
+    setAuthSubmitting(true);
+
+    try {
+      const res = await loginWithGoogle();
+      if (res.success) {
+        setAuthMessage(res.message);
       } else {
         setAuthError(res.message);
       }
@@ -369,6 +387,30 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
             <div className="mb-3 rounded-xl bg-emerald-50 border border-emerald-200 px-3 py-2 text-[11px] font-medium text-emerald-800">
               {authMessage}
             </div>
+          )}
+
+          {authMode !== 'FORGOT_PASSWORD' && (
+            <>
+              <button
+                type="button"
+                onClick={handleGoogleSignIn}
+                disabled={authSubmitting}
+                className="w-full h-12 rounded-2xl border border-slate-200 bg-white text-[13px] font-black text-slate-800 shadow-sm disabled:opacity-60 active:scale-[0.99] transition-all flex items-center justify-center gap-3"
+              >
+                <span className="w-7 h-7 rounded-full border border-slate-200 bg-white shadow-sm flex items-center justify-center text-[16px] font-black text-[#4285F4]">
+                  G
+                </span>
+                {authSubmitting ? 'Connecting to Google...' : 'Continue with Google'}
+              </button>
+
+              <div className="my-3 flex items-center gap-3">
+                <div className="h-px flex-1 bg-slate-200" />
+                <span className="text-[9px] uppercase tracking-[0.14em] font-bold text-slate-400">
+                  or continue with email
+                </span>
+                <div className="h-px flex-1 bg-slate-200" />
+              </div>
+            </>
           )}
 
           {authMode === 'FORGOT_PASSWORD' ? (

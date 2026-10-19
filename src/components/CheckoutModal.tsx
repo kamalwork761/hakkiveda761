@@ -5,6 +5,7 @@ import { Order, PaymentGatewayId } from '../types/store';
 import { PaymentIcon } from './PaymentIcons';
 import { WORLD_COUNTRIES, getCountryDetails, formatE164, CountryItem } from '../data/countriesData';
 import { getAuthoritativeShippingQuote } from '../utils/shipping';
+import { Browser } from '@capacitor/browser';
 
 export interface CountryDetails {
   code: string;
@@ -142,6 +143,16 @@ export const CheckoutModal: React.FC = () => {
     try {
       localStorage.removeItem('hakkiveda_checkout_attempt_id');
     } catch {}
+  };
+
+  const openStorePage = async (event: React.MouseEvent<HTMLAnchorElement>, path: string) => {
+    event.preventDefault();
+    const url = `https://hakkiveda.com${path}`;
+    try {
+      await Browser.open({ url });
+    } catch {
+      window.open(url, '_blank', 'noopener,noreferrer');
+    }
   };
 
   // Shiprocket / India Pincode Lookup state
@@ -2468,7 +2479,8 @@ export const CheckoutModal: React.FC = () => {
               <p className="leading-relaxed">
                 Returns and refunds are subject to our{' '}
                 <a
-                  href="/refund-policy"
+                  href="https://hakkiveda.com/refund-policy"
+                  onClick={(event) => openStorePage(event, '/refund-policy')}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="text-[var(--heading-primary)] font-semibold underline hover:text-[var(--brand-gold)]"
@@ -2481,7 +2493,8 @@ export const CheckoutModal: React.FC = () => {
                 <span>
                   Need to cancel? See our{' '}
                   <a
-                    href="/cancellation-policy"
+                    href="https://hakkiveda.com/cancellation-policy"
+                  onClick={(event) => openStorePage(event, '/cancellation-policy')}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[var(--heading-primary)] underline hover:text-[var(--brand-gold)]"
@@ -2493,7 +2506,8 @@ export const CheckoutModal: React.FC = () => {
                 <span>
                   Need help?{' '}
                   <a
-                    href="/contact"
+                    href="https://hakkiveda.com/contact"
+                  onClick={(event) => openStorePage(event, '/contact')}
                     target="_blank"
                     rel="noopener noreferrer"
                     className="text-[var(--heading-primary)] font-semibold underline hover:text-[var(--brand-gold)]"
@@ -2508,7 +2522,8 @@ export const CheckoutModal: React.FC = () => {
             <p className="text-[11px] sm:text-xs text-[var(--text-secondary)] leading-relaxed text-center px-1">
               By placing your order, you agree to HAKKIVEDA's{' '}
               <a
-                href="/terms-and-conditions"
+                href="https://hakkiveda.com/terms-and-conditions"
+                  onClick={(event) => openStorePage(event, '/terms-and-conditions')}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[var(--heading-primary)] font-semibold underline hover:text-[var(--brand-gold)]"
@@ -2517,7 +2532,8 @@ export const CheckoutModal: React.FC = () => {
               </a>
               ,{' '}
               <a
-                href="/privacy-policy"
+                href="https://hakkiveda.com/privacy-policy"
+                  onClick={(event) => openStorePage(event, '/privacy-policy')}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[var(--heading-primary)] font-semibold underline hover:text-[var(--brand-gold)]"
@@ -2526,7 +2542,8 @@ export const CheckoutModal: React.FC = () => {
               </a>
               ,{' '}
               <a
-                href="/shipping-policy"
+                href="https://hakkiveda.com/shipping-policy"
+                  onClick={(event) => openStorePage(event, '/shipping-policy')}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[var(--heading-primary)] font-semibold underline hover:text-[var(--brand-gold)]"
@@ -2535,7 +2552,8 @@ export const CheckoutModal: React.FC = () => {
               </a>
               {' '}and{' '}
               <a
-                href="/refund-policy"
+                href="https://hakkiveda.com/refund-policy"
+                  onClick={(event) => openStorePage(event, '/refund-policy')}
                 target="_blank"
                 rel="noopener noreferrer"
                 className="text-[var(--heading-primary)] font-semibold underline hover:text-[var(--brand-gold)]"

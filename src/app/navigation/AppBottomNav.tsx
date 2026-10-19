@@ -12,7 +12,7 @@ export const AppBottomNav: React.FC<AppBottomNavProps> = ({
   activeTab,
   onTabChange,
 }) => {
-  const analysisMessages = ['FREE', 'Hair Analysis', 'Try Now', 'Get Discount'];
+  const analysisMessages = ['FREE', 'Hair Scan', 'Try Now', 'Get Offer'];
   const [analysisMessageIndex, setAnalysisMessageIndex] = useState(0);
 
   useEffect(() => {
@@ -70,7 +70,7 @@ export const AppBottomNav: React.FC<AppBottomNavProps> = ({
                 </div>
 
                 {isAnalysis && (
-                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-[70px] h-[70px] rounded-full bg-gradient-to-br from-[#FFF5C7] via-[#F5D778] to-[#C99732] border-[3px] border-[#F3D681] shadow-[0_5px_18px_rgba(0,0,0,0.4)] overflow-hidden ring-2 ring-[#0E382C]/20">
+                  <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-[72px] h-[72px] rounded-full bg-gradient-to-br from-[#FFF8D8] via-[#F4D466] to-[#D6A83F] border-[3px] border-[#E9C35A] shadow-[0_6px_20px_rgba(14,56,44,0.42)] overflow-hidden ring-2 ring-[#0E382C]/25">
                     <div
                       className="flex h-full transition-transform duration-500 ease-in-out"
                       style={{
@@ -84,7 +84,10 @@ export const AppBottomNav: React.FC<AppBottomNavProps> = ({
                           className="h-full shrink-0 flex items-center justify-center text-center px-1.5"
                           style={{ width: `${100 / analysisMessages.length}%` }}
                         >
-                          <span className="text-[10px] leading-[12px] font-black text-[#0B2E25] drop-shadow-sm">
+                          <span
+                            className="text-[11px] leading-[12px] font-black tracking-tight text-[#0E382C] drop-shadow-[0_1px_0_rgba(255,255,255,0.7)]"
+                            style={{ fontFamily: 'Georgia, Cambria, "Times New Roman", serif' }}
+                          >
                             {message}
                           </span>
                         </div>

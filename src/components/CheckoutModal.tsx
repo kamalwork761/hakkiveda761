@@ -2667,8 +2667,7 @@ export const CheckoutModal: React.FC = () => {
                 Thank You For Your Order!
               </h3>
               <p className="text-xs text-slate-300 mt-1 font-sans">
-                A confirmation email with herbal ritual instructions has been dispatched to{' '}
-                <span className="text-[var(--brand-gold)] font-bold">{completedOrder.customer.email}</span>.
+                Your order has been recorded successfully. Please save your order reference for support and tracking.
               </p>
             </div>
 
@@ -2689,7 +2688,11 @@ export const CheckoutModal: React.FC = () => {
                 <div>
                   <span className="text-slate-400 block text-[10px] uppercase">Tracking Number</span>
                   <p className="text-[var(--brand-gold)] font-bold font-mono text-sm">{completedOrder.trackingNumber}</p>
-                  <p className="text-slate-400 text-[10px]">Courier: {completedOrder.courierName}</p>
+                  {completedOrder.courierName ? (
+                    <p className="text-slate-400 text-[10px]">Courier: {completedOrder.courierName}</p>
+                  ) : (
+                    <p className="text-slate-400 text-[10px]">Courier will be assigned after fulfillment.</p>
+                  )}
                 </div>
               </div>
             </div>

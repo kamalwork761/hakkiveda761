@@ -4643,6 +4643,7 @@ COMPLIANCE & COMMUNICATION RULES:
         expectedShippingFeeINR,
         expectedGrandTotalINR,
         expectedShippingSource,
+        checkoutAttemptId,
       } = req.body;
 
       if (!items || !Array.isArray(items) || items.length === 0) {
@@ -4650,6 +4651,53 @@ COMPLIANCE & COMMUNICATION RULES:
       }
       if (!customer || !customer.email || !customer.name) {
         return res.status(400).json({ success: false, error: 'Customer details (name & email) are required.' });
+      }
+
+      if (checkoutAttemptId && (typeof checkoutAttemptId !== 'string' || checkoutAttemptId.length > 120)) {
+        return res.status(400).json({ success: false, error: 'Invalid checkout attempt reference.' });
+      }
+
+      // Server-side idempotency: reuse the same pending Razorpay order for a retried checkout attempt.
+      if (checkoutAttemptId) {
+        const priorOrders = (await getStoreValue<any[]>('orders')) || [];
+        const priorOrder = priorOrders.find(
+          (o: any) =>
+            o.checkoutAttemptId === checkoutAttemptId &&
+            String(o.paymentMethod || '').toUpperCase() === 'RAZORPAY' &&
+            String(o.paymentStatus || '').toUpperCase() !== 'CANCELLED'
+        );
+        if (priorOrder?.razorpayOrderId) {
+          const priorCurrency = String(priorOrder.chargeCurrency || 'INR').toUpperCase();
+          const zeroDecimalCurrencies = new Set(['JPY', 'KRW', 'UGX', 'VND', 'CLP', 'PYG', 'RWF']);
+          const threeDecimalCurrencies = new Set(['BHD', 'KWD', 'OMR']);
+          const priorChargeAmount =
+            typeof priorOrder.chargeAmount === 'number' ? priorOrder.chargeAmount : priorOrder.totalAmountINR;
+          const priorAmountSubunit =
+            typeof priorOrder.razorpayAmountSubunit === 'number'
+              ? priorOrder.razorpayAmountSubunit
+              : zeroDecimalCurrencies.has(priorCurrency)
+              ? Math.round(priorChargeAmount)
+              : threeDecimalCurrencies.has(priorCurrency)
+              ? Math.round(priorChargeAmount * 1000)
+              : Math.round(priorChargeAmount * 100);
+
+          return res.json({
+            success: true,
+            idempotentReplay: true,
+            keyId: process.env.RAZORPAY_KEY_ID,
+            razorpayOrderId: priorOrder.razorpayOrderId,
+            amount: priorAmountSubunit,
+            currency: priorCurrency,
+            displayAmount: priorOrder.displayAmount,
+            displayCurrency: priorOrder.displayCurrency || priorOrder.currencyCode || 'INR',
+            chargeAmount: priorChargeAmount,
+            chargeCurrency: priorCurrency,
+            orderId: priorOrder.id,
+            orderNumber: priorOrder.orderNumber,
+            grandTotalINR: priorOrder.totalAmountINR,
+            displayOrder: priorOrder,
+          });
+        }
       }
 
       const {
@@ -4834,6 +4882,8 @@ COMPLIANCE & COMMUNICATION RULES:
         currencyCode: displayCurrency,
 
         paymentMethod: 'RAZORPAY',
+        checkoutAttemptId: checkoutAttemptId || undefined,
+        razorpayAmountSubunit: razorpayOrder.amount,
         paymentStatus: 'Pending Payment',
         trackingStatus: 'ORDER_PLACED',
         razorpayOrderId: razorpayOrder.id,
@@ -5166,6 +5216,7 @@ COMPLIANCE & COMMUNICATION RULES:
         expectedShippingFeeINR,
         expectedGrandTotalINR,
         expectedShippingSource,
+        checkoutAttemptId,
       } = req.body;
 
       if (!items || !Array.isArray(items) || items.length === 0) {
@@ -5173,6 +5224,28 @@ COMPLIANCE & COMMUNICATION RULES:
       }
       if (!customer || !customer.email || !customer.name) {
         return res.status(400).json({ success: false, error: 'Customer details are required.' });
+      }
+
+      if (checkoutAttemptId && (typeof checkoutAttemptId !== 'string' || checkoutAttemptId.length > 120)) {
+        return res.status(400).json({ success: false, error: 'Invalid checkout attempt reference.' });
+      }
+
+      // Server-side idempotency: a retry of the same COD checkout returns the original order.
+      if (checkoutAttemptId) {
+        const priorOrders = (await getStoreValue<any[]>('orders')) || [];
+        const priorOrder = priorOrders.find(
+          (o: any) =>
+            o.checkoutAttemptId === checkoutAttemptId &&
+            String(o.paymentMethod || '').toUpperCase() === 'COD' &&
+            String(o.paymentStatus || '').toUpperCase() !== 'CANCELLED'
+        );
+        if (priorOrder) {
+          return res.json({
+            success: true,
+            idempotentReplay: true,
+            order: priorOrder,
+          });
+        }
       }
 
       const countryNormalized = (customer.country || '').trim().toLowerCase();
@@ -5255,6 +5328,7 @@ COMPLIANCE & COMMUNICATION RULES:
 
         currencyCode: 'INR',
         paymentMethod: 'COD',
+        checkoutAttemptId: checkoutAttemptId || undefined,
         paymentStatus: 'COD_DUE',
         stockDeductedAt: new Date().toISOString(),
         isStockDeducted: true,

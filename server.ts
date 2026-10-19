@@ -26,8 +26,27 @@ import Razorpay from 'razorpay';
 import crypto from 'crypto';
 import cookieParser from 'cookie-parser';
 import bcrypt from 'bcryptjs';
+import { initializeApp as initializeFirebaseAdmin, cert, getApps as getFirebaseAdminApps } from 'firebase-admin/app';
+import { getAuth as getFirebaseAdminAuth } from 'firebase-admin/auth';
 
 dotenv.config();
+
+function getFirebaseAuthVerifier() {
+  if (getFirebaseAdminApps().length === 0) {
+    const serviceAccountPath = process.env.FIREBASE_SERVICE_ACCOUNT_PATH;
+    if (!serviceAccountPath) {
+      throw new Error('FIREBASE_SERVICE_ACCOUNT_PATH is not configured.');
+    }
+
+    const serviceAccountRaw = fs.readFileSync(serviceAccountPath, 'utf8');
+    const serviceAccount = JSON.parse(serviceAccountRaw);
+    initializeFirebaseAdmin({
+      credential: cert(serviceAccount),
+    });
+  }
+
+  return getFirebaseAdminAuth();
+}
 
 /**
  * Custom error type for expected checkout validation failures (400 / 409).
@@ -1436,6 +1455,154 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
     } catch (err: any) {
       console.error('[Customer Register Error]:', err.message);
       res.status(500).json({ success: false, error: 'Failed to create customer account.' });
+    }
+  });
+
+  // Google / Firebase Customer Login Endpoint
+  app.post('/api/auth/google', async (req, res) => {
+    try {
+      const clientIp = getClientIp(req);
+      const rateCheck = checkCustomerLoginRateLimit(clientIp);
+      if (!rateCheck.allowed) {
+        return res.status(429).json({
+          success: false,
+          error: `Too many sign-in attempts. Please try again in ${Math.ceil(
+            (rateCheck.remainingSeconds || 900) / 60
+          )} minutes.`,
+        });
+      }
+
+      const { idToken } = req.body || {};
+      if (!idToken || typeof idToken !== 'string') {
+        recordFailedCustomerLogin(clientIp);
+        return res.status(400).json({ success: false, error: 'Google identity token is required.' });
+      }
+
+      let decoded: any;
+      try {
+        decoded = await getFirebaseAuthVerifier().verifyIdToken(idToken, true);
+      } catch (verifyError: any) {
+        recordFailedCustomerLogin(clientIp);
+        console.warn('[Google Auth Verification Failed]:', verifyError?.message || verifyError);
+        return res.status(401).json({ success: false, error: 'Google sign-in could not be verified.' });
+      }
+
+      if (!decoded?.email || decoded.email_verified !== true) {
+        recordFailedCustomerLogin(clientIp);
+        return res.status(401).json({
+          success: false,
+          error: 'A verified Google email address is required.',
+        });
+      }
+
+      const normalizedEmail = String(decoded.email).trim().toLowerCase();
+      const firebaseUid = String(decoded.uid || decoded.sub || '').trim();
+      const displayName = String(decoded.name || normalizedEmail.split('@')[0] || 'HAKKIVEDA Customer').trim();
+      const picture = typeof decoded.picture === 'string' ? decoded.picture : '';
+
+      const customers = (await getStoreValue<any[]>('customer_accounts')) || [];
+      let customerIndex = customers.findIndex(
+        (c: any) => c.email && c.email.toLowerCase() === normalizedEmail
+      );
+      let isNewCustomer = false;
+
+      if (customerIndex === -1) {
+        isNewCustomer = true;
+        const customerId = `usr-${Date.now()}`;
+        const firstName = displayName.split(' ')[0] || 'USER';
+        const referralCode = `HAKKI-${firstName.toUpperCase().replace(/[^A-Z0-9]/g, '').slice(0, 12) || 'USER'}-${Math.floor(10 + Math.random() * 89)}`;
+
+        const newCustomer = {
+          id: customerId,
+          name: displayName,
+          email: normalizedEmail,
+          phone: '',
+          avatar: picture,
+          firebaseUid,
+          authProvider: 'google',
+          sessionVersion: 0,
+          addresses: [],
+          savedPayments: [],
+          isAdmin: false,
+          status: 'ACTIVE',
+          createdAt: new Date().toISOString().split('T')[0],
+          lastLogin: new Date().toLocaleString() + ' IST',
+          loyaltyPoints: 100,
+          referralCode,
+          mustChangePassword: false,
+          preferences: {
+            country: 'India',
+            currency: 'INR',
+            language: 'English',
+            emailOrders: true,
+            whatsappUpdates: true,
+            promotional: true,
+          },
+          loginHistory: [
+            {
+              id: `log-${Date.now()}`,
+              timestamp: new Date().toLocaleString() + ' IST',
+              ipLocation: 'Google Sign-In',
+              device: req.headers['user-agent']?.slice(0, 80) || 'Android App',
+            },
+          ],
+        };
+
+        customers.unshift(newCustomer);
+        customerIndex = 0;
+      } else {
+        const existing = customers[customerIndex];
+
+        if (existing.status === 'BLOCKED') {
+          return res.status(403).json({
+            success: false,
+            error: 'Your account has been restricted by administration. Please contact support@hakkiveda.com',
+          });
+        }
+
+        existing.firebaseUid = firebaseUid;
+        existing.authProvider = existing.authProvider || 'google';
+        if (!existing.name && displayName) existing.name = displayName;
+        if (!existing.avatar && picture) existing.avatar = picture;
+        existing.lastLogin = new Date().toLocaleString() + ' IST';
+        existing.loginHistory = [
+          {
+            id: `log-${Date.now()}`,
+            timestamp: new Date().toLocaleString() + ' IST',
+            ipLocation: 'Google Sign-In',
+            device: req.headers['user-agent']?.slice(0, 80) || 'Android App',
+          },
+          ...(Array.isArray(existing.loginHistory) ? existing.loginHistory.slice(0, 19) : []),
+        ];
+        customers[customerIndex] = existing;
+      }
+
+      await setStoreValue('customer_accounts', customers);
+      recordSuccessfulCustomerLogin(clientIp);
+
+      const customer = customers[customerIndex];
+      const customerSessionVersion = getSafeSessionVersion(customer);
+      const token = createCustomerToken(customer.id, customer.email, customerSessionVersion);
+
+      res.cookie(CUSTOMER_TOKEN_COOKIE, token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax',
+        maxAge: CUSTOMER_TOKEN_EXPIRY_MS,
+        path: '/',
+      });
+
+      return res.status(isNewCustomer ? 201 : 200).json({
+        success: true,
+        message: isNewCustomer
+          ? `Welcome to HAKKIVEDA, ${customer.name}!`
+          : `Welcome back, ${customer.name}!`,
+        customer: sanitizeCustomer(customer),
+        token,
+      });
+    } catch (err: any) {
+      console.error('[Google Customer Login Error]:', err?.message || err);
+      return res.status(500).json({ success: false, error: 'Failed to process Google sign-in.' });
     }
   });
 

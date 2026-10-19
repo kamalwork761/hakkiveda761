@@ -1,5 +1,5 @@
 import React from 'react';
-import { Sparkles, Droplet, Leaf, Wind, Package, ArrowRight } from 'lucide-react';
+import { Sparkles, Droplet, Leaf, Wind, Package } from 'lucide-react';
 import { Category } from '../../types/store';
 import { MobileAppFeaturedCategory } from '../../types/mobileApp';
 import { resolveAssetUrl } from '../utils/nativeUrl';
@@ -71,18 +71,21 @@ export const AppCategoriesScroll: React.FC<AppCategoriesScrollProps> = ({
   };
 
   return (
-    <div className="w-full py-4">
-      <div className="px-4 mb-3">
-        <h2 className="text-[13px] font-black uppercase tracking-[0.12em] text-[#0B4A3A]">
+    <div className="w-full py-5">
+      <div className="px-4 mb-4">
+        <h2
+          className="text-[20px] leading-tight font-black text-[#0B4A3A] tracking-[0.035em]"
+          style={{ fontFamily: 'Georgia, Cambria, "Times New Roman", serif' }}
+        >
           Shop by Remedy
         </h2>
-        <p className="mt-0.5 text-[11px] text-slate-500">
-          Choose the type of herbal care you need
+        <p className="mt-1 text-[12px] font-medium text-slate-600">
+          Choose the herbal care that fits your routine
         </p>
       </div>
 
       <div
-        className="flex gap-3 px-4 overflow-x-auto no-scrollbar scroll-smooth pb-2"
+        className="flex gap-4 px-4 overflow-x-auto no-scrollbar scroll-smooth pb-2"
         style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
       >
         {categoriesList.map((item) => {
@@ -93,68 +96,50 @@ export const AppCategoriesScroll: React.FC<AppCategoriesScrollProps> = ({
               key={item.id}
               type="button"
               onClick={() => onSelectCategory(item.categoryId)}
-              className={`flex-shrink-0 w-[142px] overflow-hidden rounded-2xl border text-left transition-all active:scale-[0.98] ${
-                isSelected
-                  ? 'bg-[#0E382C] border-[#D1AF58] shadow-md'
-                  : 'bg-[#FFFDF8] border-[#DDD6C8] shadow-sm'
-              }`}
+              className="group flex-shrink-0 w-[150px] text-left active:scale-[0.97] transition-transform"
+              aria-label={`Shop ${item.customTitle}`}
             >
-              <div className="h-[76px] relative overflow-hidden">
+              <div
+                className={`relative w-[150px] h-[178px] flex items-center justify-center rounded-[24px] transition-all ${
+                  isSelected
+                    ? 'ring-2 ring-[#D1AF58] shadow-[0_8px_22px_rgba(14,56,44,0.18)]'
+                    : ''
+                }`}
+              >
                 {item.imageUrl ? (
                   <img
                     src={resolveAssetUrl(item.imageUrl)}
                     alt={item.customTitle}
-                    className="w-full h-full object-cover"
+                    className="w-full h-full object-contain select-none"
+                    loading="lazy"
+                    draggable={false}
+                    onError={(e) => {
+                      (e.currentTarget as HTMLImageElement).style.display = 'none';
+                    }}
                   />
                 ) : (
-                  <div
-                    className={`w-full h-full flex items-center justify-center ${
-                      isSelected
-                        ? 'bg-gradient-to-br from-[#174D3D] to-[#0B2E25]'
-                        : 'bg-gradient-to-br from-[#F8F2E5] to-[#EEE5D1]'
-                    }`}
-                  >
-                    <div
-                      className={`w-10 h-10 rounded-full flex items-center justify-center ${
-                        isSelected ? 'bg-white/10' : 'bg-white/80'
-                      }`}
-                    >
+                  <div className="w-full h-full rounded-[24px] bg-gradient-to-br from-[#F8F2E5] to-[#EEE5D1] flex items-center justify-center">
+                    <div className="w-12 h-12 rounded-full bg-white/85 flex items-center justify-center shadow-sm">
                       {renderIcon(item.icon, isSelected)}
                     </div>
                   </div>
                 )}
 
                 {isSelected && (
-                  <span className="absolute top-2 right-2 rounded-full bg-[#D7B55B] px-2 py-0.5 text-[8px] font-black text-[#0B382C]">
-                    SELECTED
+                  <span className="absolute top-2 right-2 rounded-full bg-[#E2BF5E] px-2 py-1 text-[8px] font-black uppercase tracking-wide text-[#0B382C] shadow-sm">
+                    Selected
                   </span>
                 )}
               </div>
 
-              <div className="p-2.5">
+              <div className="pt-2 px-1 text-center">
                 <div
-                  className={`text-[12px] font-bold leading-tight ${
-                    isSelected ? 'text-[#FFF8E8]' : 'text-[#123F34]'
+                  className={`text-[13px] leading-tight font-black ${
+                    isSelected ? 'text-[#0B4A3A]' : 'text-[#123F34]'
                   }`}
+                  style={{ fontFamily: 'Georgia, Cambria, "Times New Roman", serif' }}
                 >
                   {item.customTitle}
-                </div>
-
-                <div
-                  className={`mt-1 text-[9px] leading-tight ${
-                    isSelected ? 'text-emerald-100/80' : 'text-slate-500'
-                  }`}
-                >
-                  {getValueLine(item.customTitle)}
-                </div>
-
-                <div
-                  className={`mt-2 flex items-center gap-1 text-[9px] font-bold ${
-                    isSelected ? 'text-[#E7C96F]' : 'text-[#0E6A54]'
-                  }`}
-                >
-                  Explore
-                  <ArrowRight className="w-3 h-3" />
                 </div>
               </div>
             </button>

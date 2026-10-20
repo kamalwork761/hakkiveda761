@@ -1,4 +1,6 @@
 import React, { Component, useState, useEffect, useRef } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { AppLuxurySplash } from './components/AppLuxurySplash';
 import { useStore } from '../context/StoreContext';
 import {
   MobileAppHeroSlide,
@@ -86,6 +88,7 @@ class AppScreenErrorBoundary extends (React.Component as new (props: ErrorBounda
 export const HakkivedaAndroidApp: React.FC = () => {
   const { isCheckoutOpen, setIsCheckoutOpen, playSound, wishlist, removeFromWishlist, clearWishlist } = useStore();
 
+  const [showLuxurySplash, setShowLuxurySplash] = useState(() => Capacitor.isNativePlatform());
   const [activeTab, setActiveTab] = useState<AppNavTab>('home');
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('ALL');
   const [selectedConcernId, setSelectedConcernId] = useState<string | undefined>();
@@ -281,6 +284,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] text-slate-900 font-sans flex flex-col justify-between selection:bg-[#C5A059]/30">
+      {showLuxurySplash && <AppLuxurySplash onFinish={() => setShowLuxurySplash(false)} />}
       {/* Top Native Header */}
       <AppHeader
         headerLogoUrl={appSettings.headerLogoUrl}

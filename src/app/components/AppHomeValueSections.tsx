@@ -125,7 +125,9 @@ export const AppHomeValueSections: React.FC<Props> = ({
 
       {/* B2B promotional artwork is managed through Mobile App Promo Banners. */}
       <section className="px-4 py-3">
-        <button type="button" onClick={onOpenB2B} className="block w-full overflow-hidden rounded-2xl active:scale-[0.99] transition-transform text-left" aria-label="Explore B2B and private label opportunities">
+        <div className="relative overflow-hidden rounded-[26px] border-[2px] border-[#754609] bg-[#4F300A] p-[4px] shadow-[0_7px_22px_rgba(105,62,8,0.32)]">
+          <div aria-hidden="true" className="hv-gold-orbit pointer-events-none absolute -inset-[110%] bg-[conic-gradient(from_0deg,#4A2803_0%,#A56A12_20%,#FFFBE0_27%,#FFD34B_33%,#593203_42%,#B57A19_65%,#FFF2A1_72%,#5A3307_82%,#4A2803_100%)]" style={{ animation: "hvGoldOrbit 5s linear infinite" }} />
+          <button type="button" onClick={onOpenB2B} className="relative z-10 block w-full overflow-hidden rounded-[20px] bg-[#0B4939] active:scale-[0.99] transition-transform text-left" aria-label="Explore B2B and private label opportunities">
           {b2bImageUrl ? (
             <img src={resolveAssetUrl(b2bImageUrl)} alt="HAKKIVEDA B2B & Private Label" className="block w-full h-auto" loading="lazy" />
           ) : (
@@ -134,7 +136,8 @@ export const AppHomeValueSections: React.FC<Props> = ({
               <ChevronRight className="w-6 h-6 shrink-0 text-[#E6C86B]" />
             </div>
           )}
-        </button>
+          </button>
+        </div>
       </section>
 
       {/* HAIR CARE ROUTINE */}

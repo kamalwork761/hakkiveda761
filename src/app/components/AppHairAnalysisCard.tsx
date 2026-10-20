@@ -22,7 +22,7 @@ export const AppHairAnalysisCard: React.FC<AppHairAnalysisCardProps> = ({
           <img
             src={resolveAssetUrl(imageUrl)}
             alt="Free AI Hair Analysis"
-            className="block w-full h-auto"
+            className="block w-full h-auto min-h-[290px] max-h-[390px] object-cover object-center"
           />
         </button>
       </div>

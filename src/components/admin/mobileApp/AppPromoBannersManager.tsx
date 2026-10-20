@@ -205,7 +205,7 @@ export const AppPromoBannersManager: React.FC<AppPromoBannersManagerProps> = ({
     onSave(banners.filter((banner) => banner.id !== b2bBanner.id));
   };
 
-  const sortedBanners = [...banners].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
+  const sortedBanners = banners.filter((banner) => !/^(b2b|private-label|wholesale)$/i.test(banner.linkAction || '')).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
 
   return (
     <div className="space-y-6">

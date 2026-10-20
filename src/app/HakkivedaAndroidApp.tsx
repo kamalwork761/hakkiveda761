@@ -93,7 +93,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [extraScreen, setExtraScreen] = useState<'story' | 'global' | 'trust' | 'b2b' | 'care-hair' | 'care-skin' | 'care-wellness' | null>(null);
+  const [extraScreen, setExtraScreen] = useState<'story' | 'global' | 'trust' | 'b2b' | 'care-hair' | 'care-skin' | 'care-wellness' | 'policy-shipping' | 'policy-returns' | 'policy-privacy' | null>(null);
 
   // App-specific admin configurable state
   const [heroSlides, setHeroSlides] = useState<MobileAppHeroSlide[]>(INITIAL_MOBILE_APP_HERO_SLIDES);

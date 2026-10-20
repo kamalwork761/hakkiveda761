@@ -219,6 +219,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
       setSelectedCategoryId('ALL');
       setSelectedConcernId(undefined);
       setActiveTab('shop');
+      window.scrollTo(0, 0);
     } else if (destination === 'analysis' || destination === 'quiz') {
       setActiveTab('analysis');
     } else if (destination.startsWith('product:')) {
@@ -229,11 +230,13 @@ export const HakkivedaAndroidApp: React.FC = () => {
       setSelectedCategoryId(cId);
       setSelectedConcernId(undefined);
       setActiveTab('shop');
+      window.scrollTo(0, 0);
     } else if (destination.startsWith('concern:')) {
       const conId = destination.replace('concern:', '').trim();
       setSelectedCategoryId('ALL');
       setSelectedConcernId(conId);
       setActiveTab('shop');
+      window.scrollTo(0, 0);
     }
   };
 
@@ -244,6 +247,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
     setSelectedCategoryId(categoryId || 'ALL');
     setSelectedConcernId(concernId);
     setActiveTab('shop');
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
   };
 
   return (

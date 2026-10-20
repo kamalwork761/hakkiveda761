@@ -19,6 +19,7 @@ import { AppStoryCard } from '../components/AppStoryCard';
 import { AppGlobalClientsCompact } from '../components/AppGlobalClientsCompact';
 import { AppHairAnalysisCard } from '../components/AppHairAnalysisCard';
 import { AppHomeValueSections } from '../components/AppHomeValueSections';
+import { resolveAssetUrl } from '../utils/nativeUrl';
 
 interface AppHomeScreenProps {
   heroSlides: MobileAppHeroSlide[];
@@ -186,11 +187,14 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
         );
 
       case 'global_clients':
-        return (
-          <AppGlobalClientsCompact
-            key="global_clients"
-            onOpen={onOpenGlobalCommunity}
-          />
+        return section.imageUrl ? (
+          <div key="global_clients" className="w-full px-4 py-3">
+            <button type="button" onClick={onOpenGlobalCommunity} className="block w-full overflow-hidden rounded-2xl active:scale-[0.99] transition-transform" aria-label="Explore our global community">
+              <img src={resolveAssetUrl(section.imageUrl)} alt="HAKKIVEDA Global Tribal Community" className="block w-full h-auto" loading="lazy" />
+            </button>
+          </div>
+        ) : (
+          <AppGlobalClientsCompact key="global_clients" onOpen={onOpenGlobalCommunity} />
         );
 
       default:

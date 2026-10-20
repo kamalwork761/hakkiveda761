@@ -37,6 +37,8 @@ import { AppProductDetailModal } from './screens/AppProductDetailModal';
 import { AppCartDrawer } from './screens/AppCartDrawer';
 import { AppSearchModal } from './screens/AppSearchModal';
 import { CheckoutModal } from '../components/CheckoutModal';
+import { Heart, X, Trash2 } from 'lucide-react';
+import { resolveAssetUrl } from './utils/nativeUrl';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -81,13 +83,14 @@ class AppScreenErrorBoundary extends (React.Component as new (props: ErrorBounda
 }
 
 export const HakkivedaAndroidApp: React.FC = () => {
-  const { isCheckoutOpen, setIsCheckoutOpen, playSound, openWishlist } = useStore();
+  const { isCheckoutOpen, setIsCheckoutOpen, playSound, wishlist, removeFromWishlist, clearWishlist } = useStore();
 
   const [activeTab, setActiveTab] = useState<AppNavTab>('home');
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('ALL');
   const [selectedConcernId, setSelectedConcernId] = useState<string | undefined>();
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [extraScreen, setExtraScreen] = useState<'story' | 'global' | 'trust' | 'b2b' | 'care-hair' | 'care-skin' | 'care-wellness' | null>(null);
 
@@ -375,7 +378,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
           <AppScreenErrorBoundary screenName="Account">
             <AppAccountScreen
               appSettings={appSettings}
-              onOpenWishlist={() => openWishlist?.()}
+              onOpenWishlist={() => setIsWishlistOpen(true)}
               onNavigateToOrders={() => setActiveTab('orders')}
             />
           </AppScreenErrorBoundary>
@@ -436,6 +439,42 @@ export const HakkivedaAndroidApp: React.FC = () => {
           setActiveTab('shop');
         }}
       />
+
+      {/* Android-native wishlist: product objects are managed and persisted by StoreContext. */}
+      {isWishlistOpen && (
+        <div className="fixed inset-0 z-[110] flex flex-col bg-[#FCF9F2]" role="dialog" aria-modal="true" aria-label="My Wishlist">
+          <div className="flex items-center justify-between bg-[#003D30] px-5 py-4 text-white">
+            <div className="flex items-center gap-2">
+              <Heart className="h-5 w-5 text-[#E8C46D]" />
+              <h2 className="font-serif text-xl font-bold text-white">My Wishlist ({wishlist.length})</h2>
+            </div>
+            <button type="button" aria-label="Close wishlist" onClick={() => setIsWishlistOpen(false)} className="rounded-full p-2 text-white"><X className="h-6 w-6" /></button>
+          </div>
+          <div className="flex-1 overflow-y-auto px-4 py-5">
+            {wishlist.length === 0 ? (
+              <div className="mx-auto mt-16 max-w-xs text-center">
+                <Heart className="mx-auto h-14 w-14 text-[#C5A059]" />
+                <h3 className="mt-4 font-serif text-xl font-bold text-[#003D30]">Your wishlist is empty</h3>
+                <p className="mt-2 text-sm text-slate-600">Tap the heart on products to save them here.</p>
+                <button type="button" className="mt-6 rounded-xl bg-[#003D30] px-6 py-3 font-bold text-white" onClick={() => { setIsWishlistOpen(false); setActiveTab('shop'); }}>Explore Products</button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {wishlist.map((product) => (
+                  <div key={product.id} className="flex items-center gap-3 rounded-2xl border border-[#E6DDC8] bg-white p-3 shadow-sm">
+                    <button type="button" onClick={() => { setIsWishlistOpen(false); setSelectedProductId(product.id); }} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+                      <img src={resolveAssetUrl(product.image || product.images?.[0] || '/images/hero_tribal_elders.jpg')} alt={product.name} className="h-20 w-20 shrink-0 rounded-xl bg-[#F6F0E5] object-contain" />
+                      <span className="min-w-0 font-semibold text-[#003D30]">{product.name}</span>
+                    </button>
+                    <button type="button" onClick={() => removeFromWishlist(product.id)} aria-label={`Remove ${product.name} from wishlist`} className="rounded-full p-2 text-rose-600"><Trash2 className="h-5 w-5" /></button>
+                  </div>
+                ))}
+                <button type="button" className="mt-3 w-full py-3 text-sm font-semibold text-rose-700" onClick={() => { if (window.confirm('Clear all saved products?')) clearWishlist(); }}>Clear Wishlist</button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Standard Checkout Modal Integration */}
       <CheckoutModal />

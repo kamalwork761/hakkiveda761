@@ -29,6 +29,7 @@ import { AppHairAnalysisScreen } from './screens/AppHairAnalysisScreen';
 import { AppOrdersScreen } from './screens/AppOrdersScreen';
 import { AppAccountScreen } from './screens/AppAccountScreen';
 import { AppGlobalCommunityScreen } from './screens/AppGlobalCommunityScreen';
+import { AppOurStoryScreen } from './screens/AppOurStoryScreen';
 import { AppTrustAuthenticityScreen } from './screens/AppTrustAuthenticityScreen';
 import { AppB2BScreen } from './screens/AppB2BScreen';
 import { AppCareJourneyScreen } from './screens/AppCareJourneyScreen';
@@ -88,7 +89,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [extraScreen, setExtraScreen] = useState<'global' | 'trust' | 'b2b' | 'care-hair' | 'care-skin' | 'care-wellness' | null>(null);
+  const [extraScreen, setExtraScreen] = useState<'story' | 'global' | 'trust' | 'b2b' | 'care-hair' | 'care-skin' | 'care-wellness' | null>(null);
 
   // App-specific admin configurable state
   const [heroSlides, setHeroSlides] = useState<MobileAppHeroSlide[]>(INITIAL_MOBILE_APP_HERO_SLIDES);
@@ -256,6 +257,22 @@ export const HakkivedaAndroidApp: React.FC = () => {
 
       {/* Main View Area */}
       <main className="flex-1 overflow-x-hidden">
+        {extraScreen === 'story' && (
+          <AppScreenErrorBoundary screenName="Our Story">
+            <AppOurStoryScreen
+              onBack={() => setExtraScreen(null)}
+              imageUrl={sections.find((section) => section.id === 'brand_story')?.imageUrl}
+              onShop={() => {
+                setExtraScreen(null);
+                setSelectedCategoryId('ALL');
+                setSelectedConcernId(undefined);
+                setActiveTab('shop');
+                window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+              }}
+            />
+          </AppScreenErrorBoundary>
+        )}
+
         {extraScreen === 'global' && (
           <AppScreenErrorBoundary screenName="Global Community">
             <AppGlobalCommunityScreen onBack={() => setExtraScreen(null)} />
@@ -305,6 +322,10 @@ export const HakkivedaAndroidApp: React.FC = () => {
               onNavigateToAnalysis={() => setActiveTab('analysis')}
               onOpenCareJourney={(journey) => {
                 setExtraScreen(`care-${journey}` as 'care-hair' | 'care-skin' | 'care-wellness');
+                window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+              }}
+              onOpenOurStory={() => {
+                setExtraScreen('story');
                 window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
               }}
               onOpenGlobalCommunity={() => {

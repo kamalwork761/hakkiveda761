@@ -1,4 +1,5 @@
 import React from 'react';
+import { resolveAssetUrl } from '../utils/nativeUrl';
 import {
   ShieldCheck,
   Leaf,
@@ -20,12 +21,14 @@ interface Props {
   onShop: () => void;
   onOpenTrust: () => void;
   onOpenB2B: () => void;
+  b2bImageUrl?: string;
 }
 
 export const AppHomeValueSections: React.FC<Props> = ({
   onShop,
   onOpenTrust,
   onOpenB2B,
+  b2bImageUrl,
 }) => {
   return (
     <>
@@ -118,54 +121,17 @@ export const AppHomeValueSections: React.FC<Props> = ({
         </button>
       </section>
 
-      {/* B2B */}
-      <section className="px-4 py-4">
-        <button
-          type="button"
-          onClick={onOpenB2B}
-          className="w-full overflow-hidden rounded-[28px] bg-gradient-to-br from-[#073B2F] via-[#0D5A45] to-[#07805E] border border-[#E7C95F]/45 p-5 text-left shadow-[0_12px_34px_rgba(7,59,47,0.25)] active:scale-[0.99] transition-all relative"
-        >
-          <div className="absolute -top-16 -right-10 w-40 h-40 rounded-full bg-[#F0CD68]/12 blur-sm" />
-          <div className="absolute -bottom-16 -left-12 w-36 h-36 rounded-full bg-cyan-300/10 blur-xl" />
-          <div className="relative z-10 flex items-start justify-between gap-3">
-            <div>
-              <p className="text-[9px] uppercase tracking-[0.18em] font-black text-[#E6C86B]">
-                Business Opportunities
-              </p>
-
-              <h2 className="font-serif text-[22px] font-black mt-1" style={{ color: "#FFF8E8", WebkitTextFillColor: "#FFF8E8" }}>
-                B2B & Private Label
-              </h2>
-
-              <p className="text-[11px] text-emerald-50/85 leading-relaxed mt-1.5">
-                Bulk orders, wholesale supply, distributor opportunities,
-                third-party manufacturing and private labelling.
-              </p>
+      {/* B2B promotional artwork is managed through Mobile App Promo Banners. */}
+      <section className="px-4 py-3">
+        <button type="button" onClick={onOpenB2B} className="block w-full overflow-hidden rounded-2xl active:scale-[0.99] transition-transform text-left" aria-label="Explore B2B and private label opportunities">
+          {b2bImageUrl ? (
+            <img src={resolveAssetUrl(b2bImageUrl)} alt="HAKKIVEDA B2B & Private Label" className="block w-full h-auto" loading="lazy" />
+          ) : (
+            <div className="flex items-center justify-between gap-4 bg-[#0B4939] px-5 py-6 text-[#FFF8E8]">
+              <div><p className="text-[10px] uppercase tracking-widest text-[#E6C86B]">Business Opportunities</p><h2 className="font-serif text-xl font-bold mt-1">B2B & Private Label</h2><p className="text-xs mt-2 text-emerald-100">Wholesale · Private Label · Distributors</p></div>
+              <ChevronRight className="w-6 h-6 shrink-0 text-[#E6C86B]" />
             </div>
-
-            <ChevronRight className="w-5 h-5 text-[#E6C86B] shrink-0 mt-1" />
-          </div>
-
-          <div className="relative z-10 grid grid-cols-3 gap-2 mt-4">
-            <div className="rounded-2xl bg-gradient-to-b from-white/15 to-white/8 border border-white/10 px-2 py-3 text-center shadow-inner">
-              <p className="text-[10px] font-black text-white">Wholesale</p>
-              <p className="text-[8px] text-emerald-100/60">Bulk pricing</p>
-            </div>
-
-            <div className="rounded-2xl bg-gradient-to-b from-white/15 to-white/8 border border-white/10 px-2 py-3 text-center shadow-inner">
-              <p className="text-[10px] font-black text-white">Private Label</p>
-              <p className="text-[8px] text-emerald-100/60">Custom MOQ</p>
-            </div>
-
-            <div className="rounded-2xl bg-gradient-to-b from-white/15 to-white/8 border border-white/10 px-2 py-3 text-center shadow-inner">
-              <p className="text-[10px] font-black text-white">Distributor</p>
-              <p className="text-[8px] text-emerald-100/60">Join network</p>
-            </div>
-          </div>
-
-          <div className="relative z-10 mt-4 rounded-2xl bg-gradient-to-r from-[#F3D76E] via-[#E7C451] to-[#F0CD68] py-3.5 text-center text-[11px] font-black text-[#083A2F] shadow-[0_6px_18px_rgba(240,205,104,0.28)]">
-            Explore B2B Opportunities →
-          </div>
+          )}
         </button>
       </section>
 

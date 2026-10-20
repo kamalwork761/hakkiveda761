@@ -33,6 +33,7 @@ import { AppOurStoryScreen } from './screens/AppOurStoryScreen';
 import { AppTrustAuthenticityScreen } from './screens/AppTrustAuthenticityScreen';
 import { AppB2BScreen } from './screens/AppB2BScreen';
 import { AppCareJourneyScreen } from './screens/AppCareJourneyScreen';
+import { AppPolicyScreen, AppPolicyKind } from './screens/AppPolicyScreen';
 import { AppProductDetailModal } from './screens/AppProductDetailModal';
 import { AppCartDrawer } from './screens/AppCartDrawer';
 import { AppSearchModal } from './screens/AppSearchModal';
@@ -276,6 +277,10 @@ export const HakkivedaAndroidApp: React.FC = () => {
           </AppScreenErrorBoundary>
         )}
 
+        {extraScreen?.startsWith('policy-') && (
+          <AppScreenErrorBoundary screenName="Policies"><AppPolicyScreen policy={extraScreen.replace('policy-', '') as AppPolicyKind} onBack={() => setExtraScreen(null)} /></AppScreenErrorBoundary>
+        )}
+
         {extraScreen === 'global' && (
           <AppScreenErrorBoundary screenName="Global Community">
             <AppGlobalCommunityScreen onBack={() => setExtraScreen(null)} />
@@ -339,6 +344,10 @@ export const HakkivedaAndroidApp: React.FC = () => {
                 setExtraScreen('trust');
                 window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
               }}
+              onOpenPolicy={(policy) => {
+                setExtraScreen(`policy-${policy}`);
+                window.scrollTo({ top: 0, left: 0, behavior: "auto" });
+              }}
               onOpenB2B={() => {
                 setExtraScreen('b2b');
                 window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
@@ -355,6 +364,8 @@ export const HakkivedaAndroidApp: React.FC = () => {
               initialConcernId={selectedConcernId}
               concerns={concerns}
               appProductOverrides={appProductOverrides}
+              banners={banners}
+              onNavigateAction={handleActionClick}
               onOpenProductDetail={(id) => setSelectedProductId(id)}
             />
           </AppScreenErrorBoundary>

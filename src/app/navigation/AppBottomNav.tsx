@@ -67,9 +67,9 @@ export const AppBottomNav: React.FC<AppBottomNavProps> = ({
 
                 {isAnalysis && (
                   <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-[72px] h-[72px] rounded-full bg-gradient-to-br from-[#FFF8D8] via-[#F4D466] to-[#D6A83F] border-[3px] border-[#E9C35A] shadow-[0_6px_20px_rgba(14,56,44,0.42)] overflow-hidden ring-2 ring-[#0E382C]/25">
-                    <div className="relative flex h-full items-center justify-center overflow-hidden text-center" aria-label="Free AI Hair Analysis">
+                    <div className="relative flex h-full items-center justify-center overflow-hidden text-center" aria-label="Free hair test today and get discount">
                       <span className={`absolute inset-0 flex items-center justify-center text-[15px] font-black tracking-wide text-[#0E382C] transition-all duration-500 ${badgeSlide === 0 ? "translate-x-0 opacity-100" : "-translate-x-full opacity-0"}`} style={{ fontFamily: 'Georgia, Cambria, "Times New Roman", serif' }}>FREE</span>
-                      <span className={`absolute inset-0 flex flex-col items-center justify-center gap-0.5 text-[#0E382C] transition-all duration-500 ${badgeSlide === 1 ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"}`}><Sparkles className="h-5 w-5" /><span className="text-[10px] font-extrabold tracking-wide">AI SCAN</span></span>
+                      <span className={`absolute inset-0 flex flex-col items-center justify-center px-1 text-center text-[#0E382C] transition-all duration-500 ${badgeSlide === 1 ? "translate-x-0 opacity-100" : "translate-x-full opacity-0"}`}><span className="text-[8px] font-extrabold leading-[10px]">FREE HAIR TEST<br />TODAY<br />GET DISCOUNT</span></span>
                     </div>
                   </div>
                 )}              </div>

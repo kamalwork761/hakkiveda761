@@ -128,7 +128,7 @@ export const AppHomeValueSections: React.FC<Props> = ({
             <img src={resolveAssetUrl(b2bImageUrl)} alt="HAKKIVEDA B2B & Private Label" className="block w-full h-auto" loading="lazy" />
           ) : (
             <div className="flex items-center justify-between gap-4 bg-[#0B4939] px-5 py-6 text-[#FFF8E8]">
-              <div><p className="text-[10px] uppercase tracking-widest text-[#E6C86B]">Business Opportunities</p><h2 className="font-serif text-xl font-bold mt-1">B2B & Private Label</h2><p className="text-xs mt-2 text-emerald-100">Wholesale · Private Label · Distributors</p></div>
+              <div><p className="text-[10px] uppercase tracking-widest text-[#E6C86B]">Business Opportunities</p><h2 className="font-serif text-xl font-bold mt-1 !text-[#FFF8E8]" style={{ color: "#FFF8E8", WebkitTextFillColor: "#FFF8E8" }}>B2B & Private Label</h2><p className="text-xs mt-2 text-emerald-100">Wholesale · Private Label · Distributors</p></div>
               <ChevronRight className="w-6 h-6 shrink-0 text-[#E6C86B]" />
             </div>
           )}

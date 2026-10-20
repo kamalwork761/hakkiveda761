@@ -13,7 +13,7 @@ export const AppPromoBanner: React.FC<AppPromoBannerProps> = ({
   imageUrl,
   onNavigateAction,
 }) => {
-  const banner = banners.filter((b) => b.published !== false)[0];
+  const banner = banners.filter((b) => b.published !== false && !/^(b2b|private-label|wholesale)$/i.test(b.linkAction || ''))[0];
 
   if (!banner) return null;
 

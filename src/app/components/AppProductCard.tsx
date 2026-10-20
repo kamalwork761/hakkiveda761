@@ -20,12 +20,12 @@ export const AppProductCard: React.FC<AppProductCardProps> = ({
   onOpenDetail,
   layout = 'carousel',
 }) => {
-  const { addToCart, wishlist, toggleWishlist, playSound } = useStore();
+  const { addToCart, isInWishlist, toggleWishlist, playSound } = useStore();
   const [justAdded, setJustAdded] = useState(false);
 
   if (!product) return null;
 
-  const isWishlisted = wishlist?.includes(product.id) || false;
+  const isWishlisted = isInWishlist(product.id);
   const primaryImage = resolveAssetUrl(
     override?.appImage || product.image || product.images?.[0] || '/images/hero_tribal_elders.jpg'
   );

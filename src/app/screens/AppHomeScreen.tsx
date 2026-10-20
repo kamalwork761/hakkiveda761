@@ -37,6 +37,7 @@ interface AppHomeScreenProps {
   onOpenOurStory: () => void;
   onOpenTrust: () => void;
   onOpenB2B: () => void;
+  onOpenPolicy: (policy: "shipping" | "returns" | "privacy") => void;
   onActionClick: (destination: string) => void;
 }
 
@@ -56,6 +57,7 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
   onOpenOurStory,
   onOpenTrust,
   onOpenB2B,
+  onOpenPolicy,
   onActionClick,
 }) => {
   const { products, categories } = useStore();
@@ -224,6 +226,7 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
         onShop={() => onNavigateToShop()}
         onOpenTrust={onOpenTrust}
         onOpenB2B={onOpenB2B}
+        onOpenPolicy={onOpenPolicy}
       />
     </div>
   );

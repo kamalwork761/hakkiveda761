@@ -26,7 +26,7 @@ export const AppCategoriesScroll: React.FC<AppCategoriesScrollProps> = ({
           {
             id: 'app-all',
             categoryId: 'ALL',
-            customTitle: 'All Remedies',
+            customTitle: 'All Categories',
             icon: 'Sparkles',
             displayOrder: 1,
             enabled: true,
@@ -74,10 +74,10 @@ export const AppCategoriesScroll: React.FC<AppCategoriesScrollProps> = ({
     <div className="w-full py-5">
       <div className="px-4 mb-4">
         <h2
-          className="text-[20px] leading-tight font-black text-[#0B4A3A] tracking-[0.035em]"
+          className="text-[23px] leading-tight font-black text-[#0B4A3A] tracking-[0.035em] motion-safe:animate-[fadeIn_600ms_ease-out_both]"
           style={{ fontFamily: 'Georgia, Cambria, "Times New Roman", serif' }}
         >
-          Shop by Remedy
+          Shop by Category
         </h2>
         <p className="mt-1 text-[12px] font-medium text-slate-600">
           Choose the herbal care that fits your routine
@@ -96,15 +96,11 @@ export const AppCategoriesScroll: React.FC<AppCategoriesScrollProps> = ({
               key={item.id}
               type="button"
               onClick={() => onSelectCategory(item.categoryId)}
-              className="group flex-shrink-0 w-[150px] text-left active:scale-[0.97] transition-transform"
+              className="group flex-shrink-0 w-[132px] text-left active:scale-[0.97] transition-transform"
               aria-label={`Shop ${item.customTitle}`}
             >
               <div
-                className={`relative w-[150px] h-[178px] flex items-center justify-center rounded-[24px] transition-all ${
-                  isSelected
-                    ? 'ring-2 ring-[#D1AF58] shadow-[0_8px_22px_rgba(14,56,44,0.18)]'
-                    : ''
-                }`}
+                className="relative w-[132px] h-[142px] flex items-center justify-center"
               >
                 {item.imageUrl ? (
                   <img
@@ -123,12 +119,6 @@ export const AppCategoriesScroll: React.FC<AppCategoriesScrollProps> = ({
                       {renderIcon(item.icon, isSelected)}
                     </div>
                   </div>
-                )}
-
-                {isSelected && (
-                  <span className="absolute top-2 right-2 rounded-full bg-[#E2BF5E] px-2 py-1 text-[8px] font-black uppercase tracking-wide text-[#0B382C] shadow-sm">
-                    Selected
-                  </span>
                 )}
               </div>
 

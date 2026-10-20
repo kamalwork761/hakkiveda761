@@ -139,63 +139,6 @@ export const AppSectionsManager: React.FC<AppSectionsManagerProps> = ({
         )}
       </div>
 
-      {/* Dedicated Global Community artwork manager */}
-      {sections.some((section) => section.id === 'global_clients') && (
-        <div className="rounded-2xl border border-[#C5A059]/40 bg-gradient-to-br from-[#082E26] to-[#0C4939] p-4 sm:p-5 space-y-3">
-          <div>
-            <h3 className="font-serif text-lg font-bold text-[#F5DC93]">Global Tribal Community Banner</h3>
-            <p className="mt-1 text-xs leading-relaxed text-emerald-100/85">
-              Upload the banner you designed in Canva. It will replace the default three-card design in the Android app. Recommended: 1080 × 660 px, JPG, PNG or WebP.
-            </p>
-          </div>
-          {sections.find((section) => section.id === 'global_clients')?.imageUrl ? (
-            <img
-              src={sections.find((section) => section.id === 'global_clients')!.imageUrl}
-              alt="Current Global Tribal Community banner"
-              className="w-full max-w-lg rounded-xl border border-[#C5A059]/30 object-contain"
-            />
-          ) : (
-            <p className="rounded-xl border border-dashed border-[#C5A059]/40 px-4 py-6 text-center text-xs text-emerald-100/70">
-              No custom banner uploaded yet. The app currently shows its default card.
-            </p>
-          )}
-          <div className="flex flex-wrap items-center gap-3">
-            <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl bg-[#D8B45C] px-4 py-2.5 text-sm font-bold text-[#073B2F] hover:bg-[#F0D487]">
-              <Upload className="h-4 w-4" />
-              {uploadingSectionId === 'global_clients'
-                ? 'Uploading banner...'
-                : sections.find((section) => section.id === 'global_clients')?.imageUrl
-                  ? 'Replace Global Banner'
-                  : 'Upload Global Banner'}
-              <input
-                type="file"
-                accept="image/jpeg,image/png,image/webp"
-                disabled={uploadingSectionId !== null || isSaving}
-                className="hidden"
-                onChange={(event) => {
-                  const file = event.target.files?.[0];
-                  if (file) void handleSectionBannerUpload('global_clients', file);
-                  event.currentTarget.value = '';
-                }}
-              />
-            </label>
-            {sections.find((section) => section.id === 'global_clients')?.imageUrl && (
-              <button
-                type="button"
-                disabled={isSaving || uploadingSectionId !== null}
-                onClick={() => onSave(sections.map((section) => section.id === 'global_clients' ? { ...section, imageUrl: '' } : section))}
-                className="rounded-xl border border-red-400/40 px-4 py-2.5 text-xs font-bold text-red-200 hover:bg-red-950/40"
-              >
-                Remove Banner
-              </button>
-            )}
-          </div>
-          <p className="text-[11px] text-emerald-100/65">
-            The entire banner remains tappable and opens the existing Global Community page. Your original section order and other settings stay unchanged.
-          </p>
-        </div>
-      )}
-
       {/* Sections List */}
       <div className="space-y-2.5">
         {sections.map((section, index) => {
@@ -229,6 +172,9 @@ export const AppSectionsManager: React.FC<AppSectionsManagerProps> = ({
               </div>
 
               <div className="flex items-center gap-1.5 flex-shrink-0">
+                {section.id === 'global_clients' && (
+                  <span className="hidden sm:inline text-[10px] font-bold text-[#C5A059]">Global Community Image</span>
+                )}
                 {(section.id === 'hair_analysis' || section.id === 'brand_story' || section.id === 'promo_banner' || section.id === 'global_clients') && (
                   <div className="flex items-center gap-2">
                     {section.imageUrl && (
@@ -249,7 +195,7 @@ export const AppSectionsManager: React.FC<AppSectionsManagerProps> = ({
                           ? 'Uploading...'
                           : section.imageUrl
                             ? 'Replace Banner'
-                            : 'Upload Banner'}
+                            : section.id === 'global_clients' ? 'Upload Image' : 'Upload Banner'}
                       </span>
 
                       <input

@@ -1,4 +1,4 @@
-import React, { Component, useState, useEffect } from 'react';
+import React, { Component, useState, useEffect, useRef } from 'react';
 import { useStore } from '../context/StoreContext';
 import {
   MobileAppHeroSlide,
@@ -95,6 +95,32 @@ export const HakkivedaAndroidApp: React.FC = () => {
   const [isSearchOpen, setIsSearchOpen] = useState(false);
   const [extraScreen, setExtraScreen] = useState<'story' | 'global' | 'trust' | 'b2b' | 'care-hair' | 'care-skin' | 'care-wellness' | 'policy-shipping' | 'policy-returns' | 'policy-privacy' | null>(null);
 
+  // Preserve the exact Home card position when opening a full-screen page.
+  const homeScrollPosition = useRef(0);
+  const restoreHomeScroll = useRef(false);
+  const rememberHomePosition = () => {
+    if (activeTab === 'home' && !extraScreen) homeScrollPosition.current = window.scrollY;
+  };
+  const openHomePage = (screen: NonNullable<typeof extraScreen>) => {
+    rememberHomePosition();
+    setExtraScreen(screen);
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  };
+  const closeHomePage = () => {
+    restoreHomeScroll.current = true;
+    setExtraScreen(null);
+  };
+  useEffect(() => {
+    if (extraScreen || activeTab !== 'home' || !restoreHomeScroll.current) return;
+    restoreHomeScroll.current = false;
+    const position = homeScrollPosition.current;
+    // Wait until the Home component has remounted before restoring scroll.
+    const frame = requestAnimationFrame(() => {
+      requestAnimationFrame(() => window.scrollTo({ top: position, left: 0, behavior: 'instant' as ScrollBehavior }));
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [extraScreen, activeTab]);
+
   // App-specific admin configurable state
   const [heroSlides, setHeroSlides] = useState<MobileAppHeroSlide[]>(INITIAL_MOBILE_APP_HERO_SLIDES);
   const [banners, setBanners] = useState<MobileAppBanner[]>(INITIAL_MOBILE_APP_BANNERS);
@@ -172,7 +198,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
     const handleAndroidBack = (e: Event) => {
       if (extraScreen) {
         e.preventDefault();
-        setExtraScreen(null);
+        closeHomePage();
         return;
       }
 
@@ -198,6 +224,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
       }
       if (activeTab !== 'home') {
         e.preventDefault();
+        restoreHomeScroll.current = true;
         setActiveTab('home');
         return;
       }
@@ -221,7 +248,9 @@ export const HakkivedaAndroidApp: React.FC = () => {
       setActiveTab('shop');
       window.scrollTo(0, 0);
     } else if (destination === 'analysis' || destination === 'quiz') {
+      rememberHomePosition();
       setActiveTab('analysis');
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     } else if (destination.startsWith('product:')) {
       const pId = destination.replace('product:', '').trim();
       setSelectedProductId(pId);
@@ -268,7 +297,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
         {extraScreen === 'story' && (
           <AppScreenErrorBoundary screenName="Our Story">
             <AppOurStoryScreen
-              onBack={() => setExtraScreen(null)}
+              onBack={closeHomePage}
               imageUrl={sections.find((section) => section.id === 'brand_story')?.imageUrl}
               onShop={() => {
                 setExtraScreen(null);
@@ -282,24 +311,24 @@ export const HakkivedaAndroidApp: React.FC = () => {
         )}
 
         {extraScreen?.startsWith('policy-') && (
-          <AppScreenErrorBoundary screenName="Policies"><AppPolicyScreen policy={extraScreen.replace('policy-', '') as AppPolicyKind} onBack={() => setExtraScreen(null)} /></AppScreenErrorBoundary>
+          <AppScreenErrorBoundary screenName="Policies"><AppPolicyScreen policy={extraScreen.replace('policy-', '') as AppPolicyKind} onBack={closeHomePage} /></AppScreenErrorBoundary>
         )}
 
         {extraScreen === 'global' && (
           <AppScreenErrorBoundary screenName="Global Community">
-            <AppGlobalCommunityScreen onBack={() => setExtraScreen(null)} />
+            <AppGlobalCommunityScreen onBack={closeHomePage} />
           </AppScreenErrorBoundary>
         )}
 
         {extraScreen === 'trust' && (
           <AppScreenErrorBoundary screenName="Trust & Authenticity">
-            <AppTrustAuthenticityScreen onBack={() => setExtraScreen(null)} />
+            <AppTrustAuthenticityScreen onBack={closeHomePage} />
           </AppScreenErrorBoundary>
         )}
 
         {extraScreen === 'b2b' && (
           <AppScreenErrorBoundary screenName="B2B">
-            <AppB2BScreen onBack={() => setExtraScreen(null)} />
+            <AppB2BScreen onBack={closeHomePage} />
           </AppScreenErrorBoundary>
         )}
 
@@ -307,7 +336,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
           <AppScreenErrorBoundary screenName="Care Journey">
             <AppCareJourneyScreen
               journey={extraScreen.replace('care-', '') as 'hair' | 'skin' | 'wellness'}
-              onBack={() => setExtraScreen(null)}
+              onBack={closeHomePage}
               onShop={(categoryId) => {
                 setExtraScreen(null);
                 setSelectedCategoryId(categoryId || 'ALL');
@@ -331,7 +360,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
               appProductOverrides={appProductOverrides}
               onOpenProductDetail={(id) => setSelectedProductId(id)}
               onNavigateToShop={handleNavigateToShop}
-              onNavigateToAnalysis={() => setActiveTab('analysis')}
+              onNavigateToAnalysis={() => { rememberHomePosition(); setActiveTab('analysis'); window.scrollTo({ top: 0, left: 0, behavior: 'auto' }); }}
               onOpenCareJourney={(journey) => {
                 setExtraScreen(`care-${journey}` as 'care-hair' | 'care-skin' | 'care-wellness');
                 window.scrollTo({ top: 0, left: 0, behavior: 'auto' });

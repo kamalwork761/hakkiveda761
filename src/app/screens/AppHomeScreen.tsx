@@ -19,6 +19,7 @@ import { AppStoryCard } from '../components/AppStoryCard';
 import { AppGlobalClientsCompact } from '../components/AppGlobalClientsCompact';
 import { AppHairAnalysisCard } from '../components/AppHairAnalysisCard';
 import { AppHomeValueSections } from '../components/AppHomeValueSections';
+import { resolveAssetUrl } from '../utils/nativeUrl';
 
 interface AppHomeScreenProps {
   heroSlides: MobileAppHeroSlide[];
@@ -33,8 +34,10 @@ interface AppHomeScreenProps {
   onNavigateToAnalysis: () => void;
   onOpenCareJourney: (journey: 'hair' | 'skin' | 'wellness') => void;
   onOpenGlobalCommunity: () => void;
+  onOpenOurStory: () => void;
   onOpenTrust: () => void;
   onOpenB2B: () => void;
+  onOpenPolicy: (policy: "shipping" | "returns" | "privacy") => void;
   onActionClick: (destination: string) => void;
 }
 
@@ -51,8 +54,10 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
   onNavigateToAnalysis,
   onOpenCareJourney,
   onOpenGlobalCommunity,
+  onOpenOurStory,
   onOpenTrust,
   onOpenB2B,
+  onOpenPolicy,
   onActionClick,
 }) => {
   const { products, categories } = useStore();
@@ -182,15 +187,19 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
           <AppStoryCard
             key="brand_story"
             imageUrl={section.imageUrl}
+            onReadStory={onOpenOurStory}
           />
         );
 
       case 'global_clients':
-        return (
-          <AppGlobalClientsCompact
-            key="global_clients"
-            onOpen={onOpenGlobalCommunity}
-          />
+        return section.imageUrl ? (
+          <div key="global_clients" className="w-full px-4 py-3">
+            <button type="button" onClick={onOpenGlobalCommunity} className="block w-full overflow-hidden rounded-2xl active:scale-[0.99] transition-transform" aria-label="Explore our global community">
+              <img src={resolveAssetUrl(section.imageUrl)} alt="HAKKIVEDA Global Tribal Community" className="block w-full h-auto" loading="lazy" />
+            </button>
+          </div>
+        ) : (
+          <AppGlobalClientsCompact key="global_clients" onOpen={onOpenGlobalCommunity} />
         );
 
       default:
@@ -200,12 +209,24 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
 
   return (
     <div className="w-full pb-20 overflow-y-auto no-scrollbar">
-      {sortedSections.map((sec) => renderSection(sec))}
+      {sortedSections.map((sec) => (
+        <React.Fragment key={sec.id}>
+          {renderSection(sec)}
+          {sec.id === "best_sellers" && banners.filter(b => b.published !== false && !/^(b2b|private-label|wholesale)$/i.test(b.linkAction || "")).length > 1 && (
+            <AppPromoBanner banners={banners} index={1} onNavigateAction={onActionClick} />
+          )}
+          {sec.id === "global_clients" && banners.filter(b => b.published !== false && !/^(b2b|private-label|wholesale)$/i.test(b.linkAction || "")).length > 2 && (
+            <AppPromoBanner banners={banners} index={2} onNavigateAction={onActionClick} />
+          )}
+        </React.Fragment>
+      ))}
 
       <AppHomeValueSections
+        b2bImageUrl={banners.find((banner) => banner.published !== false && /^(b2b|private-label|wholesale)$/i.test(banner.linkAction || ''))?.imageUrl}
         onShop={() => onNavigateToShop()}
         onOpenTrust={onOpenTrust}
         onOpenB2B={onOpenB2B}
+        onOpenPolicy={onOpenPolicy}
       />
     </div>
   );

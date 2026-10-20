@@ -71,10 +71,10 @@ export const AppShopByConcern: React.FC<AppShopByConcernProps> = ({
               key={journey.key}
               type="button"
               onClick={() => onSelectConcern(journey.destination)}
-              className="flex-shrink-0 w-[178px] text-left active:scale-[0.97] transition-transform"
+              className="flex-shrink-0 w-[150px] text-left active:scale-[0.97] transition-transform"
               aria-label={`Open ${journey.title}`}
             >
-              <div className="w-[178px] h-[214px] rounded-[26px] overflow-hidden relative flex items-center justify-center">
+              <div className="w-[150px] h-[160px] overflow-hidden relative flex items-center justify-center">
                 {imageUrl ? (
                   <img
                     src={resolveAssetUrl(imageUrl)}
@@ -93,7 +93,7 @@ export const AppShopByConcern: React.FC<AppShopByConcernProps> = ({
                 )}
               </div>
 
-              <div className="pt-2.5 px-1">
+              <div className="pt-2 px-1">
                 <h3
                   className="text-[15px] leading-tight font-black text-[#0B4A3A]"
                   style={{ fontFamily: 'Georgia, Cambria, "Times New Roman", serif' }}

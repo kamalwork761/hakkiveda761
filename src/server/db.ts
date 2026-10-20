@@ -86,41 +86,29 @@ function loadMemoryFromDisk(): StoreMemory {
   return storeMemoryCache!;
 }
 
-// Atomic file write to avoid partial write corruption & race conditions
-let isFlushing = false;
-let needsFlush = false;
+// Serialized disk writes
+let writeQueue: Promise<void> = Promise.resolve();
 
 async function flushToDisk(): Promise<void> {
-  if (!storeMemoryCache) return;
-  if (isFlushing) {
-    needsFlush = true;
-    return;
-  }
-  isFlushing = true;
-
-  try {
-    if (!fs.existsSync(dbDir)) {
-      await fs.promises.mkdir(dbDir, { recursive: true });
-    }
-    const tempPath = `${dbPath}.tmp`;
-    const dataString = JSON.stringify(storeMemoryCache, null, 2);
-    await fs.promises.writeFile(tempPath, dataString, 'utf-8');
-    await fs.promises.rename(tempPath, dbPath);
-  } catch (err) {
-    console.error('[File DB] Error writing store.json:', err);
-  } finally {
-    isFlushing = false;
-    if (needsFlush) {
-      needsFlush = false;
-      await flushToDisk();
-    }
-  }
+  // Capture the state at invocation so later updates cannot alter this write.
+  const data = storeMemoryCache ? JSON.stringify(storeMemoryCache, null, 2) : null;
+  const operation = writeQueue.then(async () => {
+    if (data === null) return;
+    await fs.promises.mkdir(dbDir, { recursive: true });
+    const tmp = `${dbPath}.tmp`;
+    await fs.promises.writeFile(tmp, data, 'utf-8');
+    await fs.promises.rename(tmp, dbPath);
+  });
+  writeQueue = operation.catch(err => {
+    console.error('[File DB] Write failed:', err);
+  });
+  return operation;
 }
 
 function queueDiskSave() {
   if (saveDebounceTimer) clearTimeout(saveDebounceTimer);
   saveDebounceTimer = setTimeout(() => {
-    flushToDisk();
+    void flushToDisk().catch(console.error);
   }, 100);
 }
 
@@ -475,3 +463,34 @@ export async function getPublicStoreData(): Promise<Record<string, any>> {
   return result;
 }
 
+
+// Serialize read-modify-write operations for a store key.
+const updateLocks = new Map<string, Promise<void>>();
+
+export async function updateStoreValue<T>(
+  key: string,
+  updater: (current: T | null) => T | Promise<T>
+): Promise<T> {
+  if (!isSafeStoreKey(key)) {
+    throw new Error('Invalid store key');
+  }
+
+  const previous = updateLocks.get(key) || Promise.resolve();
+  let release!: () => void;
+  const lock = new Promise<void>(resolve => { release = resolve; });
+  const pending = previous.then(() => lock);
+  updateLocks.set(key, pending);
+
+  await previous;
+  try {
+    const current = await getStoreValue<T>(key);
+    const updated = await updater(current);
+    await setStoreValue(key, updated);
+    return updated;
+  } finally {
+    release();
+    if (updateLocks.get(key) === pending) {
+      updateLocks.delete(key);
+    }
+  }
+}

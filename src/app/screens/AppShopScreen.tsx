@@ -4,6 +4,8 @@ import { useStore } from '../../context/StoreContext';
 import { MobileAppProductOverride, MobileAppShopConcern } from '../../types/mobileApp';
 import { INITIAL_MOBILE_APP_CONCERNS } from '../../data/initialData';
 import { AppProductCard } from '../components/AppProductCard';
+import { AppPromoBanner } from '../components/AppPromoBanner';
+import { MobileAppBanner } from '../../types/mobileApp';
 import { resolveAssetUrl } from '../utils/nativeUrl';
 import { getAuthoritativePriceINR } from '../utils/productPrice';
 
@@ -13,6 +15,8 @@ interface AppShopScreenProps {
   concerns?: MobileAppShopConcern[];
   appProductOverrides?: Record<string, MobileAppProductOverride>;
   onOpenProductDetail: (productId: string) => void;
+  banners?: MobileAppBanner[];
+  onNavigateAction?: (destination: string) => void;
 }
 
 export const AppShopScreen: React.FC<AppShopScreenProps> = ({
@@ -21,6 +25,8 @@ export const AppShopScreen: React.FC<AppShopScreenProps> = ({
   concerns,
   appProductOverrides,
   onOpenProductDetail,
+  banners = [],
+  onNavigateAction = () => {},
 }) => {
   const { products, categories } = useStore();
 
@@ -104,7 +110,7 @@ export const AppShopScreen: React.FC<AppShopScreenProps> = ({
   return (
     <div className="w-full pb-24">
       {/* Top Search Bar with optimized compact top padding */}
-      <div className="sticky top-14 z-30 bg-[#FAF7F2] px-4 pt-2 pb-1.5 border-b border-emerald-950/10">
+      <div className="relative z-10 bg-[#FAF7F2] px-4 pt-2 pb-1.5 border-b border-emerald-950/10">
         <div className="relative flex items-center">
           <Search className="absolute left-3 w-4 h-4 text-emerald-900/50" />
           <input
@@ -284,7 +290,7 @@ export const AppShopScreen: React.FC<AppShopScreenProps> = ({
       </div>
 
       {/* 2-Column Product Grid */}
-      <div className="px-4 pt-8">
+      <div className="px-4 pt-3">
         {filteredProducts.length === 0 ? (
           <div className="py-16 text-center">
             <p className="text-slate-500 text-sm">No formulations found matching your filter.</p>
@@ -302,14 +308,18 @@ export const AppShopScreen: React.FC<AppShopScreenProps> = ({
           </div>
         ) : (
           <div className="grid grid-cols-2 gap-3">
-            {filteredProducts.map((product) => (
+            {filteredProducts.map((product, index) => (
+              <React.Fragment key={product.id}>
+              {index > 0 && index % 6 === 0 && banners.length > 0 && (
+                <div className="col-span-2 -mx-4"><AppPromoBanner banners={banners} index={Math.floor(index / 6)} onNavigateAction={onNavigateAction} /></div>
+              )}
               <AppProductCard
-                key={product.id}
                 product={product}
                 override={appProductOverrides?.[product.id]}
                 onOpenDetail={onOpenProductDetail}
                 layout="grid"
               />
+              </React.Fragment>
             ))}
           </div>
         )}

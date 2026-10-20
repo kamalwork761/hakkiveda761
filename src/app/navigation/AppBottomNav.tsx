@@ -12,15 +12,11 @@ export const AppBottomNav: React.FC<AppBottomNavProps> = ({
   activeTab,
   onTabChange,
 }) => {
-  const analysisMessages = ['FREE', 'Hair Scan', 'Try Now', 'Get Offer'];
-  const [analysisMessageIndex, setAnalysisMessageIndex] = useState(0);
-
+  // Auto-rotating Hair Analysis badge; no carousel dots.
+  const [badgeSlide, setBadgeSlide] = useState(0);
   useEffect(() => {
-    const timer = window.setInterval(() => {
-      setAnalysisMessageIndex((current) => (current + 1) % analysisMessages.length);
-    }, 2000);
-
-    return () => window.clearInterval(timer);
+    const interval = window.setInterval(() => setBadgeSlide((slide) => (slide + 1) % 5), 2200);
+    return () => window.clearInterval(interval);
   }, []);
 
   const tabs: {
@@ -71,39 +67,16 @@ export const AppBottomNav: React.FC<AppBottomNavProps> = ({
 
                 {isAnalysis && (
                   <div className="absolute -top-10 left-1/2 -translate-x-1/2 w-[72px] h-[72px] rounded-full bg-gradient-to-br from-[#FFF8D8] via-[#F4D466] to-[#D6A83F] border-[3px] border-[#E9C35A] shadow-[0_6px_20px_rgba(14,56,44,0.42)] overflow-hidden ring-2 ring-[#0E382C]/25">
-                    <div
-                      className="flex h-full transition-transform duration-500 ease-in-out"
-                      style={{
-                        width: `${analysisMessages.length * 100}%`,
-                        transform: `translateX(-${analysisMessageIndex * (100 / analysisMessages.length)}%)`,
-                      }}
-                    >
-                      {analysisMessages.map((message) => (
-                        <div
-                          key={message}
-                          className="h-full shrink-0 flex items-center justify-center text-center px-1.5"
-                          style={{ width: `${100 / analysisMessages.length}%` }}
-                        >
-                          <span
-                            className="text-[11px] leading-[12px] font-black tracking-tight text-[#0E382C] drop-shadow-[0_1px_0_rgba(255,255,255,0.7)]"
-                            style={{ fontFamily: 'Georgia, Cambria, "Times New Roman", serif' }}
-                          >
-                            {message}
-                          </span>
-                        </div>
-                      ))}
-                    </div>
-
-                    <div className="absolute bottom-1.5 left-1/2 -translate-x-1/2 flex gap-1">
-                      {analysisMessages.map((_, index) => (
+                    <div className="relative flex h-full items-center justify-center overflow-hidden text-center" aria-label="Free hair test today and get discount">
+                      {['FREE', 'HAIR', 'TEST', 'TODAY', 'GET DISCOUNT'].map((word, index) => (
                         <span
-                          key={index}
-                          className={`block rounded-full transition-all ${
-                            index === analysisMessageIndex
-                              ? 'w-2.5 h-1 bg-[#0B2E25]'
-                              : 'w-1 h-1 bg-[#0B2E25]/35'
-                          }`}
-                        />
+                          key={word}
+                          aria-hidden={badgeSlide !== index}
+                          className={`absolute inset-0 flex items-center justify-center px-1 text-center font-black text-[#0E382C] transition-all duration-500 ${badgeSlide === index ? 'translate-y-0 opacity-100' : badgeSlide > index ? '-translate-y-full opacity-0' : 'translate-y-full opacity-0'} ${word === 'GET DISCOUNT' ? 'text-[9px] leading-tight' : 'text-[15px]'}`}
+                          style={{ fontFamily: 'Georgia, Cambria, "Times New Roman", serif' }}
+                        >
+                          {word}
+                        </span>
                       ))}
                     </div>
                   </div>

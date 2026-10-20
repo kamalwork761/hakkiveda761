@@ -1,4 +1,5 @@
 import { Capacitor } from '@capacitor/core';
+import { LIVE_BASE_URL } from '../app/utils/apiConfig';
 import { App as CapApp } from '@capacitor/app';
 import { StatusBar, Style } from '@capacitor/status-bar';
 import { SplashScreen } from '@capacitor/splash-screen';
@@ -71,7 +72,7 @@ export const isNativeAndroid = (): boolean => {
 export function setupCapacitorApiProxy(): void {
   if (!isNativeApp()) return;
 
-  const LIVE_BASE_URL = 'https://hakkiveda.com';
+
   const originalFetch = window.fetch;
 
   window.fetch = function (input: RequestInfo | URL, init?: RequestInit): Promise<Response> {

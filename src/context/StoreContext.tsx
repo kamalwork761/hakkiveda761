@@ -1,3 +1,4 @@
+import { resolveApiUrl } from '../app/utils/nativeUrl';
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import {
@@ -240,6 +241,7 @@ interface StoreContextType {
   changeCustomerPassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; message: string }>;
   loadCustomerOrders: () => Promise<void>;
   logoutUser: () => void;
+  deleteMyAccount: (method: 'password' | 'google', password?: string) => Promise<{ success: boolean; message: string }>;
   updateCustomerAccount: (id: string, partial: Partial<User>) => void;
   updateUserProfile: (partial: Partial<User>) => Promise<void> | void;
   addSavedAddress: (address: Omit<SavedAddress, 'id'>) => void;
@@ -2538,7 +2540,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   const loginWithGoogle = async (): Promise<{ success: boolean; message: string }> => {
     try {
-      await FirebaseAuthentication.signInWithGoogle();
+      await FirebaseAuthentication.signInWithGoogle({ useCredentialManager: false });
       const tokenResult = await FirebaseAuthentication.getIdToken({ forceRefresh: true });
 
       if (!tokenResult?.token) {
@@ -2546,7 +2548,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         return { success: false, message: 'Google sign-in did not return a valid identity token.' };
       }
 
-      const res = await fetch('/api/auth/google', {
+      const res = await fetch(resolveApiUrl('/api/auth/google'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -2570,10 +2572,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch (err: any) {
       soundManager.play('error_warning');
       const rawMessage = typeof err?.message === 'string' ? err.message : '';
+      console.error('[Google Sign-In]', err);
       const cancelled = /cancel|canceled|cancelled/i.test(rawMessage);
       return {
         success: false,
-        message: cancelled ? 'Google sign-in was cancelled.' : 'Could not sign in with Google. Please try again.',
+        message: cancelled ? 'Google sign-in was cancelled.' : /not implemented|plugin is not implemented/i.test(rawMessage) ? 'Google sign-in is unavailable in this app build. Please update the app.' : /network|failed to fetch/i.test(rawMessage) ? 'Unable to reach the sign-in server. Check your internet connection.' : `Google Sign-In error: ${rawMessage || String(err)}`,
       };
     }
   };
@@ -2690,6 +2693,69 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     setCurrentUser(null);
     if (!adminAuthenticated) {
       setOrders([]);
+    }
+  };
+
+  // Delete only after an authenticated server confirmation. Never treat logout as deletion.
+  const deleteMyAccount = async (
+    method: 'password' | 'google',
+    password?: string
+  ): Promise<{ success: boolean; message: string }> => {
+    const token = localStorage.getItem('hakkiveda_customer_token');
+    if (!token || !currentUser) return { success: false, message: 'Please sign in again.' };
+    if (method === 'password' && !password) {
+      return { success: false, message: 'Enter your current password.' };
+    }
+
+    try {
+      let idToken: string | undefined;
+      if (method === 'google') {
+        // The Google picker allows fresh identity verification, without issuing
+        // a new HAKKIVEDA session or changing the customer account being deleted.
+        await FirebaseAuthentication.signInWithGoogle({ useCredentialManager: false });
+        const result = await FirebaseAuthentication.getIdToken({ forceRefresh: true });
+        if (!result?.token) {
+          return { success: false, message: 'Google identity verification was not completed.' };
+        }
+        idToken = result.token;
+      }
+
+      const response = await fetch(resolveApiUrl('/api/customer/delete-account'), {
+        method: 'POST',
+        credentials: 'include',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({
+          confirmation: 'DELETE',
+          ...(method === 'password' ? { password } : { idToken }),
+        }),
+      });
+      const data = await response.json().catch(() => ({}));
+      if (!response.ok || data.success !== true) {
+        return { success: false, message: data.error || `Deletion unavailable (HTTP ${response.status}).` };
+      }
+
+      localStorage.removeItem('hakkiveda_customer_token');
+      localStorage.removeItem('hakkiveda_current_user');
+      setCurrentUser(null);
+      if (!adminAuthenticated) setOrders([]);
+      await FirebaseAuthentication.signOut().catch(() => {});
+      return {
+        success: true,
+        message: data.retainedDataNotice
+          ? `Account deleted. ${data.retainedDataNotice}`
+          : 'Your HAKKIVEDA customer account has been deleted.',
+      };
+    } catch (error: any) {
+      const msg = typeof error?.message === 'string' ? error.message : '';
+      return {
+        success: false,
+        message: /cancel/i.test(msg)
+          ? 'Google verification was cancelled.'
+          : 'Unable to verify deletion with the server. Your HAKKIVEDA account has not been confirmed deleted.',
+      };
     }
   };
 
@@ -3422,6 +3488,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         changeCustomerPassword,
         loadCustomerOrders,
         logoutUser,
+        deleteMyAccount,
         updateCustomerAccount,
         updateUserProfile,
         addSavedAddress,

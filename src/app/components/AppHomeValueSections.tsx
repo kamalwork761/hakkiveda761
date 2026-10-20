@@ -21,6 +21,7 @@ interface Props {
   onShop: () => void;
   onOpenTrust: () => void;
   onOpenB2B: () => void;
+  onOpenPolicy: (policy: 'shipping' | 'returns' | 'privacy') => void;
   b2bImageUrl?: string;
 }
 
@@ -28,6 +29,7 @@ export const AppHomeValueSections: React.FC<Props> = ({
   onShop,
   onOpenTrust,
   onOpenB2B,
+  onOpenPolicy,
   b2bImageUrl,
 }) => {
   return (
@@ -334,15 +336,15 @@ export const AppHomeValueSections: React.FC<Props> = ({
         </p>
 
         <div className="flex justify-center gap-4 mt-4 text-[10px] text-emerald-100/80">
-          <a href="/shipping-policy" className="hover:text-white">
+          <button type="button" onClick={() => onOpenPolicy("shipping")} className="hover:text-white">
             Shipping
-          </a>
-          <a href="/refund-policy" className="hover:text-white">
+          </button>
+          <button type="button" onClick={() => onOpenPolicy("returns")} className="hover:text-white">
             Returns
-          </a>
-          <a href="/privacy-policy" className="hover:text-white">
-            Privacy
-          </a>
+          </button>
+          <button type="button" onClick={() => onOpenPolicy("privacy")} className="hover:text-white">
+            Privacy Policy
+          </button>
           <a
             href="https://wa.me/917619536831"
             className="hover:text-white"

@@ -207,6 +207,7 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
       {sortedSections.map((sec) => renderSection(sec))}
 
       <AppHomeValueSections
+        b2bImageUrl={banners.find((banner) => banner.published !== false && /^(b2b|private-label|wholesale)$/i.test(banner.linkAction || ''))?.imageUrl}
         onShop={() => onNavigateToShop()}
         onOpenTrust={onOpenTrust}
         onOpenB2B={onOpenB2B}

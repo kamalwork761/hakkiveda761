@@ -34,6 +34,7 @@ interface AppHomeScreenProps {
   onNavigateToAnalysis: () => void;
   onOpenCareJourney: (journey: 'hair' | 'skin' | 'wellness') => void;
   onOpenGlobalCommunity: () => void;
+  onOpenOurStory: () => void;
   onOpenTrust: () => void;
   onOpenB2B: () => void;
   onActionClick: (destination: string) => void;
@@ -52,6 +53,7 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
   onNavigateToAnalysis,
   onOpenCareJourney,
   onOpenGlobalCommunity,
+  onOpenOurStory,
   onOpenTrust,
   onOpenB2B,
   onActionClick,
@@ -183,6 +185,7 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
           <AppStoryCard
             key="brand_story"
             imageUrl={section.imageUrl}
+            onReadStory={onOpenOurStory}
           />
         );
 

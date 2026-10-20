@@ -45,7 +45,7 @@ export const AppSectionsManager: React.FC<AppSectionsManagerProps> = ({
   };
 
   const handleSectionBannerUpload = async (
-    sectionId: 'hair_analysis' | 'brand_story' | 'promo_banner',
+    sectionId: 'hair_analysis' | 'brand_story' | 'promo_banner' | 'global_clients',
     file: File
   ) => {
     const allowed = ['image/jpeg', 'image/png', 'image/webp'];
@@ -172,19 +172,19 @@ export const AppSectionsManager: React.FC<AppSectionsManagerProps> = ({
               </div>
 
               <div className="flex items-center gap-1.5 flex-shrink-0">
-                {(section.id === 'hair_analysis' || section.id === 'brand_story' || section.id === 'promo_banner') && (
+                {(section.id === 'hair_analysis' || section.id === 'brand_story' || section.id === 'promo_banner' || section.id === 'global_clients') && (
                   <div className="flex items-center gap-2">
                     {section.imageUrl && (
                       <img
                         src={section.imageUrl}
-                        alt="Hair Analysis banner"
+                        alt={`${section.name} banner`}
                         className="w-14 h-8 rounded-lg object-cover border border-white/20"
                       />
                     )}
 
                     <label
                       className="px-3 py-1.5 rounded-xl text-xs font-bold bg-[#C5A059]/15 text-[#E8D279] hover:bg-[#C5A059]/25 cursor-pointer flex items-center gap-1"
-                      title="Upload Hair Analysis banner"
+                      title={`Upload ${section.name} banner`}
                     >
                       <Upload className="w-3.5 h-3.5" />
                       <span>
@@ -204,7 +204,7 @@ export const AppSectionsManager: React.FC<AppSectionsManagerProps> = ({
                           const file = e.target.files?.[0];
                           if (file)
                             handleSectionBannerUpload(
-                              section.id as 'hair_analysis' | 'brand_story',
+                              section.id as 'hair_analysis' | 'brand_story' | 'promo_banner' | 'global_clients',
                               file
                             );
                           e.currentTarget.value = '';

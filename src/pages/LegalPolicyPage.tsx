@@ -193,7 +193,7 @@ export const LegalPolicyPage: React.FC<LegalPolicyPageProps> = ({
           </div>
 
           <div className="pt-2">
-            <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif-luxury font-bold text-white tracking-tight">
+            <h1 className="text-2xl sm:text-3xl md:text-4xl font-serif-luxury font-bold !text-[#FFF9EA] tracking-tight" style={{ color: "#FFF9EA", WebkitTextFillColor: "#FFF9EA", textShadow: "0 2px 12px rgba(0,0,0,0.28)" }}>
               {currentTab.title}
             </h1>
             <p className="text-xs sm:text-sm text-[#E5D8B5] max-w-3xl font-sans mt-1.5 leading-relaxed">

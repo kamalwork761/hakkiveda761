@@ -207,7 +207,17 @@ export const AppHomeScreen: React.FC<AppHomeScreenProps> = ({
 
   return (
     <div className="w-full pb-20 overflow-y-auto no-scrollbar">
-      {sortedSections.map((sec) => renderSection(sec))}
+      {sortedSections.map((sec) => (
+        <React.Fragment key={sec.id}>
+          {renderSection(sec)}
+          {sec.id === "best_sellers" && banners.filter(b => b.published !== false && !/^(b2b|private-label|wholesale)$/i.test(b.linkAction || "")).length > 1 && (
+            <AppPromoBanner banners={banners} index={1} onNavigateAction={onActionClick} />
+          )}
+          {sec.id === "global_clients" && banners.filter(b => b.published !== false && !/^(b2b|private-label|wholesale)$/i.test(b.linkAction || "")).length > 2 && (
+            <AppPromoBanner banners={banners} index={2} onNavigateAction={onActionClick} />
+          )}
+        </React.Fragment>
+      ))}
 
       <AppHomeValueSections
         b2bImageUrl={banners.find((banner) => banner.published !== false && /^(b2b|private-label|wholesale)$/i.test(banner.linkAction || ''))?.imageUrl}

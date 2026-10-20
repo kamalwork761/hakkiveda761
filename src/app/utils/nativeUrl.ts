@@ -1,6 +1,7 @@
 import { isNativeApp } from '../../utils/capacitorBridge';
 
-export const LIVE_BASE_URL = 'https://hakkiveda.com';
+import { LIVE_BASE_URL } from './apiConfig';
+export { LIVE_BASE_URL };
 
 /**
  * Checks if the current environment is running inside native Android / Capacitor app

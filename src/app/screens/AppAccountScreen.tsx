@@ -21,6 +21,7 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
     loginWithGoogle,
     registerUser,
     logoutUser,
+    deleteMyAccount,
     updateUserProfile,
     addSavedAddress,
     updateSavedAddress,
@@ -67,6 +68,32 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
   const [confirmPasswordInput, setConfirmPasswordInput] = useState('');
   const [passwordStatus, setPasswordStatus] = useState('');
   const [passwordSubmitting, setPasswordSubmitting] = useState(false);
+
+  const [showDeleteAccount, setShowDeleteAccount] = useState(false);
+  const [deletionMethod, setDeletionMethod] = useState<'password' | 'google'>('password');
+  const [deletionPassword, setDeletionPassword] = useState('');
+  const [deletionConfirmation, setDeletionConfirmation] = useState('');
+  const [deletionBusy, setDeletionBusy] = useState(false);
+  const [deletionMessage, setDeletionMessage] = useState('');
+
+  const handleDeleteAccount = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (deletionBusy || deletionConfirmation !== 'DELETE') return;
+    setDeletionBusy(true);
+    setDeletionMessage('');
+    try {
+      const result = await deleteMyAccount(deletionMethod, deletionPassword);
+      setDeletionPassword('');
+      setDeletionConfirmation('');
+      setDeletionMessage(result.message);
+      if (result.success) {
+        setShowDeleteAccount(false);
+        setAuthMode('SIGN_IN');
+      }
+    } finally {
+      setDeletionBusy(false);
+    }
+  };
 
   const rawWa = appSettings?.whatsappNumber || siteSettings?.socialWhatsapp || '+917619536831';
   const whatsappNum = rawWa.replace(/[^\d]/g, '') || '917619536831';
@@ -774,6 +801,74 @@ export const AppAccountScreen: React.FC<AppAccountScreenProps> = ({
             )}
           </div>
         </div>
+      )}
+
+      {/* Account deletion: available only to signed-in customers. */}
+      {currentUser && (
+        <section className="mb-4 rounded-[28px] border border-rose-200 bg-white p-4 shadow-sm">
+          <div className="flex items-start gap-3">
+            <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-2xl bg-rose-50 text-rose-700">
+              <Shield className="h-5 w-5" />
+            </div>
+            <div className="flex-1">
+              <p className="text-[10px] font-black uppercase tracking-[0.16em] text-[#A27C2D]">Account &amp; Privacy</p>
+              <h3 className="mt-1 font-serif text-[17px] font-black text-[#123F34]">Your account, your choice</h3>
+              <p className="mt-1 text-[11px] leading-relaxed text-slate-600">
+                Request permanent removal of your HAKKIVEDA customer account, saved addresses and loyalty balance.
+                Transaction records and separately submitted hair-care questionnaires may be retained.
+              </p>
+            </div>
+          </div>
+          <button type="button"
+            onClick={() => { setShowDeleteAccount(!showDeleteAccount); setDeletionMessage(''); }}
+            className="mt-4 flex w-full items-center justify-between rounded-xl border border-rose-200 bg-rose-50 px-3 py-3 text-xs font-bold text-rose-700">
+            <span className="flex items-center gap-2"><Trash2 className="h-4 w-4" />Delete Account</span>
+            <ChevronRight className="h-4 w-4" />
+          </button>
+          {showDeleteAccount && (
+            <form onSubmit={handleDeleteAccount} className="mt-4 space-y-3 rounded-2xl border border-rose-200 bg-[#FFF9F7] p-3">
+              <p className="text-xs font-bold text-rose-800">This action cannot be undone.</p>
+              <p className="text-[11px] leading-relaxed text-slate-600">
+                We will verify your identity before sending the request. Your account stays active if verification or deletion fails.
+              </p>
+              <fieldset disabled={deletionBusy} className="space-y-2 text-xs text-slate-700">
+                <legend className="mb-2 font-bold">How did you sign in?</legend>
+                <label className="flex items-center gap-2">
+                  <input type="radio" name="deletion-method" checked={deletionMethod === 'password'}
+                    onChange={() => setDeletionMethod('password')} /> Email and password
+                </label>
+                <label className="flex items-center gap-2">
+                  <input type="radio" name="deletion-method" checked={deletionMethod === 'google'}
+                    onChange={() => setDeletionMethod('google')} /> Google account
+                </label>
+              </fieldset>
+              {deletionMethod === 'password' && (
+                <input type="password" autoComplete="current-password" value={deletionPassword}
+                  onChange={e => setDeletionPassword(e.target.value)} placeholder="Current password"
+                  className="h-11 w-full rounded-xl border border-rose-200 bg-white px-3 text-sm" />
+              )}
+              <label className="block text-[11px] font-semibold text-slate-700" htmlFor="hakkiveda-delete-confirmation">
+                Type DELETE to confirm
+              </label>
+              <input id="hakkiveda-delete-confirmation" value={deletionConfirmation}
+                onChange={e => setDeletionConfirmation(e.target.value)} autoComplete="off"
+                placeholder="DELETE" className="h-11 w-full rounded-xl border border-rose-200 bg-white px-3 text-sm" />
+              {deletionMessage && <p role="alert" className="text-[11px] font-semibold text-rose-700">{deletionMessage}</p>}
+              <button type="submit" disabled={deletionBusy || deletionConfirmation !== 'DELETE' || (deletionMethod === 'password' && !deletionPassword)}
+                className="w-full rounded-xl bg-rose-700 p-3 text-xs font-black text-white disabled:opacity-50">
+                {deletionBusy ? 'Verifying your request...' : 'Permanently Delete My Account'}
+              </button>
+              <button type="button" disabled={deletionBusy} onClick={() => { setShowDeleteAccount(false); setDeletionPassword(''); setDeletionConfirmation(''); setDeletionMessage(''); }}
+                className="w-full rounded-xl border border-slate-200 bg-white p-3 text-xs font-bold text-slate-700">
+                Cancel
+              </button>
+            </form>
+          )}
+        </section>
+      )}
+
+      {!currentUser && deletionMessage && (
+        <p role="status" className="mb-4 rounded-xl border border-emerald-200 bg-emerald-50 p-3 text-xs font-semibold text-emerald-900">{deletionMessage}</p>
       )}
 
       {/* Quick Actions List */}

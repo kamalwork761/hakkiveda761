@@ -25,6 +25,11 @@
     "StatusBar": {
       "style": "DARK",
       "backgroundColor": "#0E3B2E"
+    },
+    "FirebaseAuthentication": {
+      "providers": [
+        "google.com"
+      ]
     }
   }
 }

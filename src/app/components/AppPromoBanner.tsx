@@ -25,12 +25,12 @@ export const AppPromoBanner: React.FC<AppPromoBannerProps> = ({
   return (
     <div className="w-full px-4 py-3">
       <style>{`@keyframes hvGoldOrbit { to { transform: rotate(360deg); } } @media (prefers-reduced-motion: reduce) { .hv-gold-orbit { animation: none !important; } }`}</style>
-      <div className="relative overflow-hidden rounded-[26px] p-[3px] shadow-[0_5px_18px_rgba(150,111,31,0.20)]">
-        <div aria-hidden="true" className="hv-gold-orbit pointer-events-none absolute -inset-[110%] bg-[conic-gradient(from_0deg,#6D4A13,#EAC76C,#FFF7D1,#B47A19,#6D4A13)]" style={{ animation: "hvGoldOrbit 5s linear infinite" }} />
+      <div className="relative overflow-hidden rounded-[26px] border-[2px] border-[#754609] bg-[#4F300A] p-[4px] shadow-[0_7px_22px_rgba(105,62,8,0.32)]">
+        <div aria-hidden="true" className="hv-gold-orbit pointer-events-none absolute -inset-[110%] bg-[conic-gradient(from_0deg,#4A2803_0%,#A56A12_20%,#FFFBE0_27%,#FFD34B_33%,#593203_42%,#B57A19_65%,#FFF2A1_72%,#5A3307_82%,#4A2803_100%)]" style={{ animation: "hvGoldOrbit 5s linear infinite" }} />
       <button
         type="button"
         onClick={() => onNavigateAction(banner.linkAction || 'shop')}
-        className="relative block w-full overflow-hidden rounded-[23px] bg-[#FFF8E5] aspect-[3/1] active:scale-[0.99] transition-all"
+        className="relative block w-full overflow-hidden rounded-[19px] bg-[#FFF8E5] aspect-[3/1] active:scale-[0.99] transition-all"
       >
         {bgImage ? (
           <img

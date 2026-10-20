@@ -158,10 +158,84 @@ export const AppPromoBannersManager: React.FC<AppPromoBannersManagerProps> = ({
     setIsModalOpen(false);
   };
 
+  // Dedicated home-screen B2B artwork, separate from rotating promotional offers.
+  const b2bBanner = banners.find((banner) => /^(b2b|private-label|wholesale)$/i.test(banner.linkAction || ''));
+  const [b2bUploading, setB2bUploading] = useState(false);
+
+  const handleB2BImageUpload = async (file: File) => {
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(file.type)) {
+      alert('Please choose a JPG, PNG or WebP image.');
+      return;
+    }
+    setB2bUploading(true);
+    try {
+      const form = new FormData();
+      form.append('file', file);
+      const response = await fetch('/api/upload/mobile-app?folder=banners', {
+        method: 'POST', credentials: 'include', body: form,
+      });
+      const result = await response.json();
+      if (!response.ok || !result.success || !result.url) {
+        throw new Error(result.error || 'B2B image upload failed');
+      }
+      const newBanner: MobileAppBanner = b2bBanner
+        ? { ...b2bBanner, imageUrl: result.url, linkAction: 'b2b', published: true }
+        : {
+            id: `app-b2b-${Date.now()}`,
+            title: 'B2B & Private Label',
+            subtitle: 'Wholesale, Private Label & Distributors',
+            imageUrl: result.url,
+            linkAction: 'b2b',
+            ctaText: 'Explore B2B',
+            displayOrder: banners.length + 1,
+            published: true,
+          };
+      onSave(b2bBanner
+        ? banners.map((banner) => banner.id === b2bBanner.id ? newBanner : banner)
+        : [...banners, newBanner]);
+    } catch (error: any) {
+      alert(error.message || 'B2B image upload failed');
+    } finally {
+      setB2bUploading(false);
+    }
+  };
+
+  const handleRemoveB2BImage = () => {
+    if (!b2bBanner || !window.confirm('Remove the B2B home banner image?')) return;
+    onSave(banners.filter((banner) => banner.id !== b2bBanner.id));
+  };
+
   const sortedBanners = [...banners].sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
 
   return (
     <div className="space-y-6">
+      {/* Dedicated B2B home banner image management. Does not change the B2B detail page. */}
+      <section className="rounded-2xl border border-[#C5A059]/40 bg-[#0E382C] p-4 space-y-3">
+        <div>
+          <h2 className="text-sm font-bold text-[#F6E7BD]">B2B & Private Label — Home Screen Banner</h2>
+          <p className="mt-1 text-xs text-emerald-100">Upload your Canva banner for the Android home screen. The image opens the existing B2B page when tapped.</p>
+          <p className="mt-1 text-[11px] text-[#D6B65D]">Suggested: 1080 × 540 px · JPG, PNG or WebP · Full image shown without cropping</p>
+        </div>
+        {b2bBanner?.imageUrl && (
+          <img src={resolveAssetUrl(b2bBanner.imageUrl)} alt="B2B home banner preview" className="block h-auto w-full rounded-xl border border-white/20" />
+        )}
+        <div className="flex flex-wrap items-center gap-2">
+          <label className="cursor-pointer rounded-xl bg-[#C5A059] px-4 py-2.5 text-xs font-bold text-[#0E382C]">
+            {b2bUploading ? 'Uploading...' : b2bBanner?.imageUrl ? 'Replace B2B Image' : 'Upload B2B Image'}
+            <input type="file" className="hidden" accept="image/jpeg,image/png,image/webp" disabled={b2bUploading || isSaving} onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) void handleB2BImageUpload(file);
+              event.currentTarget.value = '';
+            }} />
+          </label>
+          {b2bBanner && (
+            <button type="button" onClick={handleRemoveB2BImage} disabled={b2bUploading || isSaving} className="rounded-xl border border-red-300/40 px-4 py-2.5 text-xs font-bold text-red-200 disabled:opacity-50">
+              Remove B2B Image
+            </button>
+          )}
+        </div>
+      </section>
+
       {/* Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 bg-white/5 border border-white/10 rounded-2xl p-4">
         <div>

@@ -481,6 +481,7 @@ export const AppPromoBannersManager: React.FC<AppPromoBannersManagerProps> = ({
                 >
                   <option value="shop">Shop All Remedies</option>
                   <option value="analysis">Hair Root Analysis</option>
+                  <option value="b2b">B2B &amp; Private Label Banner</option>
                   <optgroup label="Direct Products">
                     {products.map((p) => (
                       <option key={p.id} value={`product:${p.id}`}>

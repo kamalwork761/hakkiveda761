@@ -16,17 +16,18 @@ export const AppOurStoryScreen: React.FC<Props> = ({ onBack, onShop, imageUrl })
       </button>
       <div>
         <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#E6C86B]">HAKKIVEDA Heritage</p>
-        <h1 className="font-serif text-lg font-bold text-white">Our Story</h1>
+        <h1 className="font-serif text-lg font-bold !text-[#FFF8E7]" style={{ color: "#FFF8E7", WebkitTextFillColor: "#FFF8E7" }}>Our Story</h1>
       </div>
     </header>
 
-    <div className="relative">
-      <img src={resolveAssetUrl(imageUrl || '/images/hero_tribal_elders.jpg')} alt="HAKKIVEDA herbal heritage" className="h-56 w-full object-cover" />
-      <div className="absolute inset-0 bg-gradient-to-t from-[#0B3D30]/80 via-transparent to-transparent" />
-      <div className="absolute bottom-5 left-5 right-5">
-        <p className="text-[10px] font-bold uppercase tracking-[0.18em] text-[#F2D17C]">Rooted in Karnataka</p>
-        <h2 className="mt-1 font-serif text-3xl font-bold leading-tight text-white">A Sacred Heritage</h2>
-      </div>
+    {/* Canva banner includes its own typography: display it in full without cropping or overlays. */}
+    <div className="w-full bg-[#F7E9C8]">
+      <img
+        src={resolveAssetUrl(imageUrl || '/images/hero_tribal_elders.jpg')}
+        alt="HAKKIVEDA Our Story heritage banner"
+        className="block h-auto w-full object-contain"
+        loading="eager"
+      />
     </div>
 
     <div className="space-y-5 px-4 pt-6">
@@ -61,7 +62,7 @@ export const AppOurStoryScreen: React.FC<Props> = ({ onBack, onShop, imageUrl })
 
       <section className="rounded-3xl bg-gradient-to-br from-[#0B3D30] to-[#146348] p-5 text-white">
         <div className="flex items-center gap-2 text-[#E7CD81]"><MapPin className="h-4 w-4" /><span className="text-[10px] font-bold uppercase tracking-widest">Our Roots</span></div>
-        <h3 className="mt-2 font-serif text-xl font-bold">Hunsur, Mysuru, Karnataka</h3>
+        <h3 className="mt-2 font-serif text-xl font-bold !text-[#FFF8E7]" style={{ color: "#FFF8E7", WebkitTextFillColor: "#FFF8E7" }}>Hunsur, Mysuru, Karnataka</h3>
         <p className="mt-2 text-xs leading-6 text-emerald-50/85">From our home in Karnataka, HAKKIVEDA connects with customers and business partners in India and international markets.</p>
       </section>
 

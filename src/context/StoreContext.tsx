@@ -1,3 +1,4 @@
+import { resolveApiUrl } from '../app/utils/nativeUrl';
 import React, { createContext, useContext, useState, useEffect, useRef } from 'react';
 import { FirebaseAuthentication } from '@capacitor-firebase/authentication';
 import {
@@ -2546,7 +2547,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         return { success: false, message: 'Google sign-in did not return a valid identity token.' };
       }
 
-      const res = await fetch('/api/auth/google', {
+      const res = await fetch(resolveApiUrl('/api/auth/google'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -2570,10 +2571,11 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     } catch (err: any) {
       soundManager.play('error_warning');
       const rawMessage = typeof err?.message === 'string' ? err.message : '';
+      console.error('[Google Sign-In]', err);
       const cancelled = /cancel|canceled|cancelled/i.test(rawMessage);
       return {
         success: false,
-        message: cancelled ? 'Google sign-in was cancelled.' : 'Could not sign in with Google. Please try again.',
+        message: cancelled ? 'Google sign-in was cancelled.' : /not implemented|plugin is not implemented/i.test(rawMessage) ? 'Google sign-in is unavailable in this app build. Please update the app.' : /network|failed to fetch/i.test(rawMessage) ? 'Unable to reach the sign-in server. Check your internet connection.' : 'Could not sign in with Google. Please try again.',
       };
     }
   };

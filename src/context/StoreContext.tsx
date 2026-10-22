@@ -81,6 +81,7 @@ import {
 import { idbGet, idbSet, idbClear } from '../utils/idbStorage';
 import { CountryItem, DEFAULT_COUNTRY } from '../data/countriesData';
 import { isProductAvailableForCountry, getProductPriceINRForCountry } from '../utils/productUtils';
+import { resolveApiUrl } from '../app/utils/nativeUrl';
 
 import { soundManager } from '../utils/soundManager';
 import { SoundType, SoundPackId } from '../config/soundConfig';
@@ -590,7 +591,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   const loadCustomerOrders = async () => {
     try {
       const token = localStorage.getItem('hakkiveda_customer_token');
-      const res = await fetch('/api/customer/orders', {
+      const res = await fetch(resolveApiUrl('/api/customer/orders'), {
         credentials: 'include',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
@@ -614,7 +615,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     const customerToken = localStorage.getItem('hakkiveda_customer_token');
 
-    fetch('/api/auth/me', {
+    fetch(resolveApiUrl('/api/auth/me'), {
       credentials: 'include',
       headers: customerToken
         ? { Authorization: `Bearer ${customerToken}` }
@@ -2512,7 +2513,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return { success: false, message: 'Password is required to sign in.' };
     }
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(resolveApiUrl('/api/auth/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -2546,7 +2547,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         return { success: false, message: 'Google sign-in did not return a valid identity token.' };
       }
 
-      const res = await fetch('/api/auth/google', {
+      const res = await fetch(resolveApiUrl('/api/auth/google'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -2587,7 +2588,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     password?: string;
   }): Promise<{ success: boolean; message: string }> => {
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch(resolveApiUrl('/api/auth/register'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -2679,7 +2680,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
     FirebaseAuthentication.signOut().catch(() => {});
 
-    fetch('/api/auth/logout', {
+    fetch(resolveApiUrl('/api/auth/logout'), {
       method: 'POST',
       credentials: 'include',
       headers: token ? { Authorization: `Bearer ${token}` } : {},

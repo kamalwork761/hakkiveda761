@@ -2,14 +2,28 @@ import React, { useEffect, useRef, useState } from 'react';
 import { Package, Search, Truck, Clock, CheckCircle2, ChevronRight, AlertCircle } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { formatSafeINR } from '../utils/formatMoney';
+import { resolveApiUrl, resolveAssetUrl } from '../utils/nativeUrl';
 
 export const AppOrdersScreen: React.FC = () => {
-  const { currentUser, orders, loadCustomerOrders } = useStore();
+  const { currentUser, orders, loadCustomerOrders, addToCart, setIsCartOpen } = useStore();
   const [orderQuery, setOrderQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [trackedOrder, setTrackedOrder] = useState<any | null>(null);
   const detailsRef = useRef<HTMLDivElement | null>(null);
   const [searchError, setSearchError] = useState('');
+  const [historySearch, setHistorySearch] = useState('');
+  const [statusFilter, setStatusFilter] = useState('ALL');
+  const [trackingPhone, setTrackingPhone] = useState('');
+  const filteredOrders = orders.filter((order) => {
+    const status = String(order.trackingStatus || 'ORDER_PLACED').toUpperCase();
+    const group = statusFilter === 'ALL' ||
+      (statusFilter === 'PROCESSING' && ['ORDER_PLACED', 'NEW', 'CONFIRMED', 'PROCESSING', 'PACKED', 'AWB_GENERATED', 'PICKUP_SCHEDULED'].includes(status)) ||
+      (statusFilter === 'SHIPPED' && ['DISPATCHED', 'SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY'].includes(status)) ||
+      (statusFilter === 'DELIVERED' && status === 'DELIVERED') ||
+      (statusFilter === 'CANCELLED' && ['CANCELLED', 'CANCELED'].includes(status));
+    return group && (order.orderNumber || order.id || '').toLowerCase().includes(historySearch.trim().toLowerCase());
+  });
+  const statusLabel = (status?: string) => String(status || 'ORDER_PLACED').replace(/_/g, ' ');
 
   useEffect(() => {
     if (currentUser) {
@@ -27,7 +41,17 @@ export const AppOrdersScreen: React.FC = () => {
 
     try {
       const q = encodeURIComponent(orderQuery.trim());
-      const res = await fetch(`/api/orders/track?query=${q}`);
+      const token = localStorage.getItem('hakkiveda_customer_token');
+      const phone = !currentUser ? trackingPhone.trim() : '';
+      if (!currentUser && !phone) {
+        setSearchError('Enter the mobile number used for this order.');
+        return;
+      }
+      const url = resolveApiUrl(`/api/orders/track?query=${q}${phone ? `&phone=${encodeURIComponent(phone)}` : ''}`);
+      const res = await fetch(url, {
+        credentials: 'include',
+        headers: token ? { Authorization: `Bearer ${token}` } : {},
+      });
       const data = await res.json();
       if (data.success && data.order) {
         setTrackedOrder(data.order);
@@ -73,7 +97,7 @@ export const AppOrdersScreen: React.FC = () => {
           Track Your Order
         </h1>
         <p className="text-xs text-slate-500 font-sans mt-0.5">
-          Real-time updates via Shiprocket, Bluedart, and Delhivery express
+          View your purchases, payment details and recorded delivery updates
         </p>
       </div>
 
@@ -88,52 +112,71 @@ export const AppOrdersScreen: React.FC = () => {
           </div>
 
           {orders.length === 0 ? (
-            <div className="rounded-2xl bg-[#FAF7F2] p-4 text-center">
+            <div className="rounded-2xl bg-[#FAF7F2] p-5 text-center">
+              <Package className="w-8 h-8 mx-auto text-[#0E382C] mb-2" />
               <p className="text-xs font-bold text-slate-800">No orders yet</p>
-              <p className="text-[10px] text-slate-500 mt-1">
-                Orders placed with this account will appear here.
-              </p>
+              <p className="text-[11px] text-slate-500 mt-1">Your purchases will appear here after checkout.</p>
             </div>
           ) : (
-            <div className="space-y-3">
-              {orders.map((order) => (
-                <button
-                  key={order.id}
-                  type="button"
-                  onClick={() => {
-                    setTrackedOrder(order);
-                    setTimeout(() => {
-                      detailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 50);
-                  }}
-                  className="w-full text-left rounded-2xl border border-slate-100 p-3 bg-[#FAF7F2]"
-                >
-                  <div className="flex items-start justify-between gap-3">
-                    <div>
-                      <div className="text-xs font-bold text-slate-900">
-                        {order.orderNumber || order.id}
+            <div>
+              <input type="search" value={historySearch} onChange={(e) => setHistorySearch(e.target.value)}
+                placeholder="Search by Order ID" aria-label="Search your orders"
+                className="w-full mb-3 px-3.5 py-3 rounded-xl border border-slate-200 bg-[#FAF7F2] text-xs focus:ring-1 focus:ring-[#0E382C] focus:outline-none" />
+              <div className="flex gap-2 overflow-x-auto pb-3">
+                {['ALL', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'].map((status) => (
+                  <button type="button" key={status} onClick={() => setStatusFilter(status)}
+                    className={`shrink-0 px-3 py-2 rounded-full text-[11px] font-bold border ${statusFilter === status ? 'bg-[#0E382C] text-[#C5A059] border-[#0E382C]' : 'bg-white text-slate-600 border-slate-200'}`}>
+                    {status === 'ALL' ? 'All Orders' : status.charAt(0) + status.slice(1).toLowerCase()}
+                  </button>
+                ))}
+              </div>
+              {filteredOrders.length === 0 && <p className="text-xs text-slate-500 py-5 text-center">No matching orders.</p>}
+              <div className="space-y-3">
+                {filteredOrders.map((order) => (
+                  <div key={order.id} className="rounded-2xl border border-slate-200 bg-[#FAF7F2] p-3">
+                    <button type="button" onClick={() => {
+                      setTrackedOrder(order);
+                      setTimeout(() => detailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
+                    }} className="w-full text-left">
+                      <div className="flex items-start justify-between gap-2">
+                        <div>
+                          <p className="text-xs font-bold text-slate-900">{order.orderNumber || order.id}</p>
+                          <p className="text-[10px] text-slate-500 mt-1">{order.date}</p>
+                        </div>
+                        <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-100 text-emerald-900">{statusLabel(order.trackingStatus)}</span>
                       </div>
-                      <div className="text-[10px] text-slate-500 mt-0.5">
-                        {order.date}
+                      <div className="space-y-3 mt-3 border-t border-slate-200 pt-3">
+                        {(order.items || []).map((item, index) => (
+                          <div key={index} className="flex items-center gap-3">
+                            <div className="w-16 h-16 rounded-xl bg-white border border-slate-100 overflow-hidden shrink-0 flex items-center justify-center">
+                              {(item.selectedVariant?.image || item.product?.image || item.product?.images?.[0]) ?
+                                <img src={resolveAssetUrl(item.selectedVariant?.image || item.product?.image || item.product?.images?.[0])} alt={item.product?.name || 'Product'} className="w-full h-full object-contain" loading="lazy" /> :
+                                <Package className="w-6 h-6 text-slate-300" />}
+                            </div>
+                            <div className="min-w-0 flex-1">
+                              <p className="text-xs font-semibold text-slate-900 line-clamp-2">{item.product?.name || 'HAKKIVEDA Product'}</p>
+                              {item.selectedVariant?.name && <p className="text-[10px] text-slate-500 mt-1">{item.selectedVariant.name}</p>}
+                              <p className="text-[10px] text-slate-600 mt-1">Qty: {item.quantity} · {formatSafeINR(item.selectedVariant?.priceINR ?? item.product?.priceINR ?? 0, '₹0')} each</p>
+                            </div>
+                          </div>
+                        ))}
                       </div>
-                    </div>
-
-                    <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-50 text-emerald-700">
-                      {order.trackingStatus || 'ORDER_PLACED'}
-                    </span>
+                      <div className="flex items-center justify-between border-t border-slate-200 mt-3 pt-3">
+                        <span className="text-xs font-bold text-[#0E382C]">{formatSafeINR(order.totalAmountINR, '₹0')}</span>
+                        <span className="text-xs font-bold text-[#0E382C] flex items-center gap-1">View details <ChevronRight className="w-4 h-4" /></span>
+                      </div>
+                    </button>
+                    <button type="button" onClick={() => {
+                      (order.items || []).forEach(item => {
+                        if (item.product) addToCart(item.product, item.quantity, item.selectedVariant);
+                      });
+                      setIsCartOpen(true);
+                    }} className="mt-3 w-full rounded-xl border border-[#0E382C] py-2.5 text-xs font-bold text-[#0E382C]">
+                      Buy Again
+                    </button>
                   </div>
-
-                  <div className="flex items-center justify-between mt-3">
-                    <span className="text-xs font-bold text-[#0E382C]">
-                      {formatSafeINR(order.totalAmountINR, '₹0')}
-                    </span>
-                    <span className="text-[10px] font-bold text-slate-600 flex items-center gap-1">
-                      View Details
-                      <ChevronRight className="w-3 h-3" />
-                    </span>
-                  </div>
-                </button>
-              ))}
+                ))}
+              </div>
             </div>
           )}
         </div>
@@ -143,7 +186,7 @@ export const AppOrdersScreen: React.FC = () => {
       <div className="bg-white rounded-3xl p-4 border border-emerald-950/10 shadow-sm mb-4">
         <form onSubmit={handleTrackOrder}>
           <label className="text-xs font-bold text-slate-800 block mb-1.5">
-            Enter Order ID or Mobile Number
+            Enter Order ID
           </label>
           <div className="flex gap-2">
             <div className="relative flex-1">
@@ -151,7 +194,7 @@ export const AppOrdersScreen: React.FC = () => {
                 type="text"
                 value={orderQuery}
                 onChange={(e) => setOrderQuery(e.target.value)}
-                placeholder="e.g. HV-88219 or 9876543210"
+                placeholder="e.g. HV-ORD-123456-789"
                 className="w-full pl-3.5 pr-3 py-2.5 rounded-xl border border-slate-300 text-xs focus:ring-1 focus:ring-[#0E382C] focus:outline-none"
               />
             </div>
@@ -170,6 +213,11 @@ export const AppOrdersScreen: React.FC = () => {
               )}
             </button>
           </div>
+          {!currentUser && (
+            <input type="tel" value={trackingPhone} onChange={(e) => setTrackingPhone(e.target.value)}
+              placeholder="Registered mobile number" aria-label="Registered mobile number"
+              className="w-full mt-2 px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs" />
+          )}
         </form>
 
         {searchError && (
@@ -242,6 +290,33 @@ export const AppOrdersScreen: React.FC = () => {
               </div>
             </div>
           </div>
+
+          {/* Recorded shipping timeline: do not manufacture events */}
+          <div className="border-t border-slate-100 pt-3">
+            <h3 className="text-xs font-bold text-[#0E382C] mb-3">Delivery updates</h3>
+            {Array.isArray(trackedOrder.timeline) && trackedOrder.timeline.length > 0 ? (
+              <div className="space-y-3">
+                {trackedOrder.timeline.map((event: any, index: number) => (
+                  <div key={index} className="flex items-start gap-3">
+                    <div className={`w-2.5 h-2.5 mt-1 rounded-full shrink-0 ${event.completed ? 'bg-[#0E382C]' : 'bg-slate-300'}`} />
+                    <div>
+                      <p className="text-xs font-semibold">{event.label || statusLabel(event.status)}</p>
+                      {event.timestamp && <p className="text-[10px] text-slate-500">{event.timestamp}</p>}
+                    </div>
+                  </div>
+                ))}
+              </div>
+            ) : <p className="text-xs text-slate-500">Latest recorded status: {statusLabel(trackedOrder.trackingStatus)}. Detailed events are not yet available.</p>}
+            {trackedOrder.courierName && <p className="text-xs mt-3">Courier: {trackedOrder.courierName}</p>}
+            {(trackedOrder.awbCode || trackedOrder.trackingNumber) && <p className="text-xs mt-1">Tracking number: {trackedOrder.awbCode || trackedOrder.trackingNumber}</p>}
+            {trackedOrder.estimatedDeliveryDate && <p className="text-xs mt-1">Estimated delivery: {trackedOrder.estimatedDeliveryDate}</p>}
+          </div>
+          {trackedOrder.customer?.address && (
+            <div className="border-t border-slate-100 pt-3">
+              <h3 className="text-xs font-bold text-[#0E382C] mb-1">Delivery address</h3>
+              <p className="text-xs text-slate-600">{trackedOrder.customer.address}, {trackedOrder.customer.city}, {trackedOrder.customer.state} {trackedOrder.customer.pincode}</p>
+            </div>
+          )}
 
           {/* Summary */}
           <div className="pt-3 border-t border-slate-100 text-xs space-y-1.5">

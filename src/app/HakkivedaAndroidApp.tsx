@@ -1,4 +1,6 @@
-import React, { Component, useState, useEffect } from 'react';
+import React, { Component, useState, useEffect, useRef } from 'react';
+import { Capacitor } from '@capacitor/core';
+import { AppLuxurySplash } from './components/AppLuxurySplash';
 import { useStore } from '../context/StoreContext';
 import {
   MobileAppHeroSlide,
@@ -29,13 +31,17 @@ import { AppHairAnalysisScreen } from './screens/AppHairAnalysisScreen';
 import { AppOrdersScreen } from './screens/AppOrdersScreen';
 import { AppAccountScreen } from './screens/AppAccountScreen';
 import { AppGlobalCommunityScreen } from './screens/AppGlobalCommunityScreen';
+import { AppOurStoryScreen } from './screens/AppOurStoryScreen';
 import { AppTrustAuthenticityScreen } from './screens/AppTrustAuthenticityScreen';
 import { AppB2BScreen } from './screens/AppB2BScreen';
 import { AppCareJourneyScreen } from './screens/AppCareJourneyScreen';
+import { AppPolicyScreen, AppPolicyKind } from './screens/AppPolicyScreen';
 import { AppProductDetailModal } from './screens/AppProductDetailModal';
 import { AppCartDrawer } from './screens/AppCartDrawer';
 import { AppSearchModal } from './screens/AppSearchModal';
 import { CheckoutModal } from '../components/CheckoutModal';
+import { Heart, X, Trash2 } from 'lucide-react';
+import { resolveAssetUrl } from './utils/nativeUrl';
 
 interface ErrorBoundaryProps {
   children: React.ReactNode;
@@ -80,15 +86,43 @@ class AppScreenErrorBoundary extends (React.Component as new (props: ErrorBounda
 }
 
 export const HakkivedaAndroidApp: React.FC = () => {
-  const { isCheckoutOpen, setIsCheckoutOpen, playSound, openWishlist } = useStore();
+  const { isCheckoutOpen, setIsCheckoutOpen, playSound, wishlist, removeFromWishlist, clearWishlist } = useStore();
 
+  const [showLuxurySplash, setShowLuxurySplash] = useState(() => Capacitor.isNativePlatform());
   const [activeTab, setActiveTab] = useState<AppNavTab>('home');
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>('ALL');
   const [selectedConcernId, setSelectedConcernId] = useState<string | undefined>();
   const [selectedProductId, setSelectedProductId] = useState<string | null>(null);
   const [isCartOpen, setIsCartOpen] = useState(false);
+  const [isWishlistOpen, setIsWishlistOpen] = useState(false);
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [extraScreen, setExtraScreen] = useState<'global' | 'trust' | 'b2b' | 'care-hair' | 'care-skin' | 'care-wellness' | null>(null);
+  const [extraScreen, setExtraScreen] = useState<'story' | 'global' | 'trust' | 'b2b' | 'care-hair' | 'care-skin' | 'care-wellness' | 'policy-shipping' | 'policy-returns' | 'policy-privacy' | null>(null);
+
+  // Preserve the exact Home card position when opening a full-screen page.
+  const homeScrollPosition = useRef(0);
+  const restoreHomeScroll = useRef(false);
+  const rememberHomePosition = () => {
+    if (activeTab === 'home' && !extraScreen) homeScrollPosition.current = window.scrollY;
+  };
+  const openHomePage = (screen: NonNullable<typeof extraScreen>) => {
+    rememberHomePosition();
+    setExtraScreen(screen);
+    window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+  };
+  const closeHomePage = () => {
+    restoreHomeScroll.current = true;
+    setExtraScreen(null);
+  };
+  useEffect(() => {
+    if (extraScreen || activeTab !== 'home' || !restoreHomeScroll.current) return;
+    restoreHomeScroll.current = false;
+    const position = homeScrollPosition.current;
+    // Wait until the Home component has remounted before restoring scroll.
+    const frame = requestAnimationFrame(() => {
+      requestAnimationFrame(() => window.scrollTo({ top: position, left: 0, behavior: 'instant' as ScrollBehavior }));
+    });
+    return () => cancelAnimationFrame(frame);
+  }, [extraScreen, activeTab]);
 
   // App-specific admin configurable state
   const [heroSlides, setHeroSlides] = useState<MobileAppHeroSlide[]>(INITIAL_MOBILE_APP_HERO_SLIDES);
@@ -167,7 +201,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
     const handleAndroidBack = (e: Event) => {
       if (extraScreen) {
         e.preventDefault();
-        setExtraScreen(null);
+        closeHomePage();
         return;
       }
 
@@ -193,6 +227,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
       }
       if (activeTab !== 'home') {
         e.preventDefault();
+        restoreHomeScroll.current = true;
         setActiveTab('home');
         return;
       }
@@ -214,8 +249,11 @@ export const HakkivedaAndroidApp: React.FC = () => {
       setSelectedCategoryId('ALL');
       setSelectedConcernId(undefined);
       setActiveTab('shop');
+      window.scrollTo(0, 0);
     } else if (destination === 'analysis' || destination === 'quiz') {
+      rememberHomePosition();
       setActiveTab('analysis');
+      window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
     } else if (destination.startsWith('product:')) {
       const pId = destination.replace('product:', '').trim();
       setSelectedProductId(pId);
@@ -224,11 +262,13 @@ export const HakkivedaAndroidApp: React.FC = () => {
       setSelectedCategoryId(cId);
       setSelectedConcernId(undefined);
       setActiveTab('shop');
+      window.scrollTo(0, 0);
     } else if (destination.startsWith('concern:')) {
       const conId = destination.replace('concern:', '').trim();
       setSelectedCategoryId('ALL');
       setSelectedConcernId(conId);
       setActiveTab('shop');
+      window.scrollTo(0, 0);
     }
   };
 
@@ -239,10 +279,12 @@ export const HakkivedaAndroidApp: React.FC = () => {
     setSelectedCategoryId(categoryId || 'ALL');
     setSelectedConcernId(concernId);
     setActiveTab('shop');
+    window.scrollTo({ top: 0, left: 0, behavior: 'instant' as ScrollBehavior });
   };
 
   return (
     <div className="min-h-screen bg-[#FAF7F2] text-slate-900 font-sans flex flex-col justify-between selection:bg-[#C5A059]/30">
+      {showLuxurySplash && <AppLuxurySplash onFinish={() => setShowLuxurySplash(false)} />}
       {/* Top Native Header */}
       <AppHeader
         headerLogoUrl={appSettings.headerLogoUrl}
@@ -256,21 +298,41 @@ export const HakkivedaAndroidApp: React.FC = () => {
 
       {/* Main View Area */}
       <main className="flex-1 overflow-x-hidden">
+        {extraScreen === 'story' && (
+          <AppScreenErrorBoundary screenName="Our Story">
+            <AppOurStoryScreen
+              onBack={closeHomePage}
+              imageUrl={sections.find((section) => section.id === 'brand_story')?.imageUrl}
+              onShop={() => {
+                setExtraScreen(null);
+                setSelectedCategoryId('ALL');
+                setSelectedConcernId(undefined);
+                setActiveTab('shop');
+                window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+              }}
+            />
+          </AppScreenErrorBoundary>
+        )}
+
+        {extraScreen?.startsWith('policy-') && (
+          <AppScreenErrorBoundary screenName="Policies"><AppPolicyScreen policy={extraScreen.replace('policy-', '') as AppPolicyKind} onBack={closeHomePage} /></AppScreenErrorBoundary>
+        )}
+
         {extraScreen === 'global' && (
           <AppScreenErrorBoundary screenName="Global Community">
-            <AppGlobalCommunityScreen onBack={() => setExtraScreen(null)} />
+            <AppGlobalCommunityScreen onBack={closeHomePage} />
           </AppScreenErrorBoundary>
         )}
 
         {extraScreen === 'trust' && (
           <AppScreenErrorBoundary screenName="Trust & Authenticity">
-            <AppTrustAuthenticityScreen onBack={() => setExtraScreen(null)} />
+            <AppTrustAuthenticityScreen onBack={closeHomePage} />
           </AppScreenErrorBoundary>
         )}
 
         {extraScreen === 'b2b' && (
           <AppScreenErrorBoundary screenName="B2B">
-            <AppB2BScreen onBack={() => setExtraScreen(null)} />
+            <AppB2BScreen onBack={closeHomePage} />
           </AppScreenErrorBoundary>
         )}
 
@@ -278,7 +340,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
           <AppScreenErrorBoundary screenName="Care Journey">
             <AppCareJourneyScreen
               journey={extraScreen.replace('care-', '') as 'hair' | 'skin' | 'wellness'}
-              onBack={() => setExtraScreen(null)}
+              onBack={closeHomePage}
               onShop={(categoryId) => {
                 setExtraScreen(null);
                 setSelectedCategoryId(categoryId || 'ALL');
@@ -302,9 +364,13 @@ export const HakkivedaAndroidApp: React.FC = () => {
               appProductOverrides={appProductOverrides}
               onOpenProductDetail={(id) => setSelectedProductId(id)}
               onNavigateToShop={handleNavigateToShop}
-              onNavigateToAnalysis={() => setActiveTab('analysis')}
+              onNavigateToAnalysis={() => { rememberHomePosition(); setActiveTab('analysis'); window.scrollTo({ top: 0, left: 0, behavior: 'auto' }); }}
               onOpenCareJourney={(journey) => {
                 setExtraScreen(`care-${journey}` as 'care-hair' | 'care-skin' | 'care-wellness');
+                window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+              }}
+              onOpenOurStory={() => {
+                setExtraScreen('story');
                 window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
               }}
               onOpenGlobalCommunity={() => {
@@ -314,6 +380,10 @@ export const HakkivedaAndroidApp: React.FC = () => {
               onOpenTrust={() => {
                 setExtraScreen('trust');
                 window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
+              }}
+              onOpenPolicy={(policy) => {
+                setExtraScreen(`policy-${policy}`);
+                window.scrollTo({ top: 0, left: 0, behavior: "auto" });
               }}
               onOpenB2B={() => {
                 setExtraScreen('b2b');
@@ -331,6 +401,8 @@ export const HakkivedaAndroidApp: React.FC = () => {
               initialConcernId={selectedConcernId}
               concerns={concerns}
               appProductOverrides={appProductOverrides}
+              banners={banners}
+              onNavigateAction={handleActionClick}
               onOpenProductDetail={(id) => setSelectedProductId(id)}
             />
           </AppScreenErrorBoundary>
@@ -346,7 +418,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
 
         {!extraScreen && activeTab === 'orders' && (
           <AppScreenErrorBoundary screenName="Orders">
-            <AppOrdersScreen />
+            <AppOrdersScreen onSignIn={() => setActiveTab('account')} />
           </AppScreenErrorBoundary>
         )}
 
@@ -354,7 +426,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
           <AppScreenErrorBoundary screenName="Account">
             <AppAccountScreen
               appSettings={appSettings}
-              onOpenWishlist={() => openWishlist?.()}
+              onOpenWishlist={() => setIsWishlistOpen(true)}
               onNavigateToOrders={() => setActiveTab('orders')}
             />
           </AppScreenErrorBoundary>
@@ -415,6 +487,42 @@ export const HakkivedaAndroidApp: React.FC = () => {
           setActiveTab('shop');
         }}
       />
+
+      {/* Android-native wishlist: product objects are managed and persisted by StoreContext. */}
+      {isWishlistOpen && (
+        <div className="fixed inset-0 z-[110] flex flex-col bg-[#FCF9F2]" role="dialog" aria-modal="true" aria-label="My Wishlist">
+          <div className="flex items-center justify-between bg-[#003D30] px-5 py-4 text-white">
+            <div className="flex items-center gap-2">
+              <Heart className="h-5 w-5 text-[#E8C46D]" />
+              <h2 className="font-serif text-xl font-bold text-white">My Wishlist ({wishlist.length})</h2>
+            </div>
+            <button type="button" aria-label="Close wishlist" onClick={() => setIsWishlistOpen(false)} className="rounded-full p-2 text-white"><X className="h-6 w-6" /></button>
+          </div>
+          <div className="flex-1 overflow-y-auto px-4 py-5">
+            {wishlist.length === 0 ? (
+              <div className="mx-auto mt-16 max-w-xs text-center">
+                <Heart className="mx-auto h-14 w-14 text-[#C5A059]" />
+                <h3 className="mt-4 font-serif text-xl font-bold text-[#003D30]">Your wishlist is empty</h3>
+                <p className="mt-2 text-sm text-slate-600">Tap the heart on products to save them here.</p>
+                <button type="button" className="mt-6 rounded-xl bg-[#003D30] px-6 py-3 font-bold text-white" onClick={() => { setIsWishlistOpen(false); setActiveTab('shop'); }}>Explore Products</button>
+              </div>
+            ) : (
+              <div className="space-y-3">
+                {wishlist.map((product) => (
+                  <div key={product.id} className="flex items-center gap-3 rounded-2xl border border-[#E6DDC8] bg-white p-3 shadow-sm">
+                    <button type="button" onClick={() => { setIsWishlistOpen(false); setSelectedProductId(product.id); }} className="flex min-w-0 flex-1 items-center gap-3 text-left">
+                      <img src={resolveAssetUrl(product.image || product.images?.[0] || '/images/hero_tribal_elders.jpg')} alt={product.name} className="h-20 w-20 shrink-0 rounded-xl bg-[#F6F0E5] object-contain" />
+                      <span className="min-w-0 font-semibold text-[#003D30]">{product.name}</span>
+                    </button>
+                    <button type="button" onClick={() => removeFromWishlist(product.id)} aria-label={`Remove ${product.name} from wishlist`} className="rounded-full p-2 text-rose-600"><Trash2 className="h-5 w-5" /></button>
+                  </div>
+                ))}
+                <button type="button" className="mt-3 w-full py-3 text-sm font-semibold text-rose-700" onClick={() => { if (window.confirm('Clear all saved products?')) clearWishlist(); }}>Clear Wishlist</button>
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Standard Checkout Modal Integration */}
       <CheckoutModal />

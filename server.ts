@@ -716,7 +716,10 @@ async function startServer() {
   async function requireCustomer(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
       const authHeader = req.headers.authorization;
-      let token = req.cookies?.[CUSTOMER_TOKEN_COOKIE];
+      // Native clients carry the current session explicitly; a stale WebView cookie must not override it.
+      let token = authHeader?.startsWith('Bearer ')
+        ? authHeader.substring(7).trim()
+        : req.cookies?.[CUSTOMER_TOKEN_COOKIE];
 
       if (!token && req.headers.cookie) {
         const match = req.headers.cookie.match(new RegExp(`(?:^|;\\s*)${CUSTOMER_TOKEN_COOKIE}=([^;]+)`));
@@ -740,7 +743,10 @@ async function startServer() {
 
       const customers = (await getStoreValue<any[]>('customer_accounts')) || [];
       const customer = customers.find(
-        (c) => (c.id && c.id === payload.id) || (c.email && c.email.toLowerCase() === payload.email.toLowerCase())
+        (c) =>
+          c.id === payload.id &&
+          typeof c.email === 'string' &&
+          c.email.toLowerCase() === payload.email.toLowerCase()
       );
 
       if (!customer) {
@@ -1348,6 +1354,47 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
     }
   });
 
+  // Account mutation lock for this single-process, file-backed test server.
+  // This serializes the whole HTTP read-modify-write lifecycle, including the
+  // existing registration, sign-in, profile and admin customer save handlers.
+  // It must not be used as a substitute for transactional storage across workers.
+  let accountMutationTail: Promise<void> = Promise.resolve();
+  const serializeAccountMutation: express.RequestHandler = async (req, res, next) => {
+    let release!: () => void;
+    const current = new Promise<void>((resolve) => { release = resolve; });
+    const previous = accountMutationTail;
+    accountMutationTail = current;
+    await previous;
+    let released = false;
+    const unlock = () => {
+      if (released) return;
+      released = true;
+      release();
+    };
+    res.once('finish', unlock);
+    res.once('close', unlock);
+    next();
+  };
+
+  // No general request mutex: only routes that read/write customer_accounts.
+  app.use((req, res, next) => {
+    const path = req.path;
+    const mutation = ['POST', 'PUT', 'PATCH', 'DELETE'].includes(req.method);
+    if (!mutation) return next();
+    const authMutation = [
+      '/api/auth/register', '/api/auth/google', '/api/auth/login',
+      '/api/auth/logout', '/api/customer/profile',
+      '/api/customer/change-password', '/api/customer/delete-account',
+    ].includes(path);
+    const adminCustomerMutation = /^\/api\/admin\/customers\/[^/]+\/set-password$/.test(path);
+    const rawStoreMutation =
+      path === '/api/store/customer_accounts' || path === '/api/store-bulk';
+    if (authMutation || adminCustomerMutation || rawStoreMutation) {
+      return serializeAccountMutation(req, res, next);
+    }
+    next();
+  });
+
   // ==========================================
   // CUSTOMER AUTHENTICATION API ROUTES
   // ==========================================
@@ -1560,6 +1607,11 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
           });
         }
 
+        // Never silently rebind an existing Google-linked account to a different UID.
+        if (existing.firebaseUid && existing.firebaseUid !== firebaseUid) {
+          return res.status(409).json({ success: false,
+            error: 'This account is linked to a different Google identity.' });
+        }
         existing.firebaseUid = firebaseUid;
         existing.authProvider = existing.authProvider || 'google';
         if (!existing.name && displayName) existing.name = displayName;
@@ -1712,7 +1764,10 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
   app.post('/api/auth/logout', async (req, res) => {
     try {
       const authHeader = req.headers.authorization;
-      let token = req.cookies?.[CUSTOMER_TOKEN_COOKIE];
+      // Native clients carry the current session explicitly; a stale WebView cookie must not override it.
+      let token = authHeader?.startsWith('Bearer ')
+        ? authHeader.substring(7).trim()
+        : req.cookies?.[CUSTOMER_TOKEN_COOKIE];
 
       if (!token && req.headers.cookie) {
         const match = req.headers.cookie.match(new RegExp(`(?:^|;\\s*)${CUSTOMER_TOKEN_COOKIE}=([^;]+)`));
@@ -1949,8 +2004,73 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
     }
   });
 
+  // STAGING ONLY: password and recently-verified Google account deletion.
+  // Removes the local customer record only, not Firebase identity or other records.
+  // Requires privacy/data-retention review before any production release.
+  app.post('/api/customer/delete-account', requireCustomer, async (req, res) => {
+    if (process.env.ENABLE_PASSWORD_ACCOUNT_DELETION_TEST !== 'true' ||
+        process.env.DB_PATH !== '/home/ubuntu/hakkiveda-android-isolated-data/store.json') {
+      return res.status(503).json({ success: false, error: 'Account deletion is not yet available in this environment.' });
+    }
+    try {
+      const authenticated = (req as any).customer;
+      const password = req.body?.password;
+      const confirmation = req.body?.confirmation;
+      if (confirmation !== 'DELETE') {
+        return res.status(400).json({ success: false, error: 'DELETE confirmation is required.' });
+      }
+      // The request-wide customer account mutex runs before this handler.
+      const accounts = (await getStoreValue<any[]>('customer_accounts')) || [];
+      const idx = accounts.findIndex((c: any) => c.id === authenticated.id &&
+        typeof c.email === 'string' && c.email.toLowerCase() === authenticated.email.toLowerCase());
+      if (idx === -1) return res.status(401).json({ success: false, error: 'Account session is no longer valid.' });
+      const account = accounts[idx];
+      if (account.isAdmin) {
+        return res.status(403).json({ success: false, error: 'Administrator accounts cannot be deleted here.' });
+      }
+      if (account.firebaseUid || account.authProvider === 'google') {
+        // A recent, Firebase-admin-verified sign-in is required. A customer
+        // session token alone is never sufficient to authorize Google deletion.
+        if (!account.firebaseUid || typeof req.body?.idToken !== 'string') {
+          return res.status(400).json({ success: false, error: 'Recent Google verification is required.' });
+        }
+        let decoded: any;
+        try {
+          decoded = await getFirebaseAuthVerifier().verifyIdToken(req.body.idToken, true);
+        } catch {
+          return res.status(401).json({ success: false, error: 'Google identity verification failed.' });
+        }
+        const verifiedEmail = typeof decoded?.email === 'string' ? decoded.email.trim().toLowerCase() : '';
+        const authenticationTime = Number(decoded?.auth_time);
+        const secondsSinceAuth = Math.floor(Date.now() / 1000) - authenticationTime;
+        if (decoded?.uid !== account.firebaseUid ||
+            decoded?.email_verified !== true || verifiedEmail !== account.email.toLowerCase() ||
+            !Number.isFinite(authenticationTime) || secondsSinceAuth < 0 || secondsSinceAuth > 300) {
+          return res.status(401).json({ success: false, error: 'A fresh sign-in to the linked Google account is required.' });
+        }
+      } else if (typeof password !== 'string' || !account.passwordBcrypt ||
+                 !await bcrypt.compare(password, account.passwordBcrypt)) {
+        return res.status(401).json({ success: false, error: 'Identity verification failed.' });
+      }
+      // Account-only deletion in staging. Do not misrepresent this as removal
+      // of order history or independent hair questionnaire submissions.
+      const remaining = accounts.filter((c: any) => c.id !== account.id);
+      await setStoreValue('customer_accounts', remaining);
+      res.clearCookie(CUSTOMER_TOKEN_COOKIE, {
+        httpOnly: true, secure: process.env.NODE_ENV === 'production',
+        sameSite: 'lax', path: '/',
+      });
+      return res.json({ success: true, message: 'Customer account deleted.',
+        retainedDataNotice: 'Order records and separately submitted hair-care questionnaires are not removed by this test endpoint. Firebase identity is retained and future Google sign-in can create a new HAKKIVEDA account.' });
+    } catch (err: any) {
+      console.error('[Test Customer Account Delete Error]:', err?.message || err);
+      return res.status(500).json({ success: false, error: 'Unable to complete account deletion.' });
+    }
+  });
+
   // Customer Private Orders List Endpoint (Authenticated Customer Only)
   app.get('/api/customer/orders', requireCustomer, async (req, res) => {
+    res.setHeader('Cache-Control', 'private, no-store');
     try {
       const customer = (req as any).customer;
       const customerEmail = customer.email.toLowerCase().trim();
@@ -1992,6 +2112,7 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
 
   // Customer Single Order Details Endpoint (Protected with IDOR Verification)
   app.get('/api/customer/orders/:id', requireCustomer, async (req, res) => {
+    res.setHeader('Cache-Control', 'private, no-store');
     try {
       const customer = (req as any).customer;
       const customerEmail = customer.email.toLowerCase().trim();
@@ -5811,7 +5932,7 @@ COMPLIANCE & COMMUNICATION RULES:
     });
   }
 
-  app.listen(Number(PORT), '0.0.0.0', () => {
+  app.listen(Number(PORT), process.env.HOST || '0.0.0.0', () => {
     console.log(`Server running on http://0.0.0.0:${PORT}`);
   });
 }

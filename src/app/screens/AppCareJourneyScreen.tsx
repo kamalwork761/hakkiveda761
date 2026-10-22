@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, ArrowRight, Droplets, Sparkles, HeartPulse } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Droplets, Sparkles, HeartPulse, CheckCircle2 } from 'lucide-react';
 
 type CareJourney = 'hair' | 'skin' | 'wellness';
 
@@ -111,8 +111,8 @@ export const AppCareJourneyScreen: React.FC<AppCareJourneyScreenProps> = ({
             {content.eyebrow}
           </p>
           <h1
-            className="mt-2 text-[26px] leading-[1.08] font-black text-[#FFF9EA]"
-            style={{ fontFamily: 'Georgia, Cambria, "Times New Roman", serif' }}
+            className="mt-2 text-[27px] leading-[1.12] font-black !text-[#FFF9EA]"
+            style={{ fontFamily: 'Georgia, Cambria, "Times New Roman", serif', color: '#FFF9EA', WebkitTextFillColor: '#FFF9EA' }}
           >
             {content.title}
           </h1>
@@ -123,16 +123,17 @@ export const AppCareJourneyScreen: React.FC<AppCareJourneyScreenProps> = ({
 
         <div className="mt-5 space-y-3">
           {content.steps.map((step: any) => (
-            <div key={step.title} className="rounded-2xl bg-white border border-[#E4DDCF] p-4 shadow-sm">
-              <h2
-                className="text-[17px] leading-tight font-black text-[#0B4A3A]"
+            <div key={step.title} className="rounded-2xl bg-white border border-[#E4DDCF] p-4 shadow-sm flex items-start gap-3">
+              <div className={`flex h-11 w-11 shrink-0 items-center justify-center rounded-2xl shadow-sm ${journey === "hair" ? "bg-emerald-100 text-emerald-700" : journey === "skin" ? "bg-rose-100 text-rose-700" : "bg-amber-100 text-amber-700"}`}><CheckCircle2 className="h-6 w-6" /></div>
+              <div className="min-w-0 flex-1"><h2
+                className="text-[18px] leading-tight font-black text-[#0B4A3A]"
                 style={{ fontFamily: 'Georgia, Cambria, "Times New Roman", serif' }}
               >
                 {step.title}
               </h2>
               <p className="mt-2 text-[13px] leading-[1.65] text-slate-600">
                 {step.text}
-              </p>
+              </p></div>
             </div>
           ))}
         </div>

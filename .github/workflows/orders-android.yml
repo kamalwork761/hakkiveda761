@@ -1,0 +1,49 @@
+name: Orders Android verification
+on:
+  push:
+    branches: [orders-fix]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      - uses: android-actions/setup-android@v3
+      - run: npm ci
+      - run: npm run build
+      - run: node tests/customer-orders.integration.mjs
+      - run: node tests/orders-render.mjs
+      - name: Prepare Android assets
+        run: |
+          rm -f dist/server.cjs dist/server.cjs.map
+          npx cap sync android
+      - name: Build test APK
+        working-directory: android
+        run: bash gradlew assembleDebug
+      - name: Check APK contains rebuilt Orders screen
+        run: |
+          python3 - <<'PY'
+          import zipfile
+          apk = 'android/app/build/outputs/apk/debug/app-debug.apk'
+          with zipfile.ZipFile(apk) as archive:
+              scripts = b'\n'.join(archive.read(name) for name in archive.namelist() if name.startswith('assets/public/assets/') and name.endswith('.js'))
+              for marker in [b'Search by product or Order ID', b'Refresh orders', b'Buy Again']:
+                  assert marker in scripts, f'APK missing Orders marker: {marker!r}'
+              assert not any(name.endswith('server.cjs') or name.endswith('server.cjs.map') for name in archive.namelist())
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hakkiveda-orders-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14

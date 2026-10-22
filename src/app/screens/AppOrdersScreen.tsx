@@ -4,8 +4,8 @@ import { useStore } from '../../context/StoreContext';
 import { formatSafeINR } from '../utils/formatMoney';
 import { resolveApiUrl, resolveAssetUrl } from '../utils/nativeUrl';
 
-export const AppOrdersScreen: React.FC = () => {
-  const { currentUser, orders, loadCustomerOrders, addToCart, setIsCartOpen } = useStore();
+export const AppOrdersScreen: React.FC<{ onSignIn: () => void }> = ({ onSignIn }) => {
+  const { currentUser, orders, loadCustomerOrders, customerOrdersLoading, customerOrdersError, addToCart, setIsCartOpen, products } = useStore();
   const [orderQuery, setOrderQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [trackedOrder, setTrackedOrder] = useState<any | null>(null);
@@ -13,27 +13,36 @@ export const AppOrdersScreen: React.FC = () => {
   const [searchError, setSearchError] = useState('');
   const [historySearch, setHistorySearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
-  const [trackingPhone, setTrackingPhone] = useState('');
-  const filteredOrders = orders.filter((order) => {
+  const [cartMessage, setCartMessage] = useState('');
+  const trackingRequest = useRef(0);
+  const customerOrders = orders.filter(order => currentUser && (order.customer?.email?.trim().toLowerCase() === currentUser.email?.trim().toLowerCase() || (order as any).customerId === currentUser.id));
+  const filteredOrders = customerOrders.filter((order) => {
     const status = String(order.trackingStatus || 'ORDER_PLACED').toUpperCase();
     const group = statusFilter === 'ALL' ||
       (statusFilter === 'PROCESSING' && ['ORDER_PLACED', 'NEW', 'CONFIRMED', 'PROCESSING', 'PACKED', 'AWB_GENERATED', 'PICKUP_SCHEDULED'].includes(status)) ||
       (statusFilter === 'SHIPPED' && ['DISPATCHED', 'SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY'].includes(status)) ||
       (statusFilter === 'DELIVERED' && status === 'DELIVERED') ||
       (statusFilter === 'CANCELLED' && ['CANCELLED', 'CANCELED'].includes(status));
-    return group && (order.orderNumber || order.id || '').toLowerCase().includes(historySearch.trim().toLowerCase());
+    const searchable = [order.orderNumber, order.id, ...(order.items || []).map(item => item.product?.name)].join(' ').toLowerCase();
+    return group && searchable.includes(historySearch.trim().toLowerCase());
   });
   const statusLabel = (status?: string) => String(status || 'ORDER_PLACED').replace(/_/g, ' ');
 
   useEffect(() => {
-    if (currentUser) {
-      loadCustomerOrders();
-    }
+    trackingRequest.current += 1;
+    setTrackedOrder(null);
+    setIsSearching(false);
+    setSearchError('');
+    setCartMessage('');
+    if (currentUser) loadCustomerOrders();
+    return () => { trackingRequest.current += 1; };
   }, [currentUser?.id]);
 
   const handleTrackOrder = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!orderQuery.trim()) return;
+    if (!currentUser) { onSignIn(); return; }
+    const request = ++trackingRequest.current;
 
     setIsSearching(true);
     setSearchError('');
@@ -42,31 +51,28 @@ export const AppOrdersScreen: React.FC = () => {
     try {
       const q = encodeURIComponent(orderQuery.trim());
       const token = localStorage.getItem('hakkiveda_customer_token');
-      const phone = !currentUser ? trackingPhone.trim() : '';
-      if (!currentUser && !phone) {
-        setSearchError('Enter the mobile number used for this order.');
-        return;
-      }
-      const url = resolveApiUrl(`/api/orders/track?query=${q}${phone ? `&phone=${encodeURIComponent(phone)}` : ''}`);
+      const url = resolveApiUrl(`/api/customer/orders/${q}`);
       const res = await fetch(url, {
         credentials: 'include',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       const data = await res.json();
-      if (data.success && data.order) {
+      if (request !== trackingRequest.current) return;
+      if (res.ok && data.success && data.order) {
         setTrackedOrder(data.order);
       } else {
         setSearchError(data.error || 'No order found with this Order ID or Phone number.');
       }
     } catch {
+      if (request !== trackingRequest.current) return;
       setSearchError('Unable to connect to order tracking server. Please check your internet connection.');
     } finally {
-      setIsSearching(false);
+      if (request === trackingRequest.current) setIsSearching(false);
     }
   };
 
   const openCancellationWhatsApp = (order: any) => {
-    const dispatchedStatuses = ['DISPATCHED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED'];
+    const dispatchedStatuses = ['DISPATCHED', 'SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED', 'RTO', 'RETURNED'];
     const isAfterDispatch = dispatchedStatuses.includes(
       String(order?.trackingStatus || '').toUpperCase()
     );
@@ -90,17 +96,25 @@ export const AppOrdersScreen: React.FC = () => {
         <div className="flex items-center gap-1.5 mb-1">
           <span className="w-2 h-2 rounded-full bg-[#0E382C]" />
           <span className="text-[10px] font-bold text-[#0E382C] uppercase tracking-wider">
-            Live Dispatch
+            Your purchases
           </span>
         </div>
         <h1 className="font-serif text-xl font-bold text-slate-900 leading-tight">
-          Track Your Order
+          My Orders
         </h1>
         <p className="text-xs text-slate-500 font-sans mt-0.5">
           View your purchases, payment details and recorded delivery updates
         </p>
       </div>
 
+      {!currentUser && (
+        <div className="bg-white rounded-3xl p-5 mb-4 text-center border border-slate-200">
+          <Package className="w-9 h-9 mx-auto mb-3 text-[#0E382C]" />
+          <p className="text-sm font-bold">Sign in to see your orders</p>
+          <p className="text-xs text-slate-500 mt-2">Use the account you used at checkout to view purchases and delivery updates.</p>
+          <button type="button" onClick={onSignIn} className="mt-4 rounded-xl bg-[#0E382C] text-white px-6 py-3 text-xs font-bold">Sign in</button>
+        </div>
+      )}
       {currentUser && (
         <div className="bg-white rounded-3xl p-4 border border-emerald-950/10 shadow-sm mb-4">
           <div className="flex items-center justify-between mb-3">
@@ -111,7 +125,9 @@ export const AppOrdersScreen: React.FC = () => {
             <Package className="w-5 h-5 text-[#0E382C]" />
           </div>
 
-          {orders.length === 0 ? (
+          <button type="button" onClick={() => loadCustomerOrders()} disabled={customerOrdersLoading} className="text-xs font-bold text-[#0E382C] mb-3 disabled:opacity-50">Refresh orders</button>
+          {customerOrdersError && <p role="alert" className="text-xs text-rose-700 mb-3">{customerOrdersError}</p>}
+          {customerOrdersLoading ? <p role="status" className="text-xs py-5 text-center">Loading your orders…</p> : customerOrdersError && customerOrders.length === 0 ? null : customerOrders.length === 0 ? (
             <div className="rounded-2xl bg-[#FAF7F2] p-5 text-center">
               <Package className="w-8 h-8 mx-auto text-[#0E382C] mb-2" />
               <p className="text-xs font-bold text-slate-800">No orders yet</p>
@@ -120,7 +136,7 @@ export const AppOrdersScreen: React.FC = () => {
           ) : (
             <div>
               <input type="search" value={historySearch} onChange={(e) => setHistorySearch(e.target.value)}
-                placeholder="Search by Order ID" aria-label="Search your orders"
+                placeholder="Search by product or Order ID" aria-label="Search your orders"
                 className="w-full mb-3 px-3.5 py-3 rounded-xl border border-slate-200 bg-[#FAF7F2] text-xs focus:ring-1 focus:ring-[#0E382C] focus:outline-none" />
               <div className="flex gap-2 overflow-x-auto pb-3">
                 {['ALL', 'PROCESSING', 'SHIPPED', 'DELIVERED', 'CANCELLED'].map((status) => (
@@ -131,11 +147,27 @@ export const AppOrdersScreen: React.FC = () => {
                 ))}
               </div>
               {filteredOrders.length === 0 && <p className="text-xs text-slate-500 py-5 text-center">No matching orders.</p>}
+              {cartMessage && <p role="status" className="text-xs text-amber-800 py-2">{cartMessage}</p>}
               <div className="space-y-3">
                 {filteredOrders.map((order) => (
                   <div key={order.id} className="rounded-2xl border border-slate-200 bg-[#FAF7F2] p-3">
                     <button type="button" onClick={() => {
+                      setSearchError('');
+                      setIsSearching(false);
+                      setOrderQuery(order.orderNumber || order.id);
                       setTrackedOrder(order);
+                      const request = ++trackingRequest.current;
+                      const token = localStorage.getItem('hakkiveda_customer_token');
+                      fetch(resolveApiUrl(`/api/customer/orders/${encodeURIComponent(order.id)}`), {
+                        credentials: 'include', cache: 'no-store', headers: token ? { Authorization: `Bearer ${token}` } : {},
+                      }).then(async response => {
+                        const data = await response.json();
+                        if (request !== trackingRequest.current) return;
+                        if (!response.ok || !data.success) throw new Error(data.error || 'Unable to refresh order details.');
+                        setTrackedOrder(data.order);
+                      }).catch(() => {
+                        if (request === trackingRequest.current) setSearchError('Showing saved details. Refresh orders to get the latest updates.');
+                      });
                       setTimeout(() => detailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
                     }} className="w-full text-left">
                       <div className="flex items-start justify-between gap-2">
@@ -167,10 +199,17 @@ export const AppOrdersScreen: React.FC = () => {
                       </div>
                     </button>
                     <button type="button" onClick={() => {
+                      let added = 0;
                       (order.items || []).forEach(item => {
-                        if (item.product) addToCart(item.product, item.quantity, item.selectedVariant);
+                        const product = products.find(product => product.id === item.product?.id);
+                        const variant = item.selectedVariant ? product?.variants?.find(variant => variant.id === item.selectedVariant?.id) : undefined;
+                        if (product && product.stock > 0 && (!item.selectedVariant || (variant && variant.active !== false && variant.stock > 0))) {
+                          addToCart(product, Math.min(Math.max(1, item.quantity), variant?.stock ?? product.stock), variant);
+                          added += 1;
+                        }
                       });
-                      setIsCartOpen(true);
+                      setCartMessage(added < (order.items || []).length ? 'Some items are unavailable. Only available items can be added at current prices.' : '');
+                      if (added) setIsCartOpen(true);
                     }} className="mt-3 w-full rounded-xl border border-[#0E382C] py-2.5 text-xs font-bold text-[#0E382C]">
                       Buy Again
                     </button>
@@ -183,7 +222,7 @@ export const AppOrdersScreen: React.FC = () => {
       )}
 
       {/* Track Form Card */}
-      <div className="bg-white rounded-3xl p-4 border border-emerald-950/10 shadow-sm mb-4">
+      {currentUser && <div className="bg-white rounded-3xl p-4 border border-emerald-950/10 shadow-sm mb-4">
         <form onSubmit={handleTrackOrder}>
           <label className="text-xs font-bold text-slate-800 block mb-1.5">
             Enter Order ID
@@ -213,11 +252,6 @@ export const AppOrdersScreen: React.FC = () => {
               )}
             </button>
           </div>
-          {!currentUser && (
-            <input type="tel" value={trackingPhone} onChange={(e) => setTrackingPhone(e.target.value)}
-              placeholder="Registered mobile number" aria-label="Registered mobile number"
-              className="w-full mt-2 px-3.5 py-2.5 rounded-xl border border-slate-300 text-xs" />
-          )}
         </form>
 
         {searchError && (
@@ -226,10 +260,10 @@ export const AppOrdersScreen: React.FC = () => {
             <span>{searchError}</span>
           </div>
         )}
-      </div>
+      </div>}
 
       {/* Tracked Order Details */}
-      {trackedOrder && (
+      {currentUser && trackedOrder && (
         <div
           ref={detailsRef}
           className="bg-white rounded-3xl p-4 border border-emerald-950/10 shadow-sm space-y-4 scroll-mt-4"
@@ -264,7 +298,7 @@ export const AppOrdersScreen: React.FC = () => {
                 </h4>
                 <p className="text-[10px] text-slate-500 mt-0.5">
                   {trackedOrder.paymentMethod === 'COD'
-                    ? 'Your COD order is awaiting processing by HAKKIVEDA.'
+                    ? `Payment: ${trackedOrder.paymentStatus || 'Due on delivery'}`
                     : `Payment: ${trackedOrder.paymentStatus || 'Pending'}`}
                 </p>
               </div>
@@ -327,7 +361,7 @@ export const AppOrdersScreen: React.FC = () => {
             <div className="flex justify-between text-slate-600">
               <span>Payment:</span>
               <span className="font-semibold text-slate-900">
-                {trackedOrder.paymentMethod === 'COD' ? 'Cash on Delivery' : 'Prepaid • Razorpay'}
+                {trackedOrder.paymentMethod === 'COD' ? 'Cash on Delivery' : `Prepaid • ${trackedOrder.paymentMethod || 'Online'}`}
               </span>
             </div>
             <div className="flex justify-between text-slate-600">
@@ -343,7 +377,7 @@ export const AppOrdersScreen: React.FC = () => {
           </div>
 
           <div className="pt-3 border-t border-slate-100">
-            {['DISPATCHED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED'].includes(
+            {['DISPATCHED', 'SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY', 'DELIVERED', 'RTO', 'RETURNED'].includes(
               String(trackedOrder.trackingStatus || '').toUpperCase()
             ) ? (
               <div className="space-y-2">

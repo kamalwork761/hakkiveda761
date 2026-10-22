@@ -62,7 +62,7 @@ jobs:
         run: bash gradlew assembleDebug
       - name: Print debug APK signing certificate
         run: |
-          keytool -printcert -jarfile android/app/build/outputs/apk/debug/app-debug.apk | grep -E 'SHA1:|SHA256:'
+          keytool -list -v -keystore "$HOME/.android/debug.keystore" -alias androiddebugkey -storepass android -keypass android | grep -E 'SHA1:|SHA256:'
       - name: Check APK contains rebuilt Orders screen
         run: |
           python3 - <<'PY'

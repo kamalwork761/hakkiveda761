@@ -19,7 +19,12 @@ jobs:
         with:
           distribution: temurin
           java-version: '21'
-      - uses: android-actions/setup-android@v3
+      # GitHub Ubuntu runners already include Android SDK command-line tools.
+      # Avoid setup-android@v3, which requests the removed legacy 'tools' package.
+      - name: Configure Android SDK
+        run: |
+          echo "ANDROID_HOME=${ANDROID_SDK_ROOT}" >> "$GITHUB_ENV"
+          yes | sdkmanager --licenses > /dev/null || true
       - run: npm ci
       - run: npm run build
       - run: node tests/customer-orders.integration.mjs

@@ -4,7 +4,7 @@ import { useStore } from '../../context/StoreContext';
 import { formatSafeINR } from '../utils/formatMoney';
 import { resolveApiUrl, resolveAssetUrl } from '../utils/nativeUrl';
 
-export const AppOrdersScreen: React.FC<{ onSignIn: () => void; onBuyAgainCheckout: () => void }> = ({ onSignIn, onBuyAgainCheckout }) => {
+export const AppOrdersScreen: React.FC<{ onSignIn: () => void; onBuyAgainCheckout: () => void; onOpenProductDetail: (productId: string) => void }> = ({ onSignIn, onBuyAgainCheckout, onOpenProductDetail }) => {
   const { currentUser, orders, loadCustomerOrders, customerOrdersLoading, customerOrdersError, addToCart, products } = useStore();
   const [orderQuery, setOrderQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
@@ -26,6 +26,11 @@ export const AppOrdersScreen: React.FC<{ onSignIn: () => void; onBuyAgainCheckou
     const searchable = [order.orderNumber, order.id, ...(order.items || []).flatMap(item => [item.product?.name, item.selectedVariant?.name])].filter(Boolean).join(' ').toLowerCase();
     return group && searchable.includes(historySearch.trim().toLowerCase());
   });
+  const isProductAvailable = (item: any) => products.some(product => product.id === (item?.product?.id || item?.productId));
+  const openOrderedProduct = (item: any) => {
+    const id = item?.product?.id || item?.productId;
+    if (id && isProductAvailable(item)) onOpenProductDetail(id);
+  };
   const statusLabel = (status?: string) => String(status || 'ORDER_PLACED').replace(/_/g, ' ');
 
   useEffect(() => {
@@ -185,27 +190,22 @@ export const AppOrdersScreen: React.FC<{ onSignIn: () => void; onBuyAgainCheckou
                         </div>
                         <span className="text-[10px] font-bold px-2 py-1 rounded-full bg-emerald-100 text-emerald-900">{statusLabel(order.trackingStatus)}</span>
                       </div>
-                      <div className="space-y-3 mt-3 border-t border-slate-200 pt-3">
-                        {(order.items || []).map((item, index) => (
-                          <div key={index} className="flex items-center gap-3">
-                            <div className="w-16 h-16 rounded-xl bg-white border border-slate-100 overflow-hidden shrink-0 flex items-center justify-center">
-                              {(item.selectedVariant?.image || item.product?.image || item.product?.images?.[0]) ?
-                                <img src={resolveAssetUrl(item.selectedVariant?.image || item.product?.image || item.product?.images?.[0])} alt={item.product?.name || 'Product'} className="w-full h-full object-contain" loading="lazy" /> :
-                                <Package className="w-6 h-6 text-slate-300" />}
-                            </div>
-                            <div className="min-w-0 flex-1">
-                              <p className="text-xs font-semibold text-slate-900 line-clamp-2">{item.product?.name || 'HAKKIVEDA Product'}</p>
-                              {item.selectedVariant?.name && <p className="text-[10px] text-slate-500 mt-1">{item.selectedVariant.name}</p>}
-                              <p className="text-[10px] text-slate-600 mt-1">Qty: {item.quantity} · {formatSafeINR(item.selectedVariant?.priceINR ?? item.product?.priceINR ?? 0, '₹0')} each</p>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
                       <div className="flex items-center justify-between border-t border-slate-200 mt-3 pt-3">
                         <span className="text-xs font-bold text-[#0E382C]">{formatSafeINR(order.totalAmountINR, '₹0')}</span>
                         <span className="text-xs font-bold text-[#0E382C] flex items-center gap-1">View details <ChevronRight className="w-4 h-4" /></span>
                       </div>
                     </button>
+                    <div className="mt-3 border-t border-slate-200 pt-3 space-y-2">
+                      {(order.items || []).map((item, index) => (
+                        <button type="button" key={index} disabled={!isProductAvailable(item)} onClick={() => openOrderedProduct(item)} className="w-full flex items-center gap-3 rounded-xl bg-white p-2 text-left disabled:opacity-60">
+                          <div className="w-14 h-14 rounded-lg border border-slate-100 bg-white overflow-hidden shrink-0">
+                            {(item.selectedVariant?.image || item.product?.image || item.product?.images?.[0]) ? <img src={resolveAssetUrl(item.selectedVariant?.image || item.product?.image || item.product?.images?.[0])} alt={item.product?.name || 'Ordered product'} className="w-full h-full object-contain" loading="lazy" /> : <Package className="w-6 h-6 m-4 text-slate-300" />}
+                          </div>
+                          <div className="min-w-0 flex-1"><p className="text-xs font-bold text-slate-900 line-clamp-2">{item.product?.name || 'HAKKIVEDA Product'}</p><p className="text-[10px] text-slate-500 mt-1">Qty {item.quantity}{item.selectedVariant?.name ? ` · ${item.selectedVariant.name}` : ''}</p><p className="text-[10px] font-semibold text-[#0E382C] mt-1">{isProductAvailable(item) ? 'View product' : 'Product no longer available'}</p></div>
+                          {isProductAvailable(item) && <ChevronRight className="w-4 h-4 text-[#0E382C]" />}
+                        </button>
+                      ))}
+                    </div>
                     <button type="button" onClick={() => {
                       let added = 0;
                       (order.items || []).forEach(item => {
@@ -288,6 +288,20 @@ export const AppOrdersScreen: React.FC<{ onSignIn: () => void; onBuyAgainCheckou
             <span className="px-2.5 py-1 rounded-full text-xs font-bold bg-emerald-50 text-emerald-800 border border-emerald-200">
               {String(trackedOrder.trackingStatus || 'ORDER_PLACED').replace(/_/g, ' ')}
             </span>
+          </div>
+
+          {/* Purchased products: directly accessible from order details */}
+          <div className="rounded-2xl border border-slate-200 p-3 bg-[#FAF7F2] space-y-3">
+            <div className="flex items-center justify-between"><h3 className="text-sm font-bold text-[#0E382C]">Items in this order</h3><span className="text-[11px] text-slate-500">{(trackedOrder.items || []).reduce((sum: number, item: any) => sum + (Number(item.quantity) || 0), 0)} items</span></div>
+            {(trackedOrder.items || []).length === 0 && <p className="text-xs text-slate-500">Product details are not available for this order.</p>}
+            {(trackedOrder.items || []).map((item: any, index: number) => (
+              <button key={index} type="button" disabled={!isProductAvailable(item)} onClick={() => openOrderedProduct(item)} className="w-full rounded-xl bg-white border border-slate-100 p-3 flex items-center gap-3 text-left disabled:opacity-60">
+                <div className="w-16 h-16 bg-white border border-slate-100 rounded-xl shrink-0 overflow-hidden">
+                  {(item.selectedVariant?.image || item.product?.image || item.product?.images?.[0]) ? <img src={resolveAssetUrl(item.selectedVariant?.image || item.product?.image || item.product?.images?.[0])} alt={item.product?.name || 'Ordered product'} className="w-full h-full object-contain" loading="lazy" /> : <Package className="w-6 h-6 m-5 text-slate-300" />}
+                </div>
+                <div className="flex-1 min-w-0"><p className="text-xs font-bold text-slate-900 line-clamp-2">{item.product?.name || 'HAKKIVEDA Product'}</p>{item.selectedVariant?.name && <p className="text-[10px] text-slate-500 mt-1">{item.selectedVariant.name}</p>}<p className="text-[11px] text-slate-600 mt-1">Quantity: {item.quantity} · {formatSafeINR(item.selectedVariant?.priceINR ?? item.product?.priceINR ?? 0, '₹0')} each</p><p className="text-[11px] font-bold text-[#0E382C] mt-1">{isProductAvailable(item) ? 'View product →' : 'Product no longer available'}</p></div>
+              </button>
+            ))}
           </div>
 
           {/* Real Order Status */}

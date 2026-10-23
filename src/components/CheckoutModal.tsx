@@ -47,6 +47,7 @@ export const CheckoutModal: React.FC = () => {
   const {
     isCheckoutOpen,
     setIsCheckoutOpen,
+    currentUser,
     cart,
     cartSubtotalINR,
     discountAmountINR,
@@ -927,8 +928,10 @@ export const CheckoutModal: React.FC = () => {
 
     const customerPayload = {
       name,
-      email,
+      // Use the signed-in account identity for order history; delivery contact can differ.
+      email: currentUser?.email?.trim().toLowerCase() || email.trim().toLowerCase(),
       phone: fullPhone,
+      ...(currentUser?.id ? { customerId: currentUser.id } : {}),
       address: fullAddress,
       line1,
       line2,

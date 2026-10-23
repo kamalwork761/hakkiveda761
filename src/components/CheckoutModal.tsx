@@ -498,7 +498,7 @@ export const CheckoutModal: React.FC = () => {
     (minOrder <= 0 || cartTotalINR >= minOrder) &&
     (maxOrder <= 0 || cartTotalINR <= maxOrder);
 
-  const isCodAllowed = isIndia && (codRules?.enabled !== false) && isCodWithinLimits;
+  const isCodAllowed = isIndia && cart.length > 0 && (codRules?.enabled !== false) && isCodWithinLimits;
 
   // Final Payment Architecture:
   // - India: Razorpay Secure Checkout (prepaid) + Cash on Delivery (if allowed)
@@ -829,6 +829,7 @@ export const CheckoutModal: React.FC = () => {
       return;
     }
 
+    if (cart.length === 0 || cartTotalINR <= 0) { setAddressFormError('Your cart is empty. Add a product before continuing.'); return; }
     validateCartStock();
     setStep('review');
   };
@@ -888,8 +889,8 @@ export const CheckoutModal: React.FC = () => {
     if (submitLockRef.current || isProcessingPayment) return; // Prevent duplicate order trigger
     validateCartStock();
 
-    if (cart.length === 0) {
-      setAddressFormError('Your cart is empty. Please add items to proceed.');
+    if (cart.length === 0 || cartTotalINR <= 0) {
+      setAddressFormError('Your cart has no payable products. Please add an item before checkout.');
       setStep('address');
       return;
     }
@@ -2300,7 +2301,7 @@ export const CheckoutModal: React.FC = () => {
               </button>
               <button
                 type="button"
-                disabled={hasRestrictedItems || (!isIndia && (!isServiceable || backendQuote.loading || !hasEnoughDestinationInfo))}
+                disabled={cart.length === 0 || cartTotalINR <= 0 || cart.length === 0 || cartTotalINR <= 0 || hasRestrictedItems || (!isIndia && (!isServiceable || backendQuote.loading || !hasEnoughDestinationInfo))}
                 onClick={() => setStep('payment')}
                 className={`flex-1 py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all shadow-xl flex items-center justify-center gap-2 ${
                   hasRestrictedItems || (!isIndia && (!isServiceable || backendQuote.loading || !hasEnoughDestinationInfo))
@@ -2596,7 +2597,7 @@ export const CheckoutModal: React.FC = () => {
               </button>
               <button
                 onClick={handlePlaceOrder}
-                disabled={isProcessingPayment || (!isIndia && (!isServiceable || backendQuote.loading || !hasEnoughDestinationInfo))}
+                disabled={cart.length === 0 || cartTotalINR <= 0 || cart.length === 0 || cartTotalINR <= 0 || isProcessingPayment || (!isIndia && (!isServiceable || backendQuote.loading || !hasEnoughDestinationInfo))}
                 className={`flex-1 py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all shadow-xl flex items-center justify-center gap-2 ${
                   isProcessingPayment || (!isIndia && (!isServiceable || backendQuote.loading || !hasEnoughDestinationInfo))
                     ? 'bg-[var(--button-disabled-bg)] text-[var(--button-disabled-text)] cursor-not-allowed opacity-60'

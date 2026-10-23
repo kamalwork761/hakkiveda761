@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Package, Search, Truck, Clock, CheckCircle2, ChevronRight, AlertCircle } from 'lucide-react';
+import { Package, Search, Truck, Clock, CheckCircle2, ChevronRight, ChevronLeft, AlertCircle } from 'lucide-react';
 import { useStore } from '../../context/StoreContext';
 import { formatSafeINR } from '../utils/formatMoney';
 import { resolveApiUrl, resolveAssetUrl } from '../utils/nativeUrl';
@@ -9,7 +9,7 @@ export const AppOrdersScreen: React.FC<{ onSignIn: () => void; onBuyAgainCheckou
   const [orderQuery, setOrderQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [trackedOrder, setTrackedOrder] = useState<any | null>(null);
-  const detailsRef = useRef<HTMLDivElement | null>(null);
+  const [detailsOpen, setDetailsOpen] = useState(false);
   const [searchError, setSearchError] = useState('');
   const [historySearch, setHistorySearch] = useState('');
   const [statusFilter, setStatusFilter] = useState('ALL');
@@ -31,6 +31,7 @@ export const AppOrdersScreen: React.FC<{ onSignIn: () => void; onBuyAgainCheckou
   useEffect(() => {
     trackingRequest.current += 1;
     setTrackedOrder(null);
+    setDetailsOpen(false);
     setIsSearching(false);
     setSearchError('');
     setCartMessage('');
@@ -60,6 +61,8 @@ export const AppOrdersScreen: React.FC<{ onSignIn: () => void; onBuyAgainCheckou
       if (request !== trackingRequest.current) return;
       if (res.ok && data.success && data.order) {
         setTrackedOrder(data.order);
+        setDetailsOpen(true);
+        window.scrollTo({ top: 0, behavior: 'auto' });
       } else {
         setSearchError(data.error || 'No order found with this Order ID or Phone number.');
       }
@@ -89,8 +92,12 @@ export const AppOrdersScreen: React.FC<{ onSignIn: () => void; onBuyAgainCheckou
     );
   };
 
+  const closeDetails = () => { setDetailsOpen(false); setTrackedOrder(null); setSearchError(''); window.scrollTo({ top: 0, behavior: 'auto' }); };
+
   return (
     <div className="w-full pb-24 px-4 pt-3">
+      {detailsOpen && <div className="mb-4"><button type="button" onClick={closeDetails} className="flex items-center gap-2 text-sm font-bold text-[#0E382C] py-3"><ChevronLeft className="w-5 h-5" /> My Orders</button><h1 className="font-serif text-2xl font-bold text-[#0E382C]">Order Details</h1></div>}
+      {!detailsOpen && <div>
       {/* Title */}
       <div className="mb-4">
         <div className="flex items-center gap-1.5 mb-1">
@@ -156,6 +163,8 @@ export const AppOrdersScreen: React.FC<{ onSignIn: () => void; onBuyAgainCheckou
                       setIsSearching(false);
                       setOrderQuery(order.orderNumber || order.id);
                       setTrackedOrder(order);
+                      setDetailsOpen(true);
+                      window.scrollTo({ top: 0, behavior: 'auto' });
                       const request = ++trackingRequest.current;
                       const token = localStorage.getItem('hakkiveda_customer_token');
                       fetch(resolveApiUrl(`/api/customer/orders/${encodeURIComponent(order.id)}`), {
@@ -168,7 +177,6 @@ export const AppOrdersScreen: React.FC<{ onSignIn: () => void; onBuyAgainCheckou
                       }).catch(() => {
                         if (request === trackingRequest.current) setSearchError('Showing saved details. Refresh orders to get the latest updates.');
                       });
-                      setTimeout(() => detailsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' }), 50);
                     }} className="w-full text-left">
                       <div className="flex items-start justify-between gap-2">
                         <div>
@@ -262,10 +270,10 @@ export const AppOrdersScreen: React.FC<{ onSignIn: () => void; onBuyAgainCheckou
         )}
       </div>}
 
-      {/* Tracked Order Details */}
-      {currentUser && trackedOrder && (
+      </div>}
+      {/* Dedicated Order Details page */}
+      {detailsOpen && currentUser && trackedOrder && (
         <div
-          ref={detailsRef}
           className="bg-white rounded-3xl p-4 border border-emerald-950/10 shadow-sm space-y-4 scroll-mt-4"
         >
           <div className="flex items-center justify-between pb-3 border-b border-slate-100">

@@ -418,7 +418,7 @@ export const HakkivedaAndroidApp: React.FC = () => {
 
         {!extraScreen && activeTab === 'orders' && (
           <AppScreenErrorBoundary screenName="Orders">
-            <AppOrdersScreen onSignIn={() => setActiveTab('account')} onBuyAgainCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} />
+            <AppOrdersScreen onSignIn={() => setActiveTab('account')} onBuyAgainCheckout={() => { setIsCartOpen(false); setIsCheckoutOpen(true); }} onOpenProductDetail={(id) => setSelectedProductId(id)} />
           </AppScreenErrorBoundary>
         )}
 

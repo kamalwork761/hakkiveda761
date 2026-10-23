@@ -34,7 +34,7 @@ export const AppProductDetailModal: React.FC<AppProductDetailModalProps> = ({
   onClose,
   onProceedToCheckout,
 }) => {
-  const { products, addToCart, wishlist, toggleWishlist, playSound } = useStore();
+  const { products, addToCart, clearCart, wishlist, toggleWishlist, playSound } = useStore();
   const [selectedVariantIndex, setSelectedVariantIndex] = useState(0);
   const [added, setAdded] = useState(false);
   const [selectedGalleryImage, setSelectedGalleryImage] = useState<string | null>(null);
@@ -128,6 +128,8 @@ export const AppProductDetailModal: React.FC<AppProductDetailModalProps> = ({
 
   const handleBuyNow = () => {
     if (!hasValidPrice) return;
+    // Buy Now is a fresh single-product purchase; cart checkout remains multi-product.
+    clearCart();
     addToCart(product, 1, currentVariant || undefined);
     try {
       playSound('success');

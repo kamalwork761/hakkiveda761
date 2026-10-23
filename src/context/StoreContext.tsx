@@ -240,6 +240,8 @@ interface StoreContextType {
   adminSetCustomerPassword: (customerId: string, newPassword?: string, generateRandom?: boolean) => Promise<{ success: boolean; message: string; temporaryPassword?: string }>;
   changeCustomerPassword: (currentPassword: string, newPassword: string) => Promise<{ success: boolean; message: string }>;
   loadCustomerOrders: () => Promise<void>;
+  customerOrdersLoading: boolean;
+  customerOrdersError: string;
   logoutUser: () => void;
   deleteMyAccount: (method: 'password' | 'google', password?: string) => Promise<{ success: boolean; message: string }>;
   updateCustomerAccount: (id: string, partial: Partial<User>) => void;
@@ -463,6 +465,10 @@ export function getContrastTextColor(hexColor: string, defaultColor: string = '#
 const StoreContext = createContext<StoreContextType | undefined>(undefined);
 
 export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+  const customerSessionVersion = useRef(0);
+  const ordersRequestVersion = useRef(0);
+  const [customerOrdersLoading, setCustomerOrdersLoading] = useState(false);
+  const [customerOrdersError, setCustomerOrdersError] = useState('');
   console.log('[HAKKIVEDA STARTUP] StoreProvider started');
   const [dbSyncStatus, setDbSyncStatus] = useState<'loading' | 'synced' | 'saving' | 'error'>('loading');
   const [serverSaveError, setServerSaveError] = useState<string | null>(null);
@@ -590,18 +596,30 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
 
   // Load private orders for authenticated customer
   const loadCustomerOrders = async () => {
+    const requestVersion = ++ordersRequestVersion.current;
+    const sessionVersion = customerSessionVersion.current;
+    setCustomerOrdersLoading(true);
+    setCustomerOrdersError('');
     try {
       const token = localStorage.getItem('hakkiveda_customer_token');
-      const res = await fetch('/api/customer/orders', {
+      const res = await fetch(resolveApiUrl('/api/customer/orders'), {
         credentials: 'include',
+        cache: 'no-store',
         headers: token ? { Authorization: `Bearer ${token}` } : {},
       });
       const data = await res.json();
-      if (res.ok && data.success && Array.isArray(data.orders)) {
-        setOrders(data.orders);
+      if (sessionVersion !== customerSessionVersion.current || requestVersion !== ordersRequestVersion.current) return;
+      if (!res.ok || !data.success || !Array.isArray(data.orders)) {
+        setOrders([]);
+        throw new Error(res.status === 401 ? 'Your session expired. Please sign in again from Account.' : data.error || 'Unable to load your orders. Please retry.');
       }
+      setOrders(data.orders);
     } catch (e) {
-      console.warn('[StoreContext] Could not load customer orders:', e);
+      if (sessionVersion === customerSessionVersion.current && requestVersion === ordersRequestVersion.current) {
+        setCustomerOrdersError(e instanceof Error ? e.message : 'Unable to load your orders. Please retry.');
+      }
+    } finally {
+      if (sessionVersion === customerSessionVersion.current && requestVersion === ordersRequestVersion.current) setCustomerOrdersLoading(false);
     }
   };
 
@@ -614,15 +632,17 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       sessionStorage.removeItem('current_user');
     } catch (_) {}
 
+    const restoringSessionVersion = customerSessionVersion.current;
     const customerToken = localStorage.getItem('hakkiveda_customer_token');
 
-    fetch('/api/auth/me', {
+    fetch(resolveApiUrl('/api/auth/me'), {
       credentials: 'include',
       headers: customerToken
         ? { Authorization: `Bearer ${customerToken}` }
         : {},
     })
       .then((res) => {
+        if (restoringSessionVersion !== customerSessionVersion.current) return null;
         if (!res.ok) {
           setCurrentUser(null);
           return null;
@@ -630,6 +650,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         return res.json();
       })
       .then((data) => {
+        if (restoringSessionVersion !== customerSessionVersion.current) return;
         if (data && data.success && data.customer) {
           setCurrentUser(data.customer);
           loadCustomerOrders();
@@ -638,7 +659,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         }
       })
       .catch(() => {
-        setCurrentUser(null);
+        if (restoringSessionVersion === customerSessionVersion.current) setCurrentUser(null);
       });
   }, []);
 
@@ -1932,7 +1953,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     let isMounted = true;
     setDbSyncStatus('loading');
 
-    fetch('/api/store/public')
+    fetch(resolveApiUrl('/api/store/public'))
       .then((res) => {
         if (!res.ok) throw new Error(`Server returned HTTP ${res.status}`);
         return res.json();
@@ -2514,7 +2535,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       return { success: false, message: 'Password is required to sign in.' };
     }
     try {
-      const res = await fetch('/api/auth/login', {
+      const res = await fetch(resolveApiUrl('/api/auth/login'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -2525,6 +2546,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         if (data.token) {
           localStorage.setItem('hakkiveda_customer_token', data.token);
         }
+        customerSessionVersion.current += 1;
+        setOrders([]);
         setCurrentUser(data.customer);
         await loadCustomerOrders();
         soundManager.play('order_success');
@@ -2560,6 +2583,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         if (data.token) {
           localStorage.setItem('hakkiveda_customer_token', data.token);
         }
+        customerSessionVersion.current += 1;
+        setOrders([]);
         setCurrentUser(data.customer);
         await loadCustomerOrders();
         soundManager.play('order_success');
@@ -2590,7 +2615,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     password?: string;
   }): Promise<{ success: boolean; message: string }> => {
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch(resolveApiUrl('/api/auth/register'), {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         credentials: 'include',
@@ -2601,6 +2626,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         if (resData.token) {
           localStorage.setItem('hakkiveda_customer_token', resData.token);
         }
+        customerSessionVersion.current += 1;
+        setOrders([]);
         setCurrentUser(resData.customer);
         await loadCustomerOrders();
         soundManager.play('order_success');
@@ -2650,7 +2677,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     try {
       const token = localStorage.getItem('hakkiveda_customer_token');
 
-      const res = await fetch('/api/customer/change-password', {
+      const res = await fetch(resolveApiUrl('/api/customer/change-password'), {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -2661,6 +2688,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
       });
       const resData = await res.json();
       if (res.ok && resData.success) {
+        if (resData.token) localStorage.setItem('hakkiveda_customer_token', resData.token);
         if (resData.customer) {
           setCurrentUser(resData.customer);
         } else if (currentUser) {
@@ -2678,11 +2706,15 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
   };
 
   const logoutUser = () => {
+    customerSessionVersion.current += 1;
+    ordersRequestVersion.current += 1;
+    setCustomerOrdersLoading(false);
+    setCustomerOrdersError('');
     const token = localStorage.getItem('hakkiveda_customer_token');
 
     FirebaseAuthentication.signOut().catch(() => {});
 
-    fetch('/api/auth/logout', {
+    fetch(resolveApiUrl('/api/auth/logout'), {
       method: 'POST',
       credentials: 'include',
       headers: token ? { Authorization: `Bearer ${token}` } : {},
@@ -3487,6 +3519,8 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
         adminSetCustomerPassword,
         changeCustomerPassword,
         loadCustomerOrders,
+        customerOrdersLoading,
+        customerOrdersError,
         logoutUser,
         deleteMyAccount,
         updateCustomerAccount,

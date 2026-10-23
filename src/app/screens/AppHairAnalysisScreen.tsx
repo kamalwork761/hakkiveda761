@@ -106,14 +106,14 @@ export const AppHairAnalysisScreen: React.FC<AppHairAnalysisScreenProps> = ({
         <div className="flex items-center gap-1.5 mb-1">
           <span className="w-2 h-2 rounded-full bg-[#C5A059]" />
           <span className="text-[10px] font-bold text-[#0E382C] uppercase tracking-wider">
-            Ayurvedic Root Diagnosis
+            Personalized Hair Care
           </span>
         </div>
         <h1 className="font-serif text-xl font-bold text-slate-900 leading-tight">
-          Hair Root Cause Analysis
+          Hair & Scalp Care Quiz
         </h1>
         <p className="text-xs text-slate-500 font-sans mt-0.5">
-          Based on 500-year-old Hakki-Pikki tribal botany and modern follicular science
+          Discover a personalized cosmetic hair-care kit inspired by traditional Hakki-Pikki botanical knowledge.
         </p>
       </div>
 
@@ -141,14 +141,14 @@ export const AppHairAnalysisScreen: React.FC<AppHairAnalysisScreenProps> = ({
                 How does your scalp feel 24 hours after washing?
               </h2>
               <p className="text-[11px] text-slate-500 mb-3">
-                Determines whether your follicular issue is Vata (dryness) or Pitta (excess heat).
+                Helps identify your scalp-care preferences for a personalized hair-care routine.
               </p>
 
               <div className="space-y-2">
                 {[
                   { id: 'dry', title: 'Dry, tight, or itchy', desc: 'Prone to dry white flakes and rough roots' },
-                  { id: 'oily', title: 'Oily, greasy, and heavy', desc: 'Sebum buildup clogs pores by evening' },
-                  { id: 'dandruff', title: 'Sticky yellowish dandruff', desc: 'Persistent fungal dandruff and itching' },
+                  { id: 'oily', title: 'Oily, greasy, and heavy', desc: 'Scalp tends to feel oily by evening' },
+                  { id: 'dandruff', title: 'Flaky scalp', desc: 'Visible flakes and occasional itchiness' },
                   { id: 'normal', title: 'Normal & balanced', desc: 'Moderate texture, minimal scalp discomfort' },
                 ].map((item) => (
                   <button

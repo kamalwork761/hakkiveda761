@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, ArrowRight, Droplets, Sparkles, HeartPulse, CheckCircle2 } from 'lucide-react';
+import { ArrowLeft, ArrowRight, Droplets, Sparkles, Leaf, CheckCircle2 } from 'lucide-react';
 
 type CareJourney = 'hair' | 'skin' | 'wellness';
 
@@ -57,26 +57,26 @@ const CONTENT = {
     categoryId: 'cat-4',
   },
   wellness: {
-    eyebrow: 'TRIBAL WELLNESS JOURNEY',
-    title: 'Traditional Care for Everyday Rituals',
-    intro: 'Explore HAKKIVEDA wellness and herbal-care products as simple additions to your everyday self-care routine.',
-    icon: HeartPulse,
+    eyebrow: 'TRIBAL CARE COLLECTION',
+    title: 'Discover Traditional Tribal Care',
+    intro: 'Explore HAKKIVEDA traditional herbal and personal-care products inspired by Hakki-Pikki tribal knowledge.',
+    icon: Leaf,
     steps: [
       {
-        title: '1. Choose your ritual',
-        text: 'Select a product based on the type of personal care or traditional wellness routine you want to follow.',
+        title: '1. Explore the collection',
+        text: 'Browse traditional herbal products and choose items that match your personal-care preferences.',
       },
       {
         title: '2. Follow the product directions',
         text: 'Use each product only for its intended purpose and follow the usage instructions provided on the label.',
       },
       {
-        title: '3. Keep wellness claims realistic',
-        text: 'These products are for general wellness and personal care unless a product is specifically registered and labelled for another purpose.',
+        title: '3. Check product information',
+        text: 'Review ingredients, product descriptions and usage guidance before purchasing.',
       },
     ],
-    note: 'For symptoms, medical conditions or ongoing health concerns, seek advice from a qualified healthcare professional rather than relying on a cosmetic or general-wellness product.',
-    button: 'Shop Wellness Care',
+    note: 'HAKKIVEDA products are offered according to their individual labels and intended uses. Cosmetic products are not medicines and are not intended to diagnose or treat diseases.',
+    button: 'Shop Tribal Care',
     categoryId: 'cat-5',
   },
 } satisfies Record<CareJourney, any>;

@@ -1989,6 +1989,7 @@ export const CheckoutModal: React.FC = () => {
                         <div className="flex-1 min-w-0">
                           <h4 className="text-xs font-bold text-[var(--text-primary)] truncate">{item.product.name}</h4>
                           <p className="text-[10px] text-[var(--text-secondary)]">Qty: {item.quantity} × {formatPrice(effPrice)}</p>
+                           <button type="button" onClick={() => removeFromCart(item.selectedVariant?.id ? `${item.product.id}-${item.selectedVariant.id}` : item.product.id)} className="mt-1 text-[11px] font-semibold text-rose-600 underline" aria-label={`Remove ${item.product.name} from checkout`}>Remove item</button>
                           {!avail.available && (
                             <span className="text-[9px] font-bold text-rose-500 block">Restricted for {activeCountryInfo.name}</span>
                           )}
@@ -2195,6 +2196,7 @@ export const CheckoutModal: React.FC = () => {
                         <p className="text-[11px] text-[var(--text-secondary)]">
                           {item.product.volume || '100ml'} • Qty: {item.quantity} × {formatPrice(effectivePrice)}
                         </p>
+                        <button type="button" onClick={() => removeFromCart(item.selectedVariant?.id ? `${item.product.id}-${item.selectedVariant.id}` : item.product.id)} className="mt-1 text-[11px] font-semibold text-rose-600 underline" aria-label={`Remove ${item.product.name} from checkout`}>Remove item</button>
                         {isItemRestricted && (
                           <span className="text-[10px] font-bold text-rose-500 block mt-0.5">
                             ⚠️ {availability.reason || `Restricted in ${activeCountryInfo.name}`}

@@ -39,6 +39,7 @@ const OurStoryPage = lazy(() => import('./components/OurStoryPage').then(m => ({
 const JournalListingPage = lazy(() => import('./components/JournalListingPage').then(m => ({ default: m.JournalListingPage })));
 const BlogArticlePage = lazy(() => import('./components/BlogArticlePage').then(m => ({ default: m.BlogArticlePage })));
 const VideoRitualsPage = lazy(() => import('./pages/VideoRitualsPage').then(m => ({ default: m.VideoRitualsPage })));
+const DeleteAccountPage = lazy(() => import('./pages/DeleteAccountPage').then(m => ({ default: m.DeleteAccountPage })));
 const LegalPolicyPage = lazy(() => import('./pages/LegalPolicyPage').then(m => ({ default: m.LegalPolicyPage })));
 
 // Dynamic Modals & Drawers
@@ -373,6 +374,7 @@ export function AppContent() {
   );
 
   // Legal & Customer Care Policy Routes
+  const isDeleteAccountRoute = normalizedPath === '/delete-account';
   const isPrivacyRoute = normalizedPath === '/privacy-policy' || normalizedPath === '/privacy';
   const isTermsRoute = normalizedPath === '/terms-and-conditions' || normalizedPath === '/terms' || normalizedPath === '/terms-of-service';
   const isShippingRoute = normalizedPath === '/shipping-policy' || normalizedPath === '/shipping';
@@ -548,6 +550,8 @@ export function AppContent() {
           <Suspense fallback={<SectionSkeleton />}>
             <B2BEnquiryPage onReturnHome={() => navigate('/')} />
           </Suspense>
+        ) : isDeleteAccountRoute ? (
+          <Suspense fallback={<SectionSkeleton />}><DeleteAccountPage /></Suspense>
         ) : isLegalRoute ? (
           <Suspense fallback={<SectionSkeleton />}>
             <LegalPolicyPage

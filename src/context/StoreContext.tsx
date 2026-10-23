@@ -1953,7 +1953,7 @@ export const StoreProvider: React.FC<{ children: React.ReactNode }> = ({ childre
     let isMounted = true;
     setDbSyncStatus('loading');
 
-    fetch('/api/store/public')
+    fetch(resolveApiUrl('/api/store/public'))
       .then((res) => {
         if (!res.ok) throw new Error(`Server returned HTTP ${res.status}`);
         return res.json();

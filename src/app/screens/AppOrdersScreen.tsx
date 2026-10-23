@@ -4,8 +4,8 @@ import { useStore } from '../../context/StoreContext';
 import { formatSafeINR } from '../utils/formatMoney';
 import { resolveApiUrl, resolveAssetUrl } from '../utils/nativeUrl';
 
-export const AppOrdersScreen: React.FC<{ onSignIn: () => void }> = ({ onSignIn }) => {
-  const { currentUser, orders, loadCustomerOrders, customerOrdersLoading, customerOrdersError, addToCart, setIsCartOpen, products } = useStore();
+export const AppOrdersScreen: React.FC<{ onSignIn: () => void; onBuyAgainCheckout: () => void }> = ({ onSignIn, onBuyAgainCheckout }) => {
+  const { currentUser, orders, loadCustomerOrders, customerOrdersLoading, customerOrdersError, addToCart, products } = useStore();
   const [orderQuery, setOrderQuery] = useState('');
   const [isSearching, setIsSearching] = useState(false);
   const [trackedOrder, setTrackedOrder] = useState<any | null>(null);
@@ -23,7 +23,7 @@ export const AppOrdersScreen: React.FC<{ onSignIn: () => void }> = ({ onSignIn }
       (statusFilter === 'SHIPPED' && ['DISPATCHED', 'SHIPPED', 'IN_TRANSIT', 'OUT_FOR_DELIVERY'].includes(status)) ||
       (statusFilter === 'DELIVERED' && status === 'DELIVERED') ||
       (statusFilter === 'CANCELLED' && ['CANCELLED', 'CANCELED'].includes(status));
-    const searchable = [order.orderNumber, order.id, ...(order.items || []).map(item => item.product?.name)].join(' ').toLowerCase();
+    const searchable = [order.orderNumber, order.id, ...(order.items || []).flatMap(item => [item.product?.name, item.selectedVariant?.name])].filter(Boolean).join(' ').toLowerCase();
     return group && searchable.includes(historySearch.trim().toLowerCase());
   });
   const statusLabel = (status?: string) => String(status || 'ORDER_PLACED').replace(/_/g, ' ');
@@ -209,7 +209,7 @@ export const AppOrdersScreen: React.FC<{ onSignIn: () => void }> = ({ onSignIn }
                         }
                       });
                       setCartMessage(added < (order.items || []).length ? 'Some items are unavailable. Only available items can be added at current prices.' : '');
-                      if (added) setIsCartOpen(true);
+                      if (added) onBuyAgainCheckout();
                     }} className="mt-3 w-full rounded-xl border border-[#0E382C] py-2.5 text-xs font-bold text-[#0E382C]">
                       Buy Again
                     </button>

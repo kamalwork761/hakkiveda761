@@ -8,7 +8,7 @@ export const DeleteAccountPage: React.FC = () => (
     <section className="mt-8 rounded-2xl border border-stone-200 bg-white p-6">
       <h2 className="text-xl font-semibold">How to request deletion</h2>
       <ol className="mt-4 list-decimal space-y-3 pl-5 leading-7">
-        <li>Send an email from your registered HAKKIVEDA account email address to <a className="font-semibold underline" href="mailto:support@hakkiveda.com?subject=HAKKIVEDA%20Account%20Deletion%20Request">support@hakkiveda.com</a> with the subject “HAKKIVEDA Account Deletion Request”.</li>
+        <li>Send an email from your registered HAKKIVEDA account email address to <a className="font-semibold underline" href="mailto:hakkiveda01@gmail.com?subject=HAKKIVEDA%20Account%20Deletion%20Request">hakkiveda01@gmail.com</a> with the subject “HAKKIVEDA Account Deletion Request”.</li>
         <li>State that you want your HAKKIVEDA customer account and associated personal information deleted. Do not send your password or payment card details.</li>
         <li>We will verify account ownership before processing the request and communicate the outcome by email.</li>
       </ol>
@@ -21,7 +21,7 @@ export const DeleteAccountPage: React.FC = () => (
       <p>Order invoices, payment and transaction records may need to be retained for tax, accounting, fraud prevention, dispute resolution or other legal obligations. Separately submitted hair-care questionnaires may require an additional deletion request because they may not be linked to your customer account. Any retained information will be limited to the applicable purpose and retention requirements.</p>
       <p>Retention periods depend on the applicable legal obligation and record type. Contact us for information about records associated with your request.</p>
       <h2 className="pt-3 text-xl font-semibold">Need assistance?</h2>
-      <p>Email <a className="underline" href="mailto:support@hakkiveda.com">support@hakkiveda.com</a>. HAKKIVEDA Herbal Enterprises, Chikka Hunsur, Mysore 571105, Karnataka, India.</p>
+      <p>Email <a className="underline" href="mailto:hakkiveda01@gmail.com">hakkiveda01@gmail.com</a>. HAKKIVEDA Herbal Enterprises, Chikka Hunsur, Mysore 571105, Karnataka, India.</p>
     </section>
   </div>
 );

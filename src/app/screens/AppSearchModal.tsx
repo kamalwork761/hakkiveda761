@@ -21,8 +21,6 @@ export const AppSearchModal: React.FC<AppSearchModalProps> = ({
   const { products, categories } = useStore();
   const [query, setQuery] = useState('');
 
-  if (!isOpen) return null;
-
   const quickTerms = ['108 Forest Herbs Oil', 'Baldness Lepa', 'Hair Fall Oil', 'Shikakai Shampoo', 'Hair Growth'];
 
   const results = useMemo(() => {
@@ -33,6 +31,8 @@ export const AppSearchModal: React.FC<AppSearchModalProps> = ({
       return text.includes(q);
     });
   }, [products, query]);
+
+  if (!isOpen) return null;
 
   return (
     <div className="fixed inset-0 z-50 flex flex-col bg-white animate-fadeIn">

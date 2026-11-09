@@ -24,8 +24,8 @@ const JOURNEYS = [
   },
   {
     key: 'wellness',
-    title: 'Wellness Care',
-    subtitle: 'Traditional herbal care for everyday rituals',
+    title: 'Tribal Care',
+    subtitle: 'Traditional tribal care for everyday wellness',
     destination: 'care:wellness',
   },
 ] as const;
@@ -40,12 +40,12 @@ export const AppShopByConcern: React.FC<AppShopByConcernProps> = ({
       : INITIAL_MOBILE_APP_CONCERNS
   ).sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0));
 
-  const findJourneyImage = (key: string, fallbackIndex: number) => {
+  const findJourneyConfig = (key: string, fallbackIndex: number) => {
     const exact = published.find((c) =>
       (c.destination || '').toLowerCase() === `care:${key}` ||
       (c.id || '').toLowerCase() === `care-${key}`
     );
-    return exact?.imageUrl || published[fallbackIndex]?.imageUrl || '';
+    return exact || published[fallbackIndex];
   };
 
   return (
@@ -64,7 +64,10 @@ export const AppShopByConcern: React.FC<AppShopByConcernProps> = ({
 
       <div className="flex gap-4 px-4 overflow-x-auto no-scrollbar scroll-smooth pb-2">
         {JOURNEYS.map((journey, index) => {
-          const imageUrl = findJourneyImage(journey.key, index);
+          const configured = findJourneyConfig(journey.key, index);
+          const imageUrl = configured?.imageUrl || '';
+          const title = configured?.title || journey.title;
+          const subtitle = configured?.subtitle || journey.subtitle;
 
           return (
             <button
@@ -72,13 +75,13 @@ export const AppShopByConcern: React.FC<AppShopByConcernProps> = ({
               type="button"
               onClick={() => onSelectConcern(journey.destination)}
               className="flex-shrink-0 w-[150px] text-left active:scale-[0.97] transition-transform"
-              aria-label={`Open ${journey.title}`}
+              aria-label={`Open ${title}`}
             >
               <div className="w-[150px] h-[160px] overflow-hidden relative flex items-center justify-center">
                 {imageUrl ? (
                   <img
                     src={resolveAssetUrl(imageUrl)}
-                    alt={journey.title}
+                    alt={title}
                     className="w-full h-full object-contain select-none"
                     loading="lazy"
                     draggable={false}
@@ -98,10 +101,10 @@ export const AppShopByConcern: React.FC<AppShopByConcernProps> = ({
                   className="text-[15px] leading-tight font-black text-[#0B4A3A]"
                   style={{ fontFamily: 'Georgia, Cambria, "Times New Roman", serif' }}
                 >
-                  {journey.title}
+                  {title}
                 </h3>
                 <p className="mt-1 text-[10px] leading-snug font-medium text-slate-600">
-                  {journey.subtitle}
+                  {subtitle}
                 </p>
               </div>
             </button>

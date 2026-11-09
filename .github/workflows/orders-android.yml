@@ -1,0 +1,81 @@
+name: Orders Android verification
+on:
+  push:
+    branches: [orders-fix]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-and-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '24'
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '21'
+      # GitHub Ubuntu runners already include Android SDK command-line tools.
+      # Avoid setup-android@v3, which requests the removed legacy 'tools' package.
+      - name: Configure Android SDK
+        run: |
+          echo "ANDROID_HOME=${ANDROID_SDK_ROOT}" >> "$GITHUB_ENV"
+          yes | sdkmanager --licenses > /dev/null || true
+      - name: Restore Google Services configuration
+        env:
+          GOOGLE_SERVICES_JSON_BASE64: ${{ secrets.GOOGLE_SERVICES_JSON_BASE64 }}
+        run: |
+          if [ -z "$GOOGLE_SERVICES_JSON_BASE64" ]; then
+            echo "::error::Google sign-in cannot work in this APK without android/app/google-services.json. Configure repository secret GOOGLE_SERVICES_JSON_BASE64 from the existing AWS/Firebase configuration."
+            exit 1
+          fi
+          printf '%s' "$GOOGLE_SERVICES_JSON_BASE64" | base64 --decode > android/app/google-services.json
+          python3 - <<'PY'
+          import json
+          with open('android/app/google-services.json') as f:
+              config = json.load(f)
+          packages = [client.get('client_info', {}).get('android_client_info', {}).get('package_name') for client in config.get('client', [])]
+          assert 'com.hakkiveda.app' in packages, 'Firebase configuration does not contain com.hakkiveda.app'
+          print('Google Services config verified for HAKKIVEDA Android')
+          PY
+      - run: npm ci
+      - run: npm run build
+      - run: node tests/customer-orders.integration.mjs
+      - run: node tests/orders-render.mjs
+      - name: Prepare Android assets
+        run: |
+          rm -f dist/server.cjs dist/server.cjs.map
+          npx cap sync android
+          python3 - <<'PY'
+          import json
+          with open('android/app/src/main/assets/capacitor.plugins.json') as f:
+              plugins = json.load(f)
+          assert any('firebase' in plugin.get('pkg', '').lower() and 'authentication' in plugin.get('pkg', '').lower() for plugin in plugins), 'Firebase Authentication native plugin is missing from APK registration'
+          print('Native Firebase Authentication plugin registration verified')
+          PY
+      - name: Build test APK
+        working-directory: android
+        run: bash gradlew assembleDebug
+      - name: Print debug APK signing certificate
+        run: |
+          "$ANDROID_HOME/build-tools/$(ls "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner" verify --print-certs android/app/build/outputs/apk/debug/app-debug.apk | grep -E 'SHA-1 digest|SHA-256 digest'
+      - name: Check APK contains rebuilt Orders screen
+        run: |
+          python3 - <<'PY'
+          import zipfile
+          apk = 'android/app/build/outputs/apk/debug/app-debug.apk'
+          with zipfile.ZipFile(apk) as archive:
+              scripts = b'\n'.join(archive.read(name) for name in archive.namelist() if name.startswith('assets/public/assets/') and name.endswith('.js'))
+              for marker in [b'Search by product or Order ID', b'Refresh orders', b'Buy Again']:
+                  assert marker in scripts, f'APK missing Orders marker: {marker!r}'
+              assert not any(name.endswith('server.cjs') or name.endswith('server.cjs.map') for name in archive.namelist())
+          PY
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hakkiveda-orders-debug
+          path: android/app/build/outputs/apk/debug/app-debug.apk
+          retention-days: 14

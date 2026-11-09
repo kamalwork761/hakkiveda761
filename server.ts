@@ -716,7 +716,10 @@ async function startServer() {
   async function requireCustomer(req: express.Request, res: express.Response, next: express.NextFunction) {
     try {
       const authHeader = req.headers.authorization;
-      let token = req.cookies?.[CUSTOMER_TOKEN_COOKIE];
+      // Native clients carry the current session explicitly; a stale WebView cookie must not override it.
+      let token = authHeader?.startsWith('Bearer ')
+        ? authHeader.substring(7).trim()
+        : req.cookies?.[CUSTOMER_TOKEN_COOKIE];
 
       if (!token && req.headers.cookie) {
         const match = req.headers.cookie.match(new RegExp(`(?:^|;\\s*)${CUSTOMER_TOKEN_COOKIE}=([^;]+)`));
@@ -1761,7 +1764,10 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
   app.post('/api/auth/logout', async (req, res) => {
     try {
       const authHeader = req.headers.authorization;
-      let token = req.cookies?.[CUSTOMER_TOKEN_COOKIE];
+      // Native clients carry the current session explicitly; a stale WebView cookie must not override it.
+      let token = authHeader?.startsWith('Bearer ')
+        ? authHeader.substring(7).trim()
+        : req.cookies?.[CUSTOMER_TOKEN_COOKIE];
 
       if (!token && req.headers.cookie) {
         const match = req.headers.cookie.match(new RegExp(`(?:^|;\\s*)${CUSTOMER_TOKEN_COOKIE}=([^;]+)`));
@@ -2064,6 +2070,7 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
 
   // Customer Private Orders List Endpoint (Authenticated Customer Only)
   app.get('/api/customer/orders', requireCustomer, async (req, res) => {
+    res.setHeader('Cache-Control', 'private, no-store');
     try {
       const customer = (req as any).customer;
       const customerEmail = customer.email.toLowerCase().trim();
@@ -2105,6 +2112,7 @@ Sitemap: https://hakkiveda.com/sitemap.xml`);
 
   // Customer Single Order Details Endpoint (Protected with IDOR Verification)
   app.get('/api/customer/orders/:id', requireCustomer, async (req, res) => {
+    res.setHeader('Cache-Control', 'private, no-store');
     try {
       const customer = (req as any).customer;
       const customerEmail = customer.email.toLowerCase().trim();

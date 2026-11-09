@@ -47,6 +47,7 @@ export const CheckoutModal: React.FC = () => {
   const {
     isCheckoutOpen,
     setIsCheckoutOpen,
+    currentUser,
     cart,
     cartSubtotalINR,
     discountAmountINR,
@@ -498,7 +499,7 @@ export const CheckoutModal: React.FC = () => {
     (minOrder <= 0 || cartTotalINR >= minOrder) &&
     (maxOrder <= 0 || cartTotalINR <= maxOrder);
 
-  const isCodAllowed = isIndia && (codRules?.enabled !== false) && isCodWithinLimits;
+  const isCodAllowed = isIndia && cart.length > 0 && (codRules?.enabled !== false) && isCodWithinLimits;
 
   // Final Payment Architecture:
   // - India: Razorpay Secure Checkout (prepaid) + Cash on Delivery (if allowed)
@@ -829,6 +830,7 @@ export const CheckoutModal: React.FC = () => {
       return;
     }
 
+    if (cart.length === 0 || cartTotalINR <= 0) { setAddressFormError('Your cart is empty. Add a product before continuing.'); return; }
     validateCartStock();
     setStep('review');
   };
@@ -888,8 +890,8 @@ export const CheckoutModal: React.FC = () => {
     if (submitLockRef.current || isProcessingPayment) return; // Prevent duplicate order trigger
     validateCartStock();
 
-    if (cart.length === 0) {
-      setAddressFormError('Your cart is empty. Please add items to proceed.');
+    if (cart.length === 0 || cartTotalINR <= 0) {
+      setAddressFormError('Your cart has no payable products. Please add an item before checkout.');
       setStep('address');
       return;
     }
@@ -926,8 +928,10 @@ export const CheckoutModal: React.FC = () => {
 
     const customerPayload = {
       name,
-      email,
+      // Use the signed-in account identity for order history; delivery contact can differ.
+      email: currentUser?.email?.trim().toLowerCase() || email.trim().toLowerCase(),
       phone: fullPhone,
+      ...(currentUser?.id ? { customerId: currentUser.id } : {}),
       address: fullAddress,
       line1,
       line2,
@@ -1989,6 +1993,7 @@ export const CheckoutModal: React.FC = () => {
                         <div className="flex-1 min-w-0">
                           <h4 className="text-xs font-bold text-[var(--text-primary)] truncate">{item.product.name}</h4>
                           <p className="text-[10px] text-[var(--text-secondary)]">Qty: {item.quantity} × {formatPrice(effPrice)}</p>
+                           <button type="button" onClick={() => removeFromCart(item.selectedVariant?.id ? `${item.product.id}-${item.selectedVariant.id}` : item.product.id)} className="mt-1 text-[11px] font-semibold text-rose-600 underline" aria-label={`Remove ${item.product.name} from checkout`}>Remove item</button>
                           {!avail.available && (
                             <span className="text-[9px] font-bold text-rose-500 block">Restricted for {activeCountryInfo.name}</span>
                           )}
@@ -2195,6 +2200,7 @@ export const CheckoutModal: React.FC = () => {
                         <p className="text-[11px] text-[var(--text-secondary)]">
                           {item.product.volume || '100ml'} • Qty: {item.quantity} × {formatPrice(effectivePrice)}
                         </p>
+                        <button type="button" onClick={() => removeFromCart(item.selectedVariant?.id ? `${item.product.id}-${item.selectedVariant.id}` : item.product.id)} className="mt-1 text-[11px] font-semibold text-rose-600 underline" aria-label={`Remove ${item.product.name} from checkout`}>Remove item</button>
                         {isItemRestricted && (
                           <span className="text-[10px] font-bold text-rose-500 block mt-0.5">
                             ⚠️ {availability.reason || `Restricted in ${activeCountryInfo.name}`}
@@ -2298,7 +2304,7 @@ export const CheckoutModal: React.FC = () => {
               </button>
               <button
                 type="button"
-                disabled={hasRestrictedItems || (!isIndia && (!isServiceable || backendQuote.loading || !hasEnoughDestinationInfo))}
+                disabled={cart.length === 0 || cartTotalINR <= 0 || cart.length === 0 || cartTotalINR <= 0 || hasRestrictedItems || (!isIndia && (!isServiceable || backendQuote.loading || !hasEnoughDestinationInfo))}
                 onClick={() => setStep('payment')}
                 className={`flex-1 py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all shadow-xl flex items-center justify-center gap-2 ${
                   hasRestrictedItems || (!isIndia && (!isServiceable || backendQuote.loading || !hasEnoughDestinationInfo))
@@ -2594,7 +2600,7 @@ export const CheckoutModal: React.FC = () => {
               </button>
               <button
                 onClick={handlePlaceOrder}
-                disabled={isProcessingPayment || (!isIndia && (!isServiceable || backendQuote.loading || !hasEnoughDestinationInfo))}
+                disabled={cart.length === 0 || cartTotalINR <= 0 || cart.length === 0 || cartTotalINR <= 0 || isProcessingPayment || (!isIndia && (!isServiceable || backendQuote.loading || !hasEnoughDestinationInfo))}
                 className={`flex-1 py-3.5 rounded-lg font-bold text-xs uppercase tracking-wider transition-all shadow-xl flex items-center justify-center gap-2 ${
                   isProcessingPayment || (!isIndia && (!isServiceable || backendQuote.loading || !hasEnoughDestinationInfo))
                     ? 'bg-[var(--button-disabled-bg)] text-[var(--button-disabled-text)] cursor-not-allowed opacity-60'

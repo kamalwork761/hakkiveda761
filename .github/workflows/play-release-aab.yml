@@ -1,4 +1,4 @@
-name: HAKKIVEDA Play Store release AAB
+name: HAKKIVEDA Play Store release AAB and test APK
 
 on:
   workflow_dispatch:
@@ -65,8 +65,13 @@ jobs:
           KEY_ALIAS: ${{ secrets.ANDROID_UPLOAD_KEY_ALIAS }}
           KEY_PASSWORD: ${{ secrets.ANDROID_UPLOAD_KEY_PASSWORD }}
         run: |
-          bash gradlew --no-daemon bundleRelease
+          bash gradlew --no-daemon bundleRelease assembleRelease
           test -s app/build/outputs/bundle/release/app-release.aab
+          test -s app/build/outputs/apk/release/app-release.apk
+      - name: Verify release APK signature
+        run: |
+          APKSIGNER="$ANDROID_HOME/build-tools/$(ls -1 "$ANDROID_HOME/build-tools" | sort -V | tail -1)/apksigner"
+          "$APKSIGNER" verify --verbose --print-certs android/app/build/outputs/apk/release/app-release.apk
       - name: Verify release bundle signature and contents
         env:
           KEYSTORE_PATH: ${{ runner.temp }}/hakkiveda-upload.jks
@@ -88,4 +93,10 @@ jobs:
         with:
           name: hakkiveda-play-release-aab
           path: android/app/build/outputs/bundle/release/app-release.aab
+          retention-days: 14
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: hakkiveda-signed-release-apk-for-phone
+          path: android/app/build/outputs/apk/release/app-release.apk
           retention-days: 14
